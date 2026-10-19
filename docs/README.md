@@ -5,7 +5,7 @@ service: _platform
 status: active
 updated: 2026-10-19
 links:
-  relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, reference/README.md]
+  relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, ops/README.md, reference/README.md]
 ---
 
 # Docs
@@ -18,5 +18,8 @@ strict profile live in the `ontoship-zcode` repository, not here.
   [ontoship-core.md](decisions/ontoship-core.md), the canon.
 - [plans/](plans/README.md) — durable plan contracts. The first is
   [core-kb.md](plans/core-kb.md), the installable KB core.
+- [ops/](ops/README.md) — operational runbooks. Start with
+  [continue.md](ops/continue.md), the canonical way to continue development.
 - [reference/](reference/README.md) — cross-cutting references.
-  [sources.md](reference/sources.md) — the three sources and what was adopted from each.
+  [sources.md](reference/sources.md) — the three sources and what was adopted from each;
+  [testing.md](reference/testing.md) — spec, invariant and target tests.

@@ -32,9 +32,9 @@ DSH without a restart.
    `stat --json` returns valid JSON.
 3. In the same temp repo, a broken body link and a load-bearing doc without
    `node_type` produce `ERR I4` / `ERR I1`, and `lint --strict` exits 1.
-4. The engine file has no `inventory` or `serve` command and no I7; `cmd_lint` is an
-   orchestration of extracted helpers (≤ 80 lines); the file stays one file
-   (≤ ~1300 lines); the trimmed engine's tests pass.
+4. The engine file is the trimmed version of the vendored baseline: no `inventory` or
+   `serve` command and no I7; `cmd_lint` is an orchestration of extracted helpers
+   (≤ 80 lines); the file stays one file (≤ ~1300 lines); the trimmed engine's tests pass.
 5. A fresh DSH session in the temp repo lists `kb-search`, `kb-curate`, `init` in the
    skill catalog (the catalog is discovered from `.dsh/skills`).
 6. This repository's own `docs/` passes `lint --strict` after `init` + `index`
@@ -42,6 +42,8 @@ DSH without a restart.
 
 ## Scope
 
+- `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; the
+  source of ticket 01.
 - `skills/kb-search/SKILL.md`, `skills/kb-search/gitmark.py` — the vendored engine,
   trimmed and adapted to `.dsh` paths.
 - `skills/kb-curate/SKILL.md`, `skills/kb-curate/ontology.md` — the ontology rules and
@@ -68,6 +70,10 @@ Sources and the canon: [ontoship-core.md](../decisions/ontoship-core.md),
 project-local `.dsh/skills`; first slice is install + KB core; the engine is vendored
 from `ontoship-zcode`.
 
+The engine baseline is already in the repo: `vendor/ontoship-zcode/gitmark.py` (from
+`ontoship-zcode` HEAD `5528ae1`; the engine is unchanged since `86941ab`, MIT). The new
+repo does not depend on the source repo; ticket 01 copies and trims the baseline.
+
 **Engine review (2026-10-19).** The 1570-line `gitmark.py` is not spaghetti: 53
 functions, median 12 lines, no global mutable state, clear section banners, independent
 commands. The complexity is concentrated in `cmd_lint` (134 lines, 47 branch nodes) and
@@ -84,8 +90,8 @@ DSH skill roots (fact): `<project>/.dsh/skills` (rank 100), `<project>/.agents/s
 (200), `~/.dsh/skills` (400); a skill is `<name>/SKILL.md` or flat `<name>.md`; nested
 `**/SKILL.md` is not discovered. This defines the install layout.
 
-Tickets are not part of this contract: they are ephemeral, published manually to
-`.scratch/core-kb/issues/` (the `to-tickets` skill is not built yet). The plan gate passed
+Tickets are not part of this contract: they are ephemeral, tracked in `tickets/core-kb/`
+(a local tracker, not KB; the `to-tickets` skill is not built yet). The plan gate passed
 on 2026-10-19. Ticket order: **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init
 → 05 install → 06 dogfood**. Install comes after the skills exist; it links them, it does
 not run init.

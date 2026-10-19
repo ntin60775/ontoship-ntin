@@ -6,5 +6,5 @@
 # python
 __pycache__/
 .pytest_cache/
-# local host artefacts
-.zcode/.backup/
+# project-local install (symlinks/copies are local, not source)
+.dsh/

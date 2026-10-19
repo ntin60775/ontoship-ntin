@@ -10,9 +10,21 @@ tracer-bullet tickets, and a gated ship flow — all on the host's native primit
 
 ## Start here
 
+- **Continue** → [docs/ops/continue.md](docs/ops/continue.md) — state, ticket order,
+  environment facts, start prompt.
 - **The canon** → [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md)
 - **Sources** → [docs/reference/sources.md](docs/reference/sources.md)
 - **The KB** → [docs/README.md](docs/README.md)
+
+## Layout
+
+```
+docs/          the KB: canon, testing, sources, plans, ops
+tickets/       local execution tracker (not KB; delete a ticket when it is closed)
+vendor/        ontoship-zcode engine baseline (MIT); ticket 01 trims it
+skills/        the core skills (to be built)
+tests/         the engine tests (to be built)
+```
 
 ## Principle
 
@@ -31,7 +43,8 @@ writing a new doc.
 
 ## Maintain
 
-When the GitMark engine is vendored:
+The engine baseline is `vendor/ontoship-zcode/gitmark.py`; ticket 01 produces
+`skills/kb-search/gitmark.py`. Once it exists:
 
 ```bash
 python3 skills/kb-search/gitmark.py index    # rebuild the index after editing docs

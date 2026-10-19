@@ -23,10 +23,16 @@ three sources and keeps only what they actually say:
 The canon is one page: [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md).
 Sources and what was adopted from each: [docs/reference/sources.md](docs/reference/sources.md).
 
+**Start here:** [docs/ops/continue.md](docs/ops/continue.md) — the state, the ticket
+order and the start prompt. The first unit is [core-kb](docs/plans/core-kb.md); its
+tickets are tracked in [tickets/core-kb/](tickets/core-kb/01-engine.md).
+
 ## Status
 
-**Pre-alpha.** The core is being built: canon, four skills (`grilling`, `to-tickets`,
-`ship`, `testing`), and the GitMark engine. The previous line
+**Pre-alpha, self-contained.** The repo carries the canon, the plan, the tracked tickets
+and the vendored engine baseline (`vendor/ontoship-zcode/`). The core is being built:
+four skills (`grilling`, `to-tickets`, `ship`, `testing`), the GitMark engine, and the
+install channel. The previous line
 ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) is kept as the **strict
 profile** and history — not the default.
 
