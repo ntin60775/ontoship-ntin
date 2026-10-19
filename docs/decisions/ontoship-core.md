@@ -30,8 +30,9 @@ stdlib engine, auditable in an afternoon).
 2. **Matt Pocock** — `grilling` (design tree, frontier, rounds) and `to-tickets`
    (tracer bullets, blocking edges, quiz). Decisions and publication stay with the
    operator.
-3. **The operator's testing strategy** — a test proves a spec clause or guards an
-   invariant; scenarios are agentic (MCP); stale tests are deleted.
+3. **The operator's testing strategy** — a test proves a spec clause, guards an
+   invariant, or reproduces a real failure (target test); scenarios are agentic (MCP);
+   stale tests are deleted.
 
 Details and exact quotes: [sources.md](../reference/sources.md).
 
@@ -71,25 +72,38 @@ another user-invoked one.
 
 ## One quality rule
 
-A test has exactly two legitimate purposes:
+A test has exactly three legitimate purposes:
 
 1. **prove a spec clause** — the observable behaviour the customer asked for;
-2. **guard a project invariant** — what must never break, even when the spec is silent.
+2. **guard a project invariant** — what must never break, even when the spec is silent;
+3. **reproduce a real failure** (target test) — generated from a bug, incident or
+   production report, not from the spec. It must fail before the fix and pass after it.
 
-A test with neither purpose is an orphan: it cannot be justified and cannot be removed
+A test with none of the three is an orphan: it cannot be justified and cannot be removed
 by a rule. Consequences:
 
-- traceability in the test name or comment: `spec: <path>#<criterion>` or
-  `invariant: I<n>`;
+- traceability in the test name or comment: `spec: <path>#<criterion>`,
+  `invariant: I<n>` or `target: <bug/incident ref>`;
 - the expected value comes from the spec, a literal or a worked example — never
   recomputed the way the code computes it;
 - a new matrix ships with a negative/mutation probe: the test must be able to fail;
-- coverage is counted in spec clauses and invariants, not lines or test count;
-- when a spec clause or an invariant is retired, its tests go in the same change.
+- coverage is counted in spec clauses, invariants and fixed defects, not lines or test
+  count;
+- when a spec clause, an invariant or a failure class is retired, its tests go in the
+  same change.
+
+**Target tests are a separate class.** A spec test is a projection of the spec — partial
+and distorted; a target test encodes an observed failure and does not compete with the
+spec. The ESEM 2026 study on 210 Java runtime-exception bugs reports 89.5% target
+reproduction by LLM agents versus 49.6% (UnitCon), 39.4% (EvoSuite) and 21.3% (Randoop) —
+but also 5.6% degenerate paths, 16.7% fragile/private-API tests and 72.2% low semantic
+clarity. The bar: real failure path, red→green, stable, readable, reviewed; delete when
+the failure class is dead. The 53% figure is not from that paper.
+Details: [testing.md](../reference/testing.md).
 
 The six channels are the instruments: unit/contract, E2E/smoke, expected output,
 recorded replay, browser/snapshot, performance. Channels are **how** a test proves;
-spec/invariant is **what** it proves.
+spec/invariant/target is **what** it proves.
 
 ## E2E
 

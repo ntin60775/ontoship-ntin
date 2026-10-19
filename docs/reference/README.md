@@ -13,3 +13,5 @@ links:
 
 - [sources.md](sources.md) — the three sources of the core idea, what was adopted, and
   what was left out.
+- [testing.md](testing.md) — spec, invariant and target tests; the ESEM 2026 evidence,
+  quality bar and agentic loop.

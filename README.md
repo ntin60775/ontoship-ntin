@@ -16,9 +16,9 @@ three sources and keeps only what they actually say:
 2. **Matt Pocock** — `grilling` (design tree, frontier, rounds) and `to-tickets`
    (tracer bullets, blocking edges, quiz). Decisions and ticket publication stay with
    the operator.
-3. **The operator's testing strategy** — a test proves a spec clause or guards a
-   project invariant; scenarios are agentic (MCP), not hand-written safe paths; stale
-   tests are deleted.
+3. **The operator's testing strategy** — a test proves a spec clause, guards a project
+   invariant, or reproduces a real failure (target test); scenarios are agentic (MCP), not
+   hand-written safe paths; stale tests are deleted.
 
 The canon is one page: [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md).
 Sources and what was adopted from each: [docs/reference/sources.md](docs/reference/sources.md).
