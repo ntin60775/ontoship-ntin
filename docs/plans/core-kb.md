@@ -2,7 +2,7 @@
 node_type: plan
 title: core-kb — installable KB core
 service: _platform
-status: draft
+status: active
 updated: 2026-10-19
 links:
   relates_to: [../decisions/ontoship-core.md, ../reference/sources.md]
@@ -24,8 +24,9 @@ DSH without a restart.
 ## Done
 
 1. `scripts/install.sh <project>` creates `.dsh/skills/{kb-search,kb-curate,init}`
-   (symlinks to this repo by default, `--copy` for a detached install) and runs the init
-   step; a second run makes no change (idempotent) and `--check` reports drift.
+   (symlinks to this repo by default, `--copy` for a detached install); a second run makes
+   no change (idempotent) and `--check` reports drift. The init skill (ticket 04) writes
+   the managed block separately — install does not run it.
 2. In a temp repo with a minimal KB: `gitmark.py index` writes `.gitmark/index.db`;
    `search "<word>"` returns the doc; `lint --strict` exits 0; `map` writes HTML;
    `stat --json` returns valid JSON.
@@ -83,5 +84,8 @@ DSH skill roots (fact): `<project>/.dsh/skills` (rank 100), `<project>/.agents/s
 (200), `~/.dsh/skills` (400); a skill is `<name>/SKILL.md` or flat `<name>.md`; nested
 `**/SKILL.md` is not discovered. This defines the install layout.
 
-Tickets are not part of this contract: they are ephemeral and will be published to
-`.scratch/core-kb/issues/` by `to-tickets` after the plan gate.
+Tickets are not part of this contract: they are ephemeral, published manually to
+`.scratch/core-kb/issues/` (the `to-tickets` skill is not built yet). The plan gate passed
+on 2026-10-19. Ticket order: **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init
+→ 05 install → 06 dogfood**. Install comes after the skills exist; it links them, it does
+not run init.
