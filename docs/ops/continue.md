@@ -26,7 +26,7 @@ approved.
 | `31e11fb` | plan `core-kb` |
 | `f1cd8bf` | testing amendment: target tests, ESEM 2026 |
 | `030c81a` | plan approved (`active`), ticket order |
-| next | self-contained start: vendor baseline, tickets, this runbook |
+| `b148d1f` | self-contained start: vendor baseline, tickets, this runbook |
 
 Nothing is implemented yet: no `skills/`, no `tests/`, no `scripts/`. Ticket 01 is the
 first deliverable.
