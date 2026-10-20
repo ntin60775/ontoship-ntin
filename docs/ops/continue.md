@@ -27,10 +27,15 @@ approved.
 | `f1cd8bf` | testing amendment: target tests, ESEM 2026 |
 | `030c81a` | plan approved (`active`), ticket order |
 | `b148d1f` | self-contained start: vendor baseline, tickets, this runbook |
+| `eb678d8` | ticket 01: trimmed engine, 131 tests |
+| `e5a2ced` | ticket 02 start prompt |
+| `4b10f95` | ticket 02: `kb-search` SKILL.md and its contract test |
 
-Ticket 01 is **implemented and tested**: `skills/kb-search/gitmark.py` (1302 lines) and
-`tests/` (131 passed). Nothing else is built yet: no `kb-search`/`kb-curate`/`init`
-`SKILL.md`, no `scripts/`. Next is ticket 02.
+Tickets 01 and 02 are **implemented and committed**: `skills/kb-search/gitmark.py`
+(1302 lines), `skills/kb-search/SKILL.md`, `tests/` (142 passed), `lint --strict` clean.
+The `kb-search` skill is contract-tested and a fresh session found the canon with
+`search "canon"`. Nothing else is built yet: no `kb-curate`/`init` `SKILL.md`, no
+`scripts/`. Next is ticket 03.
 
 ## Where things live
 
@@ -43,18 +48,23 @@ Ticket 01 is **implemented and tested**: `skills/kb-search/gitmark.py` (1302 lin
 - `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB).
 - `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; ticket 01
   copies and trims it into `skills/kb-search/`.
-- `skills/kb-search/gitmark.py` — the trimmed engine (ticket 01): `index`, `search`,
-  `lint`, `map`, `stat`, `version`; no `inventory`/`serve`/I7. Harness-agnostic CLI
-  (stdlib only); ignores both `.dsh` and `.zcode` install roots.
-- `tests/` — engine tests; run `python3 -m pytest tests/ -q` (stdlib + pytest, no Node).
+- `skills/kb-search/` — the trimmed engine (ticket 01) and the user-facing `SKILL.md`
+  (ticket 02): `index`, `search`, `lint`, `map`, `stat`, `version`; no
+  `inventory`/`serve`/I7. Harness-agnostic CLI (stdlib only); ignores both `.dsh` and
+  `.zcode` install roots.
+- `tests/` — engine and skill-contract tests; run `python3 -m pytest tests/ -q`
+  (stdlib + pytest, no Node).
+- `.dsh/skills/kb-search` — the gitignored project-local demo install (a symlink); the
+  installer itself is ticket 05.
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
 
 ## Ticket order
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01 is implemented and committed; 02 is ready. 03–06 are blocked by their predecessors.
-Install comes after the skills exist; it links them, it does not run init.
+01 and 02 are implemented and committed; 03 is next. 04 is unblocked by 01 but follows
+03 in order; 05 waits for 02–04 and 06 waits for 05. Install comes after the skills
+exist; it links them, it does not run init.
 
 ## Environment facts
 
@@ -70,7 +80,7 @@ Install comes after the skills exist; it links them, it does not run init.
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
   `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
   patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Ticket 01 does not need the browser;
+  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–02 did not need the browser;
   do not fake E2E if it is absent.
 - Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
   in PATH; the engine must not need Node.
@@ -83,34 +93,34 @@ OntoShip-core (DSH). План core-kb утверждён; репозиторий
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/01-engine.md,
-tickets/core-kb/02-kb-search-skill.md.
+docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/03-kb-curate-ontology.md.
 
-Тикет 01 (движок) уже реализован и закоммичен: skills/kb-search/gitmark.py (1302 строки),
-tests/ (131 passed), lint --strict чистый. Не переделывай движок и не смешивай его
-изменения с коммитом 02.
+Тикеты 01 (движок) и 02 (kb-search) реализованы и закоммичены:
+skills/kb-search/gitmark.py (1302 строки), skills/kb-search/SKILL.md, tests/ (142 passed),
+lint --strict чистый. Не переделывай движок и kb-search; не смешивай их изменения с
+коммитом 03.
 
-Сделай тикет 02: skills/kb-search/SKILL.md — user-facing навык поиска по КБ.
-DSH frontmatter (name, description); тело: когда использовать (найти, где
-документировано; перед чтением файлов наугад; перед новым доком), команды
-index/search/map/stat/version, --json, .gitmark/ — производное; без inventory,
-serve, registry. Деградация честная: нет индекса — назвать команду; нет хитов —
-сказать; не выдумывать документы. Без провенанса, Reel, acceptance chord.
+Сделай тикет 03: skills/kb-curate/SKILL.md и skills/kb-curate/ontology.md, docs/ontology.md
+для этого репо. Модель: node types, frontmatter, типизированные связи, инварианты I1–I6 и
+I8–I10; I7 (registry) вне ядра. SKILL.md — как CREATE / UPDATE / DEPRECATE / LINK /
+REINDEX: классифицировать, разместить, frontmatter, связать, обновить индекс папки.
+lint I8 сверяет тела ontology.md из первого `## `. Без новых инвариантов, без
+registry-таблиц, без provenance, Reel, acceptance chord.
 
-Сначала исследуй: как DSH обнаруживает скиллы, формат frontmatter, как SKILL.md
-соотносится с CLI движка. Потом реализуй. Веди TodoWrite по шагам тикета. Проверка —
-spec/invariant: frontmatter и обязательные команды, отсутствие запрещённых сущностей;
-если добавляешь матрицу — негативная/мутационная проба. Лог прогона читай.
+Сначала исследуй, как lint читает docs/ontology.md и I8 (движок уже готов), потом
+реализуй. Веди TodoWrite по шагам тикета. Проверка — spec/invariant: документ с node_type,
+body-ссылкой и ссылкой из README папки проходит lint; удалить node_type → ERR I1; битая
+ссылка → ERR I4; lint --strict exit 1. Если добавляешь матрицу — негативная/мутационная
+проба. Лог прогона читай.
 
-Demo: fresh session в этом репо просит навык найти canon; он запускает
-`python3 skills/kb-search/gitmark.py search "canon"` и возвращает
-docs/decisions/ontoship-core.md со сниппетом.
+Demo: добавить документ в docs/reference/, связать из docs/reference/README.md, lint
+--strict чистый; убрать node_type → ERR I1, exit 1.
 
 Если нужен браузер, проверь mcp__playwright-mcp__*; если его нет — попроси оператора
-перезапустить DSH (конфиг уже в профиле), не имитируй E2E.
+перезапустить DSH, не имитируй E2E.
 
 В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/02-kb-search-skill.md и docs/ops/continue.md. Один тикет за прогон;
+tickets/core-kb/03-kb-curate-ontology.md и docs/ops/continue.md. Один тикет за прогон;
 канон не переоткрывай; при реальном конфликте останови и спроси оператора.
 ```
 

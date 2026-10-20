@@ -5,9 +5,9 @@ frontmatter properties, typed links, and the invariants I1–I6 and I8–I10 (I7
 The same model ships in `skills/kb-curate/ontology.md` and lives in `docs/ontology.md`
 for this repo; lint I8 checks that the bodies agree from the first `## ` heading.
 
-**Blocked by:** 01.
+**Blocked by:** 01 (done).
 
-**Status:** blocked
+**Status:** ready-for-agent
 
 - [ ] `skills/kb-curate/SKILL.md` tells the agent how to CREATE / UPDATE / DEPRECATE /
       LINK / REINDEX a doc: classify, place, frontmatter, link, update the folder index.
