@@ -90,6 +90,14 @@ def _standalone_lines(text: str) -> list[str]:
     return [line for line in text.splitlines() if line in GITIGNORE_LINES]
 
 
+def _mentions(text: str, term: str) -> bool:
+    """Word-boundary match for words; plain substring for paths such as `.zcode`."""
+    lowered = text.lower()
+    if term[0].isalnum() and term[-1].isalnum():
+        return re.search(rf"\b{re.escape(term)}\b", lowered) is not None
+    return term in lowered
+
+
 def _contract_errors(text: str) -> list[str]:
     """Every violated init contract; empty means the skill is sound."""
     try:
@@ -121,7 +129,7 @@ def _contract_errors(text: str) -> list[str]:
             errors.append(f"body: missing {needle!r}")
 
     for term in FORBIDDEN:
-        if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
+        if _mentions(text, term):
             errors.append(f"forbidden entity {term!r}")
 
     try:
@@ -182,6 +190,9 @@ def test_contract_can_fail():
 
     leaked_entity = text + "\nCreate the docs/reference/commands.md registry.\n"
     assert any("registry" in error for error in _contract_errors(leaked_entity))
+
+    leaked_install_root = text + "\nInstall into .zcode/skills instead.\n"
+    assert any(".zcode" in error for error in _contract_errors(leaked_install_root))
 
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))

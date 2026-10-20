@@ -23,7 +23,7 @@ outside its own block.
 
 ## Evidence (2026-10-21)
 
-- **Delivered in `90f0846`:** `skills/init/SKILL.md` (131 lines): DSH frontmatter
+- **Delivered in `90f0846`:** `skills/init/SKILL.md` (132 lines): DSH frontmatter
   (`name: init`, a 353-character quoted description), the two files it owns, the five
   marker cases, the verbatim block, the `.gitignore` rules, verification and report.
   `tests/test_skill_init.py` (4 tests) pins the artifact and probes the check. No engine,
@@ -53,8 +53,8 @@ outside its own block.
   `repo.diff`.
 - **Tests / lint:** `python3 -m pytest tests/ -q` → **153 passed** (149 prior + 4);
   `lint --strict` → exit 0 (24 files). The mutation probe rejects a missing END marker, a
-  renamed `*-map.html` rule, an injected registry/`commands.md`, a missing `name`, an
-  unquoted description and an edited block.
+  renamed `*-map.html` rule, an injected registry/`commands.md` or `.zcode` install root,
+  a missing `name`, an unquoted description and an edited block.
 - **Scope:** no registry, provenance, Reel, acceptance chord, `inventory` or `serve`; no
   write outside `AGENTS.md` and `.gitignore` (case A checks the directory); no `scripts/`
   yet (ticket 05).
