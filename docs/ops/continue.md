@@ -31,12 +31,16 @@ approved.
 | `e5a2ced` | ticket 02 start prompt |
 | `4b10f95` | ticket 02: `kb-search` SKILL.md and its contract test |
 | `f189889` | docs: ticket 02 closed; ticket 03 ready |
+| `054279d` | docs(ops): sharpen the ticket 03 start prompt |
+| `118fe99` | ticket 03: `kb-curate` skill, ontology model, 149 tests |
 
-Tickets 01 and 02 are **implemented and committed**: `skills/kb-search/gitmark.py`
-(1302 lines), `skills/kb-search/SKILL.md`, `tests/` (142 passed), `lint --strict` clean.
-The `kb-search` skill is contract-tested and a fresh session found the canon with
-`search "canon"`. Nothing else is built yet: no `kb-curate`/`init` `SKILL.md`, no
-`scripts/`. Next is ticket 03.
+Tickets 01, 02 and 03 are **implemented and committed**: `skills/kb-search/gitmark.py`
+(1302 lines), `skills/kb-search/SKILL.md`, `skills/kb-curate/SKILL.md`,
+`skills/kb-curate/ontology.md`, `docs/ontology.md`, `tests/` (149 passed),
+`lint --strict` clean. The `kb-search` and `kb-curate` skills are contract-tested; the
+ontology model is one body in two copies (I8), and the live demo produced I1/I4 on
+mutation. Nothing else is built yet: no `init` `SKILL.md`, no `scripts/`. Next is
+ticket 04.
 
 ## Where things live
 
@@ -46,6 +50,8 @@ The `kb-search` skill is contract-tested and a fresh session found the canon wit
 - `docs/reference/sources.md` — OntoShip (vakovalskii), Pocock, ESEM 2026; the 53%
   correction.
 - `docs/plans/core-kb.md` — the approved spec of the first unit.
+- `docs/ontology.md` — this repo's ontology copy and the only I2 type vocabulary; I8
+  compares its body from the first `## ` with `skills/kb-curate/ontology.md`.
 - `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB).
 - `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; ticket 01
   copies and trims it into `skills/kb-search/`.
@@ -53,8 +59,10 @@ The `kb-search` skill is contract-tested and a fresh session found the canon wit
   (ticket 02): `index`, `search`, `lint`, `map`, `stat`, `version`; no
   `inventory`/`serve`/I7. Harness-agnostic CLI (stdlib only); ignores both `.dsh` and
   `.zcode` install roots.
+- `skills/kb-curate/` — the shipped ontology model `ontology.md` and the curation
+  `SKILL.md` (ticket 03): CREATE / UPDATE / DEPRECATE / LINK / REINDEX; I7 stays out.
 - `tests/` — engine and skill-contract tests; run `python3 -m pytest tests/ -q`
-  (stdlib + pytest, no Node).
+  (149 passed; stdlib + pytest, no Node).
 - `.dsh/skills/kb-search` — the gitignored project-local demo install (a symlink); the
   installer itself is ticket 05.
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
@@ -63,9 +71,8 @@ The `kb-search` skill is contract-tested and a fresh session found the canon wit
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01 and 02 are implemented and committed; 03 is next. 04 is unblocked by 01 but follows
-03 in order; 05 waits for 02–04 and 06 waits for 05. Install comes after the skills
-exist; it links them, it does not run init.
+01, 02 and 03 are implemented and committed; 04 is next. 05 waits for 02–04 and 06
+waits for 05. Install comes after the skills exist; it links them, it does not run init.
 
 ## Environment facts
 
@@ -81,7 +88,7 @@ exist; it links them, it does not run init.
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
   `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
   patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–02 did not need the browser;
+  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–03 did not need the browser;
   do not fake E2E if it is absent.
 - Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
   in PATH; the engine must not need Node.
@@ -94,35 +101,36 @@ OntoShip-core (DSH). План core-kb утверждён; репозиторий
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/03-kb-curate-ontology.md.
+docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/04-init-skill.md.
 
-Тикеты 01 (движок) и 02 (kb-search) реализованы и закоммичены:
-skills/kb-search/gitmark.py (1302 строки), skills/kb-search/SKILL.md, tests/ (142 passed),
-lint --strict чистый. Не переделывай движок и kb-search; не смешивай их изменения с
-коммитом 03.
+Тикеты 01 (движок), 02 (kb-search) и 03 (kb-curate + ontology) реализованы и
+закоммичены: skills/kb-search/gitmark.py (1302 строки), skills/kb-search/SKILL.md,
+skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md, docs/ontology.md, tests/
+(149 passed), lint --strict чистый. Не переделывай движок, kb-search и
+kb-curate/ontology; не смешивай их изменения с коммитом 04.
 
-Сделай тикет 03: skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md и docs/ontology.md.
-Модель: node types, frontmatter, типизированные связи, инварианты I1–I6 и I8–I10; I7
-(registry) вне ядра. SKILL.md — как CREATE / UPDATE / DEPRECATE / LINK / REINDEX:
-классифицировать, разместить, frontmatter, связать, обновить индекс папки. docs/ontology.md —
-единственный носитель словаря типов для I2 (таблица `| node_type ...`); I8 сравнивает тело
-от первого `## ` с skills/kb-curate/ontology.md, в плоском репо расхождение = ERR. Без
-новых инвариантов, без registry-таблиц, без provenance, Reel, acceptance chord.
+Сделай тикет 04: skills/init/SKILL.md (DSH frontmatter: name, description) — init
+проекта. Управляемый блок в AGENTS.md между маркерами `<!-- BEGIN ontoship -->` и
+`<!-- END ontoship -->`: entry point, индекс КБ, команды maintain. Строки .gitignore:
+`.gitmark/`, `*-map.html`, `.scratch/`. Повторный запуск идемпотентен; заменяется
+только содержимое между маркерами; текст вне маркеров не трогается; никаких записей
+вне AGENTS.md и .gitignore; без registry, provenance, Reel, acceptance chord. Сначала
+исследуй, как DSH читает AGENTS.md и что уже игнорируется, потом реализуй. Веди
+TodoWrite по шагам тикета.
 
-Сначала исследуй, как lint читает docs/ontology.md, I2 и I8 (движок уже готов), потом
-реализуй. Веди TodoWrite по шагам тикета. Проверка — spec/invariant: документ с node_type,
-body-ссылкой и ссылкой из README папки проходит lint; удалить node_type → ERR I1; битая
-ссылка → ERR I4; lint --strict exit 1. Если добавляешь матрицу — негативная/мутационная
-проба. Лог прогона читай.
+Проверка — spec/invariant: init на temp-репо создаёт блок и три строки .gitignore;
+повторный запуск → git diff пуст; существующий блок заменяется только внутри маркеров;
+текст вне маркеров сохраняется; init работает и на этом репо. Если добавляешь матрицу —
+негативная/мутационная проба. Лог прогона читай.
 
-Demo: добавить документ в docs/reference/, связать из docs/reference/README.md, lint
---strict чистый; убрать node_type → ERR I1, exit 1.
+Demo: в temp-репо запустить init, показать блок в AGENTS.md и три строки .gitignore;
+запустить init второй раз, показать пустой git diff.
 
 Если нужен браузер, проверь mcp__playwright-mcp__*; если его нет — попроси оператора
 перезапустить DSH, не имитируй E2E.
 
 В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/03-kb-curate-ontology.md и docs/ops/continue.md. Один тикет за прогон;
+tickets/core-kb/04-init-skill.md и docs/ops/continue.md. Один тикет за прогон;
 канон не переоткрывай; при реальном конфликте останови и спроси оператора.
 ```
 

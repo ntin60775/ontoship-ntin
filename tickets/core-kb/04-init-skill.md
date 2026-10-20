@@ -4,9 +4,9 @@
 `AGENTS.md` and add the `.gitignore` lines the KB requires. Idempotent; touches nothing
 outside its own block.
 
-**Blocked by:** 01.
+**Blocked by:** 01 (done); follows 03 (done).
 
-**Status:** blocked
+**Status:** ready-for-agent
 
 - [ ] `skills/init/SKILL.md` has DSH frontmatter and describes the managed block
       (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), its content (entry point,
