@@ -3,7 +3,7 @@ node_type: runbook
 title: Continue development from this repo
 service: _platform
 status: active
-updated: 2026-10-20
+updated: 2026-10-21
 tags: [runbook, start, handoff, core-kb]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../../tickets/README.md]
@@ -33,14 +33,17 @@ approved.
 | `f189889` | docs: ticket 02 closed; ticket 03 ready |
 | `054279d` | docs(ops): sharpen the ticket 03 start prompt |
 | `118fe99` | ticket 03: `kb-curate` skill, ontology model, 149 tests |
+| `6c1cce6` | docs(ops): close ticket 03, hand off to 04 |
+| `90f0846` | ticket 04: `init` skill and its contract test |
 
-Tickets 01, 02 and 03 are **implemented and committed**: `skills/kb-search/gitmark.py`
+Tickets 01–04 are **implemented and committed**: `skills/kb-search/gitmark.py`
 (1302 lines), `skills/kb-search/SKILL.md`, `skills/kb-curate/SKILL.md`,
-`skills/kb-curate/ontology.md`, `docs/ontology.md`, `tests/` (149 passed),
-`lint --strict` clean. The `kb-search` and `kb-curate` skills are contract-tested; the
-ontology model is one body in two copies (I8), and the live demo produced I1/I4 on
-mutation. Nothing else is built yet: no `init` `SKILL.md`, no `scripts/`. Next is
-ticket 04.
+`skills/kb-curate/ontology.md`, `docs/ontology.md`, `skills/init/SKILL.md`, `tests/`
+(153 passed), `lint --strict` clean. The three skills are contract-tested; the ontology
+model is one body in two copies (I8); the init block is 747 bytes and its temp-repo matrix
+covers create/append/replace/fail/idempotence. This repo's `AGENTS.md` does **not** carry
+the block yet — ticket 06 runs init here. Nothing else is built yet: no `scripts/`. Next
+is ticket 05.
 
 ## Where things live
 
@@ -61,8 +64,11 @@ ticket 04.
   `.zcode` install roots.
 - `skills/kb-curate/` — the shipped ontology model `ontology.md` and the curation
   `SKILL.md` (ticket 03): CREATE / UPDATE / DEPRECATE / LINK / REINDEX; I7 stays out.
+- `skills/init/` — the `init` `SKILL.md` (ticket 04): the managed block
+  (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), its five marker cases, and the
+  three `.gitignore` lines. Idempotent; writes only `AGENTS.md` and `.gitignore`.
 - `tests/` — engine and skill-contract tests; run `python3 -m pytest tests/ -q`
-  (149 passed; stdlib + pytest, no Node).
+  (153 passed; stdlib + pytest, no Node).
 - `.dsh/skills/kb-search` — the gitignored project-local demo install (a symlink); the
   installer itself is ticket 05.
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
@@ -71,8 +77,8 @@ ticket 04.
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01, 02 and 03 are implemented and committed; 04 is next. 05 waits for 02–04 and 06
-waits for 05. Install comes after the skills exist; it links them, it does not run init.
+01–04 are implemented and committed; 05 is next. 05 waits for 02–04 and 06 waits for 05.
+Install comes after the skills exist; it links them, it does not run init.
 
 ## Environment facts
 
@@ -88,7 +94,7 @@ waits for 05. Install comes after the skills exist; it links them, it does not r
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
   `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
   patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–03 did not need the browser;
+  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–04 did not need the browser;
   do not fake E2E if it is absent.
 - Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
   in PATH; the engine must not need Node.
@@ -101,36 +107,35 @@ OntoShip-core (DSH). План core-kb утверждён; репозиторий
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/04-init-skill.md.
+docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/05-install.md.
 
-Тикеты 01 (движок), 02 (kb-search) и 03 (kb-curate + ontology) реализованы и
-закоммичены: skills/kb-search/gitmark.py (1302 строки), skills/kb-search/SKILL.md,
-skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md, docs/ontology.md, tests/
-(149 passed), lint --strict чистый. Не переделывай движок, kb-search и
-kb-curate/ontology; не смешивай их изменения с коммитом 04.
+Тикеты 01–04 реализованы и закоммичены: skills/kb-search/gitmark.py (1302 строки),
+skills/kb-search/SKILL.md, skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md,
+docs/ontology.md, skills/init/SKILL.md, tests/ (153 passed), lint --strict чистый.
+Не переделывай движок, kb-search, kb-curate/ontology и init; не смешивай их изменения
+с коммитом 05.
 
-Сделай тикет 04: skills/init/SKILL.md (DSH frontmatter: name, description) — init
-проекта. Управляемый блок в AGENTS.md между маркерами `<!-- BEGIN ontoship -->` и
-`<!-- END ontoship -->`: entry point, индекс КБ, команды maintain. Строки .gitignore:
-`.gitmark/`, `*-map.html`, `.scratch/`. Повторный запуск идемпотентен; заменяется
-только содержимое между маркерами; текст вне маркеров не трогается; никаких записей
-вне AGENTS.md и .gitignore; без registry, provenance, Reel, acceptance chord. Сначала
-исследуй, как DSH читает AGENTS.md и что уже игнорируется, потом реализуй. Веди
-TodoWrite по шагам тикета.
+Сделай тикет 05: scripts/install.sh <project> — проект-локальная установка ядра в
+<project>/.dsh/skills/{kb-search,kb-curate,init}: симлинки на этот репозиторий по
+умолчанию, --copy для отсоединённой копии, --check для дрейфа (exit 0/1, называет
+каждый отсутствующий или неверный линк). Второй запуск идемпотентен; никаких записей
+вне <project>/.dsh/skills; без .zcode, глобальной установки и Playwright. Install
+линкует скиллы и не запускает init. Сначала исследуй, как DSH обнаруживает скиллы
+(<root>/<name>/SKILL.md, rank 100), потом реализуй. Веди TodoWrite по шагам тикета.
 
-Проверка — spec/invariant: init на temp-репо создаёт блок и три строки .gitignore;
-повторный запуск → git diff пуст; существующий блок заменяется только внутри маркеров;
-текст вне маркеров сохраняется; init работает и на этом репо. Если добавляешь матрицу —
-негативная/мутационная проба. Лог прогона читай.
+Проверка — spec: свежая установка в temp-репо (три линка), второй запуск без изменений,
+--check 0; удалить линк → --check 1 и имя; --copy → три реальных каталога; тест на это.
+Если добавляешь матрицу — негативная/мутационная проба. Лог прогона читай.
 
-Demo: в temp-репо запустить init, показать блок в AGENTS.md и три строки .gitignore;
-запустить init второй раз, показать пустой git diff.
+Demo: install в temp-репо; ls -l .dsh/skills показывает три ссылки; повторный запуск
+без изменений; --check 0; удалить линк → --check 1 и имя; --copy в другой temp-репо —
+три реальных каталога.
 
 Если нужен браузер, проверь mcp__playwright-mcp__*; если его нет — попроси оператора
 перезапустить DSH, не имитируй E2E.
 
 В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/04-init-skill.md и docs/ops/continue.md. Один тикет за прогон;
+tickets/core-kb/05-install.md и docs/ops/continue.md. Один тикет за прогон;
 канон не переоткрывай; при реальном конфликте останови и спроси оператора.
 ```
 
