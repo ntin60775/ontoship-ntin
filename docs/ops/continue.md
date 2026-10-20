@@ -30,6 +30,7 @@ approved.
 | `eb678d8` | ticket 01: trimmed engine, 131 tests |
 | `e5a2ced` | ticket 02 start prompt |
 | `4b10f95` | ticket 02: `kb-search` SKILL.md and its contract test |
+| `f189889` | docs: ticket 02 closed; ticket 03 ready |
 
 Tickets 01 and 02 are **implemented and committed**: `skills/kb-search/gitmark.py`
 (1302 lines), `skills/kb-search/SKILL.md`, `tests/` (142 passed), `lint --strict` clean.
@@ -100,14 +101,15 @@ skills/kb-search/gitmark.py (1302 строки), skills/kb-search/SKILL.md, test
 lint --strict чистый. Не переделывай движок и kb-search; не смешивай их изменения с
 коммитом 03.
 
-Сделай тикет 03: skills/kb-curate/SKILL.md и skills/kb-curate/ontology.md, docs/ontology.md
-для этого репо. Модель: node types, frontmatter, типизированные связи, инварианты I1–I6 и
-I8–I10; I7 (registry) вне ядра. SKILL.md — как CREATE / UPDATE / DEPRECATE / LINK /
-REINDEX: классифицировать, разместить, frontmatter, связать, обновить индекс папки.
-lint I8 сверяет тела ontology.md из первого `## `. Без новых инвариантов, без
-registry-таблиц, без provenance, Reel, acceptance chord.
+Сделай тикет 03: skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md и docs/ontology.md.
+Модель: node types, frontmatter, типизированные связи, инварианты I1–I6 и I8–I10; I7
+(registry) вне ядра. SKILL.md — как CREATE / UPDATE / DEPRECATE / LINK / REINDEX:
+классифицировать, разместить, frontmatter, связать, обновить индекс папки. docs/ontology.md —
+единственный носитель словаря типов для I2 (таблица `| node_type ...`); I8 сравнивает тело
+от первого `## ` с skills/kb-curate/ontology.md, в плоском репо расхождение = ERR. Без
+новых инвариантов, без registry-таблиц, без provenance, Reel, acceptance chord.
 
-Сначала исследуй, как lint читает docs/ontology.md и I8 (движок уже готов), потом
+Сначала исследуй, как lint читает docs/ontology.md, I2 и I8 (движок уже готов), потом
 реализуй. Веди TodoWrite по шагам тикета. Проверка — spec/invariant: документ с node_type,
 body-ссылкой и ссылкой из README папки проходит lint; удалить node_type → ERR I1; битая
 ссылка → ERR I4; lint --strict exit 1. Если добавляешь матрицу — негативная/мутационная
