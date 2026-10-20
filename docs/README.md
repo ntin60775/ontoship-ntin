@@ -23,3 +23,5 @@ strict profile live in the `ontoship-zcode` repository, not here.
 - [reference/](reference/README.md) — cross-cutting references.
   [sources.md](reference/sources.md) — the three sources and what was adopted from each;
   [testing.md](reference/testing.md) — spec, invariant and target tests.
+- [ontology.md](ontology.md) — the type vocabulary, frontmatter, typed links and the
+  invariants lint enforces; I2 reads its `node_type` table.
