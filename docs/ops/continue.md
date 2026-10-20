@@ -3,7 +3,7 @@ node_type: runbook
 title: Continue development from this repo
 service: _platform
 status: active
-updated: 2026-10-19
+updated: 2026-10-20
 tags: [runbook, start, handoff, core-kb]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../../tickets/README.md]
@@ -16,7 +16,7 @@ ephemeral; use this runbook and the tickets, not the snapshot, as the source of 
 
 ## Where we are
 
-Repo: `/home/prog7/home/dev/contrib/forks/ontoship-dsh` (git, clean). It is
+Repo: `/home/prog7/home/dev/contrib/forks/ontoship-dsh` (git). It is
 self-contained: the engine baseline is vendored, the tickets are tracked, the plan is
 approved.
 
@@ -28,8 +28,9 @@ approved.
 | `030c81a` | plan approved (`active`), ticket order |
 | `b148d1f` | self-contained start: vendor baseline, tickets, this runbook |
 
-Nothing is implemented yet: no `skills/`, no `tests/`, no `scripts/`. Ticket 01 is the
-first deliverable.
+Ticket 01 is **implemented and tested**: `skills/kb-search/gitmark.py` (1302 lines) and
+`tests/` (131 passed). Nothing else is built yet: no `kb-search`/`kb-curate`/`init`
+`SKILL.md`, no `scripts/`. Next is ticket 02.
 
 ## Where things live
 
@@ -42,14 +43,18 @@ first deliverable.
 - `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB).
 - `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; ticket 01
   copies and trims it into `skills/kb-search/`.
+- `skills/kb-search/gitmark.py` — the trimmed engine (ticket 01): `index`, `search`,
+  `lint`, `map`, `stat`, `version`; no `inventory`/`serve`/I7. Harness-agnostic CLI
+  (stdlib only); ignores both `.dsh` and `.zcode` install roots.
+- `tests/` — engine tests; run `python3 -m pytest tests/ -q` (stdlib + pytest, no Node).
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
 
 ## Ticket order
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01 is `ready-for-agent`; the rest are blocked by their predecessors. Install comes after
-the skills exist; it links them, it does not run init.
+01 is implemented and committed; 02 is ready. 03–06 are blocked by their predecessors.
+Install comes after the skills exist; it links them, it does not run init.
 
 ## Environment facts
 
@@ -73,29 +78,40 @@ the skills exist; it links them, it does not run init.
 ## Start prompt
 
 ```text
-Мы начинаем работу в /home/prog7/home/dev/contrib/forks/ontoship-dsh — это чистый
-OntoShip-core (DSH). План core-kb утверждён, репозиторий самодостаточен.
+Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-dsh — чистый
+OntoShip-core (DSH). План core-kb утверждён; репозиторий самодостаточен.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/01-engine.md.
+docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/01-engine.md,
+tickets/core-kb/02-kb-search-skill.md.
 
-Начни с тикета 01 (движок). Базовая версия уже вендорена в
-vendor/ontoship-zcode/gitmark.py (MIT) вместе с тестами; скопируй её в
-skills/kb-search/gitmark.py, вырежи inventory/serve/I7, разбери cmd_lint на helpers
-внутри файла (≤80 строк), добавь .dsh в EXCLUDE_DIRS, адаптируй тесты из
-vendor/ontoship-zcode/tests/ в tests/ (без node). Один файл; без реестров,
-провенанса, Reel.
+Тикет 01 (движок) уже реализован и закоммичен: skills/kb-search/gitmark.py (1302 строки),
+tests/ (131 passed), lint --strict чистый. Не переделывай движок и не смешивай его
+изменения с коммитом 02.
 
-Сначала исследуй, потом реализуй. Веди TodoWrite по шагам тикета. Тесты —
-spec/invariant/target; у новой матрицы — негативная/мутационная проба; лог прогона
-читай. Канон не переоткрывай; если реальный конфликт — останови и спроси оператора.
+Сделай тикет 02: skills/kb-search/SKILL.md — user-facing навык поиска по КБ.
+DSH frontmatter (name, description); тело: когда использовать (найти, где
+документировано; перед чтением файлов наугад; перед новым доком), команды
+index/search/map/stat/version, --json, .gitmark/ — производное; без inventory,
+serve, registry. Деградация честная: нет индекса — назвать команду; нет хитов —
+сказать; не выдумывать документы. Без провенанса, Reel, acceptance chord.
 
-В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/01-engine.md и docs/ops/continue.md.
+Сначала исследуй: как DSH обнаруживает скиллы, формат frontmatter, как SKILL.md
+соотносится с CLI движка. Потом реализуй. Веди TodoWrite по шагам тикета. Проверка —
+spec/invariant: frontmatter и обязательные команды, отсутствие запрещённых сущностей;
+если добавляешь матрицу — негативная/мутационная проба. Лог прогона читай.
+
+Demo: fresh session в этом репо просит навык найти canon; он запускает
+`python3 skills/kb-search/gitmark.py search "canon"` и возвращает
+docs/decisions/ontoship-core.md со сниппетом.
 
 Если нужен браузер, проверь mcp__playwright-mcp__*; если его нет — попроси оператора
 перезапустить DSH (конфиг уже в профиле), не имитируй E2E.
+
+В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
+tickets/core-kb/02-kb-search-skill.md и docs/ops/continue.md. Один тикет за прогон;
+канон не переоткрывай; при реальном конфликте останови и спроси оператора.
 ```
 
 ## Rules of continuation

@@ -4,9 +4,9 @@
 instead of grepping, when to index, how to read `search` results, and the
 search-before-writing discipline. It wraps the engine from ticket 01.
 
-**Blocked by:** 01.
+**Blocked by:** 01 (implemented; 01 changes may still be uncommitted).
 
-**Status:** blocked
+**Status:** ready-for-agent
 
 - [ ] `skills/kb-search/SKILL.md` has DSH frontmatter (`name`, `description`; the body
       says when to use it: find where something is documented, before reading files at
