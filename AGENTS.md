@@ -52,3 +52,23 @@ python3 skills/kb-search/gitmark.py index    # rebuild the index after editing d
 python3 skills/kb-search/gitmark.py lint     # ontology checks
 python3 skills/kb-search/gitmark.py map -o docs-map.html
 ```
+
+<!-- BEGIN ontoship -->
+## Knowledge base (OntoShip)
+
+- Entry point: [`docs/README.md`](docs/README.md) — the KB master index; every folder has
+  a `README.md` index.
+- Search before answering or writing: load the `kb-search` skill. The engine is at
+  `.dsh/skills/kb-search/gitmark.py` for direct use.
+- New or updated docs: load the `kb-curate` skill — search first, never duplicate.
+- Maintain after editing docs:
+
+  ```sh
+  python3 .dsh/skills/kb-search/gitmark.py index
+  python3 .dsh/skills/kb-search/gitmark.py lint --strict
+  python3 .dsh/skills/kb-search/gitmark.py map -o docs-map.html
+  ```
+
+- The KB is markdown + git: `.gitmark/`, `*-map.html` and `.scratch/` are derived or
+  ephemeral — never committed.
+<!-- END ontoship -->
