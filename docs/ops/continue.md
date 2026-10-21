@@ -56,7 +56,9 @@ links:
 вынес нарезку ask-инструментом, один вопрос на тикет. Правило нарезки и передачи
 решений зафиксировано в каноне (`5f483eb`, `2b9be95`). Тикет 01 (`grilling`)
 сделан: `skills/grilling/SKILL.md` + 12 контрактных проверок, **180 passed**
-(`0c8a862`); `lint --strict` чистый (38 файлов). Следующий — тикет 02.
+(`0c8a862`); `lint --strict` чистый (38 файлов). Тикет 02 (`to-tickets`) сделан
+тем же порядком: скилл с `disable-model-invocation: true` и 11 контрактных
+проверок, **191 passed** (`ccb7dc0`). Следующий — тикет 03.
 
 Второй юнит проверил Qoder свежими сессиями: все три скилла видны, `kb-search` и
 `kb-curate` загружены, поиск вернул канон. DSH и zcode живой каталог не подтвердили:
@@ -77,9 +79,9 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
    ship; ни скилл, ни механизм хоста их пока не реализуют. Первый план workflow —
    [workflow-skills.md](../plans/workflow-skills.md) — утверждён на план-гейте
    2026-10-21.
-3. **Тикеты 02–06 не начаты.** Нарезка сделана 2026-10-21
+3. **Тикеты 03–06 не начаты.** Нарезка сделана 2026-10-21
    ([tickets/workflow-skills/](../../tickets/workflow-skills/01-grilling.md));
-   тикет 01 (`grilling`) закрыт. Один тикет за прогон.
+   тикеты 01–02 закрыты. Один тикет за прогон.
 4. **Определение готовности не показано.** Ни один сквозной прогон не провёл тикет
    из свежей сессии через план → тикеты → ship → `main`. У репозитория нет remote и
    CI (`git remote -v` пуст), поэтому путь PR/merge не проверен; если DoD требует
@@ -131,6 +133,9 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 - `skills/grilling/` — скилл фазы 1 (тикет 01 `workflow-skills`): интервью по
   фронтиру, нумерованные вопросы с рекомендованным ответом, выход в спеку
   `docs/plans/<slug>.md` на план-гейт; автономный флаг вне рамок v1.
+- `skills/to-tickets/` — скилл фазы 2 (тикет 02 `workflow-skills`): tracer-bullet
+  срезы, демо-путь, критерии на базовом коммите, `disable-model-invocation: true`;
+  публикация в `.scratch/<slug>/issues/` или трекер.
 - `scripts/install.sh` — project-local установка (тикет 01 второго юнита): по
   умолчанию ссылки, `--copy` — отсоединённая копия, `--check` — расхождение (код 0/1,
   называет каждый скилл) и предупреждение о legacy-корнях; идемпотентна; пишет только
@@ -151,8 +156,9 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 03 справочник харнессов → 04 dogfood на трёх.** Все четыре сделаны; юнит закрыт.
 
 `workflow-skills`: **01 grilling → 02 to-tickets → 03 ship → 04 testing →
-05 install → 06 dogfood.** 01 сделан; 02–04 независимы; 05 заблокирован 01–04;
-06 — 05. Спека утверждена, нарезка готова — не переоткрывай её. Открытая работа —
+05 install → 06 dogfood.** 01–02 сделаны; 03–04 независимы; 05 заблокирован
+01–04; 06 — 05. Спека утверждена, нарезка готова — не переоткрывай её. Открытая
+работа —
 в разделе [Что осталось (по проекту)](#что-осталось-по-проекту).
 
 ## Факты окружения
@@ -196,9 +202,9 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 ```text
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
 Юниты core-kb (тикеты 01–06) и harness-agnostic (тикеты 01–04) завершены. Третий
-юнит workflow-skills: спека docs/plans/workflow-skills.md утверждена, тикеты 01–06
-нарезаны, тикет 01 grilling сделан (skills/grilling, 180 passed, lint --strict
-чистый, 38 файлов). Установка пока ставит три скилла — канал расширят в тикете 05.
+юнит workflow-skills: спека docs/plans/workflow-skills.md утверждена, тикеты
+01–02 сделаны (grilling, to-tickets; 191 passed, lint --strict чистый, 39
+файлов). Установка пока ставит три скилла — канал расширят в тикете 05.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/harnesses.md,
@@ -206,11 +212,11 @@ docs/reference/testing.md, docs/reference/sources.md, docs/plans/core-kb.md,
 docs/plans/harness-agnostic.md, tickets/README.md,
 tickets/harness-agnostic/04-dogfood.md.
 
-Следующий тикет — 02 (to-tickets): tracer-bullet-срезы с демо-путём, критерии,
-падающие на базовом коммите, маркер disable-model-invocation, без якорей
-file:line; контрактный тест tests/test_skill_to_tickets.py. Читай спеку
-docs/plans/workflow-skills.md и tickets/workflow-skills/02-to-tickets.md. Канон
-не переоткрывай; нарезка уже утверждена опросом по тикетам.
+Следующий тикет — 03 (ship): один проход worktree → реализация → доказательные
+тесты → один прогон ревью → dev/prod → merge; точки остановки из «Ограничений»
+спеки; без remote — честная деградация до локального коммита; контрактный тест
+tests/test_skill_ship.py. Читай спеку docs/plans/workflow-skills.md и
+tickets/workflow-skills/03-ship.md. Канон не переоткрывай; нарезка утверждена.
 
 Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
 python3 .agents/skills/kb-search/gitmark.py index; lint --strict → 0;
