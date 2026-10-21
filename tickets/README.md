@@ -11,8 +11,19 @@ Durable-контракт лежит в [`docs/plans/`](../docs/plans/README.md).
 [`harness-agnostic`](../docs/plans/harness-agnostic.md) тоже закрыт: утверждён
 2026-10-21, все четыре тикета сделаны; они лежат в
 [`harness-agnostic/`](harness-agnostic/01-install-root.md) как история. Третий юнит — [workflow-skills](../docs/plans/workflow-skills.md): спека утверждена
-2026-10-21, тикетов пока нет; нарезку предложит `to-tickets` по правилу канона
-(оценка агента + ask-инструмент).
+2026-10-21; тикеты нарезаны 2026-10-21 после оценки агента — один вопрос
+ask-инструмента на тикет, с вариантами действий (канон, «Три фазы»).
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [grilling](workflow-skills/01-grilling.md) | — |
+| 02 | [to-tickets](workflow-skills/02-to-tickets.md) | — |
+| 03 | [ship](workflow-skills/03-ship.md) | — |
+| 04 | [testing](workflow-skills/04-testing.md) | — |
+| 05 | [install](workflow-skills/05-install.md) | 01, 02, 03, 04 |
+| 06 | [dogfood](workflow-skills/06-dogfood.md) | 05 |
+
+Закрытый юнит `harness-agnostic` остаётся историей:
 
 | # | тикет | блокируется |
 |---|---|---|
