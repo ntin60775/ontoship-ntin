@@ -9,6 +9,7 @@ spec: docs/plans/workflow-skills.md#готово — skills/to-tickets/SKILL.md
 spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket,
 criteria fall on the base commit, no file:line anchors
 invariant: the model never invokes this skill
+invariant: a user-invoked skill never calls another user-invoked skill
 invariant: skill texts name no harness root (harness-agnostic)
 """
 from __future__ import annotations
@@ -35,6 +36,10 @@ REQUIRED_PHRASES = (
     "один вопрос на тикет",
     "принять как предложено",
     "вызывает пользователь",
+)
+FORBIDDEN_PHRASES = (
+    "нарезка — решение оператора",
+    "проверяем на дереве",
 )
 
 
@@ -93,6 +98,9 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    for phrase in FORBIDDEN_PHRASES:
+        if phrase in lowered:
+            errors.append(f"body: forbidden phrase {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -113,9 +121,12 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_skill_is_user_invoked_only():
-    """invariant: the model never invokes this skill (canon, «Три фазы»)."""
-    fields, _ = _parse(SKILL.read_text("utf-8"))
+    """invariant: the model never invokes this skill; the skill calls no user skill."""
+    fields, body = _parse(SKILL.read_text("utf-8"))
     assert fields.get("disable-model-invocation", "").lower() == "true"
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "может звать модельные скиллы" in lowered
+    assert "не вызывает других пользовательских скиллов" not in lowered
 
 
 def test_skill_carries_the_slicing_mechanism():
@@ -132,6 +143,8 @@ def test_criteria_fall_on_the_base_commit():
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "падают на базовом коммите" in lowered
+    assert "должен упасть" in lowered
+    assert "проверяем на дереве" not in lowered
     assert "что я могу показать" in lowered
 
 
@@ -147,12 +160,15 @@ def test_tickets_publish_location():
     body = _parse(SKILL.read_text("utf-8"))[1]
     assert ".scratch/<slug>/issues/" in body
     assert "tickets/<slug>/" in body
+    assert "каждый файл несёт" in body.lower()
 
 
 def test_slicing_handoff_follows_the_canon():
-    """spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket."""
+    """spec: docs/decisions/ontoship-core.md#три фазы — agent decides; one ask per ticket."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
+    assert "решение о нарезке принимаешь ты" in lowered
+    assert "нарезка — решение оператора" not in lowered
     assert "один вопрос на тикет" in lowered
     assert "принять как предложено" in lowered
     assert "изменить формулировку" in lowered
@@ -169,7 +185,7 @@ def test_skill_names_no_harness_root(root: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a missing flag and a real anchor."""
+    """invariant: the contract check rejects a missing flag, an anchor, and regressions."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -187,3 +203,15 @@ def test_contract_check_can_fail():
                              if not line.startswith("name:"))
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
+
+    operator_decides = text.replace("Решение о нарезке принимаешь ты",
+                                    "Нарезка — решение оператора", 1)
+    assert operator_decides != text
+    assert any("нарезка — решение оператора" in error
+               for error in _contract_errors(operator_decides))
+
+    weakened = text.replace("каждый критерий должен упасть",
+                            "каждый критерий проверяем на дереве", 1)
+    assert weakened != text
+    assert any("проверяем на дереве" in error
+               for error in _contract_errors(weakened))

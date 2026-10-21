@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 tags: [runbook, start, handoff, core-kb, harness]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -17,7 +17,8 @@ links:
 ## Где мы
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
-самодостаточен: база движка вендорена, тикеты отслеживаются, оба юнита завершены.
+самодостаточен: база движка вендорена, тикеты отслеживаются, первые два юнита
+завершены.
 Каталог переименован из `ontoship-dsh`; исторические логи в `.scratch/ticket-06/`
 сохраняют старое имя.
 
@@ -42,12 +43,12 @@ links:
 Тикеты 01–06 **реализованы и закоммичены**; первый юнит `core-kb` завершён и проверен
 на dogfood. Второй юнит `harness-agnostic` (тикеты 01–04) **закоммичен 2026-10-21**
 (`0767142`). Итог: `skills/kb-search/gitmark.py`
-(1305 строк), три скилла, `scripts/install.sh` и `tests/` (168 passed);
+(1305 строк), три скилла, `scripts/install.sh` и `tests/` (тогда 168 passed);
 `lint --strict` чистый. `AGENTS.md` этого репозитория несёт управляемый блок на
 1046 байт, `.agents/skills` содержит три ссылки с `--check` 0, а `.dsh` удалён.
 `index` покрывает 30 markdown-файлов; `search "canon"` и `search "target test"`
-возвращают ожидаемые документы; `map` и `stat --json` работают. **Следующего тикета
-нет.**
+возвращают ожидаемые документы; `map` и `stat --json` работают. На тот момент
+следующего тикета не было.
 
 Оператор выбрал третий юнит — workflow-скиллы (`grilling`, `to-tickets`, `ship`,
 `testing`). Спека
@@ -67,18 +68,16 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 
 ## Что осталось (по проекту)
 
-Оба юнита закрыты; ниже открытые пункты в порядке зависимостей. Ни один из них пока не
-тикет: следующему юниту нужно решение оператора и утверждённый план.
+Юниты core-kb и harness-agnostic закрыты, третий юнит workflow-skills идёт. Ниже
+открытые пункты в порядке зависимостей; исполнение — один тикет за прогон.
 
-1. **Workflow-скиллы — не построены.** `grilling` (интервью → спека), `to-tickets`
-   (tracer-bullet), `ship` (однопроходная поставка) и `testing` (spec-,
-   инвариантные и target-тесты). [README](../../README.md) называет все четыре;
-   канон описывает три фазы. Каждому нужны `SKILL.md`, контрактный тест и
-   доказательства, как у `core-kb`.
-2. **План-гейт и механика ship — только проза.** Канон определяет гейт и проход
-   ship; ни скилл, ни механизм хоста их пока не реализуют. Первый план workflow —
-   [workflow-skills.md](../plans/workflow-skills.md) — утверждён на план-гейте
-   2026-10-21.
+1. **Workflow-скиллы — третий юнит в работе.** `grilling` (интервью → спека) и
+   `to-tickets` (tracer-bullet) сделаны; `ship` (однопроходная поставка) и
+   `testing` (spec-, инвариантные и target-тесты) ждут тикетов 03–04.
+   [README](../../README.md) называет все четыре; канон описывает три фазы.
+2. **Механика ship — только проза.** Канон определяет проход ship; скилл появится
+   в тикете 03, установка — в 05. План-гейт пройден 2026-10-21:
+   [workflow-skills.md](../plans/workflow-skills.md) утверждён.
 3. **Тикеты 03–06 не начаты.** Нарезка сделана 2026-10-21
    ([tickets/workflow-skills/](../../tickets/workflow-skills/01-grilling.md));
    тикеты 01–02 закрыты. Один тикет за прогон.
@@ -116,8 +115,8 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   сделаны, юнит закрыт.
 - `tickets/harness-agnostic/01…04.md` — тикеты второго юнита; все четыре сделаны,
   юнит закрыт.
-- `tickets/workflow-skills/01…06.md` — тикеты третьего юнита; 01 сделан,
-  02–06 не начаты.
+- `tickets/workflow-skills/01…06.md` — тикеты третьего юнита; 01–02 сделаны,
+  03–06 не начаты.
 - `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; тикет 01 копирует
   и урезает её в `skills/kb-search/`.
 - `skills/kb-search/` — урезанный движок (тикет 01) и пользовательский `SKILL.md`
@@ -141,7 +140,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   называет каждый скилл) и предупреждение о legacy-корнях; идемпотентна; пишет только
   `<project>/.agents/skills`; init не запускает.
 - `tests/` — тесты движка, контрактов скиллов и установки; запуск
-  `python3 -m pytest tests/ -q` (168 passed; stdlib + pytest, без Node).
+  `python3 -m pytest tests/ -q` (191 passed; stdlib + pytest, без Node).
 - `.agents/skills/` — project-local установка под gitignore, проверенная dogfood в
   тикете 04: три ссылки (`kb-search`, `kb-curate`, `init`),
   `scripts/install.sh --check "$PWD"` выходит с кодом 0. `.dsh` удалён.
