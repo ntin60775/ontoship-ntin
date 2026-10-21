@@ -4,9 +4,9 @@
 this repo's `.dsh/skills/`, run the init skill, build the index, lint the KB, search it,
 and check that a fresh DSH session lists the skills in its catalog.
 
-**Blocked by:** 05.
+**Blocked by:** 05 (done).
 
-**Status:** blocked
+**Status:** ready-for-agent
 
 - [ ] `scripts/install.sh /home/prog7/home/dev/contrib/forks/ontoship-dsh` creates the
       three links; `--check` exits 0.

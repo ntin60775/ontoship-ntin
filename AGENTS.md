@@ -22,8 +22,9 @@ tracer-bullet tickets, and a gated ship flow — all on the host's native primit
 docs/          the KB: canon, testing, sources, plans, ops
 tickets/       local execution tracker (not KB; delete a ticket when it is closed)
 vendor/        ontoship-zcode engine baseline (MIT); ticket 01 trims it
-skills/        the core skills (to be built)
-tests/         the engine tests (to be built)
+skills/        the core skills: kb-search, kb-curate, init
+scripts/       project-local install channel (link/copy/check)
+tests/         engine, skill-contract and install tests
 ```
 
 ## Principle

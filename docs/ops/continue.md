@@ -35,15 +35,17 @@ approved.
 | `118fe99` | ticket 03: `kb-curate` skill, ontology model, 149 tests |
 | `6c1cce6` | docs(ops): close ticket 03, hand off to 04 |
 | `90f0846` | ticket 04: `init` skill and its contract test |
+| `dce10f0` | ticket 05: `scripts/install.sh` and its contract test |
 
-Tickets 01–04 are **implemented and committed**: `skills/kb-search/gitmark.py`
+Tickets 01–05 are **implemented and committed**: `skills/kb-search/gitmark.py`
 (1302 lines), `skills/kb-search/SKILL.md`, `skills/kb-curate/SKILL.md`,
-`skills/kb-curate/ontology.md`, `docs/ontology.md`, `skills/init/SKILL.md`, `tests/`
-(153 passed), `lint --strict` clean. The three skills are contract-tested; the ontology
-model is one body in two copies (I8); the init block is 747 bytes and its temp-repo matrix
-covers create/append/replace/fail/idempotence. This repo's `AGENTS.md` does **not** carry
-the block yet — ticket 06 runs init here. Nothing else is built yet: no `scripts/`. Next
-is ticket 05.
+`skills/kb-curate/ontology.md`, `docs/ontology.md`, `skills/init/SKILL.md`,
+`scripts/install.sh`, `tests/` (162 passed), `lint --strict` clean. The three skills are
+contract-tested; the ontology model is one body in two copies (I8); the init block is 747
+bytes and its temp-repo matrix covers create/append/replace/fail/idempotence; install is
+link/copy/check, idempotent, and has a 9-test contract. This repo's `AGENTS.md` does
+**not** carry the block yet — ticket 06 runs init here. This repo's `.dsh/skills` is not
+yet dogfooded either; ticket 06 installs and checks. Next is ticket 06.
 
 ## Where things live
 
@@ -67,17 +69,20 @@ is ticket 05.
 - `skills/init/` — the `init` `SKILL.md` (ticket 04): the managed block
   (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), its five marker cases, and the
   three `.gitignore` lines. Idempotent; writes only `AGENTS.md` and `.gitignore`.
-- `tests/` — engine and skill-contract tests; run `python3 -m pytest tests/ -q`
-  (153 passed; stdlib + pytest, no Node).
-- `.dsh/skills/kb-search` — the gitignored project-local demo install (a symlink); the
-  installer itself is ticket 05.
+- `scripts/install.sh` — the project-local install (ticket 05): default symlinks,
+  `--copy` a detached copy, `--check` drift (exit 0/1, names each skill); idempotent;
+  writes only `<project>/.dsh/skills`; does not run init.
+- `tests/` — engine, skill-contract and install tests; run
+  `python3 -m pytest tests/ -q` (162 passed; stdlib + pytest, no Node).
+- `.dsh/skills/` — the gitignored project-local install; `scripts/install.sh` maintains
+  it, ticket 06 dogfoods it here (the current `kb-search` link is from the earlier demo).
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
 
 ## Ticket order
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01–04 are implemented and committed; 05 is next. 05 waits for 02–04 and 06 waits for 05.
+01–05 are implemented and committed; 06 is next. 05 waited for 02–04; 06 waits for 05.
 Install comes after the skills exist; it links them, it does not run init.
 
 ## Environment facts
@@ -87,14 +92,15 @@ Install comes after the skills exist; it links them, it does not run init.
   log `/run/user/1000/dsh-web.log`.
 - DSH skill roots: `<project>/.dsh/skills` (rank 100), `<project>/.agents/skills` (200),
   `~/.dsh/skills` (400). A skill is `<name>/SKILL.md` or flat `<name>.md`; nested
-  `**/SKILL.md` is not discovered. Frontmatter needs `name` and `description`;
-  `user-invocable` / `disable-model-invocation` are supported.
+  `**/SKILL.md` is not discovered. A directory symlink is stat'ed and followed (a broken
+  link is ignored), so an install may link a bundle. Frontmatter needs `name` and
+  `description`; `user-invocable` / `disable-model-invocation` are supported.
 - **Playwright MCP:** configured in `~/.dsh/profiles/web/cordis.patch.yml` (backup
   `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
   `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
   patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–04 did not need the browser;
+  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–05 did not need the browser;
   do not fake E2E if it is absent.
 - Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
   in PATH; the engine must not need Node.
@@ -107,35 +113,34 @@ OntoShip-core (DSH). План core-kb утверждён; репозиторий
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/05-install.md.
+docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/06-dogfood.md.
 
-Тикеты 01–04 реализованы и закоммичены: skills/kb-search/gitmark.py (1302 строки),
+Тикеты 01–05 реализованы и закоммичены: skills/kb-search/gitmark.py (1302 строки),
 skills/kb-search/SKILL.md, skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md,
-docs/ontology.md, skills/init/SKILL.md, tests/ (153 passed), lint --strict чистый.
-Не переделывай движок, kb-search, kb-curate/ontology и init; не смешивай их изменения
-с коммитом 05.
+docs/ontology.md, skills/init/SKILL.md, scripts/install.sh, tests/ (162 passed),
+lint --strict чистый. Не переделывай движок, kb-search, kb-curate/ontology, init и
+install; не смешивай их изменения с коммитом 06.
 
-Сделай тикет 05: scripts/install.sh <project> — проект-локальная установка ядра в
-<project>/.dsh/skills/{kb-search,kb-curate,init}: симлинки на этот репозиторий по
-умолчанию, --copy для отсоединённой копии, --check для дрейфа (exit 0/1, называет
-каждый отсутствующий или неверный линк). Второй запуск идемпотентен; никаких записей
-вне <project>/.dsh/skills; без .zcode, глобальной установки и Playwright. Install
-линкует скиллы и не запускает init. Сначала исследуй, как DSH обнаруживает скиллы
-(<root>/<name>/SKILL.md, rank 100), потом реализуй. Веди TodoWrite по шагам тикета.
+Сделай тикет 06 (dogfood). Установи ядро в этот репозиторий:
+scripts/install.sh "$PWD"; --check должен быть 0, kb-search уже стоит корректным
+линком и должен остаться unchanged, добавятся kb-curate и init. Выполни здесь init:
+управляемый блок появится в AGENTS.md, три строки .gitignore уже есть; второй прогон
+init ничего не меняет. Затем index, lint --strict, search "canon" →
+docs/decisions/ontoship-core.md, search "target test" → docs/reference/testing.md,
+map и stat --json. Веди TodoWrite по шагам тикета.
 
-Проверка — spec: свежая установка в temp-репо (три линка), второй запуск без изменений,
---check 0; удалить линк → --check 1 и имя; --copy → три реальных каталога; тест на это.
-Если добавляешь матрицу — негативная/мутационная проба. Лог прогона читай.
+Каталог скиллов: текущая сессия загрузила его до установки, поэтому она не доказывает
+discovery. Проверь свежую DSH-сессию в этом репозитории; если открыть её нельзя —
+честно назови пробел, не выдавай старый каталог за новый и не имитируй E2E.
 
-Demo: install в temp-репо; ls -l .dsh/skills показывает три ссылки; повторный запуск
-без изменений; --check 0; удалить линк → --check 1 и имя; --copy в другой temp-репо —
-три реальных каталога.
-
-Если нужен браузер, проверь mcp__playwright-mcp__*; если его нет — попроси оператора
-перезапустить DSH, не имитируй E2E.
+Проверка — spec: установка и --check 0, init идемпотентен, index строит
+.gitmark/index.db, lint --strict 0, оба search, map пишет HTML, stat --json валиден,
+свежий каталог содержит kb-search/kb-curate/init. Лог прогона читай. .dsh/, .gitmark/
+и *-map.html игнорируются git; AGENTS.md и .gitignore после init — реальные изменения
+репозитория.
 
 В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/05-install.md и docs/ops/continue.md. Один тикет за прогон;
+tickets/core-kb/06-dogfood.md и docs/ops/continue.md. Один тикет за прогон;
 канон не переоткрывай; при реальном конфликте останови и спроси оператора.
 ```
 
