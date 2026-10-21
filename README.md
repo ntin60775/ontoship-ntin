@@ -27,7 +27,7 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 тикетов, открытая работа и стартовый промпт. Юниты
 [core-kb](docs/plans/core-kb.md) и [harness-agnostic](docs/plans/harness-agnostic.md)
 завершены; записи тикетов лежат в [tickets/](tickets/README.md). Следующий юнит —
-workflow-скиллы; план в подготовке.
+workflow-скиллы; план утверждён 2026-10-21, тикеты нарезает `to-tickets`.
 
 ## Состояние
 

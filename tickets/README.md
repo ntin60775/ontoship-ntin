@@ -10,8 +10,8 @@ Durable-контракт лежит в [`docs/plans/`](../docs/plans/README.md).
 `core-kb` закрыт: все шесть тикетов сделаны (2026-10-21). Второй юнит
 [`harness-agnostic`](../docs/plans/harness-agnostic.md) тоже закрыт: утверждён
 2026-10-21, все четыре тикета сделаны; они лежат в
-[`harness-agnostic/`](harness-agnostic/01-install-root.md) как история. Третий юнит выбран — [workflow-skills](../docs/plans/workflow-skills.md):
-спека-черновик ждёт план-гейта, тикетов пока нет.
+[`harness-agnostic/`](harness-agnostic/01-install-root.md) как история. Третий юнит — [workflow-skills](../docs/plans/workflow-skills.md): спека утверждена
+2026-10-21, тикетов пока нет — нарезает `to-tickets` по вызову оператора.
 
 | # | тикет | блокируется |
 |---|---|---|
