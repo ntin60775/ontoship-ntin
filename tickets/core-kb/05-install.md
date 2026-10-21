@@ -5,9 +5,9 @@
 (`--copy` for a detached install), and `--check` reports drift. It links the skills; it
 does not run the init skill.
 
-**Blocked by:** 02, 03, 04 (the skill directories must exist).
+**Blocked by:** 02, 03, 04 (all done; the skill directories exist).
 
-**Status:** blocked
+**Status:** ready-for-agent
 
 - [ ] `scripts/install.sh <project>` creates `.dsh/skills/` and one symlink per skill to
       `<repo>/skills/<name>`; the target layout is exactly what DSH discovers (rank 100).
