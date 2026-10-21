@@ -2,11 +2,13 @@
 
 Local execution tracker. One file per ticket, blockers first. Tickets are **not KB
 documents**: no frontmatter, no ontology invariants, no plan registry. They are tracked
-only so a fresh clone can continue the work; a closed ticket is deleted, git keeps the
-history.
+only so a fresh clone can continue the work; a closed ticket is marked done and keeps its
+evidence in the tracker (the operator may remove a closed unit's tickets; git keeps the
+history).
 
-The durable contract is in [`docs/plans/`](../docs/plans/README.md). The current unit is
-`core-kb`; the tickets are in [`core-kb/`](core-kb/01-engine.md), in execution order.
+The durable contract is in [`docs/plans/`](../docs/plans/README.md). The first unit
+`core-kb` is closed: all six tickets are done (2026-10-21), and there is no next ticket
+yet. The tickets are in [`core-kb/`](core-kb/01-engine.md), in execution order.
 
 | # | ticket | blocked by |
 |---|---|---|

@@ -17,8 +17,8 @@ ephemeral; use this runbook and the tickets, not the snapshot, as the source of 
 ## Where we are
 
 Repo: `/home/prog7/home/dev/contrib/forks/ontoship-dsh` (git). It is
-self-contained: the engine baseline is vendored, the tickets are tracked, the plan is
-approved.
+self-contained: the engine baseline is vendored, the tickets are tracked, the first plan
+is complete.
 
 | commit | what |
 |---|---|
@@ -42,9 +42,34 @@ Tickets 01–06 are **implemented and committed**; the first unit `core-kb` is c
 dogfooded. `skills/kb-search/gitmark.py` (1302 lines), the three skills, `scripts/install.sh`
 and `tests/` (162 passed) are in place; `lint --strict` is clean. This repo's `AGENTS.md`
 now carries the 747-byte managed block, and `.dsh/skills` has the three links with
-`--check` 0. `index` = 24 files / 119 chunks / 36 links; `search "canon"` and
-`search "target test"` return the expected docs; `map` and `stat --json` work. There is
-**no next ticket**: the next unit needs an operator decision and a plan first.
+`--check` 0. `index` covers 24 markdown files; `lint --strict` is clean; `search "canon"`
+and `search "target test"` return the expected docs; `map` and `stat --json` work. There
+is **no next ticket**: the next unit needs an operator decision and a plan first.
+
+## What remains (project-wide)
+
+`core-kb` is closed; these are the open items, in dependency order. None of them is a
+ticket yet: the next unit needs the operator's decision and an approved plan.
+
+1. **Workflow skills — not built.** `grilling` (interview → spec), `to-tickets`
+   (tracer bullets), `ship` (one-pass delivery) and `testing` (spec / invariant / target
+   tests). The [README](../../README.md) names all four; the canon describes the three
+   phases. Each needs a `SKILL.md`, a contract test and evidence, as `core-kb` has.
+2. **Plan gate and ship mechanics — prose only.** The canon defines the gate and the
+   ship pass; no skill or host mechanism implements them yet. The first workflow plan
+   must be approved by hand (there is no `grilling` to write it), or the unit starts
+   with `grilling` itself.
+3. **No next unit.** [docs/plans/](../plans/README.md) holds only `core-kb`; there is no
+   approved plan and no ticket 07. Do not invent either.
+4. **Definition of done is not demonstrated.** No end-to-end run has taken a ticket from
+   a fresh session through plan → tickets → ship → `main`. The repo has no remote and no
+   CI (`git remote -v` is empty), so a PR/merge path is unexercised; if the DoD requires
+   a PR, the remote is an operator decision.
+
+**Catalog verification note.** Ticket 06's catalog criterion is proven by DSH's live
+catalog refresh (the session listed `kb-search`, `kb-curate`, `init`; `skill(init)` read
+`.dsh/skills/init`). Opening a literal new session is an optional confirmation, not open
+work.
 
 ## Where things live
 
@@ -55,10 +80,11 @@ now carries the 747-byte managed block, and `.dsh/skills` has the three links wi
 - `docs/reference/testing.md` — spec / invariant / target tests, quality bar, agentic loop.
 - `docs/reference/sources.md` — OntoShip (vakovalskii), Pocock, ESEM 2026; the 53%
   correction.
-- `docs/plans/core-kb.md` — the approved spec of the first unit.
+- `docs/plans/core-kb.md` — the approved, complete spec of the first unit (tickets 01–06).
 - `docs/ontology.md` — this repo's ontology copy and the only I2 type vocabulary; I8
   compares its body from the first `## ` with `skills/kb-curate/ontology.md`.
-- `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB).
+- `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB); all six are
+  done and the unit is closed.
 - `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; ticket 01
   copies and trims it into `skills/kb-search/`.
 - `skills/kb-search/` — the trimmed engine (ticket 01) and the user-facing `SKILL.md`
@@ -85,7 +111,8 @@ now carries the 747-byte managed block, and `.dsh/skills` has the three links wi
 
 All six are done; `core-kb` is closed. There is no ticket 07: the next unit must be
 planned, approved by the operator and cut into tickets before code starts. Do not invent
-a ticket or reopen the canon.
+a ticket or reopen the canon. The open work is in
+[What remains (project-wide)](#what-remains-project-wide).
 
 ## Environment facts
 
@@ -125,7 +152,8 @@ docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/06-dogfood.md.
 Тикета 07 нет. Не придумывай следующий тикет и не переоткрывай канон: следующий юнит
 выбирает оператор. Если он называет workflow-скиллы (grilling, to-tickets, ship,
 testing), сначала нужен утверждённый план; grilling ещё не реализован — назови это,
-не начинай код без плана.
+не начинай код без плана. Открытый остаток по проекту — в разделе
+"What remains (project-wide)" этого runbook.
 
 Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
 python3 .dsh/skills/kb-search/gitmark.py index; lint --strict → 0;

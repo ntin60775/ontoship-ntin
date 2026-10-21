@@ -10,8 +10,8 @@ tracer-bullet tickets, and a gated ship flow — all on the host's native primit
 
 ## Start here
 
-- **Continue** → [docs/ops/continue.md](docs/ops/continue.md) — state, ticket order,
-  environment facts, start prompt.
+- **Continue** → [docs/ops/continue.md](docs/ops/continue.md) — state, open work,
+  ticket order, environment facts, start prompt.
 - **The canon** → [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md)
 - **Sources** → [docs/reference/sources.md](docs/reference/sources.md)
 - **The KB** → [docs/README.md](docs/README.md)
@@ -20,7 +20,7 @@ tracer-bullet tickets, and a gated ship flow — all on the host's native primit
 
 ```
 docs/          the KB: canon, testing, sources, plans, ops
-tickets/       local execution tracker (not KB; delete a ticket when it is closed)
+tickets/       local execution tracker (not KB; closed tickets keep evidence)
 vendor/        ontoship-zcode engine baseline (MIT); ticket 01 trims it
 skills/        the core skills: kb-search, kb-curate, init
 scripts/       project-local install channel (link/copy/check)

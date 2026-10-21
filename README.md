@@ -24,15 +24,17 @@ The canon is one page: [docs/decisions/ontoship-core.md](docs/decisions/ontoship
 Sources and what was adopted from each: [docs/reference/sources.md](docs/reference/sources.md).
 
 **Start here:** [docs/ops/continue.md](docs/ops/continue.md) — the state, the ticket
-order and the start prompt. The first unit is [core-kb](docs/plans/core-kb.md); its
-tickets are tracked in [tickets/core-kb/](tickets/core-kb/01-engine.md).
+order, the open work and the start prompt. The first unit
+[core-kb](docs/plans/core-kb.md) is complete; its ticket record is in
+[tickets/core-kb/](tickets/core-kb/06-dogfood.md). The next unit is not chosen yet.
 
 ## Status
 
-**Pre-alpha, self-contained.** The repo carries the canon, the plan, the tracked tickets
-and the vendored engine baseline (`vendor/ontoship-zcode/`). The core is being built:
-four skills (`grilling`, `to-tickets`, `ship`, `testing`), the GitMark engine, and the
-install channel. The previous line
+**Pre-alpha, self-contained.** The KB core (`core-kb`) is complete and dogfooded: the
+GitMark engine, `kb-search`, `kb-curate`, `init` and `scripts/install.sh`, with 162 tests
+and a clean `lint --strict`. The workflow skills (`grilling`, `to-tickets`, `ship`,
+`testing`) are not built. The open work is recorded in
+[docs/ops/continue.md](docs/ops/continue.md#what-remains-project-wide). The previous line
 ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) is kept as the **strict
 profile** and history — not the default.
 

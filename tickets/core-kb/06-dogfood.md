@@ -49,7 +49,8 @@ exists.
   `skill(init)` resolved its base directory to `.dsh/skills/init` and read the installed
   copy. No separate fresh session was opened: the live catalog refresh is the same
   filesystem discovery a new session performs, and no restart was needed. The three
-  frontmatter names were also checked on disk.
+  frontmatter names were also checked on disk. A literal new session is an optional
+  confirmation, not open work.
 - **Scope:** no engine, skill, ontology or test change. `.dsh/`, `.gitmark/` and
   `docs-map.html` are ignored by git; the only tracked change from the run is `AGENTS.md`.
   `pytest` → 162 passed; `lint --strict` clean after the block.

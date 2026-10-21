@@ -3,7 +3,7 @@ node_type: plan
 title: core-kb — installable KB core
 service: _platform
 status: active
-updated: 2026-10-19
+updated: 2026-10-21
 links:
   relates_to: [../decisions/ontoship-core.md, ../reference/sources.md]
 ---
@@ -13,6 +13,10 @@ links:
 The first unit of the clean repo: a project can install the core locally and get a
 working knowledge base — index, search, ontology lint, map — with **no registries** and
 **no inventory command**.
+
+**State (2026-10-21): complete.** Tickets 01–06 are done; the unit is closed and
+dogfooded in this repository. This file remains the durable contract of the unit, not a
+ticket ledger.
 
 ## Goal
 
