@@ -1,62 +1,65 @@
-# 03: kb-curate + ontology
+# 03: kb-curate + онтология
 
-**What to build:** the curation rules and the shipped ontology model: node types,
-frontmatter properties, typed links, and the invariants I1–I6 and I8–I10 (I7 is out).
-The same model ships in `skills/kb-curate/ontology.md` and lives in `docs/ontology.md`
-for this repo; lint I8 checks that the bodies agree from the first `## ` heading.
+**Что построить:** правила курирования и поставляемую модель онтологии: типы узлов,
+свойства frontmatter, типизированные ссылки и инварианты I1–I6 и I8–I10 (I7 вне
+ядра). Та же модель поставляется в `skills/kb-curate/ontology.md` и живёт в
+`docs/ontology.md` для этого репозитория; линт I8 проверяет, что тела совпадают с
+первого заголовка `## `.
 
-**Blocked by:** 01 (done).
+**Блокируется:** 01 (сделан).
 
-**Status:** done (2026-10-20)
+**Статус:** сделан (2026-10-20)
 
-- [x] `skills/kb-curate/SKILL.md` tells the agent how to CREATE / UPDATE / DEPRECATE /
-      LINK / REINDEX a doc: classify, place, frontmatter, link, update the folder index.
-- [x] `skills/kb-curate/ontology.md` is the shipped model; `docs/ontology.md` is this
-      repo's copy; `lint --strict` passes I8 (same body from the first `## `).
-- [x] The model names the core invariants I1–I6 and I8–I10, and says plainly that I7
-      (registry) is out of the core.
-- [x] Adding a doc with `node_type`, a body link and a folder index link passes lint;
-      removing `node_type` gives I1; a broken link gives I4.
-- [x] No new invariant is introduced; no registry table is required.
+- [x] `skills/kb-curate/SKILL.md` говорит агенту, как CREATE / UPDATE / DEPRECATE /
+      LINK / REINDEX документ: классифицируй, размести, frontmatter, свяжи, обнови
+      индекс папки.
+- [x] `skills/kb-curate/ontology.md` — поставляемая модель; `docs/ontology.md` —
+      копия этого репозитория; `lint --strict` проходит I8 (одно тело с первого
+      `## `).
+- [x] Модель называет ключевые инварианты I1–I6 и I8–I10 и прямо говорит, что I7
+      (реестр) вне ядра.
+- [x] Добавление документа с `node_type`, ссылкой в теле и ссылкой из индекса папки
+      проходит линт; удаление `node_type` даёт I1; битая ссылка даёт I4.
+- [x] Никакой новый инвариант не введён; таблица реестра не требуется.
 
-**What can I demo when this is done?** Add a doc to `docs/reference/`, link it from the
-folder README, run `lint --strict` (clean); remove its `node_type`, run lint again (ERR
-I1, exit 1).
+**Что я могу показать, когда это готово?** Добавь документ в `docs/reference/`, свяжи
+его из README папки, запусти `lint --strict` (чисто); удали его `node_type`, запусти
+линт снова (ERR I1, код 1).
 
-## Evidence (2026-10-20)
+## Доказательства (2026-10-20)
 
-- **Delivered in `118fe99`:** `skills/kb-curate/ontology.md` (105 lines; the shipped
-  model), `docs/ontology.md` (119 lines; the project twin and the only I2 type
-  vocabulary), `skills/kb-curate/SKILL.md` (103 lines; the five operations), the
-  `docs/README.md` index bullet, and `tests/test_skill_kb_curate.py` (7 tests).
-- **Model:** 11 node types in the `| node_type` table (`index`, `decision`, `plan`,
+- **Поставлено в `118fe99`:** `skills/kb-curate/ontology.md` (105 строк;
+  поставляемая модель), `docs/ontology.md` (119 строк; копия проекта и единственный
+  словарь типов для I2), `skills/kb-curate/SKILL.md` (103 строки; пять операций),
+  пункт индекса в `docs/README.md` и `tests/test_skill_kb_curate.py` (7 тестов).
+- **Модель:** 11 типов узлов в таблице `| node_type` (`index`, `decision`, `plan`,
   `reference`, `runbook`, `guide`, `gotcha`, `service`, `report`, `ticket`, `schema`),
-  the frontmatter field table, six typed link keys (`documents`, `depends_on`,
-  `supersedes`, `relates_to`, `implemented_by`, `part_of`), and I1–I6 plus I8–I10. I7 is
-  named as registry/inventory and explicitly out; no registry table, provenance, Reel or
-  acceptance chord.
-- **I2/I8:** `node_types(REPO)` returns exactly the 11 rows parsed from
-  `docs/ontology.md`; every `node_type` in `docs/` is in the table. The body from the
-  first `## ` is equal in `docs/ontology.md` and `skills/kb-curate/ontology.md` (the test
-  extracts it independently), and `ontology_twin_issues(REPO) == []`; the flat-repo
-  divergence path is the engine's ERR (existing engine test), the external-package path
-  is WARN.
-- **Tests:** `python3 -m pytest tests/ -q` → **149 passed** (142 prior + 7
-  new), no Node. The new tests parse the skill contract (with a mutation probe for a
-  missing operation, model, name, quote and an injected provenance line), parse the I2
-  table and the exact I1–I6/I8–I10 set, assert the I8 twin, assert the repository KB has
-  no lint errors, and run the demo matrix.
-- **Demo matrix (`tests/…::test_demo_doc_passes_then_i1_and_i4_fail_strict`):** a temp
-  KB built from the shipped ontology passes `lint --strict` (exit 0); removing
-  `node_type` gives ERR I1 and exit 1; replacing the body link gives ERR I4 and exit 1.
-- **Live demo in this repo:** added `docs/reference/demo-curation.md`, linked it from
-  `docs/reference/README.md`, `lint --strict` → `✓ чисто` (24 files, exit 0); removed
-  `node_type` → `ERR I1 docs/reference/demo-curation.md`, exit 1; restored the type and
-  broke the body link → `ERR I4 … битая ссылка → missing.md`, exit 1; removed the demo
-  doc, restored the README, `index` → 23 files / 106 chunks / 35 links, `lint --strict`
-  → `✓ чисто` (23 files, exit 0). Logs: `.scratch/ticket-03/demo-*.log`.
-- **Scope:** no engine or `kb-search` change; commit `118fe99` touches exactly five files
-  (`docs/README.md`, `docs/ontology.md`, `skills/kb-curate/SKILL.md`,
+  таблица полей frontmatter, шесть ключей типизированных ссылок (`documents`,
+  `depends_on`, `supersedes`, `relates_to`, `implemented_by`, `part_of`) и I1–I6 плюс
+  I8–I10. I7 назван как registry/inventory и явно вынесен; никакой таблицы реестра,
+  provenance, Reel или аккорда приёмки.
+- **I2/I8:** `node_types(REPO)` возвращает ровно 11 строк, разобранных из
+  `docs/ontology.md`; каждый `node_type` в `docs/` есть в таблице. Тело с первого
+  `## ` равно в `docs/ontology.md` и `skills/kb-curate/ontology.md` (тест извлекает
+  его независимо), и `ontology_twin_issues(REPO) == []`; путь расхождения в плоском
+  репозитории — ERR движка (существующий тест движка), путь внешнего пакета — WARN.
+- **Тесты:** `python3 -m pytest tests/ -q` → **149 passed** (142 прежних + 7 новых),
+  без Node. Новые тесты разбирают контракт скилла (с мутационной пробой на
+  отсутствующую операцию, модель, имя, кавычку и внедрённую строку provenance),
+  разбирают таблицу I2 и точный набор I1–I6/I8–I10, проверяют двойник I8, проверяют,
+  что у KB репозитория нет ошибок линта, и прогоняют демо-матрицу.
+- **Демо-матрица (`tests/…::test_demo_doc_passes_then_i1_and_i4_fail_strict`):**
+  временная KB, собранная из поставляемой онтологии, проходит `lint --strict` (код 0);
+  удаление `node_type` даёт ERR I1 и код 1; замена ссылки в теле даёт ERR I4 и код 1.
+- **Живое демо в этом репозитории:** добавлен `docs/reference/demo-curation.md`,
+  связан из `docs/reference/README.md`, `lint --strict` → `✓ чисто` (24 файла, код 0);
+  удалён `node_type` → `ERR I1 docs/reference/demo-curation.md`, код 1; тип
+  восстановлен, ссылка в теле сломана → `ERR I4 … битая ссылка → missing.md`, код 1;
+  демо-документ удалён, README восстановлен, `index` → 23 файла / 106 чанков /
+  35 ссылок, `lint --strict` → `✓ чисто` (23 файла, код 0). Логи:
+  `.scratch/ticket-03/demo-*.log`.
+- **Рамки:** изменений движка или `kb-search` нет; коммит `118fe99` трогает ровно пять
+  файлов (`docs/README.md`, `docs/ontology.md`, `skills/kb-curate/SKILL.md`,
   `skills/kb-curate/ontology.md`, `tests/test_skill_kb_curate.py`).
 
-**Remaining:** ticket 04 (`init`) is next; 05 and 06 follow in order.
+**Остаток:** дальше тикет 04 (`init`); 05 и 06 идут по порядку.

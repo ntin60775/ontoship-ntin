@@ -1,132 +1,138 @@
 ---
 name: init
-description: "Initialize the OntoShip entry point in a project: create or update the managed block in AGENTS.md and add the three .gitignore lines the KB requires. Idempotent; writes only AGENTS.md and .gitignore, and in AGENTS.md only between the ontoship markers. Use after the core is installed, when the user asks to initialize or set up OntoShip in this project."
+description: "Инициализация точки входа OntoShip в проекте: создание или обновление управляемого блока в AGENTS.md и четырёх строк .gitignore, которые требует KB. Идемпотентно; пишет только AGENTS.md и .gitignore, а в AGENTS.md — только между маркерами ontoship. Используй после установки ядра, когда пользователь просит инициализировать или настроить OntoShip в этом проекте."
 ---
 
 # Init
 
-Set up the entry point of an OntoShip project. Run this once per project, after the core
-is installed. It is **idempotent**: a second run changes nothing, and `git diff` after it
-is empty.
+Настрой точку входа проекта OntoShip. Запускай это один раз на проект, после
+установки ядра. Скилл **идемпотентен**: повторный запуск ничего не меняет, и
+`git diff` после него пуст.
 
-**What init owns.** Two files, nothing else:
+**Чем владеет init.** Два файла, ничего больше:
 
-- `AGENTS.md` — a managed block between `<!-- BEGIN ontoship -->` and
-  `<!-- END ontoship -->`. Everything outside the markers is project text: never edit
-  it, never move it, never rewrite the file wholesale.
-- `.gitignore` — the three lines the KB requires: `.gitmark/`, `*-map.html`,
-  `.scratch/`.
+- `AGENTS.md` — управляемый блок между `<!-- BEGIN ontoship -->` и
+  `<!-- END ontoship -->`. Всё вне маркеров — текст проекта: никогда не правь, не
+  перемещай и не переписывай файл целиком.
+- `.gitignore` — четыре строки, которые требует KB: `.gitmark/`, `*-map.html`,
+  `.scratch/`, `.agents/skills/`. Последняя скрывает project-local установку ядра.
 
-Init writes these two files and nothing else: it does not create a command index or
-generated tables, it does not write `docs/`, `.dsh/`, `.gitmark/` or any other file, and
-it does not run `index`, `lint` or `map`. If it cannot write one of the two files, it
-reports that and stops — it never substitutes a different location.
+Init пишет эти два файла и ничего больше: он не создаёт индекс команд или
+генерируемые таблицы, не пишет `docs/`, `.agents/skills/`, `.gitmark/` или любой
+другой файл и не запускает `index`, `lint` или `map`. Если он не может записать один
+из двух файлов, он сообщает об этом и останавливается — он никогда не подменяет
+расположение.
 
-## 1. Find the project root
+## 1. Найди корень проекта
 
-Run `git rev-parse --show-toplevel` from the project root; fall back to the current
-directory when the project is not a git repository. Write both files at that root.
+Запусти `git rev-parse --show-toplevel` из корня проекта; откатись к текущему
+каталогу, когда проект не git-репозиторий. Пиши оба файла в этом корне.
 
-DSH loads `AGENTS.md` from the user-global roots (`~/.dsh/AGENTS.md`,
-`~/.agents/AGENTS.md`) and then from each directory between the project root (the first
-ancestor with `.git`) and the session's working directory. A subdirectory file is loaded
-only when a file under it is touched, so the project root is where the entry point
-belongs. Do not write `~/.dsh/AGENTS.md` or a nested `AGENTS.md`.
+`AGENTS.md` читается из корня проекта; харнесс может также смотреть родительские
+каталоги и собственные глобальные файлы, но точка входа принадлежит корню проекта.
+Не пиши глобальный `AGENTS.md` или вложенный `AGENTS.md`.
 
-## 2. Update AGENTS.md
+## 2. Обнови AGENTS.md
 
-Read the file **without normalizing its bytes** — binary I/O, or text I/O with
-`newline=''`. Determine the newline style from the first line (`\r\n` or `\n`) and use it
-for the inserted lines. A marker is present only when a whole line, ignoring a trailing
-`\r`, equals the marker string. Then apply exactly one of five cases:
+Прочитай файл **не нормализуя его байты** — бинарный ввод-вывод или текстовый с
+`newline=''`. Определи стиль переводов строк по первой строке (`\r\n` или `\n`) и
+используй его для вставленных строк. Маркер присутствует, только когда целая строка,
+без учёта завершающего `\r`, равна строке маркера. Затем примени ровно один из пяти
+случаев:
 
-| case | action |
+| случай | действие |
 |---|---|
-| `AGENTS.md` is missing | create it containing exactly the block below |
-| file exists, neither marker string appears | append one blank line, then the block; every existing line stays |
-| one BEGIN and one END, in that order, and the inner text equals the template | change nothing; the file is already current |
-| one BEGIN and one END, in that order, and the inner text differs | replace only the inner text, keep the marker lines and everything outside them; report `[WARN]` |
-| any marker string appears but the pair is not exactly one BEGIN then one END | change nothing, report `[FAIL]`, stop — do not touch `.gitignore` either |
+| `AGENTS.md` отсутствует | создай его, содержащим ровно блок ниже |
+| файл существует, ни одна строка маркера не встречается | добавь одну пустую строку, затем блок; каждая существующая строка остаётся |
+| один BEGIN и один END, в этом порядке, и внутренний текст равен шаблону | ничего не меняй; файл уже актуален |
+| один BEGIN и один END, в этом порядке, и внутренний текст отличается | замени только внутренний текст, сохрани строки маркеров и всё вне них; сообщи `[WARN]` |
+| любая строка маркера встречается, но пара — не ровно один BEGIN, затем один END | ничего не меняй, сообщи `[FAIL]`, остановись — `.gitignore` тоже не трогай |
 
-The last case covers a lone marker, a reversed pair, a duplicate pair, and a marker that
-is not on its own line. Fail closed: guessing which pair is "the" block risks destroying
-project text.
+Последний случай покрывает одиночный маркер, перевёрнутую пару, дублирующую пару и
+маркер, который стоит не на своей строке. Отказывай закрыто: догадка о том, какая
+пара — «та самая», рискует уничтожить текст проекта.
 
-The block is **verbatim**; do not reflow, retitle, add or drop lines:
+Блок **дословный**; не переформатируй, не переименовывай, не добавляй и не удаляй
+строки:
 
 ````markdown
 <!-- BEGIN ontoship -->
-## Knowledge base (OntoShip)
+## База знаний (OntoShip)
 
-- Entry point: [`docs/README.md`](docs/README.md) — the KB master index; every folder has
-  a `README.md` index.
-- Search before answering or writing: load the `kb-search` skill. The engine is at
-  `.dsh/skills/kb-search/gitmark.py` for direct use.
-- New or updated docs: load the `kb-curate` skill — search first, never duplicate.
-- Maintain after editing docs:
+- Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
+  есть индекс `README.md`.
+- Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
+  `.agents/skills/kb-search/gitmark.py` для прямого запуска.
+- Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
+  не дублируй.
+- Сопровождение после правки документов:
 
   ```sh
-  python3 .dsh/skills/kb-search/gitmark.py index
-  python3 .dsh/skills/kb-search/gitmark.py lint --strict
-  python3 .dsh/skills/kb-search/gitmark.py map -o docs-map.html
+  python3 .agents/skills/kb-search/gitmark.py index
+  python3 .agents/skills/kb-search/gitmark.py lint --strict
+  python3 .agents/skills/kb-search/gitmark.py map -o docs-map.html
   ```
 
-- The KB is markdown + git: `.gitmark/`, `*-map.html` and `.scratch/` are derived or
-  ephemeral — never committed.
+- KB — это markdown + git: `.gitmark/`, `*-map.html` и `.scratch/` производные или
+  эфемерные — никогда не коммитятся.
 <!-- END ontoship -->
 ````
 
-The block is generated content. Project-specific instructions belong outside the markers.
-An edit inside the block is lost on the next init; say so when the block is replaced.
+Блок — генерируемое содержимое. Инструкции конкретного проекта принадлежат вне
+маркеров. Правка внутри блока теряется при следующем init; скажи об этом, когда блок
+заменяется.
 
-Compare the inner text after normalizing line endings (`\r\n` to `\n`) on both sides, so a
-CRLF file with an otherwise current block is not rewritten. When writing, keep every
-byte outside the block as it was; do not add a trailing newline that the file did not
-have.
+Сравнивай внутренний текст после нормализации переводов строк (`\r\n` → `\n`) с обеих
+сторон, чтобы файл с CRLF и в остальном актуальным блоком не переписывался. При
+записи сохраняй каждый байт вне блока как был; не добавляй завершающий перевод
+строки, которого в файле не было.
 
-## 3. Update .gitignore
+## 3. Обнови .gitignore
 
-Create the file when it is missing. Otherwise append only the lines that are not already
-present as a line (compare the trimmed line). Leave every existing line, its order and
-its comments alone — never remove a duplicate, a broader pattern or a comment. Append the
-missing lines in this order:
+Создай файл, если его нет. Иначе добавь только строки, которых ещё нет как строки
+(сравнивай обрезанную строку). Оставь каждую существующую строку, её порядок и
+комментарии — никогда не удаляй дубль, более широкий шаблон или комментарий. Добавляй
+отсутствующие строки в этом порядке:
 
 ```text
 .gitmark/
 *-map.html
 .scratch/
+.agents/skills/
 ```
 
-If the file is non-empty and does not end with a newline, add one before appending.
-Finish with a newline after the last appended line. If all three lines are already
-present, change nothing.
+Если файл непустой и не заканчивается переводом строки, добавь его перед добавлением.
+Заверши переводом строки после последней добавленной строки. Если все четыре строки
+уже есть, ничего не меняй.
 
-## 4. Verify
+## 4. Проверь
 
-From the project root:
+Из корня проекта:
 
 ```sh
 git diff -- AGENTS.md .gitignore
 git status --short
 ```
 
-The first run shows the block and the missing lines. A second run must show **no diff at
-all** — that is the idempotence check, not a claim. If the second run shows a diff, the
-block text or the line comparison is not stable: fix the skill, do not paper over it.
+Первый прогон показывает блок и отсутствующие строки. Второй прогон должен показать
+**никакого diff** — это и есть проверка идемпотентности, а не утверждение. Если второй
+прогон показывает diff, текст блока или сравнение строк нестабильны: исправь скилл,
+не замазывай.
 
-Check that the marker pair is exactly one pair:
+Проверь, что пара маркеров ровно одна:
 
 ```sh
 grep -c '^<!-- BEGIN ontoship -->$' AGENTS.md   # 1
 grep -c '^<!-- END ontoship -->$' AGENTS.md     # 1
 ```
 
-## 5. Report
+## 5. Отчёт
 
-Name each file and what happened: `created`, `appended` (name the lines), `updated inside
-markers`, or `unchanged`. On an update, warn that edits inside the block do not survive.
-On `[FAIL]`, quote the marker problem and state that nothing was changed.
+Назови каждый файл и что произошло: `created`, `appended` (назови строки),
+`updated inside markers` или `unchanged`. При обновлении предупреди, что правки
+внутри блока не выживают. При `[FAIL]` процитируй проблему маркеров и заяви, что
+ничего не изменено.
 
-Then hand over: the next step is building the KB. `docs/README.md` is the master index;
-new docs go through `kb-curate`; the maintain commands are in the block. Do not run them
-as part of init.
+Затем передай дальше: следующий шаг — построить KB. `docs/README.md` — главный индекс;
+новые документы идут через `kb-curate`; команды сопровождения — в блоке. Не запускай
+их в рамках init.

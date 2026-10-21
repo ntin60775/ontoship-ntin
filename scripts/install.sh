@@ -3,16 +3,18 @@
 #
 # usage: scripts/install.sh [--copy | --check] <project>
 #
-# The target layout is exactly what DSH discovers at rank 100:
-#   <project>/.dsh/skills/<name>/SKILL.md
-# The default install links the three skill bundles to this repository; --copy makes
-# a detached copy; --check verifies either form and names every missing or drifted
-# skill. The install is idempotent and writes only under <project>/.dsh/skills.
-# It links the skills; it does not run the init skill.
+# The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
+# skill root shared by zcode, DSH and Qoder. The default install links the three skill
+# bundles to this repository; --copy makes a detached copy; --check verifies either
+# form and names every missing or drifted skill. Legacy harness roots (.dsh, .zcode,
+# .qoder) are reported as warnings and never written or deleted. The install is
+# idempotent and writes only under <project>/.agents/skills. It links the skills; it
+# does not run the init skill.
 
 set -euo pipefail
 
 readonly SKILLS=(kb-search kb-curate init)
+readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
 readonly EXCLUDES=(-x __pycache__ -x '*.pyc')
 
 here=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
@@ -22,13 +24,15 @@ usage() {
   cat <<'EOF'
 usage: scripts/install.sh [--copy | --check] <project>
 
-Install the OntoShip core into <project>/.dsh/skills, the DSH project root (rank 100).
+Install the OntoShip core into <project>/.agents/skills, the project-local skill root
+shared by zcode, DSH and Qoder.
 
   (default)  symlink kb-search, kb-curate and init to this repository
   --copy     copy the skill directories instead (detached install)
-  --check    verify the install; exit 1 and name each missing or drifted skill
+  --check    verify the install; warn about legacy .dsh/.zcode/.qoder entries;
+             exit 1 and name each missing or drifted skill
 
-Idempotent; writes only <project>/.dsh/skills; never runs the init skill.
+Idempotent; writes only <project>/.agents/skills; never runs the init skill.
 EOF
 }
 
@@ -77,7 +81,7 @@ done
 [[ -n $project ]] || usage_error "missing <project>"
 [[ -d $project ]] || usage_error "not a project directory: $project"
 project=$(CDPATH= cd -- "$project" && pwd -P)
-readonly dest=$project/.dsh/skills
+readonly dest=$project/.agents/skills
 
 for tool in cp diff find ln mkdir readlink rm; do
   command -v "$tool" >/dev/null 2>&1 || die "required tool not found: $tool"
@@ -115,8 +119,40 @@ describe_entry() {
   fi
 }
 
+# Legacy harness roots that still point into this repository are reported, never
+# touched. DSH ranks .dsh/skills (100) above .agents/skills (200), so a stale entry
+# shadows the universal install; the fix is the operator's, not the installer's.
+legacy_warnings() {
+  local root base name path
+  for root in "${LEGACY_ROOTS[@]}"; do
+    base=$project/$root/skills
+    if is_link_to "$base" "$REPO/skills"; then
+      if [[ $root == .dsh ]]; then
+        printf 'warning: legacy .dsh/skills -> %s; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — remove it manually\n' \
+          "$(readlink -- "$base")" >&2
+      else
+        printf 'warning: legacy %s/skills -> %s — remove it manually\n' \
+          "$root" "$(readlink -- "$base")" >&2
+      fi
+    fi
+    [[ -d $base ]] || continue
+    for name in "${SKILLS[@]}"; do
+      path=$base/$name
+      is_link_to "$path" "$REPO/skills/$name" || continue
+      if [[ $root == .dsh ]]; then
+        printf 'warning: legacy .dsh/skills/%s points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — remove it manually\n' \
+          "$name" >&2
+      else
+        printf 'warning: legacy %s/skills/%s points into this repository — remove it manually\n' \
+          "$root" "$name" >&2
+      fi
+    done
+  done
+}
+
 check() {
   local drift=0 name path
+  legacy_warnings
   for name in "${SKILLS[@]}"; do
     path=$dest/$name
     if is_link_to "$path" "$REPO/skills/$name"; then

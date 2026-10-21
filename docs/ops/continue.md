@@ -1,176 +1,220 @@
 ---
 node_type: runbook
-title: Continue development from this repo
+title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
 updated: 2026-10-21
-tags: [runbook, start, handoff, core-kb]
+tags: [runbook, start, handoff, core-kb, harness]
 links:
-  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../../tickets/README.md]
+  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../reference/harnesses.md, ../../tickets/README.md]
 ---
 
-# Continue development from this repo
+# Продолжение разработки из этого репозитория
 
-This is the **canonical start**. The session snapshot `.scratch/handoff-current.md` is
-ephemeral; use this runbook and the tickets, not the snapshot, as the source of truth.
+Это **канонический старт**. Снимок сессии `.scratch/handoff-current.md` эфемерен;
+источник истины — этот runbook и тикеты, а не снимок.
 
-## Where we are
+## Где мы
 
-Repo: `/home/prog7/home/dev/contrib/forks/ontoship-dsh` (git). It is
-self-contained: the engine baseline is vendored, the tickets are tracked, the first plan
-is complete.
+Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
+самодостаточен: база движка вендорена, тикеты отслеживаются, оба юнита завершены.
+Каталог переименован из `ontoship-dsh`; исторические логи в `.scratch/ticket-06/`
+сохраняют старое имя.
 
-| commit | what |
+| коммит | что |
 |---|---|
-| `cfad6e9` | skeleton, canon, sources |
-| `31e11fb` | plan `core-kb` |
-| `f1cd8bf` | testing amendment: target tests, ESEM 2026 |
-| `030c81a` | plan approved (`active`), ticket order |
-| `b148d1f` | self-contained start: vendor baseline, tickets, this runbook |
-| `eb678d8` | ticket 01: trimmed engine, 131 tests |
-| `e5a2ced` | ticket 02 start prompt |
-| `4b10f95` | ticket 02: `kb-search` SKILL.md and its contract test |
-| `f189889` | docs: ticket 02 closed; ticket 03 ready |
-| `054279d` | docs(ops): sharpen the ticket 03 start prompt |
-| `118fe99` | ticket 03: `kb-curate` skill, ontology model, 149 tests |
-| `6c1cce6` | docs(ops): close ticket 03, hand off to 04 |
-| `90f0846` | ticket 04: `init` skill and its contract test |
-| `dce10f0` | ticket 05: `scripts/install.sh` and its contract test |
-| `88fc09a` | ticket 06: dogfood — the managed block in `AGENTS.md` |
+| `cfad6e9` | скелет, канон, источники |
+| `31e11fb` | план `core-kb` |
+| `f1cd8bf` | поправка о тестировании: target-тесты, ESEM 2026 |
+| `030c81a` | план утверждён (`active`), порядок тикетов |
+| `b148d1f` | самодостаточный старт: вендорная база, тикеты, этот runbook |
+| `eb678d8` | тикет 01: урезанный движок, 131 тест |
+| `e5a2ced` | стартовый промпт тикета 02 |
+| `4b10f95` | тикет 02: `kb-search` SKILL.md и его контрактный тест |
+| `f189889` | docs: тикет 02 закрыт; тикет 03 готов |
+| `054279d` | docs(ops): уточнён стартовый промпт тикета 03 |
+| `118fe99` | тикет 03: скилл `kb-curate`, модель онтологии, 149 тестов |
+| `6c1cce6` | docs(ops): закрыт тикет 03, передача в 04 |
+| `90f0846` | тикет 04: скилл `init` и его контрактный тест |
+| `dce10f0` | тикет 05: `scripts/install.sh` и его контрактный тест |
+| `88fc09a` | тикет 06: dogfood — управляемый блок в `AGENTS.md` |
 
-Tickets 01–06 are **implemented and committed**; the first unit `core-kb` is complete and
-dogfooded. `skills/kb-search/gitmark.py` (1302 lines), the three skills, `scripts/install.sh`
-and `tests/` (162 passed) are in place; `lint --strict` is clean. This repo's `AGENTS.md`
-now carries the 747-byte managed block, and `.dsh/skills` has the three links with
-`--check` 0. `index` covers 24 markdown files; `lint --strict` is clean; `search "canon"`
-and `search "target test"` return the expected docs; `map` and `stat --json` work. There
-is **no next ticket**: the next unit needs an operator decision and a plan first.
+Тикеты 01–06 **реализованы и закоммичены**; первый юнит `core-kb` завершён и проверен
+на dogfood. Второй юнит `harness-agnostic` (тикеты 01–04) **выполнен 2026-10-21** и
+лежит в рабочем дереве до коммита оператора. Итог: `skills/kb-search/gitmark.py`
+(1305 строк), три скилла, `scripts/install.sh` и `tests/` (168 passed);
+`lint --strict` чистый. `AGENTS.md` этого репозитория несёт управляемый блок на
+1046 байт, `.agents/skills` содержит три ссылки с `--check` 0, а `.dsh` удалён.
+`index` покрывает 30 markdown-файлов; `search "canon"` и `search "target test"`
+возвращают ожидаемые документы; `map` и `stat --json` работают. **Следующего тикета
+нет.**
 
-## What remains (project-wide)
+Второй юнит проверил Qoder свежими сессиями: все три скилла видны, `kb-search` и
+`kb-curate` загружены, поиск вернул канон. DSH и zcode живой каталог не подтвердили:
+DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-режима. Точные
+пробелы — в разделе [Факты окружения](#факты-окружения).
 
-`core-kb` is closed; these are the open items, in dependency order. None of them is a
-ticket yet: the next unit needs the operator's decision and an approved plan.
+## Что осталось (по проекту)
 
-1. **Workflow skills — not built.** `grilling` (interview → spec), `to-tickets`
-   (tracer bullets), `ship` (one-pass delivery) and `testing` (spec / invariant / target
-   tests). The [README](../../README.md) names all four; the canon describes the three
-   phases. Each needs a `SKILL.md`, a contract test and evidence, as `core-kb` has.
-2. **Plan gate and ship mechanics — prose only.** The canon defines the gate and the
-   ship pass; no skill or host mechanism implements them yet. The first workflow plan
-   must be approved by hand (there is no `grilling` to write it), or the unit starts
-   with `grilling` itself.
-3. **No next unit.** [docs/plans/](../plans/README.md) holds only `core-kb`; there is no
-   approved plan and no ticket 07. Do not invent either.
-4. **Definition of done is not demonstrated.** No end-to-end run has taken a ticket from
-   a fresh session through plan → tickets → ship → `main`. The repo has no remote and no
-   CI (`git remote -v` is empty), so a PR/merge path is unexercised; if the DoD requires
-   a PR, the remote is an operator decision.
+Оба юнита закрыты; ниже открытые пункты в порядке зависимостей. Ни один из них пока не
+тикет: следующему юниту нужно решение оператора и утверждённый план.
 
-**Catalog verification note.** Ticket 06's catalog criterion is proven by DSH's live
-catalog refresh (the session listed `kb-search`, `kb-curate`, `init`; `skill(init)` read
-`.dsh/skills/init`). Opening a literal new session is an optional confirmation, not open
-work.
+1. **Workflow-скиллы — не построены.** `grilling` (интервью → спека), `to-tickets`
+   (tracer-bullet), `ship` (однопроходная поставка) и `testing` (spec-,
+   инвариантные и target-тесты). [README](../../README.md) называет все четыре;
+   канон описывает три фазы. Каждому нужны `SKILL.md`, контрактный тест и
+   доказательства, как у `core-kb`.
+2. **План-гейт и механика ship — только проза.** Канон определяет гейт и проход
+   ship; ни скилл, ни механизм хоста их пока не реализуют. Первый план workflow
+   нужно утвердить вручную (писать его нечем — `grilling` ещё нет), либо юнит
+   начинается с самого `grilling`.
+3. **Утверждённого следующего юнита нет.** В [docs/plans/](../plans/README.md) лежат
+   завершённые `core-kb` и `harness-agnostic`; утверждённого плана и тикета 05 нет. Не
+   выдумывай ни то, ни другое; новый юнит выбирает оператор.
+4. **Определение готовности не показано.** Ни один сквозной прогон не провёл тикет
+   из свежей сессии через план → тикеты → ship → `main`. У репозитория нет remote и
+   CI (`git remote -v` пуст), поэтому путь PR/merge не проверен; если DoD требует
+   PR, remote — решение оператора.
 
-## Where things live
+**Замечание о проверке каталога.** Qoder 0.4.8 проверен свежей сессией 2026-10-21:
+инструмент `Skill` загрузил `kb-search`, скилл вернул ожидаемую строку, а
+`gitmark.py search "canon"` — `docs/decisions/ontoship-core.md`. DSH и zcode живой
+каталог не показали; пробелы зафиксированы ниже и не подменяются файловой
+раскладкой.
 
-- `AGENTS.md` — the entry point; it carries the managed ontoship block (ticket 06) that
-  points at the installed engine and the maintain commands.
-- `docs/decisions/ontoship-core.md` — the canon (3 artefacts, 3 phases, 2 separations,
-  1 quality rule; spec durable / tickets ephemeral).
-- `docs/reference/testing.md` — spec / invariant / target tests, quality bar, agentic loop.
-- `docs/reference/sources.md` — OntoShip (vakovalskii), Pocock, ESEM 2026; the 53%
-  correction.
-- `docs/plans/core-kb.md` — the approved, complete spec of the first unit (tickets 01–06).
-- `docs/ontology.md` — this repo's ontology copy and the only I2 type vocabulary; I8
-  compares its body from the first `## ` with `skills/kb-curate/ontology.md`.
-- `tickets/core-kb/01…06.md` — the execution tickets (local tracker, not KB); all six are
-  done and the unit is closed.
-- `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; ticket 01
-  copies and trims it into `skills/kb-search/`.
-- `skills/kb-search/` — the trimmed engine (ticket 01) and the user-facing `SKILL.md`
-  (ticket 02): `index`, `search`, `lint`, `map`, `stat`, `version`; no
-  `inventory`/`serve`/I7. Harness-agnostic CLI (stdlib only); ignores both `.dsh` and
-  `.zcode` install roots.
-- `skills/kb-curate/` — the shipped ontology model `ontology.md` and the curation
-  `SKILL.md` (ticket 03): CREATE / UPDATE / DEPRECATE / LINK / REINDEX; I7 stays out.
-- `skills/init/` — the `init` `SKILL.md` (ticket 04): the managed block
-  (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), its five marker cases, and the
-  three `.gitignore` lines. Idempotent; writes only `AGENTS.md` and `.gitignore`.
-- `scripts/install.sh` — the project-local install (ticket 05): default symlinks,
-  `--copy` a detached copy, `--check` drift (exit 0/1, names each skill); idempotent;
-  writes only `<project>/.dsh/skills`; does not run init.
-- `tests/` — engine, skill-contract and install tests; run
-  `python3 -m pytest tests/ -q` (162 passed; stdlib + pytest, no Node).
-- `.dsh/skills/` — the gitignored project-local install, dogfooded by ticket 06: three
-  links (`kb-search`, `kb-curate`, `init`), `scripts/install.sh --check` exits 0.
-- `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
+## Что где лежит
 
-## Ticket order
+- `AGENTS.md` — точка входа; несёт управляемый блок ontoship (тикет 06), который
+  указывает на установленный движок и команды сопровождения.
+- `docs/decisions/ontoship-core.md` — канон (3 артефакта, 3 фазы, 2 разделения,
+  1 правило качества; спека durable / тикеты эфемерны).
+- `docs/reference/testing.md` — spec-, инвариантные и target-тесты, планка качества,
+  агентный цикл.
+- `docs/reference/sources.md` — OntoShip (vakovalskii), Pocock, ESEM 2026;
+  поправка про 53 %.
+- `docs/reference/harnesses.md` — матрица zcode 3.16.2, DSH и Qoder 0.4.8: корни
+  `.agents/skills`, ранги, `AGENTS.md`, источники и запасные варианты.
+- `docs/plans/core-kb.md` — утверждённая, завершённая спека первого юнита
+  (тикеты 01–06).
+- `docs/plans/harness-agnostic.md` — утверждённая, завершённая спека второго юнита
+  (тикеты 01–04): один project-local корень `.agents/skills`.
+- `docs/ontology.md` — копия онтологии этого репозитория и единственный словарь типов
+  для I2; I8 сравнивает её тело с первого заголовка `## ` с
+  `skills/kb-curate/ontology.md`.
+- `tickets/core-kb/01…06.md` — тикеты исполнения (локальный трекер, не KB); все шесть
+  сделаны, юнит закрыт.
+- `tickets/harness-agnostic/01…04.md` — тикеты второго юнита; все четыре сделаны,
+  юнит закрыт.
+- `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; тикет 01 копирует
+  и урезает её в `skills/kb-search/`.
+- `skills/kb-search/` — урезанный движок (тикет 01) и пользовательский `SKILL.md`
+  (тикет 02): `index`, `search`, `lint`, `map`, `stat`, `version`; без
+  `inventory`/`serve`/I7. CLI не зависит от харнесса (только stdlib); не индексирует
+  `.agents`, а `.dsh` и `.zcode` остаются legacy-исключениями.
+- `skills/kb-curate/` — поставляемая модель онтологии `ontology.md` и
+  курирующий `SKILL.md` (тикет 03): CREATE / UPDATE / DEPRECATE / LINK / REINDEX;
+  I7 остаётся вне ядра.
+- `skills/init/` — `SKILL.md` скилла `init` (тикет 04): управляемый блок
+  (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), его пять случаев маркеров и
+  четыре строки `.gitignore`. Идемпотентен; пишет только `AGENTS.md` и `.gitignore`.
+- `scripts/install.sh` — project-local установка (тикет 01 второго юнита): по
+  умолчанию ссылки, `--copy` — отсоединённая копия, `--check` — расхождение (код 0/1,
+  называет каждый скилл) и предупреждение о legacy-корнях; идемпотентна; пишет только
+  `<project>/.agents/skills`; init не запускает.
+- `tests/` — тесты движка, контрактов скиллов и установки; запуск
+  `python3 -m pytest tests/ -q` (168 passed; stdlib + pytest, без Node).
+- `.agents/skills/` — project-local установка под gitignore, проверенная dogfood в
+  тикете 04: три ссылки (`kb-search`, `kb-curate`, `init`),
+  `scripts/install.sh --check "$PWD"` выходит с кодом 0. `.dsh` удалён.
+- `.scratch/handoff-current.md` — снимок предыдущей сессии (эфемерный).
 
-**01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
+## Порядок тикетов
 
-All six are done; `core-kb` is closed. There is no ticket 07: the next unit must be
-planned, approved by the operator and cut into tickets before code starts. Do not invent
-a ticket or reopen the canon. The open work is in
-[What remains (project-wide)](#what-remains-project-wide).
+`core-kb`: **01 движок → 02 kb-search → 03 kb-curate/ontology → 04 init →
+05 install → 06 dogfood.** Все шесть сделаны; юнит закрыт.
 
-## Environment facts
+`harness-agnostic`: **01 корень установки → 02 переносимые скиллы/init →
+03 справочник харнессов → 04 dogfood на трёх.** Все четыре сделаны; юнит закрыт.
 
-- DSH runs from `/home/prog7/home/dev/contrib/forks/deepseek-harness` under Node
-  `/home/prog7/.local/share/node-lts/bin/node`; web PID in `/run/user/1000/dsh-web.pid`,
-  log `/run/user/1000/dsh-web.log`.
-- DSH skill roots: `<project>/.dsh/skills` (rank 100), `<project>/.agents/skills` (200),
-  `~/.dsh/skills` (400). A skill is `<name>/SKILL.md` or flat `<name>.md`; nested
-  `**/SKILL.md` is not discovered. A directory symlink is stat'ed and followed (a broken
-  link is ignored), so an install may link a bundle. Frontmatter needs `name` and
-  `description`; `user-invocable` / `disable-model-invocation` are supported. The
-  filesystem provider watches the roots: after ticket 06's install the running session's
-  catalog gained `init`, `kb-curate` and `kb-search` without a restart.
-- **Playwright MCP:** configured in `~/.dsh/profiles/web/cordis.patch.yml` (backup
-  `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
+Тикета 05 нет: следующий юнит нужно спланировать, утвердить у оператора и нарезать на
+тикеты до начала кода. Не выдумывай тикет и не переоткрывай канон. Открытая работа —
+в разделе [Что осталось (по проекту)](#что-осталось-по-проекту).
+
+## Факты окружения
+
+- DSH запускается из `/home/prog7/home/dev/contrib/forks/deepseek-harness` под Node
+  `/home/prog7/.local/share/node-lts/bin/node`. На 2026-10-21 веб-сервер не запущен:
+  PID в `/run/user/1000/dsh-web.pid` устарел, порт не слушается, лог
+  `/run/user/1000/dsh-web.log` оканчивается сетевыми ошибками. `dsh headless`
+  завершается до сессии с `MISSING_CREDENTIAL: llm-deepseek: no API key`;
+  `DEEPSEEK_API_KEY` не выставлен. **Живой каталог DSH не проверен** — это пробел
+  окружения, а не проекта.
+- Корни скиллов DSH: `<project>/.dsh/skills` (ранг 100),
+  `<project>/.agents/skills` (200), `~/.dsh/skills` (400). Скилл — это
+  `<name>/SKILL.md` или плоский `<name>.md`; вложенный `**/SKILL.md` не
+  обнаруживается. Символическая ссылка на каталог проверяется через stat и
+  разыменовывается, поэтому установка может ссылаться на бандл. В этом репозитории
+  `.dsh` удалён; `.agents` имеет ранг ниже и найден без него.
+- **Qoder 0.4.8 (проверено 2026-10-21):** две свежие сессии. Первая загрузила
+  `kb-search` через инструмент `Skill`, и поиск вернул
+  `docs/decisions/ontoship-core.md`; вторая перечислила все три project-local скилла
+  (`kb-search`, `kb-curate`, `init`) и загрузила `kb-curate` из
+  `.agents/skills/kb-curate`. Загрузка идёт из project-local `.agents/skills` при
+  `skills.loadFromAgentsDirectory: true`.
+- **zcode 3.16.2 (частично проверено):** сканирует workspace `.zcode/skills` и
+  `.agents/skills` (`app.asar`, `resolveAncestorWorkspaceRoots`). Headless-режима нет:
+  `zcode --help` поднимает GUI и не печатает справку. **Живой каталог workspace не
+  проверен**; файловая раскладка `.agents/skills` на месте.
+- Матрица и источники: [docs/reference/harnesses.md](../reference/harnesses.md).
+- **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
+  копия `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
-  `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
-  patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–06 did not need the browser;
-  do not fake E2E if it is absent.
-- Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
-  in PATH; the engine must not need Node.
+  `headless: true`, `executablePath: /usr/bin/chromium`). Пока DSH не запущен, патч не
+  действует. Если запускать — (`~/.local/bin/dsh-web`), новые сессии получат
+  `mcp__playwright-mcp__*`. Тикетам 01–04 браузер не понадобился; если его нет, не
+  подделывай E2E.
+- Python 3.13, для движка только stdlib; `pytest` доступен. `node/npm/npx` нет в
+  PATH; движок не должен требовать Node.
 
-## Start prompt
+## Стартовый промпт
 
 ```text
-Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-dsh — чистый
-OntoShip-core (DSH). Юнит core-kb (тикеты 01–06) завершён, закоммичен и dogfooded:
-движок, три скилла (kb-search, kb-curate, init), scripts/install.sh, 162 passed,
-lint --strict чистый; AGENTS.md содержит ontoship-блок, .dsh/skills — три ссылки,
---check 0.
+Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
+Юниты core-kb (тикеты 01–06) и harness-agnostic (тикеты 01–04) завершены:
+движок, три скилла (kb-search, kb-curate, init), scripts/install.sh, 168 passed,
+lint --strict чистый (30 файлов); AGENTS.md содержит ontoship-блок, установка лежит в
+.agents/skills (три ссылки), .dsh удалён, --check 0. Qoder проверен свежей сессией;
+DSH и zcode живые каталоги не подтвердили — точные пробелы в runbook.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
-docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/06-dogfood.md.
+docs/decisions/ontoship-core.md, docs/reference/harnesses.md,
+docs/reference/testing.md, docs/reference/sources.md, docs/plans/core-kb.md,
+docs/plans/harness-agnostic.md, tickets/README.md,
+tickets/harness-agnostic/04-dogfood.md.
 
-Тикета 07 нет. Не придумывай следующий тикет и не переоткрывай канон: следующий юнит
-выбирает оператор. Если он называет workflow-скиллы (grilling, to-tickets, ship,
-testing), сначала нужен утверждённый план; grilling ещё не реализован — назови это,
-не начинай код без плана. Открытый остаток по проекту — в разделе
-"What remains (project-wide)" этого runbook.
+Тикета 05 нет. Не придумывай следующий тикет и не переоткрывай канон: следующий юнит
+выбирает оператор. Если оператор называет workflow-скиллы (grilling, to-tickets, ship,
+testing), сначала нужен утверждённый план; grilling ещё не реализован — назови это, не
+начинай код без плана. Открытый остаток по проекту — в разделе
+"Что осталось (по проекту)" этого runbook.
 
 Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
-python3 .dsh/skills/kb-search/gitmark.py index; lint --strict → 0;
+python3 .agents/skills/kb-search/gitmark.py index; lint --strict → 0;
 search "canon" → docs/decisions/ontoship-core.md; search "target test" →
 docs/reference/testing.md; stat --json валиден; map пишет docs-map.html (игнорируется).
-.dsh/, .gitmark/, .scratch/ и *-map.html не коммитятся.
+.agents/skills/, .gitmark/, .scratch/ и *-map.html не коммитятся.
 
 В конце отчёт фактами: что сделано, чем доказано, что осталось. Один тикет за прогон;
 при реальном конфликте останови и спроси оператора.
 ```
 
-## Rules of continuation
+## Правила продолжения
 
-- One ticket per run; do not batch. Research before writing.
-- Evidence: a test that proves a spec clause, guards an invariant or reproduces a real
-  failure; a new matrix gets a negative/mutation probe; read the run log.
-- No registries, inventory, provenance line, Reel, acceptance chord, issue counter, or
-  automatic grill → tickets chain.
-- Do not copy the `ontoship-zcode` `docs/`; it is the strict profile/history.
-- Update this runbook with the next state at the end of a run; keep it short.
+- Один тикет за прогон; не пакетируй. Исследуй до того, как писать.
+- Доказательство: тест, который доказывает пункт спеки, охраняет инвариант или
+  воспроизводит реальный сбой; новая матрица получает негативную или мутационную
+  пробу; читай лог прогона.
+- Никаких реестров, inventory, строки provenance, Reel, аккорда приёмки, счётчика
+  issue и автоматической цепочки grill → tickets.
+- Не копируй `docs/` из `ontoship-zcode`; это строгий профиль и история.
+- Обновляй этот runbook новым состоянием в конце прогона; держи его коротким.

@@ -7,7 +7,7 @@ refuses a missing path; guard 2 refuses a path that exists but matches no rel
 refusal on stderr with exit 2 (usage class, distinct from exit 1 = ERR under
 --strict) and replaces control characters in the message.
 
-Traceability: each test carries ``spec: docs/plans/core-kb.md#done-3`` or
+Traceability: each test carries ``spec: docs/plans/core-kb.md#готово-3`` or
 ``invariant: path selection cannot silently narrow to nothing``. The matrix has
 a negative/mutation probe: bypassing ``_lint_path_guards`` must reproduce the
 silent-clean harm, so the matrix is able to fail when the guard is removed.
@@ -119,7 +119,7 @@ def test_cli_catches_only_lintpatherror_behaviorally(kb: Path, gm, monkeypatch, 
     ("docs/reference/dd.md", "docs/reference/dd.md"),  # gitignored: on disk, not in iter_md
 ])
 def test_existing_but_unselectable_path_refuses(kb: Path, gm, bad: str, shown: str):
-    """spec: docs/plans/core-kb.md#done-3 — an existing non-KB path is a refusal."""
+    """spec: docs/plans/core-kb.md#готово-3 — an existing non-KB path is a refusal."""
     with pytest.raises(gm.LintPathError, match="не выбирает ни одного файла KB") as ei:
         gm.cmd_lint(kb, [bad])
     assert shown in str(ei.value)
@@ -169,7 +169,7 @@ def test_mixed_paths_refuse_naming_only_missing(kb: Path, gm):
 
 
 def test_canonical_path_does_not_refuse(kb: Path, gm):
-    """spec: docs/plans/core-kb.md#done-3 — a canonical path is a valid selection."""
+    """spec: docs/plans/core-kb.md#готово-3 — a canonical path is a valid selection."""
     r = gm.cmd_lint(kb, ["docs/reference/aa.md"])
     assert isinstance(r, dict) and r["checked"] > 0
 
@@ -201,7 +201,7 @@ def test_root_md_selection_is_scoped_not_empty(tmp_path: Path, gm):
 
 
 def test_selection_narrows_only_per_file_checks(kb: Path, gm):
-    """spec: docs/plans/core-kb.md#done-3 — paths narrow I1/I2/I3/I6 only."""
+    """spec: docs/plans/core-kb.md#готово-3 — paths narrow I1/I2/I3/I6 only."""
     r = gm.cmd_lint(kb, ["docs/reference/aa.md"])
 
     def codes(rel, code):
@@ -220,7 +220,7 @@ def test_selection_narrows_only_per_file_checks(kb: Path, gm):
 
 
 def test_full_run_reports_all_per_file_issues(kb: Path, gm):
-    """spec: docs/plans/core-kb.md#done-3 — no paths means every per-file check."""
+    """spec: docs/plans/core-kb.md#готово-3 — no paths means every per-file check."""
     r = gm.cmd_lint(kb)
 
     def codes(rel, code):
@@ -264,7 +264,7 @@ def _run(kb: Path, *argv: str):
 
 
 def test_cli_refusal_exit2_stderr_stdout_empty(kb: Path):
-    """spec: docs/plans/core-kb.md#done-3 — refusal before any check: stdout empty, exit 2."""
+    """spec: docs/plans/core-kb.md#готово-3 — refusal before any check: stdout empty, exit 2."""
     r = _run(kb, "--strict", "docs/plans/nope.md")
     assert r.returncode == 2, f"rc={r.returncode}, stderr={r.stderr!r}"
     assert "gitmark: путь не найден: docs/plans/nope.md" in r.stderr
@@ -273,14 +273,14 @@ def test_cli_refusal_exit2_stderr_stdout_empty(kb: Path):
 
 
 def test_cli_refusal_without_strict_is_still_exit2(kb: Path):
-    """spec: docs/plans/core-kb.md#done-3 — exit 2 is unconditional."""
+    """spec: docs/plans/core-kb.md#готово-3 — exit 2 is unconditional."""
     r = _run(kb, "docs/plans/nope.md")
     assert r.returncode == 2, f"без --strict отказ обязан оставаться rc 2, rc={r.returncode}"
     assert "gitmark: путь не найден: docs/plans/nope.md" in r.stderr
 
 
 def test_cli_dir_argument_refuses_instead_of_silent_clean(kb: Path):
-    """spec: docs/plans/core-kb.md#done-3 — a directory is a refusal, not a clean run."""
+    """spec: docs/plans/core-kb.md#готово-3 — a directory is a refusal, not a clean run."""
     r = _run(kb, "--strict", "docs/reference")
     assert r.returncode == 2
     assert "gitmark: путь не выбирает ни одного файла KB: docs/reference" in r.stderr
@@ -288,7 +288,7 @@ def test_cli_dir_argument_refuses_instead_of_silent_clean(kb: Path):
 
 
 def test_cli_mixed_paths_exit2(kb: Path):
-    """spec: docs/plans/core-kb.md#done-3 — a mixed selection refuses on the missing path."""
+    """spec: docs/plans/core-kb.md#готово-3 — a mixed selection refuses on the missing path."""
     r = _run(kb, "--strict", "docs/reference/aa.md", "docs/nope.md")
     assert r.returncode == 2
     assert "docs/nope.md" in r.stderr and "docs/reference/aa.md" not in r.stderr
@@ -353,7 +353,7 @@ def test_cli_guard2_message_also_strips_controls(kb: Path):
 
 
 def test_cli_existing_path_keeps_previous_exit_and_channels(kb: Path, gm):
-    """spec: docs/plans/core-kb.md#done-3 — a valid path keeps stdout, summary, strict exit."""
+    """spec: docs/plans/core-kb.md#готово-3 — a valid path keeps stdout, summary, strict exit."""
     r = _run(kb, "--strict", "docs/reference/aa.md")
     assert r.returncode == 1
     assert "node_type='bogus_type' вне словаря" in r.stdout
@@ -363,6 +363,6 @@ def test_cli_existing_path_keeps_previous_exit_and_channels(kb: Path, gm):
 
 
 def test_cli_without_strict_dirty_kb_still_exit0(kb: Path):
-    """spec: docs/plans/core-kb.md#done-3 — without --strict even ERR does not change exit."""
+    """spec: docs/plans/core-kb.md#готово-3 — without --strict even ERR does not change exit."""
     r = _run(kb, "docs/reference/aa.md")
     assert r.returncode == 0, r.stderr[-500:]

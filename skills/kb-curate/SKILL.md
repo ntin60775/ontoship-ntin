@@ -1,83 +1,87 @@
 ---
 name: kb-curate
-description: "Create, update, deprecate, link and reindex markdown knowledge-base documents under docs/. Use before adding or editing a doc: classify its node_type from docs/ontology.md, place it in the right folder, write the frontmatter, add typed links and a link from the folder README, then rebuild the index and run lint --strict."
+description: "Создание, обновление, вывод из эксплуатации, связывание и переиндексация markdown-документов базы знаний в docs/. Используй до добавления или правки документа: классифицируй его node_type по docs/ontology.md, размести в нужной папке, напиши frontmatter, добавь типизированные ссылки и ссылку из README папки, затем пересобери индекс и запусти lint --strict."
 ---
 
-# KB curation
+# Курирование KB
 
-Use this skill whenever a document under `docs/` is created, changed, deprecated or
-linked. The KB is markdown plus git: the document is the source of truth, the folder
-`README.md` is its index, and `.gitmark/` is derived. The model — node types,
-frontmatter, typed links and invariants I1–I6 and I8–I10 — is in `docs/ontology.md`; the
-package ships the same body in `skills/kb-curate/ontology.md` (I8).
+Используй этот скилл всякий раз, когда документ в `docs/` создаётся, меняется,
+выводится из эксплуатации или связывается. KB — это markdown плюс git: документ —
+источник истины, `README.md` папки — его индекс, а `.gitmark/` — производное. Модель —
+типы узлов, frontmatter, типизированные ссылки и инварианты I1–I6 и I8–I10 — лежит в
+`docs/ontology.md`; пакет поставляет то же тело в `skills/kb-curate/ontology.md`
+(I8).
 
-Search before writing: use the `kb-search` skill, or run
-`python3 skills/kb-search/gitmark.py search "<terms>"`. If an existing doc covers the
-topic, update it instead of creating a duplicate.
+Ищи до записи: используй скилл `kb-search` или запусти
+`python3 skills/kb-search/gitmark.py search "<terms>"`. Если существующий документ
+покрывает тему, обнови его, а не создавай дубль.
 
-## The five operations
+## Пять операций
 
-| operation | when |
+| операция | когда |
 |---|---|
-| CREATE | no existing doc covers the topic |
-| UPDATE | the doc exists but its content, scope or links changed |
-| DEPRECATE | the doc is replaced or no longer true |
-| LINK | two docs should be connected, or a doc is orphaned |
-| REINDEX | after any markdown change, to rebuild search and prove lint |
+| CREATE | ни один существующий документ не покрывает тему |
+| UPDATE | документ существует, но его содержание, рамки или ссылки изменились |
+| DEPRECATE | документ заменён или больше не верен |
+| LINK | два документа нужно связать или документ осиротел |
+| REINDEX | после любого изменения markdown, чтобы пересобрать поиск и доказать линт |
 
 ## CREATE
 
-1. **Classify.** Pick one `node_type` from the table in `docs/ontology.md`. Do not invent
-   a type in frontmatter: I2 rejects it. If no row fits, add a row deliberately (see
-   "Change the model") before writing the doc.
-2. **Place.** Put the doc where the type lives: `index` → `README.md`; `decision` →
-   `docs/decisions/`; `plan` → `docs/plans/`; `reference` → `docs/reference/`; `runbook`
-   → `docs/ops/`; a service card → `docs/services/<service>/`. Every `docs/` folder has
-   a `README.md` (I5).
-3. **Frontmatter.** Write the standard header: `node_type`, `title`, `service`, `status`,
-   `updated`; add `tags` and `links` where they carry meaning. Use `service: _platform`
-   for a cross-cutting doc. In `docs/reference/`, `docs/ops/`, `docs/plans/`,
-   `docs/decisions/` and `docs/services/`, a missing `node_type` is I1.
-4. **Link.** Add at least one meaningful link, typed or in the body, so the doc is not an
-   orphan (I3). Typed links go in `links:` and use the keys in the model: `documents`,
-   `depends_on`, `supersedes`, `relates_to`, `implemented_by`, `part_of`. Paths are
-   relative to the doc and must exist exactly (I4).
-5. **Index the folder.** Add a bullet to the folder's `README.md` with the title and a
-   one-line summary, and link the doc from the README body. If the folder is a new
-   subsection, also link its `README.md` from the parent `README.md` (I10).
-6. **Reindex and verify.** Run the commands in REINDEX; read the lint output.
+1. **Классифицируй.** Выбери один `node_type` из таблицы в `docs/ontology.md`. Не
+   выдумывай тип во frontmatter: I2 его отвергнет. Если ни одна строка не подходит,
+   осознанно добавь строку (см. «Измени модель») до написания документа.
+2. **Размести.** Положи документ туда, где живёт тип: `index` → `README.md`;
+   `decision` → `docs/decisions/`; `plan` → `docs/plans/`; `reference` →
+   `docs/reference/`; `runbook` → `docs/ops/`; карточка сервиса →
+   `docs/services/<service>/`. У каждой папки `docs/` есть `README.md` (I5).
+3. **Frontmatter.** Напиши стандартный заголовок: `node_type`, `title`, `service`,
+   `status`, `updated`; добавь `tags` и `links`, где они несут смысл. Используй
+   `service: _platform` для сквозного документа. В `docs/reference/`, `docs/ops/`,
+   `docs/plans/`, `docs/decisions/` и `docs/services/` отсутствующий `node_type` —
+   это I1.
+4. **Свяжи.** Добавь хотя бы одну осмысленную ссылку, типизированную или в теле,
+   чтобы документ не был сиротой (I3). Типизированные ссылки идут в `links:` и
+   используют ключи модели: `documents`, `depends_on`, `supersedes`, `relates_to`,
+   `implemented_by`, `part_of`. Пути относительны документу и должны существовать
+   точно (I4).
+5. **Проиндексируй папку.** Добавь пункт в `README.md` папки с заголовком и
+   однострочным резюме и свяжи документ из тела README. Если папка — новый
+   подраздел, свяжи её `README.md` из родительского `README.md` (I10).
+6. **Переиндексируй и проверь.** Запусти команды из REINDEX; прочитай вывод линта.
 
 ## UPDATE
 
-1. Search and read the doc; read its folder `README.md` too, so the summary stays true.
-2. Keep `node_type` unless the document's role changed. A type exists to describe the
-   document, not to silence a vocabulary error.
-3. Update `title`, `updated`, `tags` and `links` with the content. Re-check every path
-   you touched; I4 resolves from the doc, not from the repository root.
-4. If the scope changed, update the README summary and the parent index.
-5. Reindex and verify.
+1. Найди и прочитай документ; прочитай и `README.md` его папки, чтобы резюме
+   осталось верным.
+2. Сохраняй `node_type`, если роль документа не изменилась. Тип существует, чтобы
+   описывать документ, а не чтобы заглушить ошибку словаря.
+3. Обнови `title`, `updated`, `tags` и `links` вместе с содержанием. Перепроверь
+   каждый тронутый путь; I4 разрешает от документа, а не от корня репозитория.
+4. Если рамки изменились, обнови резюме в README и родительский индекс.
+5. Переиндексируй и проверь.
 
 ## DEPRECATE
 
-1. Set `status: deprecated` (or `archived` for a retired section). Keep the file: the
-   history and the inbound links are still useful.
-2. When a replacement exists, the replacement declares `links: supersedes: [old.md]`.
-   I6 requires the old doc to be `deprecated` or `archived`; a supersedes link to an
-   active doc is a warning.
-3. Mark the old doc in the folder `README.md` and link the replacement.
-4. Reindex and verify.
+1. Поставь `status: deprecated` (или `archived` для выведенного раздела). Оставь
+   файл: история и входящие ссылки ещё полезны.
+2. Когда есть замена, она объявляет `links: supersedes: [old.md]`. I6 требует, чтобы
+   старый документ был `deprecated` или `archived`; ссылка supersedes на активный
+   документ — предупреждение.
+3. Отметь старый документ в `README.md` папки и свяжи замену.
+4. Переиндексируй и проверь.
 
 ## LINK
 
-- Use a typed link when the relation has a name; use a body link for navigation and
-  prose. Both are checked by I4.
-- `documents` — about; `depends_on` — prerequisite; `supersedes` — replacement;
-  `relates_to` — lateral; `implemented_by` — code/test/script that implements it;
-  `part_of` — section membership.
-- Link from the folder `README.md` for every new doc. A doc with no in/out link is an
-  orphan for load-bearing types (I3).
-- Do not link by basename when the target is in another folder: write the path a reader
-  would open. A basename-only match is not a traversable link.
+- Используй типизированную ссылку, когда у отношения есть имя; используй ссылку в
+  теле для навигации и прозы. Обе проверяет I4.
+- `documents` — о чём; `depends_on` — предпосылка; `supersedes` — замена;
+  `relates_to` — боковая; `implemented_by` — код/тест/скрипт, который реализует;
+  `part_of` — принадлежность разделу.
+- Связывай из `README.md` папки каждый новый документ. Документ без входящих и
+  исходящих ссылок — сирота для несущих типов (I3).
+- Не связывай по базовому имени, когда цель в другой папке: пиши путь, который
+  читатель откроет. Совпадение только по базовому имени — не проходимая ссылка.
 
 ## REINDEX
 
@@ -86,19 +90,19 @@ python3 skills/kb-search/gitmark.py index
 python3 skills/kb-search/gitmark.py lint --strict
 ```
 
-After a project-local install the engine is at `.dsh/skills/kb-search/gitmark.py`; use
-that path in place of `skills/kb-search/gitmark.py`.
+После project-local установки движок лежит в `.agents/skills/kb-search/gitmark.py`;
+используй этот путь вместо `skills/kb-search/gitmark.py`.
 
-`index` rebuilds `.gitmark/index.db`; it is derived and never committed. `lint` checks
-I1–I6 and I8–I10; `--strict` exits 1 when any `ERR` remains. Fix the finding, rerun, and
-read the output — a clean summary is `✓ чисто`. After the index, search for the new doc
-to confirm it is retrievable.
+`index` пересобирает `.gitmark/index.db`; он производный и никогда не коммитится.
+`lint` проверяет I1–I6 и I8–I10; `--strict` выходит с кодом 1, когда остаётся любой
+`ERR`. Исправь находку, запусти снова и прочитай вывод — чистый итог это `✓ чисто`.
+После индекса найди новый документ, чтобы подтвердить, что он извлекается.
 
-## Change the model
+## Измени модель
 
-The type table is the vocabulary: add or remove a row in `docs/ontology.md`, then mirror
-the body from the first `## ` heading into `skills/kb-curate/ontology.md` (I8). In this
-repository both files are local and a divergence is an `ERR`; after a project-local
-install the package copy is external and divergence is a `WARN`. Migrate docs before
-removing a type; I2 names the stragglers. No new invariant is introduced: I7 (registry)
-stays out of the core, and there is no required registry table or inventory command.
+Таблица типов — словарь: добавь или удали строку в `docs/ontology.md`, затем
+зеркаль тело с первого заголовка `## ` в `skills/kb-curate/ontology.md` (I8). В этом
+репозитории оба файла локальны, и расхождение — `ERR`; после project-local установки
+копия пакета внешняя, и расхождение — `WARN`. Мигрируй документы до удаления типа;
+I2 называет отставших. Никакой новый инвариант не вводится: I7 (реестр) остаётся вне
+ядра, и обязательной таблицы реестра или команды inventory нет.

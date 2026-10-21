@@ -4,8 +4,8 @@ The skill is a directory bundle beside the engine. DSH discovers it as
 ``<root>/<name>/SKILL.md`` and requires YAML ``name`` and ``description``; these
 checks pin that and the ticket-02 surface, not the prose.
 
-spec: docs/plans/core-kb.md#scope — skills/kb-search/SKILL.md
-spec: docs/plans/core-kb.md#constraints — DSH frontmatter; no inventory/serve/registry,
+spec: docs/plans/core-kb.md#рамки — skills/kb-search/SKILL.md
+spec: docs/plans/core-kb.md#ограничения — DSH frontmatter; no inventory/serve/registry,
 no provenance, Reel, acceptance chord
 invariant: the skill reports only what the engine returns
 """
@@ -81,18 +81,21 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("body: missing --json contract")
     if ".gitmark/" not in body:
         errors.append("body: missing derived-artifact rule for .gitmark/")
-    lowered = body.lower()
-    for phrase in ("no index", "no matches", "do not invent"):
+    lowered = re.sub(r"\s+", " ", body.lower())
+    for phrase in ("нет индекса", "ничего не найдено", "не выдумывай"):
         if phrase not in lowered:
             errors.append(f"body: missing honest-degradation phrase {phrase!r}")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden entity {term!r}")
+    for root in (".dsh", ".zcode", ".qoder"):
+        if root in text:
+            errors.append(f"forbidden harness root {root!r}")
     return errors
 
 
 def test_skill_is_a_discoverable_directory_bundle():
-    """spec: docs/plans/core-kb.md#scope — skills/kb-search/SKILL.md."""
+    """spec: docs/plans/core-kb.md#рамки — skills/kb-search/SKILL.md."""
     assert SKILL.is_file(), "the user-facing skill is missing"
     fields, _ = _parse(SKILL.read_text("utf-8"))
     assert fields["name"] == "kb-search"
@@ -110,17 +113,27 @@ def test_description_with_a_colon_stays_valid_yaml():
 
 
 def test_skill_names_the_kb_search_commands_and_json_contract():
-    """spec: docs/plans/core-kb.md#goal — index/search/map/stat/version, --json."""
+    """spec: docs/plans/core-kb.md#цель — index/search/map/stat/version, --json."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     for command in COMMANDS:
         assert f"gitmark.py {command}" in body, f"{command} is not runnable from the body"
     assert "search \"canon\" --json" in body
     assert ".gitmark/" in body
+    assert ".agents/skills" in body
+
+
+@pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
+def test_skill_names_no_harness_root(root: str):
+    """spec: docs/plans/harness-agnostic.md#готово — the universal root only."""
+    text = SKILL.read_text("utf-8")
+    assert root not in text
+    leaked = text + f"\nInstall into {root}/skills instead.\n"
+    assert any(root in error for error in _contract_errors(leaked))
 
 
 @pytest.mark.parametrize("term", FORBIDDEN)
 def test_skill_omits_a_forbidden_entity(term: str):
-    """spec: docs/plans/core-kb.md#constraints — no registry/inventory/serve/provenance."""
+    """spec: docs/plans/core-kb.md#ограничения — no registry/inventory/serve/provenance."""
     text = SKILL.read_text("utf-8")
     assert not re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE), \
         f"SKILL.md mentions the out-of-scope entity {term!r}"
@@ -129,11 +142,11 @@ def test_skill_omits_a_forbidden_entity(term: str):
 def test_skill_degrades_honestly():
     """invariant: the skill reports only what the engine returns."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = body.lower()
-    assert "no index" in lowered
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "нет индекса" in lowered
     assert "gitmark.py index" in body
-    assert "no matches" in lowered
-    assert "do not invent" in lowered
+    assert "ничего не найдено" in lowered
+    assert "не выдумывай" in lowered
 
 
 def test_contract_check_can_fail():
@@ -145,7 +158,7 @@ def test_contract_check_can_fail():
     assert missing_command != text
     assert any("map" in error for error in _contract_errors(missing_command))
 
-    leaked_entity = text.replace("# KB search", "# KB search\n\nRun `inventory`.", 1)
+    leaked_entity = text.replace("# Поиск по KB", "# Поиск по KB\n\nRun `inventory`.", 1)
     assert leaked_entity != text
     assert any("inventory" in error for error in _contract_errors(leaked_entity))
 

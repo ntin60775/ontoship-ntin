@@ -1,62 +1,69 @@
-# 04: init skill
+# 04: скилл init
 
-**What to build:** the `init` skill: create or update the managed block in a project's
-`AGENTS.md` and add the `.gitignore` lines the KB requires. Idempotent; touches nothing
-outside its own block.
+**Что построить:** скилл `init`: создать или обновить управляемый блок в `AGENTS.md`
+проекта и добавить строки `.gitignore`, которые требует KB. Идемпотентен; не трогает
+ничего вне своего блока.
 
-**Blocked by:** 01 (done); follows 03 (done).
+**Блокируется:** 01 (сделан); идёт после 03 (сделан).
 
-**Status:** done (2026-10-21)
+**Статус:** сделан (2026-10-21)
 
-- [x] `skills/init/SKILL.md` has DSH frontmatter and describes the managed block
-      (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), its content (entry point,
-      KB index, maintain commands), and the `.gitignore` lines (`.gitmark/`, `*-map.html`,
-      `.scratch/`).
-- [x] Running init twice makes no change (second run: no diff).
-- [x] A project `AGENTS.md` without the block gets it; an existing block is replaced only
-      inside the markers; text outside the markers is untouched.
-- [x] No registry, no provenance, no writes outside `AGENTS.md` and `.gitignore`.
-- [x] The skill can run on a temp repo and on this repo.
+- [x] `skills/init/SKILL.md` имеет frontmatter DSH и описывает управляемый блок
+      (`<!-- BEGIN ontoship -->` … `<!-- END ontoship -->`), его содержимое (точка
+      входа, индекс KB, команды сопровождения) и строки `.gitignore` (`.gitmark/`,
+      `*-map.html`, `.scratch/`).
+- [x] Повторный запуск init ничего не меняет (второй прогон: пустой diff).
+- [x] `AGENTS.md` проекта без блока получает его; существующий блок заменяется только
+      внутри маркеров; текст вне маркеров не тронут.
+- [x] Никакого реестра, никакого provenance, никаких записей вне `AGENTS.md` и
+      `.gitignore`.
+- [x] Скилл может работать на временном репозитории и на этом репозитории.
 
-**What can I demo when this is done?** In a temp repo: run init, show the block in
-`AGENTS.md` and the three `.gitignore` lines; run init again, show `git diff` empty.
+**Что я могу показать, когда это готово?** Во временном репозитории: запусти init,
+покажи блок в `AGENTS.md` и три строки `.gitignore`; запусти init снова, покажи пустой
+`git diff`.
 
-## Evidence (2026-10-21)
+## Доказательства (2026-10-21)
 
-- **Delivered in `90f0846`:** `skills/init/SKILL.md` (132 lines): DSH frontmatter
-  (`name: init`, a 353-character quoted description), the two files it owns, the five
-  marker cases, the verbatim block, the `.gitignore` rules, verification and report.
-  `tests/test_skill_init.py` (4 tests) pins the artifact and probes the check. No engine,
-  `kb-search`, `kb-curate` or `docs/` change.
-- **DSH facts that shaped it** (read from `deepseek-harness/packages/context/agent-instructions`):
-  candidates `AGENTS.md`/`CLAUDE.md`; project root = the first ancestor with `.git`; files
-  load from that root down to the cwd; user-global `~/.dsh/AGENTS.md` and
-  `~/.agents/AGENTS.md`; a 64 KiB instruction budget. The block is 747 bytes and points
-  at the installed engine path `.dsh/skills/kb-search/gitmark.py` (ticket 05's layout).
-- **Block:** entry point (`docs/README.md` and folder indexes), the `kb-search`/`kb-curate`
-  skills, the three maintain commands (`index`, `lint --strict`, `map`), and the
-  derived/ephemeral rule (`.gitmark/`, `*-map.html`, `.scratch/`). The contract test pins
-  the block byte-for-byte against an independent literal and requires exactly one marker
-  pair.
-- **Temp matrix** (`.scratch/ticket-04/run.log`; the driver extracts the shipped block, so
-  the run exercises the artifact): **A** empty repo → exactly `AGENTS.md` + `.gitignore`,
-  the block and the three lines; second run → `git status` empty and `git diff` empty.
-  **B** existing project text → appended after one blank line, every existing line
-  preserved. **C** old block with text before/after → replaced only inside the markers,
-  outside bytes preserved, `[WARN]`. **D** reversed markers → `[FAIL]`, both files
-  byte-identical. **E** partial `.gitignore` with no trailing newline and a comment → only
-  `*-map.html` and `.scratch/` appended, comment and order kept. **F** CRLF file → outside
-  bytes preserved, block written with CRLF, second run unchanged.
-- **This repo:** init appended 20 lines to `AGENTS.md` (`.gitignore` already had the three
-  lines); the second run was byte-identical (`sha256 cb98a056…`), and the change was
-  reverted — ticket 06 adopts the block during dogfood. Log `repo-run.log`, diff
+- **Поставлено в `90f0846`:** `skills/init/SKILL.md` (132 строки): frontmatter DSH
+  (`name: init`, описание в кавычках на 353 символа), два файла, которыми он владеет,
+  пять случаев маркеров, дословный блок, правила `.gitignore`, проверка и отчёт.
+  `tests/test_skill_init.py` (4 теста) фиксирует артефакт и пробует проверку. Ни
+  движок, ни `kb-search`, ни `kb-curate`, ни `docs/` не менялись.
+- **Факты DSH, которые его сформировали** (прочитано в
+  `deepseek-harness/packages/context/agent-instructions`): кандидаты
+  `AGENTS.md`/`CLAUDE.md`; корень проекта — первый предок с `.git`; файлы
+  загружаются от этого корня вниз до cwd; пользовательские глобальные
+  `~/.dsh/AGENTS.md` и `~/.agents/AGENTS.md`; бюджет инструкций 64 КиБ. Блок занимает
+  747 байт и указывает на установленный путь движка
+  `.dsh/skills/kb-search/gitmark.py` (раскладка тикета 05).
+- **Блок:** точка входа (`docs/README.md` и индексы папок), скиллы
+  `kb-search`/`kb-curate`, три команды сопровождения (`index`, `lint --strict`,
+  `map`) и правило производного/эфемерного (`.gitmark/`, `*-map.html`,
+  `.scratch/`). Контрактный тест фиксирует блок байт в байт против независимого
+  литерала и требует ровно одну пару маркеров.
+- **Временная матрица** (`.scratch/ticket-04/run.log`; драйвер извлекает
+  поставляемый блок, поэтому прогон проверяет артефакт): **A** пустой репозиторий →
+  ровно `AGENTS.md` + `.gitignore`, блок и три строки; второй прогон → пустой
+  `git status` и пустой `git diff`. **B** существующий текст проекта → добавлен после
+  одной пустой строки, каждая существующая строка сохранена. **C** старый блок с
+  текстом до/после → заменён только внутри маркеров, внешние байты сохранены,
+  `[WARN]`. **D** перевёрнутые маркеры → `[FAIL]`, оба файла байт в байт те же.
+  **E** частичный `.gitignore` без завершающего перевода строки и с комментарием →
+  добавлены только `*-map.html` и `.scratch/`, комментарий и порядок сохранены.
+  **F** файл с CRLF → внешние байты сохранены, блок записан с CRLF, второй прогон
+  без изменений.
+- **Этот репозиторий:** init добавил 20 строк в `AGENTS.md` (в `.gitignore` три
+  строки уже были); второй прогон был байт в байт (`sha256 cb98a056…`), изменение
+  откатили — тикет 06 принимает блок во время dogfood. Лог `repo-run.log`, diff
   `repo.diff`.
-- **Tests / lint:** `python3 -m pytest tests/ -q` → **153 passed** (149 prior + 4);
-  `lint --strict` → exit 0 (24 files). The mutation probe rejects a missing END marker, a
-  renamed `*-map.html` rule, an injected registry/`commands.md` or `.zcode` install root,
-  a missing `name`, an unquoted description and an edited block.
-- **Scope:** no registry, provenance, Reel, acceptance chord, `inventory` or `serve`; no
-  write outside `AGENTS.md` and `.gitignore` (case A checks the directory); no `scripts/`
-  yet (ticket 05).
+- **Тесты / линт:** `python3 -m pytest tests/ -q` → **153 passed** (149 прежних + 4);
+  `lint --strict` → код 0 (24 файла). Мутационная проба отвергает отсутствующий
+  маркер END, переименованное правило `*-map.html`, внедрённый реестр/`commands.md`
+  или корень установки `.zcode`, отсутствующий `name`, описание без кавычек и
+  отредактированный блок.
+- **Рамки:** никакого реестра, provenance, Reel, аккорда приёмки, `inventory` или
+  `serve`; никаких записей вне `AGENTS.md` и `.gitignore` (случай A проверяет
+  каталог); `scripts/` пока нет (тикет 05).
 
-**Remaining:** ticket 05 (`scripts/install.sh`) is next; 06 follows.
+**Остаток:** дальше тикет 05 (`scripts/install.sh`); затем 06.

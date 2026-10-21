@@ -1,41 +1,41 @@
-# Ontology model (shipped)
+# Модель онтологии (поставляемая)
 
-The ontology shipped with `kb-curate`. A project copies its body into `docs/ontology.md`;
-I8 compares the two from the first `## ` heading, so the body below is the contract.
-The package copy is a skill asset, not a KB document.
+Онтология, поставляемая с `kb-curate`. Проект копирует её тело в `docs/ontology.md`;
+I8 сравнивает их с первого заголовка `## `, поэтому тело ниже — контракт. Копия
+пакета — ассет скилла, а не документ KB.
 
-## Semantic layer
+## Семантический слой
 
-A document's type is its `node_type`. The table below is the whole vocabulary: I2 rejects
-a `node_type` that is not listed, and `docs/ontology.md` is the only place I2 reads it.
-A new type is a new row here — there is no code list to edit. If the ontology file or its
-`| node_type ` table is absent, the engine falls back to a built-in list; with an
-ontology present, this table is authoritative.
+Тип документа — его `node_type`. Таблица ниже — весь словарь: I2 отвергает
+`node_type`, которого нет в списке, и `docs/ontology.md` — единственное место, откуда
+I2 его читает. Новый тип — новая строка здесь; списка в коде, который надо править,
+нет. Если файла онтологии или его таблицы `| node_type ` нет, движок откатывается к
+встроенному списку; при наличии онтологии эта таблица авторитетна.
 
-| node_type | what it is | lives in |
+| node_type | что это | где живёт |
 |---|---|---|
-| `index` | folder index: what the folder holds and links to its documents | every folder's `README.md` |
-| `decision` | decision of record: what was decided and why | `docs/decisions/` |
-| `plan` | durable spec of one unit: goal, done, scope, constraints, context | `docs/plans/` |
-| `reference` | durable explanatory page: a topic, a source, a rule | `docs/reference/`; `docs/ontology.md` is the root-level model |
-| `runbook` | operational procedure an operator can run | `docs/ops/` |
-| `guide` | task-oriented how-to | any `docs/` folder that fits |
-| `gotcha` | non-obvious pitfall and its workaround | next to the thing it warns about |
-| `service` | service card: one service's contract | `docs/services/<service>/` |
-| `report` | analysis or evidence produced by a run | any `docs/` folder that fits |
-| `ticket` | opt-in KB ticket for a multi-day epic; never the default and never the local tracker's ticket files | wherever the project keeps opt-in KB tickets |
-| `schema` | card schema for its folder: `card_type`, `required`, `values` | the folder whose cards it governs |
+| `index` | индекс папки: что содержит папка и ссылки на её документы | `README.md` каждой папки |
+| `decision` | решение записи: что решили и почему | `docs/decisions/` |
+| `plan` | durable-спека одного юнита: цель, готово, рамки, ограничения, контекст | `docs/plans/` |
+| `reference` | durable-пояснительная страница: тема, источник, правило | `docs/reference/`; `docs/ontology.md` — модель корневого уровня |
+| `runbook` | операционная процедура, которую может выполнить оператор | `docs/ops/` |
+| `guide` | how-to под задачу | любая папка `docs/`, где уместно |
+| `gotcha` | неочевидная ловушка и обход | рядом с тем, о чём предупреждает |
+| `service` | карточка сервиса: контракт одного сервиса | `docs/services/<service>/` |
+| `report` | анализ или доказательство, созданное прогоном | любая папка `docs/`, где уместно |
+| `ticket` | опциональный тикет в KB для многодневного эпика; никогда не умолчание и никогда не файлы тикетов локального трекера | там, где проект хранит опциональные тикеты KB |
+| `schema` | схема карточек для своей папки: `card_type`, `required`, `values` | папка, карточками которой она управляет |
 
 ## Frontmatter
 
-Frontmatter is YAML between the first pair of `---` fences. Every curated document
-carries `node_type`, `title`, `service`, `status` and `updated`; `tags` and `links` are
-added when they carry meaning. The header below is the norm:
+Frontmatter — YAML между первой парой заборов `---`. Каждый курируемый документ несёт
+`node_type`, `title`, `service`, `status` и `updated`; `tags` и `links` добавляются,
+когда несут смысл. Заголовок ниже — норма:
 
 ```yaml
 ---
 node_type: reference
-title: What this document answers
+title: На какой вопрос отвечает документ
 service: _platform
 status: active
 updated: 2026-10-20
@@ -46,61 +46,61 @@ links:
 ---
 ```
 
-| field | role | checked by |
+| поле | роль | кто проверяет |
 |---|---|---|
-| `node_type` | one row of the table above | I1 in load-bearing folders; I2 vocabulary |
-| `title` | one-line human title | review; the map falls back to the H1 or the filename |
-| `service` | owning service, or `_platform` for cross-cutting docs | I2 warn when outside the per-repo service vocabulary |
-| `status` | `active`, `draft`, `deprecated` or `archived` | I2 warn when outside the four values |
-| `updated` | date of the last substantive edit, `YYYY-MM-DD` | review |
-| `tags` | retrieval terms, a YAML list | not checked |
-| `links` | typed links block (next section) | I4 targets; I3 connectivity; I6 `supersedes` |
+| `node_type` | одна строка таблицы выше | I1 в несущих папках; I2 словарь |
+| `title` | однострочный человеческий заголовок | ревью; карта откатывается к H1 или имени файла |
+| `service` | владеющий сервис или `_platform` для сквозных документов | I2 предупреждает, если вне словаря сервисов репозитория |
+| `status` | `active`, `draft`, `deprecated` или `archived` | I2 предупреждает, если вне четырёх значений |
+| `updated` | дата последнего существенного изменения, `YYYY-MM-DD` | ревью |
+| `tags` | термины поиска, список YAML | не проверяется |
+| `links` | блок типизированных ссылок (следующий раздел) | цели I4; связность I3; `supersedes` I6 |
 
-## Typed links
+## Типизированные ссылки
 
-`links` is a mapping of link type to one or more paths relative to the document.
+`links` — отображение типа ссылки на один или несколько путей относительно документа.
 
-| link type | meaning |
+| тип ссылки | смысл |
 |---|---|
-| `documents` | this document is about the target |
-| `depends_on` | the target is a prerequisite; a change to it may require a change here |
-| `supersedes` | this document replaces the target; the target must be `deprecated` or `archived` (I6) |
-| `relates_to` | lateral association; neither prerequisite nor replacement |
-| `implemented_by` | the target implements this decision, plan or rule (code, test, script) |
-| `part_of` | this document belongs to the target section or folder index |
+| `documents` | этот документ о цели |
+| `depends_on` | цель — предпосылка; изменение в ней может потребовать изменения здесь |
+| `supersedes` | этот документ заменяет цель; цель должна быть `deprecated` или `archived` (I6) |
+| `relates_to` | боковая связь; не предпосылка и не замена |
+| `implemented_by` | цель реализует это решение, план или правило (код, тест, скрипт) |
+| `part_of` | этот документ принадлежит разделу или индексу папки цели |
 
-The values are repo paths, not URLs: I4 resolves every one from the document's directory
-and fails on a target that a reader cannot open. A scalar is accepted, but a list is the
-norm. Body links are untyped: they are navigation, still checked by I4, and still count
-as graph edges for I3. Use `supersedes` only together with the old document's
-`deprecated`/`archived` status.
+Значения — пути репозитория, а не URL: I4 разрешает каждый из каталога документа и
+падает на цели, которую читатель не может открыть. Скаляр принимается, но список —
+норма. Ссылки в теле нетипизированы: это навигация, её тоже проверяет I4, и она тоже
+считается ребром графа для I3. Используй `supersedes` только вместе со статусом
+`deprecated`/`archived` старого документа.
 
-## Invariants
+## Инварианты
 
-Lint enforces these. `ERR` fails `lint --strict` (exit 1); `WARN` is hygiene that must be
-read and explained. I7 is not here: the registry/inventory invariant is outside the
-core, so there is no `inventory` command and no required registry table.
+Lint проверяет их. `ERR` проваливает `lint --strict` (код 1); `WARN` — гигиена,
+которую нужно прочитать и объяснить. I7 здесь нет: инвариант registry/inventory вне
+ядра, поэтому нет команды `inventory` и нет обязательной таблицы реестра.
 
-| id | invariant | check | level |
+| id | инвариант | проверка | уровень |
 |---|---|---|---|
-| I1 | load-bearing documents declare a type | a document in `docs/reference/`, `docs/ops/`, `docs/plans/`, `docs/decisions/` or `docs/services/` (except `README.md`) has frontmatter with `node_type` | ERR |
-| I2 | controlled vocabularies | `node_type` is in the table above; `service` and `status` are in their vocabularies | ERR for `node_type`; WARN for `service`/`status` |
-| I3 | no orphans | a load-bearing document has at least one incoming or outgoing link (frontmatter counts) | WARN |
-| I4 | links resolve | every body link and every frontmatter link exists from the document's directory | ERR |
-| I5 | every folder has an index | every folder under `docs/` has `README.md` | WARN |
-| I6 | a replacement retires its target | a `supersedes` target has `status: deprecated` or `status: archived` | WARN |
-| I8 | one ontology model | `docs/ontology.md` and the shipped `skills/kb-curate/ontology.md` agree from the first `## ` heading | ERR in the package repo; WARN when the package is external |
-| I9 | card schemas are enforced | a `schema` document governs its folder through `card_type`, `required` and `values`; cards use the declared type, carry every required field and stay within the value lists | ERR |
-| I10 | the index chain is closed | every `docs/` subsection `README.md` is reachable by a body link from its parent's `README.md` | ERR |
+| I1 | несущие документы объявляют тип | документ в `docs/reference/`, `docs/ops/`, `docs/plans/`, `docs/decisions/` или `docs/services/` (кроме `README.md`) имеет frontmatter с `node_type` | ERR |
+| I2 | контролируемые словари | `node_type` есть в таблице выше; `service` и `status` входят в свои словари | ERR для `node_type`; WARN для `service`/`status` |
+| I3 | нет сирот | у несущего документа есть хотя бы одна входящая или исходящая ссылка (frontmatter считается) | WARN |
+| I4 | ссылки разрешаются | каждая ссылка в теле и каждая ссылка во frontmatter существует из каталога документа | ERR |
+| I5 | у каждой папки есть индекс | у каждой папки под `docs/` есть `README.md` | WARN |
+| I6 | замена выводит цель из эксплуатации | у цели `supersedes` стоит `status: deprecated` или `status: archived` | WARN |
+| I8 | одна модель онтологии | `docs/ontology.md` и поставляемый `skills/kb-curate/ontology.md` совпадают с первого заголовка `## ` | ERR в репозитории пакета; WARN, когда пакет внешний |
+| I9 | схемы карточек применяются | документ `schema` управляет своей папкой через `card_type`, `required` и `values`; карточки используют объявленный тип, несут каждое обязательное поле и остаются в списках значений | ERR |
+| I10 | цепочка индексов замкнута | каждый `README.md` подраздела `docs/` достижим ссылкой в теле из `README.md` родителя | ERR |
 
-## Changing the model
+## Изменение модели
 
-1. Edit the `node_type` table in the project's `docs/ontology.md`.
-2. In the package source repository, copy the body from the first `## ` heading into
-   `skills/kb-curate/ontology.md`; after an install the package copy is external and I8
-   reports drift as `WARN`, while the project copy stays authoritative.
-3. Migrate documents before you remove a type; I2 names every straggler.
-4. Rebuild the index and run `gitmark.py lint --strict`.
+1. Правь таблицу `node_type` в `docs/ontology.md` проекта.
+2. В исходном репозитории пакета скопируй тело с первого заголовка `## ` в
+   `skills/kb-curate/ontology.md`; после установки копия пакета внешняя, и I8 сообщает
+   о расхождении как `WARN`, а копия проекта остаётся авторитетной.
+3. Мигрируй документы до удаления типа; I2 называет каждого отставшего.
+4. Пересобери индекс и запусти `gitmark.py lint --strict`.
 
-No other invariant is added by this document. I7 (registry) is the only invariant
-deliberately left out of the core.
+Этот документ не добавляет других инвариантов. I7 (реестр) — единственный инвариант,
+сознательно оставленный вне ядра.

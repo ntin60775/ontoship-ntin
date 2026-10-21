@@ -1,22 +1,25 @@
 ---
 node_type: index
-title: Plans
+title: Планы
 service: _platform
 status: active
 updated: 2026-10-21
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
-# Plans
+# Планы
 
-Plan contracts (`node_type: plan`) — durable specs of one unit. Tickets are ephemeral
-and do not live here; `to-tickets` publishes them to `.scratch/<slug>/issues/` or a
-tracker after the plan gate.
+Контракты планов (`node_type: plan`) — durable-спеки одного юнита. Тикеты эфемерны и
+здесь не живут; `to-tickets` публикует их в `.scratch/<slug>/issues/` или трекер
+после план-гейта.
 
-- [core-kb.md](core-kb.md) — the first unit: installable KB core (approved; complete,
-  tickets 01–06).
+- [core-kb.md](core-kb.md) — первый юнит: устанавливаемое ядро KB (утверждён;
+  завершён, тикеты 01–06).
+- [harness-agnostic.md](harness-agnostic.md) — один project-local корень
+  `.agents/skills` для zcode, DSH и Qoder (утверждён 2026-10-21; завершён, тикеты
+  01–04).
 
-There is no plan for the next unit yet: the operator approves one before tickets are
-cut. The open work is recorded in [continue.md](../ops/continue.md).
+Оба юнита закрыты; открытая работа и пробелы харнессов записаны в
+[continue.md](../ops/continue.md).

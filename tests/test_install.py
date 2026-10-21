@@ -1,12 +1,14 @@
 """Contract for the project-local install channel.
 
-The installer is the only thing that puts the core into a project's DSH skill root, so
-these checks pin its observable effects: the layout DSH discovers, idempotence, drift
-reporting, and the refusal to write or destroy anything outside its destination.
+The installer is the only thing that puts the core into a project's universal skill
+root, so these checks pin its observable effects: the `.agents/skills` layout, idempotence,
+drift and legacy reporting, and the refusal to write or destroy anything outside its
+destination.
 
-spec: docs/plans/core-kb.md#done-1 — .dsh/skills/{kb-search,kb-curate,init}; link/copy; --check
-spec: tickets/core-kb/05-install.md — idempotent; --check names each missing/wrong skill
-invariant: writes only <project>/.dsh/skills; --check is read-only; init is not run
+spec: docs/plans/harness-agnostic.md#готово — .agents/skills/{kb-search,kb-curate,init};
+      link/copy; --check; legacy .dsh/.zcode/.qoder warnings
+spec: tickets/harness-agnostic/01-install-root.md — idempotent; --check names drift
+invariant: writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
 
@@ -60,7 +62,7 @@ def tree(root: Path) -> dict[str, tuple[str, int, int, str]]:
 
 
 def assert_links(project: Path) -> None:
-    dest = project / ".dsh" / "skills"
+    dest = project / ".agents" / "skills"
     assert dest.is_dir() and not dest.is_symlink()
     for name in SKILLS:
         path = dest / name
@@ -86,7 +88,7 @@ def project(tmp_path: Path) -> Path:
 
 
 def test_installer_is_executable() -> None:
-    """spec: ticket 05 — `scripts/install.sh <project>` is the install channel."""
+    """spec: ticket 01 — `scripts/install.sh <project>` is the install channel."""
     assert INSTALL.is_file()
     assert os.access(INSTALL, os.X_OK), "install.sh must be executable"
 
@@ -94,7 +96,7 @@ def test_installer_is_executable() -> None:
 def test_fresh_install_links_three_skills_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: docs/plans/core-kb.md#done-1 — three links under .dsh/skills, rank 100 layout."""
+    """spec: harness-agnostic#готово-1 — three links under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -106,18 +108,19 @@ def test_fresh_install_links_three_skills_and_writes_nothing_else(
     after = tree(project)
     added = set(after) - set(before)
     assert added, "the install created nothing"
-    assert all(path == ".dsh" or path.startswith(".dsh/") for path in added), added
+    assert all(path == ".agents" or path.startswith(".agents/") for path in added), added
     for path, state in before.items():
         assert after[path] == state, f"install touched pre-existing {path}"
 
-    assert not (project / ".zcode").exists()
+    for legacy in (".dsh", ".zcode", ".qoder"):
+        assert not (project / legacy).exists(), f"install wrote into {legacy}"
     assert not list(home.iterdir()), "install wrote into $HOME (no global install)"
     for name in SKILLS:
         assert name in result.stdout
 
 
 def test_second_install_is_idempotent(project: Path) -> None:
-    """spec: ticket 05 — a second run makes no change."""
+    """spec: ticket 01 — a second run makes no change."""
     first = run(project)
     assert first.returncode == 0, output(first)
     before = tree(project)
@@ -129,7 +132,7 @@ def test_second_install_is_idempotent(project: Path) -> None:
 
 
 def test_check_is_clean_and_read_only(project: Path) -> None:
-    """spec: ticket 05 — `--check` exits 0 when all links point at this repo."""
+    """spec: ticket 01 — `--check` exits 0 when all links point at this repo."""
     install = run(project)
     assert install.returncode == 0, output(install)
     before = tree(project)
@@ -143,21 +146,21 @@ def test_check_is_clean_and_read_only(project: Path) -> None:
 
 
 def test_check_on_a_fresh_project_names_all_three_without_writing(tmp_path: Path) -> None:
-    """spec: ticket 05 — missing skills are named; the check still writes nothing."""
+    """spec: ticket 01 — missing skills are named; the check still writes nothing."""
     fresh = tmp_path / "fresh"
     fresh.mkdir()
     result = run(fresh, "--check")
     assert result.returncode == 1
     for name in SKILLS:
         assert f"drift: {name}:" in output(result)
-    assert not (fresh / ".dsh").exists()
+    assert not (fresh / ".agents").exists()
 
 
 def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
-    """spec: ticket 05 — a missing or wrong link is named with exit 1 (mutation probe)."""
+    """spec: ticket 01 — a missing or wrong link is named with exit 1 (mutation probe)."""
     install = run(project)
     assert install.returncode == 0, output(install)
-    dest = project / ".dsh" / "skills"
+    dest = project / ".agents" / "skills"
 
     (dest / "kb-curate").unlink()
     missing = run(project, "--check")
@@ -176,14 +179,57 @@ def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
     assert "wrong symlink" in drift[0]
 
 
+def test_check_warns_about_legacy_entries_without_deleting_them(project: Path) -> None:
+    """spec: harness-agnostic#готово-2 — legacy .dsh/.zcode/.qoder links warn, never fail."""
+    install = run(project)
+    assert install.returncode == 0, output(install)
+
+    dsh = project / ".dsh" / "skills"
+    dsh.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", dsh / "kb-search")
+    (project / ".zcode").mkdir()
+    os.symlink(REPO / "skills", project / ".zcode" / "skills")
+    qoder = project / ".qoder" / "skills"
+    qoder.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "init", qoder / "init")
+
+    before = tree(project)
+    result = run(project, "--check")
+    assert result.returncode == 0, output(result)
+    assert "check: ok" in result.stdout
+    text = output(result)
+    assert "warning: legacy .dsh/skills/kb-search" in text
+    assert "(100)" in text and "(200)" in text and "shadows" in text
+    assert "warning: legacy .zcode/skills ->" in text
+    assert "warning: legacy .qoder/skills/init" in text
+    assert tree(project) == before, "--check must not touch a legacy entry"
+
+
+def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
+    """invariant: the installer writes only .agents/skills and deletes no legacy link."""
+    dsh = project / ".dsh" / "skills"
+    dsh.mkdir(parents=True)
+    legacy = dsh / "kb-search"
+    os.symlink(REPO / "skills" / "kb-search", legacy)
+    before = tree(project)
+
+    result = run(project)
+    assert result.returncode == 0, output(result)
+    assert_links(project)
+    after = tree(project)
+    for path, state in before.items():
+        assert after[path] == state, f"install touched legacy {path}"
+    assert legacy.is_symlink() and legacy.resolve() == (REPO / "skills" / "kb-search").resolve()
+
+
 def test_copy_install_is_detached(tmp_path: Path) -> None:
-    """spec: ticket 05 — `--copy` produces three real directories, not links."""
+    """spec: ticket 01 — `--copy` produces three real directories, not links."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
     assert result.returncode == 0, output(result)
 
-    dest = project / ".dsh" / "skills"
+    dest = project / ".agents" / "skills"
     for name in SKILLS:
         path = dest / name
         assert path.is_dir() and not path.is_symlink(), f"{name} is not a real directory"
@@ -198,7 +244,7 @@ def test_copy_install_is_detached(tmp_path: Path) -> None:
 
 
 def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None:
-    """spec: ticket 05 — copies are checked by content; a changed or missing copy drifts."""
+    """spec: ticket 01 — copies are checked by content; a changed or missing copy drifts."""
     project = tmp_path / "copied"
     project.mkdir()
     first = run(project, "--copy")
@@ -211,14 +257,14 @@ def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None
     assert all(f"unchanged {name}" in second.stdout for name in SKILLS)
 
     # Mutation probe: a byte of drift inside a copy must be reported, with its name.
-    (project / ".dsh" / "skills" / "kb-curate" / "SKILL.md").write_text(
+    (project / ".agents" / "skills" / "kb-curate" / "SKILL.md").write_text(
         "edited\n", encoding="utf-8")
     drifted = run(project, "--check")
     assert drifted.returncode == 1
     assert any(line.startswith("drift: kb-curate:")
                for line in output(drifted).splitlines())
 
-    shutil.rmtree(project / ".dsh" / "skills" / "init")
+    shutil.rmtree(project / ".agents" / "skills" / "init")
     missing = run(project, "--check")
     assert missing.returncode == 1
     assert any(line.startswith("drift: init:") for line in output(missing).splitlines())
@@ -226,7 +272,7 @@ def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None
 
 def test_install_refuses_to_clobber_a_real_directory(project: Path) -> None:
     """invariant: a detached copy is never replaced by a link, and no half install happens."""
-    occupied = project / ".dsh" / "skills" / "kb-search"
+    occupied = project / ".agents" / "skills" / "kb-search"
     occupied.mkdir(parents=True)
     sentinel = occupied / "SKILL.md"
     sentinel.write_text("detached\n", encoding="utf-8")
@@ -235,5 +281,5 @@ def test_install_refuses_to_clobber_a_real_directory(project: Path) -> None:
     assert result.returncode != 0
     assert "refusing to replace" in output(result)
     assert sentinel.read_text("utf-8") == "detached\n"
-    assert not (project / ".dsh" / "skills" / "kb-curate").exists()
-    assert not (project / ".dsh" / "skills" / "init").exists()
+    assert not (project / ".agents" / "skills" / "kb-curate").exists()
+    assert not (project / ".agents" / "skills" / "init").exists()

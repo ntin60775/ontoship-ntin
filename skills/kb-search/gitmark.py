@@ -32,16 +32,17 @@ from pathlib import Path
 
 # Vendored from ontoship-zcode (gitmark.py at 5528ae1; MIT, © vakovalskii and OntoShip
 # contributors / 1cprog7), trimmed for the OntoShip core: no inventory/registry (I7),
-# no serve. The engine is harness-agnostic; .dsh and .zcode are both install roots.
-# Keep the diff to the core minimal.
+# no serve. The engine is harness-agnostic: .agents is the universal install root;
+# .dsh and .zcode stay excluded as legacy roots. Keep the diff to the core minimal.
 VERSION = "0.1.0"
 
 EXCLUDE_DIRS = {
     ".git", "node_modules", ".next", "dist", "build", "__pycache__",
     ".pytest_cache", "_vendor", ".venv", "venv", "vendor",
     ".gitmark",
-    ".dsh",   # DSH project-local install: the same skills copied under .dsh/
-    ".zcode",  # zcode install root (strict profile/history): same duplication
+    ".agents",  # universal project-local install: skills are not KB documents
+    ".dsh",     # legacy DSH install root: same duplication
+    ".zcode",   # legacy zcode install root: same duplication
 }
 DB_REL = ".gitmark/index.db"
 HEAD_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*$")
@@ -60,7 +61,8 @@ def repo_root(start: Path) -> Path:
 
 
 # Корень пакета — от расположения самого движка (<пакет>/skills/kb-search/gitmark.py).
-# В этом репо <пакет> = корень репо; при copy-установке <проект>/.dsh/skills/... = .dsh.
+# В этом репо <пакет> = корень репо; при copy-установке
+# <проект>/.agents/skills/kb-search/... = .agents.
 # Путь не хардкодится и манифесты не читаются.
 PKG_ROOT = Path(__file__).resolve().parents[2]
 
@@ -84,9 +86,10 @@ def parse_gitignore(root: Path):
     → (dir_pats, file_pats, path_pats, unsupported).
 
     dir_pats — односегментные каталоги (`build/`), file_pats — односегментные имена и
-    `*`-шаблоны (`*.log`), path_pats — правила с путём (`.dsh/plugins/`, `.dsh/.backup-*`,
-    `drafts/secret.md`), они якорятся к корню репозитория. Негативы и `**` попадают в
-    `unsupported`: подмножество их не исполняет, но и не теряет молча.
+    `*`-шаблоны (`*.log`), path_pats — правила с путём (`tools/plugins/`,
+    `tools/.backup-*`, `drafts/secret.md`), они якорятся к корню репозитория. Негативы
+    и `**` попадают в `unsupported`: подмножество их не исполняет, но и не теряет
+    молча.
     """
     dir_pats, file_pats, path_pats, unsupported = [], [], [], []
     gi = root / ".gitignore"
@@ -958,7 +961,7 @@ def _model_body(p: Path) -> str:
 def ontology_twin_issues(root: Path) -> list:
     """I8: модель онтологии проекта и пакетная копия не разошлись. Пусто — синхронно или
     сравнивать нечего. В плоской раскладке (пакет и есть корень репо) расхождение — ERR:
-    обе копии наши; при установке под .dsh пакет приходит извне — WARN."""
+    обе копии наши; при установке под .agents пакет приходит извне — WARN."""
     proj, shipped = root / ONTOLOGY_REL, PKG_ROOT / ONTOLOGY_SHIPPED_REL
     try:
         if not proj.exists() or not shipped.exists() or proj.samefile(shipped):

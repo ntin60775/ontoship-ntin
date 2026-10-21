@@ -1,6 +1,6 @@
 """Contract for the kb-curate skill and the shipped ontology model.
 
-spec: docs/plans/core-kb.md#scope — skills/kb-curate/SKILL.md and ontology.md
+spec: docs/plans/core-kb.md#рамки — skills/kb-curate/SKILL.md and ontology.md
 spec: tickets/core-kb/03-kb-curate-ontology.md — CREATE/UPDATE/DEPRECATE/LINK/REINDEX
 invariant: I2 — docs/ontology.md is the single type vocabulary
 invariant: I8 — project and shipped ontology bodies agree from the first `## `
@@ -74,20 +74,24 @@ def _contract_errors(text: str) -> list[str]:
         if not re.search(rf"^## {operation}\b", body, re.MULTILINE):
             errors.append(f"body: missing operation {operation}")
     for needle in ("docs/ontology.md", "node_type", "README.md",
-                   "gitmark.py index", "gitmark.py lint --strict"):
+                   "gitmark.py index", "gitmark.py lint --strict", ".agents/skills"):
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
-    if "I7" not in body or "out of the core" not in body:
+    flat = re.sub(r"\s+", " ", body)
+    if "I7" not in flat or "вне ядра" not in flat:
         errors.append("body: does not state that I7 stays out of the core")
     lowered = text.lower()
     for term in ("provenance", "reel", "acceptance chord"):
         if re.search(rf"\b{re.escape(term)}\b", lowered):
             errors.append(f"forbidden entity {term!r}")
+    for root in (".dsh", ".zcode", ".qoder"):
+        if root in text:
+            errors.append(f"forbidden harness root {root!r}")
     return errors
 
 
 def test_skill_is_a_discoverable_directory_bundle():
-    """spec: docs/plans/core-kb.md#scope — skills/kb-curate/SKILL.md."""
+    """spec: docs/plans/core-kb.md#рамки — skills/kb-curate/SKILL.md."""
     assert SKILL.is_file(), "the kb-curate skill is missing"
     fields, _ = _parse_skill(SKILL.read_text("utf-8"))
     assert fields["name"] == "kb-curate"
@@ -111,6 +115,9 @@ def test_skill_contract_can_fail():
 
     leaked_entity = text + "\nUse a provenance line.\n"
     assert any("provenance" in error for error in _contract_errors(leaked_entity))
+
+    leaked_root = text + "\nInstall into .dsh/skills instead.\n"
+    assert any(".dsh" in error for error in _contract_errors(leaked_root))
 
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))
@@ -181,11 +188,12 @@ def test_invariant_table_is_exactly_the_core_set(gm):
     assert set(ids) == CORE_INVARIANTS
     assert len(ids) == len(set(ids)), "duplicate invariant row"
     assert "I7" not in ids
-    assert "I7" in body and "out of the core" in body
+    flat = re.sub(r"\s+", " ", body)
+    assert "I7" in flat and "вне ядра" in flat
 
 
 def test_repository_kb_passes_lint_without_errors(gm):
-    """spec: docs/plans/core-kb.md#done-6 — the curated KB passes lint --strict."""
+    """spec: docs/plans/core-kb.md#готово-6 — the curated KB passes lint --strict."""
     result = gm.cmd_lint(REPO)
     assert result["errors"] == [], result["errors"]
 

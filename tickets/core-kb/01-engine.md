@@ -1,62 +1,68 @@
-# 01: Engine — vendor, trim, extract lint helpers
+# 01: Движок — вендорить, урезать, вынести помощников линта
 
-**What to build:** a vendored, trimmed GitMark engine in `skills/kb-search/gitmark.py`
-that indexes and searches the KB, lints the core ontology, renders the map, and reports
-stats — one auditable Python-stdlib file, no registries.
+**Что построить:** вендорный урезанный движок GitMark в `skills/kb-search/gitmark.py`,
+который индексирует и ищет по KB, линтит ядро онтологии, рисует карту и сообщает
+статистику — один проверяемый файл на Python stdlib, без реестров.
 
-**Blocked by:** None (can start immediately).
+**Блокируется:** ничем (можно начинать сразу).
 
-**Status:** done (2026-10-20)
+**Статус:** сделан (2026-10-20)
 
-- [x] `skills/kb-search/gitmark.py` exists as one file, based on the vendored baseline
-      `vendor/ontoship-zcode/gitmark.py` (MIT, attribution kept), with `.dsh` and
-      `.zcode` in `EXCLUDE_DIRS`; `PKG_ROOT` works both in this repo and in copy
-      installs under `.dsh/` and `.zcode/`.
-- [x] Commands `index`, `search`, `lint`, `map`, `stat`, `version` work; `inventory` and
-      `serve` are absent.
-- [x] `lint` checks I1–I6 and I8–I10; I7 is absent; `--strict` exits 1 on any ERR and 0
-      on a clean KB.
-- [x] `cmd_lint` is an orchestration of extracted helpers (28 lines): path guards, link
-      graph, per-doc checks, global checks. Behaviour of the remaining invariants is
-      unchanged.
-- [x] `tests/` covers the trimmed engine: index/search, gitignore fallback, lint path
-      guards, I1/I4, map/stat; the suite runs with `python3 -m pytest tests/ -q` and does
-      not require `node`. Baseline tests adapted; inventory/registry tests are gone.
-- [x] No new invariants, no new registry, no `file:line` anchors in the code comments
-      that would rot.
+- [x] `skills/kb-search/gitmark.py` существует одним файлом на основе вендорной базы
+      `vendor/ontoship-zcode/gitmark.py` (MIT, атрибуция сохранена), с `.dsh` и
+      `.zcode` в `EXCLUDE_DIRS`; `PKG_ROOT` работает и в этом репозитории, и в
+      copy-установках под `.dsh/` и `.zcode/`.
+- [x] Команды `index`, `search`, `lint`, `map`, `stat`, `version` работают;
+      `inventory` и `serve` отсутствуют.
+- [x] `lint` проверяет I1–I6 и I8–I10; I7 отсутствует; `--strict` выходит с кодом 1
+      при любом ERR и с кодом 0 на чистой KB.
+- [x] `cmd_lint` — оркестрация вынесенных помощников (28 строк): защита путей, граф
+      ссылок, проверки по документу, глобальные проверки. Поведение остальных
+      инвариантов не изменилось.
+- [x] `tests/` покрывает урезанный движок: index/search, откат к gitignore, защита
+      путей линта, I1/I4, map/stat; набор запускается через
+      `python3 -m pytest tests/ -q` и не требует `node`. Базовые тесты адаптированы;
+      тесты inventory/реестра удалены.
+- [x] Никаких новых инвариантов, нового реестра и якорей `file:line` в комментариях
+      кода, которые бы гнили.
 
-**What can I demo when this is done?** In a temp repo with two docs and one broken link:
-`index` writes `.gitmark/index.db`; `search` finds a doc; `lint --strict` exits 1 on the
-broken link; fixing the link makes it exit 0; `map` writes HTML; `stat --json` is valid
-JSON. Then the same on this repository's own `docs/`.
+**Что я могу показать, когда это готово?** Во временном репозитории с двумя
+документами и одной битой ссылкой: `index` пишет `.gitmark/index.db`; `search`
+находит документ; `lint --strict` выходит с кодом 1 на битой ссылке; исправление
+ссылки даёт код 0; `map` пишет HTML; `stat --json` — валидный JSON. Затем то же на
+собственном `docs/` этого репозитория.
 
-## Evidence (2026-10-20)
+## Доказательства (2026-10-20)
 
-- **Shape:** `skills/kb-search/gitmark.py` is 1302 lines; `cmd_lint` is 28 lines and calls
-  `_lint_path_guards`, `_lint_link_graph`, `_lint_readme_index`, `_lint_per_doc` and
-  `_lint_global`. The file carries the ontoship-zcode MIT attribution.
-- **Trim:** `inventory`, `serve`, `inventory_issues` and I7 are absent from the module and
-  from `--help`; `.dsh` and `.zcode` are in `EXCLUDE_DIRS`; `PKG_ROOT` resolves to the repo
-  root here and to `.dsh` / `.zcode` in copy installs (all exercised by tests).
-- **Tests:** `python3 -m pytest tests/ -q` → **131 passed in 1.21 s**, stdlib + pytest,
-  no Node. Every test names `spec:` or `invariant:`; the path matrix and the redact matrix
-  each carry a mutation probe.
-- **Differential against the vendor baseline:** on a KB exercising I1/I2/I3/I4/I5/I6/I9/I10,
-  the trimmed `cmd_lint` returns the same issues and `checked` count as the baseline after
-  dropping I7, for both a full run and a path-selected run; both guards refuse with the
-  same messages.
-- **Live mutation probes (engine restored byte-for-byte afterward):**
-  - path guards bypassed → `tests/test_lint_paths.py`: **20 failed, 8 passed** (including
-    the silent-clean probe);
-  - `.dsh` or `.zcode` dropped from `EXCLUDE_DIRS` → the install-roots exclusion test fails;
-  - `redact_lite` dropped from the lint print → redacted-output E2E fails (secret leaks);
-  - `fs_resolve` forced to succeed → **6 I4/fs_resolve tests fail**.
-- **Temp demo:** 3-file KB: `index` writes `.gitmark/index.db`; `search platypus` finds the
-  note; broken link → `ERR I4`, `lint --strict` exit 1; fixed link → `✓ чисто`, exit 0;
-  `map` writes HTML; `stat --json` is valid JSON.
-- **This repo:** `index` → 19 files, 67 chunks, 34 links; `lint --strict` → exit 0
-  (`✓ чисто`); `map` → 19 files, 34 refs, 0 unreached; `stat --json` valid.
-- **Not yet covered:** I8 against a real `skills/kb-curate/ontology.md` waits for ticket
-  03 (synthetic I8 tests pass now); full dogfood is ticket 06. No browser was needed.
+- **Форма:** `skills/kb-search/gitmark.py` — 1302 строки; `cmd_lint` — 28 строк и
+  вызывает `_lint_path_guards`, `_lint_link_graph`, `_lint_readme_index`,
+  `_lint_per_doc` и `_lint_global`. Файл несёт MIT-атрибуцию ontoship-zcode.
+- **Урезание:** `inventory`, `serve`, `inventory_issues` и I7 отсутствуют в модуле и
+  в `--help`; `.dsh` и `.zcode` есть в `EXCLUDE_DIRS`; `PKG_ROOT` разрешается в корень
+  репозитория здесь и в `.dsh` / `.zcode` в copy-установках (всё проверено тестами).
+- **Тесты:** `python3 -m pytest tests/ -q` → **131 passed in 1.21 s**, stdlib +
+  pytest, без Node. Каждый тест называет `spec:` или `invariant:`; матрица путей и
+  матрица редакции несут по мутационной пробе.
+- **Дифференс против вендорной базы:** на KB, проверяющей I1/I2/I3/I4/I5/I6/I9/I10,
+  урезанный `cmd_lint` возвращает те же issues и тот же счётчик `checked`, что и база
+  после удаления I7, и для полного прогона, и для прогона с выбранными путями; обе
+  защиты отказывают с одинаковыми сообщениями.
+- **Живые мутационные пробы (движок восстановлен байт в байт):**
+  - защита путей обойдена → `tests/test_lint_paths.py`: **20 failed, 8 passed**
+    (включая пробу «тихо-чисто»);
+  - `.dsh` или `.zcode` убраны из `EXCLUDE_DIRS` → тест исключения корней установки
+    падает;
+  - `redact_lite` убран из печати линта → E2E редакции падает (секрет утекает);
+  - `fs_resolve` принудительно успешен → **6 тестов I4/fs_resolve падают**.
+- **Временное демо:** KB из 3 файлов: `index` пишет `.gitmark/index.db`;
+  `search platypus` находит заметку; битая ссылка → `ERR I4`, `lint --strict` с кодом
+  1; исправленная ссылка → `✓ чисто`, код 0; `map` пишет HTML; `stat --json` —
+  валидный JSON.
+- **Этот репозиторий:** `index` → 19 файлов, 67 чанков, 34 ссылки; `lint --strict` →
+  код 0 (`✓ чисто`); `map` → 19 файлов, 34 ссылки, 0 недостижимых; `stat --json`
+  валиден.
+- **Пока не покрыто:** I8 против реального `skills/kb-curate/ontology.md` ждёт тикет
+  03 (синтетические тесты I8 проходят уже сейчас); полный dogfood — тикет 06. Браузер
+  не понадобился.
 
-**Remaining:** ticket 02 (`kb-search` SKILL.md) follows.
+**Остаток:** дальше тикет 02 (`kb-search` SKILL.md).

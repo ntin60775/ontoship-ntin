@@ -1,6 +1,6 @@
 ---
 node_type: index
-title: Decisions
+title: Решения
 service: _platform
 status: active
 updated: 2026-10-19
@@ -9,10 +9,10 @@ links:
   relates_to: [ontoship-core.md, ../reference/sources.md]
 ---
 
-# Decisions
+# Решения
 
-Decisions of record. The first one is the canon; everything else must not contradict it
-without a new decision that names the canon change.
+Решения записи. Первое — канон; всё остальное не должно ему противоречить без нового
+решения, которое называет изменение канона.
 
-- [ontoship-core.md](ontoship-core.md) — the canon: 3 artefacts, 3 phases, 2
-  separations, 1 quality rule; what is default and what is the strict profile.
+- [ontoship-core.md](ontoship-core.md) — канон: 3 артефакта, 3 фазы, 2 разделения,
+  1 правило качества; что является умолчанием, а что — строгим профилем.

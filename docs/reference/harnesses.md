@@ -1,0 +1,88 @@
+---
+node_type: reference
+title: Совместимость харнессов — project-local скиллы и AGENTS.md
+service: _platform
+status: active
+updated: 2026-10-21
+tags: [harness, skills, agents-md, zcode, dsh, qoder]
+links:
+  part_of: [README.md]
+  relates_to: [../plans/harness-agnostic.md, ../ops/continue.md]
+---
+
+# Совместимость харнессов
+
+Проверено 2026-10-21 по исходникам и живой конфигурации трёх харнессов. Вывод:
+одного project-local корня `<project>/.agents/skills` достаточно для zcode, DSH и
+Qoder; слой адаптеров не нужен. Справочник фиксирует доказательства, чтобы следующая
+сессия не выводила их заново.
+
+## Матрица
+
+| харнесс | project-local корень скиллов | приоритет | `AGENTS.md` |
+|---|---|---|---|
+| DSH | `.agents/skills` (ранг 200); `.dsh/skills` (ранг 100) | `.dsh` выше `.agents` | читает из корня проекта |
+| zcode 3.16.2 | `.agents/skills` и `.zcode/skills` в каждом workspace-корне | оба — кандидаты workspace | `NodeContextSourceAdapter` ищет файл от рабочего каталога вверх |
+| Qoder 0.4.8 | `.agents/skills` при `skills.loadFromAgentsDirectory: true` | один корень | загружает `AGENTS.md` проекта и файлы предков |
+
+Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда
+`kb-search`, `kb-curate` и `init`. Все три харнесса читают `AGENTS.md` из корня
+проекта, поэтому точка входа и управляемый блок живут там.
+
+## Доказательства
+
+### DSH
+
+- Источник: `deepseek-harness/packages/skill/skill-filesystem/src/index.ts`.
+- `<project>/.dsh/skills` имеет ранг 100, `<project>/.agents/skills` — ранг 200.
+  Меньший ранг побеждает, поэтому старая запись `.dsh` затеняет универсальную.
+- `AGENTS.md` загружается из корня проекта.
+
+### zcode 3.16.2
+
+- Источник: `app.asar`; функции `resolveAncestorWorkspaceRoots` →
+  `getWorkspaceZcodeSkillRoot` / `getWorkspaceAgentsSkillRoot`, их потребляет
+  сканирование workspace в `T3`.
+- Сканирование идёт вверх по дереву от каждого workspace-корня; `.zcode/skills` и
+  `.agents/skills` — оба кандидата.
+- `AGENTS.md` разрешает `NodeContextSourceAdapter` от рабочего каталога вверх.
+
+### Qoder 0.4.8
+
+- Источник: `qoder-worker-runtime.obf.mjs`; функции
+  `buildProjectSkillDirectorySet` и `resolveAgentSkillsDir`.
+- `<cwd>/.agents/skills` загружается, когда `skills.loadFromAgentsDirectory` равен
+  `true`; в живом манифесте запуска стоит `true`.
+- Пользовательский `~/.agents/skills` виден в сессии, но проект использует только
+  project-local корень.
+- `AGENTS.md` загружается вместе с файлами предков.
+
+## Что это значит для проекта
+
+- Один канонический корень: `<project>/.agents/skills`. Копий под харнессы нет.
+- Установленный движок лежит рядом со своим `SKILL.md`:
+  `.agents/skills/kb-search/gitmark.py`. Скилл не хардкодит расположение проекта.
+- Старые записи `.dsh/skills`, `.zcode/skills` и `.qoder/skills`, ведущие в этот
+  репозиторий, — legacy. `scripts/install.sh --check` предупреждает о них и никогда
+  их не удаляет; удаление — решение оператора.
+- `.agents/skills/` пишется в `.gitignore` скиллом `init`: установка локальна и не
+  коммитится.
+
+## Запасные варианты и границы
+
+- **Qoder с выключенным `loadFromAgentsDirectory`.** `.agents/skills` не попадает в
+  каталог. Включи настройку; копировать скиллы в харнесс-специфичный корень в этом
+  юните нельзя.
+- **zcode, если `.agents/skills` не виден.** `.zcode/skills` — харнесс-специфичный
+  корень; переход на него — новый план, а не адаптер, добавленный здесь.
+- **DSH.** `.dsh/skills` остаётся только legacy-корнем в `EXCLUDE_DIRS` движка:
+  старая установка не должна попадать в корпус KB.
+- **Проверка.** Файловая раскладка доказывает только наличие бандлов. Каталог
+  скиллов в свежей сессии — единственное доказательство загрузки; если сессию
+  поднять нельзя, пробел фиксируется явно, а не подменяется выводом `ls`.
+
+## Связанные документы
+
+- План: [harness-agnostic.md](../plans/harness-agnostic.md) — решение и тикеты.
+- Установка: [scripts/install.sh](../../scripts/install.sh) — канал и `--check`.
+- Состояние: [continue.md](../ops/continue.md) — что проверено в этом репозитории.

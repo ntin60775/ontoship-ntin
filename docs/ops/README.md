@@ -11,5 +11,6 @@ links:
 
 # Ops
 
-- [continue.md](continue.md) — the canonical way to continue development from this repo:
-  state, open work, ticket order, environment facts and the start prompt.
+- [continue.md](continue.md) — канонический способ продолжить разработку из этого
+  репозитория: состояние, открытая работа, порядок тикетов, факты окружения и
+  стартовый промпт.

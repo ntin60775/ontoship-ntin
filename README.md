@@ -1,43 +1,44 @@
-# OntoShip for DSH
+# OntoShip для DSH
 
-> **A project knowledge base is just `markdown` + a `README` index + `git`.**
-> Nothing simpler works better.
+> **База знаний проекта — это просто `markdown` + индекс `README` + `git`.**
+> Ничего проще не работает лучше.
 
-OntoShip is a method for **transferring engineering practice**: a deterministic
-markdown knowledge base, an interview that stress-tests a plan before code exists,
-tracer-bullet tickets, and a gated one-ticket-at-a-time ship flow.
+OntoShip — метод **передачи инженерной практики**: детерминированная база знаний на
+markdown, интервью, которое проверяет план на прочность до появления кода,
+tracer-bullet тикеты и гейтированный ship-поток по одному тикету за раз.
 
-This repo is a **clean re-founding**, not a fork of the zcode texts. It goes back to
-three sources and keeps only what they actually say:
+Этот репозиторий — **чистое переоснование**, а не форк текстов zcode. Он возвращается
+к трём источникам и держит только то, что они действительно говорят:
 
-1. **OntoShip** (vakovalskii) — the KB and the 11-step dev-flow. The product is the
-   workflow; the KB is the substrate; the ontology is optional; simplicity is an
-   operational property.
-2. **Matt Pocock** — `grilling` (design tree, frontier, rounds) and `to-tickets`
-   (tracer bullets, blocking edges, quiz). Decisions and ticket publication stay with
-   the operator.
-3. **The operator's testing strategy** — a test proves a spec clause, guards a project
-   invariant, or reproduces a real failure (target test); scenarios are agentic (MCP), not
-   hand-written safe paths; stale tests are deleted.
+1. **OntoShip** (vakovalskii) — KB и 11-шаговый dev-flow. Продукт — workflow; KB —
+   субстрат; онтология необязательна; простота — операционное свойство.
+2. **Matt Pocock** — `grilling` (дерево дизайна, фронтир, раунды) и `to-tickets`
+   (tracer-bullet, блокирующие рёбра, квиз). Решения и публикация тикетов остаются за
+   оператором.
+3. **Стратегия тестирования оператора** — тест доказывает пункт спеки, охраняет
+   инвариант проекта или воспроизводит реальный сбой (target-тест); сценарии
+   агентные (MCP), а не написанные вручную безопасные пути; устаревшие тесты
+   удаляются.
 
-The canon is one page: [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md).
-Sources and what was adopted from each: [docs/reference/sources.md](docs/reference/sources.md).
+Канон — одна страница: [docs/decisions/ontoship-core.md](docs/decisions/ontoship-core.md).
+Источники и что из каждого взято: [docs/reference/sources.md](docs/reference/sources.md).
 
-**Start here:** [docs/ops/continue.md](docs/ops/continue.md) — the state, the ticket
-order, the open work and the start prompt. The first unit
-[core-kb](docs/plans/core-kb.md) is complete; its ticket record is in
-[tickets/core-kb/](tickets/core-kb/06-dogfood.md). The next unit is not chosen yet.
+**Начни здесь:** [docs/ops/continue.md](docs/ops/continue.md) — состояние, порядок
+тикетов, открытая работа и стартовый промпт. Юниты
+[core-kb](docs/plans/core-kb.md) и [harness-agnostic](docs/plans/harness-agnostic.md)
+завершены; записи тикетов лежат в [tickets/](tickets/README.md). Следующий юнит —
+workflow-скиллы; план в подготовке.
 
-## Status
+## Состояние
 
-**Pre-alpha, self-contained.** The KB core (`core-kb`) is complete and dogfooded: the
-GitMark engine, `kb-search`, `kb-curate`, `init` and `scripts/install.sh`, with 162 tests
-and a clean `lint --strict`. The workflow skills (`grilling`, `to-tickets`, `ship`,
-`testing`) are not built. The open work is recorded in
-[docs/ops/continue.md](docs/ops/continue.md#what-remains-project-wide). The previous line
-([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) is kept as the **strict
-profile** and history — not the default.
+**Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на dogfood:
+движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 168 тестов и
+чистый `lint --strict`. Workflow-скиллы (`grilling`, `to-tickets`, `ship`,
+`testing`) не построены. Открытая работа записана в
+[docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту). Предыдущая линия
+([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) хранится как **строгий
+профиль** и история — не умолчание.
 
-## Licence
+## Лицензия
 
-MIT — see [LICENSE](LICENSE).
+MIT — см. [LICENSE](LICENSE).

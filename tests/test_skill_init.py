@@ -4,9 +4,10 @@ The skill is prose: its "code" is the text an agent follows. These checks pin th
 shipped artifact — the DSH frontmatter, the two files init owns, the marker cases and
 the verbatim block — and prove the check can fail (mutation probe).
 
-spec: docs/plans/core-kb.md#scope — skills/init/SKILL.md, the managed block, .gitignore
-spec: tickets/core-kb/04-init-skill.md — idempotent; only inside the markers; two files
-invariant: no registry, provenance, Reel or acceptance chord; no write outside the two files
+spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed block,
+      .gitignore (four lines), harness-neutral prose
+spec: tickets/harness-agnostic/02-portable-skills.md — portable paths; .agents/skills/
+invariant: no registry, provenance, Reel or acceptance chord; no harness root named
 """
 from __future__ import annotations
 
@@ -17,31 +18,32 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
-GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/")
+GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/")
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
-             "serve", ".zcode", "commands.md")
+             "serve", ".dsh", ".zcode", ".qoder", "commands.md")
 
 # The block from the spec, pinned independently of the skill text: the expected value
 # is this literal, not a re-extraction of the implementation.
 BLOCK = """\
 <!-- BEGIN ontoship -->
-## Knowledge base (OntoShip)
+## База знаний (OntoShip)
 
-- Entry point: [`docs/README.md`](docs/README.md) — the KB master index; every folder has
-  a `README.md` index.
-- Search before answering or writing: load the `kb-search` skill. The engine is at
-  `.dsh/skills/kb-search/gitmark.py` for direct use.
-- New or updated docs: load the `kb-curate` skill — search first, never duplicate.
-- Maintain after editing docs:
+- Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
+  есть индекс `README.md`.
+- Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
+  `.agents/skills/kb-search/gitmark.py` для прямого запуска.
+- Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
+  не дублируй.
+- Сопровождение после правки документов:
 
   ```sh
-  python3 .dsh/skills/kb-search/gitmark.py index
-  python3 .dsh/skills/kb-search/gitmark.py lint --strict
-  python3 .dsh/skills/kb-search/gitmark.py map -o docs-map.html
+  python3 .agents/skills/kb-search/gitmark.py index
+  python3 .agents/skills/kb-search/gitmark.py lint --strict
+  python3 .agents/skills/kb-search/gitmark.py map -o docs-map.html
   ```
 
-- The KB is markdown + git: `.gitmark/`, `*-map.html` and `.scratch/` are derived or
-  ephemeral — never committed.
+- KB — это markdown + git: `.gitmark/`, `*-map.html` и `.scratch/` производные или
+  эфемерные — никогда не коммитятся.
 <!-- END ontoship -->
 """
 
@@ -122,8 +124,8 @@ def _contract_errors(text: str) -> list[str]:
     for needle in ("AGENTS.md", ".gitignore", BEGIN, END, "docs/README.md",
                    "kb-search", "kb-curate", "gitmark.py index",
                    "gitmark.py lint --strict", "gitmark.py map -o docs-map.html",
-                   "idempotent", "outside the markers", "one blank line",
-                   "already current", "replace only the inner text",
+                   ".agents/skills/", "идемпотент", "вне маркеров", "одну пустую строку",
+                   "уже актуален", "замени только внутренний текст",
                    "[WARN]", "[FAIL]"):
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
@@ -151,7 +153,7 @@ def _contract_errors(text: str) -> list[str]:
 
 
 def test_skill_is_a_discoverable_directory_bundle():
-    """spec: docs/plans/core-kb.md#scope — skills/init/SKILL.md."""
+    """spec: docs/plans/core-kb.md#рамки — skills/init/SKILL.md."""
     assert SKILL.is_file(), "the init skill is missing"
     assert SKILL.parent.name == "init", "bundle directory must match the skill name"
     text = SKILL.read_text("utf-8")
@@ -169,8 +171,8 @@ def test_block_is_verbatim_and_has_one_marker_pair():
     assert text.count(BEGIN) == text.count(END) == 3
 
 
-def test_gitignore_lines_are_the_three_the_kb_requires():
-    """spec: ticket 04 — `.gitmark/`, `*-map.html`, `.scratch/`."""
+def test_gitignore_lines_are_the_four_the_kb_requires():
+    """spec: ticket 02 — `.gitmark/`, `*-map.html`, `.scratch/`, `.agents/skills/`."""
     lines = _standalone_lines(SKILL.read_text("utf-8"))
     assert lines == list(GITIGNORE_LINES)
 
@@ -194,6 +196,9 @@ def test_contract_can_fail():
     leaked_install_root = text + "\nInstall into .zcode/skills instead.\n"
     assert any(".zcode" in error for error in _contract_errors(leaked_install_root))
 
+    leaked_legacy_root = text + "\nKeep the old .dsh/skills link.\n"
+    assert any(".dsh" in error for error in _contract_errors(leaked_legacy_root))
+
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))
     assert any("name" in error for error in _contract_errors(missing_name))
@@ -206,6 +211,6 @@ def test_contract_can_fail():
     assert any("must be quoted" in error
                for error in _contract_errors(unquoted_description))
 
-    edited_block = text.replace("## Knowledge base (OntoShip)",
-                                "## Knowledge base (edited)", 1)
+    edited_block = text.replace("## База знаний (OntoShip)",
+                                "## База знаний (изменено)", 1)
     assert any("verbatim" in error for error in _contract_errors(edited_block))

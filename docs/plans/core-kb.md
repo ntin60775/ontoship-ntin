@@ -1,101 +1,108 @@
 ---
 node_type: plan
-title: core-kb — installable KB core
+title: core-kb — устанавливаемое ядро базы знаний
 service: _platform
 status: active
 updated: 2026-10-21
 links:
-  relates_to: [../decisions/ontoship-core.md, ../reference/sources.md]
+  relates_to: [harness-agnostic.md, ../decisions/ontoship-core.md, ../reference/sources.md]
 ---
 
-# core-kb — installable KB core
+# core-kb — устанавливаемое ядро базы знаний
 
-The first unit of the clean repo: a project can install the core locally and get a
-working knowledge base — index, search, ontology lint, map — with **no registries** and
-**no inventory command**.
+Первый юнит чистого репозитория: проект ставит ядро локально и получает рабочую базу
+знаний — index, search, ontology lint, map — **без реестров** и **без команды
+inventory**.
 
-**State (2026-10-21): complete.** Tickets 01–06 are done; the unit is closed and
-dogfooded in this repository. This file remains the durable contract of the unit, not a
-ticket ledger.
+**Состояние (2026-10-21): завершён.** Тикеты 01–06 сделаны; юнит закрыт и проверен
+на dogfood в этом репозитории. Файл остаётся durable-контрактом юнита, а не журналом
+тикетов.
 
-## Goal
+**Обновление (2026-10-21):** корень установки `.dsh/skills` заменён утверждённым и
+завершённым планом [harness-agnostic.md](harness-agnostic.md) (`.agents/skills`,
+тикеты 01–04); движок, скиллы, тесты и доказательства ниже остаются в силе.
 
-A DSH project installs the core into its own `.dsh/skills/` and gets a searchable,
-lintable markdown KB: `index`, `search`, `lint`, `map`, `stat`, `version`. The engine is
-one auditable Python-stdlib file; the install is idempotent; the skills are discovered by
-DSH without a restart.
+## Цель
 
-## Done
+Проект на DSH ставит ядро в собственный `.dsh/skills/` и получает markdown-базу с
+поиском и линтом: `index`, `search`, `lint`, `map`, `stat`, `version`. Движок — один
+проверяемый файл на Python stdlib; установка идемпотентна; DSH находит скиллы без
+перезапуска.
 
-1. `scripts/install.sh <project>` creates `.dsh/skills/{kb-search,kb-curate,init}`
-   (symlinks to this repo by default, `--copy` for a detached install); a second run makes
-   no change (idempotent) and `--check` reports drift. The init skill (ticket 04) writes
-   the managed block separately — install does not run it.
-2. In a temp repo with a minimal KB: `gitmark.py index` writes `.gitmark/index.db`;
-   `search "<word>"` returns the doc; `lint --strict` exits 0; `map` writes HTML;
-   `stat --json` returns valid JSON.
-3. In the same temp repo, a broken body link and a load-bearing doc without
-   `node_type` produce `ERR I4` / `ERR I1`, and `lint --strict` exits 1.
-4. The engine file is the trimmed version of the vendored baseline: no `inventory` or
-   `serve` command and no I7; `cmd_lint` is an orchestration of extracted helpers
-   (≤ 80 lines); the file stays one file (≤ ~1300 lines); the trimmed engine's tests pass.
-5. A fresh DSH session in the temp repo lists `kb-search`, `kb-curate`, `init` in the
-   skill catalog (the catalog is discovered from `.dsh/skills`).
-6. This repository's own `docs/` passes `lint --strict` after `init` + `index`
-   (dogfood), and `search "canon"` finds the canon.
+## Готово
 
-## Scope
+1. `scripts/install.sh <project>` создаёт `.dsh/skills/{kb-search,kb-curate,init}`
+   (по умолчанию символические ссылки на этот репозиторий, `--copy` — отсоединённая
+   копия); повторный запуск ничего не меняет (идемпотентность), а `--check` сообщает
+   о расхождении. Скилл `init` (тикет 04) пишет управляемый блок отдельно — установка
+   его не запускает.
+2. Во временном репозитории с минимальной KB: `gitmark.py index` пишет
+   `.gitmark/index.db`; `search "<word>"` возвращает документ; `lint --strict` выходит
+   с кодом 0; `map` пишет HTML; `stat --json` возвращает валидный JSON.
+3. В том же временном репозитории битая ссылка в теле и несущий документ без
+   `node_type` дают `ERR I4` / `ERR I1`, а `lint --strict` выходит с кодом 1.
+4. Файл движка — урезанная версия вендорной базы: нет команды `inventory` или `serve`
+   и нет I7; `cmd_lint` — оркестрация вынесенных помощников (≤ 80 строк); файл
+   остаётся одним файлом (≤ ~1300 строк); тесты урезанного движка проходят.
+5. Свежая сессия DSH во временном репозитории видит `kb-search`, `kb-curate`, `init`
+   в каталоге скиллов (каталог обнаруживается из `.dsh/skills`).
+6. Собственный `docs/` этого репозитория проходит `lint --strict` после `init` +
+   `index` (dogfood), а `search "canon"` находит канон.
 
-- `vendor/ontoship-zcode/` — the engine baseline (MIT) and its baseline tests; the
-  source of ticket 01.
-- `skills/kb-search/SKILL.md`, `skills/kb-search/gitmark.py` — the vendored engine,
-  trimmed and adapted to `.dsh` paths.
-- `skills/kb-curate/SKILL.md`, `skills/kb-curate/ontology.md` — the ontology rules and
-  the shipped model (I1–I6, I8–I10; I7 is out).
-- `skills/init/SKILL.md` — the managed block in `AGENTS.md`, the `.gitignore` lines.
-- `scripts/install.sh` — project-local install, symlink/copy, `--check`.
-- `tests/` — engine tests adapted to the trimmed surface; install idempotence test.
-- `docs/` — this repo's own KB: index, ontology, decisions (already started).
+## Рамки
 
-## Constraints
+- `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; источник тикета 01.
+- `skills/kb-search/SKILL.md`, `skills/kb-search/gitmark.py` — вендорный движок,
+  урезанный и адаптированный к путям `.dsh`.
+- `skills/kb-curate/SKILL.md`, `skills/kb-curate/ontology.md` — правила онтологии и
+  поставляемая модель (I1–I6, I8–I10; I7 вне ядра).
+- `skills/init/SKILL.md` — управляемый блок в `AGENTS.md`, строки `.gitignore`.
+- `scripts/install.sh` — project-local установка, ссылка/копия, `--check`.
+- `tests/` — тесты движка, адаптированные к урезанной поверхности; тест идемпотентности
+  установки.
+- `docs/` — собственная KB этого репозитория: индекс, онтология, решения (уже начаты).
 
-- No registries, no `inventory`, no `serve`, no I7. No provenance line, Reel, acceptance
-  chord, issue counter, or automatic grill → tickets chain.
-- Project-local install only; the global Playwright MCP is the host default, not part of
-  this unit.
-- One engine file; no new invariants; DSH skill frontmatter (`name`, `description`,
-  `user-invocable` / `disable-model-invocation` where it matters).
-- The vendored engine is MIT; keep the attribution and the minimal-diff rule.
+## Ограничения
 
-## Context
+- Никаких реестров, `inventory`, `serve`, I7. Никакой строки provenance, Reel, аккорда
+  приёмки, счётчика issue и автоматической цепочки grill → tickets.
+- Только project-local установка; глобальный Playwright MCP — умолчание хоста, а не
+  часть этого юнита.
+- Один файл движка; никаких новых инвариантов; frontmatter скилла DSH (`name`,
+  `description`, `user-invocable` / `disable-model-invocation` где это важно).
+- Вендорный движок под MIT; сохраняем атрибуцию и правило минимального диффа.
 
-Sources and the canon: [ontoship-core.md](../decisions/ontoship-core.md),
-[sources.md](../reference/sources.md). Decisions already taken: install channel
-project-local `.dsh/skills`; first slice is install + KB core; the engine is vendored
-from `ontoship-zcode`.
+## Контекст
 
-The engine baseline is already in the repo: `vendor/ontoship-zcode/gitmark.py` (from
-`ontoship-zcode` HEAD `5528ae1`; the engine is unchanged since `86941ab`, MIT). The new
-repo does not depend on the source repo; ticket 01 copies and trims the baseline.
+Источники и канон: [ontoship-core.md](../decisions/ontoship-core.md),
+[sources.md](../reference/sources.md). Уже принятые решения: канал установки —
+project-local `.dsh/skills`; первый срез — установка + ядро KB; движок вендорится из
+`ontoship-zcode`.
 
-**Engine review (2026-10-19).** The 1570-line `gitmark.py` is not spaghetti: 53
-functions, median 12 lines, no global mutable state, clear section banners, independent
-commands. The complexity is concentrated in `cmd_lint` (134 lines, 47 branch nodes) and
-in the embedded HTML/JS of `_MAP_HTML`; the rest is domain surface. The real problem is
-the **product surface**, not the control flow: the file bundles index/search, ontology
-lint, the **registry generator** (`inventory`, I7), the HTML map, and an HTTP server.
-The canon rejects mandatory registries, so `inventory` and I7 go; `serve` goes; `map`
-stays (optional, cheap). `cmd_lint` is split into helpers **inside the file** (link
-graph, per-doc checks, global checks); a module split is deferred until the trimmed file
-still exceeds the threshold. This keeps the "one file you can audit in an afternoon"
-property and avoids a package layout for its own sake.
+База движка уже в репозитории: `vendor/ontoship-zcode/gitmark.py` (из
+`ontoship-zcode` HEAD `5528ae1`; движок не менялся с `86941ab`, MIT). Новый
+репозиторий не зависит от исходного; тикет 01 копирует и урезает базу.
 
-DSH skill roots (fact): `<project>/.dsh/skills` (rank 100), `<project>/.agents/skills`
-(200), `~/.dsh/skills` (400); a skill is `<name>/SKILL.md` or flat `<name>.md`; nested
-`**/SKILL.md` is not discovered. This defines the install layout.
+**Ревью движка (2026-10-19).** `gitmark.py` на 1570 строк — не спагетти: 53 функции,
+медиана 12 строк, нет глобального изменяемого состояния, ясные баннеры разделов,
+независимые команды. Сложность сосредоточена в `cmd_lint` (134 строки, 47 узлов
+ветвления) и во встроенных HTML/JS из `_MAP_HTML`; остальное — доменная поверхность.
+Настоящая проблема — **поверхность продукта**, а не поток управления: файл совмещает
+index/search, линт онтологии, **генератор реестра** (`inventory`, I7), HTML-карту и
+HTTP-сервер. Канон отвергает обязательные реестры, поэтому `inventory` и I7 уходят;
+`serve` уходит; `map` остаётся (необязательный, дешёвый). `cmd_lint` разбит на
+помощников **внутри файла** (граф ссылок, проверки по документу, глобальные проверки);
+разделение на модули отложено, пока урезанный файл всё ещё превышает порог. Это
+сохраняет свойство «один файл, который можно проверить за полдня» и избегает
+пакетной раскладки ради самой раскладки.
 
-Tickets are not part of this contract: they are ephemeral, tracked in `tickets/core-kb/`
-(a local tracker, not KB; the `to-tickets` skill is not built yet). The plan gate passed
-on 2026-10-19. Ticket order: **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init
-→ 05 install → 06 dogfood**. Install comes after the skills exist; it links them, it does
-not run init.
+Корни скиллов DSH (факт): `<project>/.dsh/skills` (ранг 100),
+`<project>/.agents/skills` (200), `~/.dsh/skills` (400); скилл — это
+`<name>/SKILL.md` или плоский `<name>.md`; вложенный `**/SKILL.md` не
+обнаруживается. Это задаёт раскладку установки.
+
+Тикеты не часть этого контракта: они эфемерны и лежат в `tickets/core-kb/`
+(локальный трекер, не KB; скилл `to-tickets` ещё не построен). План-гейт пройден
+2026-10-19. Порядок тикетов: **01 движок → 02 kb-search → 03 kb-curate/ontology →
+04 init → 05 install → 06 dogfood**. Установка идёт после появления скиллов; она
+ставит ссылки и не запускает init.

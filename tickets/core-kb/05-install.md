@@ -1,55 +1,64 @@
-# 05: install channel
+# 05: канал установки
 
-**What to build:** `scripts/install.sh` — project-local install of the core. It creates
-`<project>/.dsh/skills/{kb-search,kb-curate,init}` as symlinks to this repo by default
-(`--copy` for a detached install), and `--check` reports drift. It links the skills; it
-does not run the init skill.
+**Что построить:** `scripts/install.sh` — project-local установка ядра. Он создаёт
+`<project>/.dsh/skills/{kb-search,kb-curate,init}` как символические ссылки на этот
+репозиторий по умолчанию (`--copy` — отсоединённая установка), а `--check` сообщает о
+расхождении. Он ставит ссылки на скиллы; он не запускает скилл init.
 
-**Blocked by:** 02, 03, 04 (all done; the skill directories exist).
+**Блокируется:** 02, 03, 04 (все сделаны; каталоги скиллов существуют).
 
-**Status:** done (2026-10-21)
+**Статус:** сделан (2026-10-21)
 
-- [x] `scripts/install.sh <project>` creates `.dsh/skills/` and one symlink per skill to
-      `<repo>/skills/<name>`; the target layout is exactly what DSH discovers (rank 100).
-- [x] A second run makes no change (idempotent); `--check` exits 0 when all links point
-      at this repo and names each missing/wrong link with exit 1 otherwise.
-- [x] `--copy` copies the skill directories instead of linking; `--check` accepts either
-      a correct symlink or a correct copy.
-- [x] No writes outside `<project>/.dsh/skills`; no `.zcode`, no global install, no
-      Playwright/browser dependency.
-- [x] A test covers: fresh install, idempotent second run, `--check` clean, remove a link
-      → `--check` names it and exits 1, `--copy` produces real directories.
+- [x] `scripts/install.sh <project>` создаёт `.dsh/skills/` и одну символическую
+      ссылку на скилл в `<repo>/skills/<name>`; целевая раскладка — ровно то, что
+      обнаруживает DSH (ранг 100).
+- [x] Повторный запуск ничего не меняет (идемпотентность); `--check` выходит с кодом
+      0, когда все ссылки указывают на этот репозиторий, и называет каждую
+      отсутствующую или неверную ссылку с кодом 1 иначе.
+- [x] `--copy` копирует каталоги скиллов вместо ссылок; `--check` принимает и
+      правильную символическую ссылку, и правильную копию.
+- [x] Никаких записей вне `<project>/.dsh/skills`; никакого `.zcode`, никакой
+      глобальной установки, никакой зависимости от Playwright/браузера.
+- [x] Тест покрывает: свежую установку, идемпотентный второй запуск, чистый `--check`,
+      удаление ссылки → `--check` называет её и выходит с кодом 1, `--copy` создаёт
+      настоящие каталоги.
 
-**What can I demo when this is done?** Install into a temp repo; `ls -l .dsh/skills`
-shows three links; run again (no change); `--check` exits 0; delete one link, `--check`
-exits 1 and names it; `--copy` into another temp repo produces three real directories.
+**Что я могу показать, когда это готово?** Установи во временный репозиторий;
+`ls -l .dsh/skills` показывает три ссылки; запусти снова (без изменений); `--check`
+выходит с кодом 0; удали одну ссылку, `--check` выходит с кодом 1 и называет её;
+`--copy` в другой временный репозиторий создаёт три настоящих каталога.
 
-## Evidence (2026-10-21)
+## Доказательства (2026-10-21)
 
-- **Delivered in `dce10f0`:** `scripts/install.sh` (209 lines, executable) and
-  `tests/test_install.py` (9 tests). No engine, skill, ontology or KB change.
-- **DSH discovery facts** (read from
-  `deepseek-harness/packages/skill/skill-filesystem/src/index.ts`): the project root is
-  the nearest ancestor with `.git`; `<project>/.dsh/skills` is rank 100; a skill is a
-  directory bundle `<root>/<name>/SKILL.md` (or a flat `<root>/<name>.md`, not used here);
-  a directory symlink is stat'ed and followed, a broken link is ignored, and the
-  resource base stays the link path. The install layout is exactly that bundle layout.
-- **Behaviour:** default install writes one absolute symlink per skill; `--copy` copies
-  the bundle and drops `__pycache__`/`*.pyc`; `--check` accepts a symlink that resolves
-  to this repo (absolute or relative) or a directory whose files equal the source
-  (`diff -rq -x __pycache__ -x '*.pyc'`), and names each missing/wrong entry with exit 1.
-  Preflight refuses to replace a non-symlink in link mode or a differing copy in copy
-  mode, and aborts the whole run before writing, so there is no half install. `--check`
-  writes nothing.
-- **Demo** (`.scratch/ticket-05/demo.log`): fresh temp repo → three links, second run
-  `unchanged`, `--check` 0; remove `kb-curate` → `drift: kb-curate: missing`, exit 1;
-  `--copy` into another temp repo → three real directories, `--check` 0.
-- **Tests / lint:** `python3 -m pytest tests/ -q` → **162 passed** (153 prior + 9);
-  `lint --strict` → exit 0 (24 files); logs `.scratch/ticket-05/`. Mutation probes: a
-  wrong symlink target, a missing link, an edited copy and a deleted copy all fail with
-  the skill named. The idempotence check compares inode, mtime, content and link target,
-  not just paths.
-- **Scope:** writes only `<project>/.dsh/skills` (plus its `.dsh` parent); no `.zcode`,
-  no `$HOME` write, no global install, no browser/Playwright; init is not run.
+- **Поставлено в `dce10f0`:** `scripts/install.sh` (209 строк, исполняемый) и
+  `tests/test_install.py` (9 тестов). Ни движок, ни скиллы, ни онтология, ни KB не
+  менялись.
+- **Факты обнаружения DSH** (прочитано в
+  `deepseek-harness/packages/skill/skill-filesystem/src/index.ts`): корень проекта —
+  ближайший предок с `.git`; `<project>/.dsh/skills` — ранг 100; скилл — это каталог
+  бандла `<root>/<name>/SKILL.md` (или плоский `<root>/<name>.md`, здесь не
+  используется); символическая ссылка на каталог проверяется через stat и
+  разыменовывается, битая ссылка игнорируется, а база ресурса остаётся путём ссылки.
+  Раскладка установки — ровно эта раскладка бандла.
+- **Поведение:** установка по умолчанию пишет одну абсолютную символическую ссылку на
+  скилл; `--copy` копирует бандл и отбрасывает `__pycache__`/`*.pyc`; `--check`
+  принимает ссылку, которая ведёт в этот репозиторий (абсолютную или относительную),
+  или каталог, чьи файлы равны исходнику (`diff -rq -x __pycache__ -x '*.pyc'`), и
+  называет каждую отсутствующую или неверную запись с кодом 1. Preflight отказывается
+  заменять не-ссылку в режиме ссылок или отличающуюся копию в режиме копии и
+  прерывает весь прогон до записи, поэтому половины установки не бывает. `--check`
+  ничего не пишет.
+- **Демо** (`.scratch/ticket-05/demo.log`): свежий временный репозиторий → три
+  ссылки, второй прогон `unchanged`, `--check` 0; удалён `kb-curate` →
+  `drift: kb-curate: missing`, код 1; `--copy` в другой временный репозиторий → три
+  настоящих каталога, `--check` 0.
+- **Тесты / линт:** `python3 -m pytest tests/ -q` → **162 passed** (153 прежних + 9);
+  `lint --strict` → код 0 (24 файла); логи `.scratch/ticket-05/`. Мутационные пробы:
+  неверная цель ссылки, отсутствующая ссылка, отредактированная копия и удалённая
+  копия — все падают с именем скилла. Проверка идемпотентности сравнивает inode, mtime,
+  содержимое и цель ссылки, а не только пути.
+- **Рамки:** пишет только `<project>/.dsh/skills` (плюс родительский `.dsh`);
+  никакого `.zcode`, никакой записи в `$HOME`, никакой глобальной установки, никакого
+  браузера/Playwright; init не запускается.
 
-**Remaining:** ticket 06 (dogfood) is next.
+**Остаток:** дальше тикет 06 (dogfood).

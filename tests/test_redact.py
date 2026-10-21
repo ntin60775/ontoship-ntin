@@ -5,7 +5,7 @@ negative/mutation probe: removing any single rule lets a secret through at
 least one case, so the matrix can fail when a rule is disabled.
 
 Traceability: ``invariant: secrets at the output boundary are redacted``;
-E2E cases also verify ``spec: docs/plans/core-kb.md#done-2`` (lint output).
+E2E cases also verify ``spec: docs/plans/core-kb.md#готово-2`` (lint output).
 """
 from __future__ import annotations
 
@@ -211,7 +211,7 @@ def probe_kb(tmp_path):
 
 
 def test_lint_stdout_redacted(probe_kb):
-    """spec: docs/plans/core-kb.md#done-2 — I2/I4/I9 messages are redacted, format survives."""
+    """spec: docs/plans/core-kb.md#готово-2 — I2/I4/I9 messages are redacted, format survives."""
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(probe_kb), "lint"],
         capture_output=True, text=True, timeout=60,

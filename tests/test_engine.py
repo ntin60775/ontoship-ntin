@@ -23,14 +23,14 @@ from conftest import ENGINE, REPO, load_engine
 
 
 def test_engine_is_one_auditable_file(gm):
-    """spec: docs/plans/core-kb.md#done-4 — one file, no package layout."""
+    """spec: docs/plans/core-kb.md#готово-4 — one file, no package layout."""
     assert ENGINE.is_file()
     assert ENGINE.parent == REPO / "skills" / "kb-search"
     assert not list(ENGINE.parent.glob("gitmark/*.py"))
 
 
 def test_cmd_lint_is_short_and_orchestrates_helpers(gm):
-    """spec: docs/plans/core-kb.md#done-4 — cmd_lint <= 80 lines, helpers in-file."""
+    """spec: docs/plans/core-kb.md#готово-4 — cmd_lint <= 80 lines, helpers in-file."""
     tree = ast.parse(ENGINE.read_text("utf-8"))
     fn = next(n for n in tree.body
               if isinstance(n, ast.FunctionDef) and n.name == "cmd_lint")
@@ -42,14 +42,14 @@ def test_cmd_lint_is_short_and_orchestrates_helpers(gm):
 
 
 def test_package_root_in_this_repo(gm):
-    """spec: docs/plans/core-kb.md#done-4 — PKG_ROOT works in the repo layout."""
+    """spec: docs/plans/core-kb.md#готово-4 — PKG_ROOT works in the repo layout."""
     assert gm.PKG_ROOT == REPO
     assert gm.pkg_version() == gm.VERSION
 
 
-@pytest.mark.parametrize("install", [".dsh", ".zcode"])
+@pytest.mark.parametrize("install", [".agents", ".dsh", ".zcode"])
 def test_package_root_in_an_install_copy(tmp_path: Path, install: str):
-    """spec: docs/plans/core-kb.md#done-4 — PKG_ROOT works in a .dsh or .zcode copy."""
+    """spec: docs/plans/core-kb.md#готово-4 — PKG_ROOT works in an install copy."""
     dst = tmp_path / install / "skills" / "kb-search"
     dst.mkdir(parents=True)
     shutil.copy2(ENGINE, dst / "gitmark.py")
@@ -59,7 +59,7 @@ def test_package_root_in_an_install_copy(tmp_path: Path, install: str):
 
 
 def test_removed_commands_and_registry_symbols_are_gone(gm, tmp_path: Path, capsys):
-    """spec: docs/plans/core-kb.md#done-4 — inventory/serve and I7 are absent."""
+    """spec: docs/plans/core-kb.md#готово-4 — inventory/serve and I7 are absent."""
     for name in ("cmd_inventory", "cmd_serve", "inventory_issues",
                  "COMMANDS_DIR", "REGISTRY_REL", "PLANS_INDEX_REL"):
         assert not hasattr(gm, name), f"{name} survived the trim"
@@ -71,7 +71,7 @@ def test_removed_commands_and_registry_symbols_are_gone(gm, tmp_path: Path, caps
 
 
 def test_lint_never_emits_i7(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-4 — a registry-looking KB is not I7."""
+    """spec: docs/plans/core-kb.md#готово-4 — a registry-looking KB is not I7."""
     docs = tmp_path / "docs" / "reference"
     docs.mkdir(parents=True)
     (tmp_path / "docs" / "README.md").write_text(
@@ -85,7 +85,7 @@ def test_lint_never_emits_i7(gm, tmp_path: Path):
 
 
 def test_version_cli(gm):
-    """spec: docs/plans/core-kb.md#done-2 — version reports the package version."""
+    """spec: docs/plans/core-kb.md#готово-2 — version reports the package version."""
     r = subprocess.run([sys.executable, str(ENGINE), "version"],
                        capture_output=True, text=True, timeout=60)
     assert r.returncode == 0
@@ -109,7 +109,7 @@ def _index_kb(root: Path) -> Path:
 
 
 def test_index_search_and_stat(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-2 — index writes .gitmark/index.db, search finds a doc."""
+    """spec: docs/plans/core-kb.md#готово-2 — index writes .gitmark/index.db, search finds a doc."""
     root = _index_kb(tmp_path)
     r = gm.cmd_index(root)
     assert (root / ".gitmark" / "index.db").is_file()
@@ -121,7 +121,7 @@ def test_index_search_and_stat(gm, tmp_path: Path):
 
 
 def test_search_before_index_is_a_named_refusal(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-2 — search without an index tells the operator."""
+    """spec: docs/plans/core-kb.md#готово-2 — search without an index tells the operator."""
     with pytest.raises(SystemExit, match="Индекс не найден"):
         gm.cmd_search(tmp_path, "anything")
 
@@ -141,7 +141,7 @@ def _clean_kb(root: Path) -> Path:
 
 
 def test_cli_clean_kb_lint_strict_exit0(tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-3 — lint --strict is 0 on a clean KB."""
+    """spec: docs/plans/core-kb.md#готово-3 — lint --strict is 0 on a clean KB."""
     root = _clean_kb(tmp_path)
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(root), "lint", "--strict"],
@@ -151,7 +151,7 @@ def test_cli_clean_kb_lint_strict_exit0(tmp_path: Path):
 
 
 def test_demo_flow_red_green(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-2 — index/search, a broken link is red, fixing it is green."""
+    """spec: docs/plans/core-kb.md#готово-2 — index/search, a broken link is red, fixing it is green."""
     root = _clean_kb(tmp_path)
     note = root / "docs" / "reference" / "note.md"
     note.write_text(
@@ -170,7 +170,7 @@ def test_demo_flow_red_green(gm, tmp_path: Path):
 
 
 def test_stat_json_contract(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-2 — stat --json always emits valid JSON."""
+    """spec: docs/plans/core-kb.md#готово-2 — stat --json always emits valid JSON."""
     before = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(tmp_path), "stat", "--json"],
         capture_output=True, text=True, timeout=60)
@@ -187,7 +187,7 @@ def test_stat_json_contract(gm, tmp_path: Path):
 
 
 def test_map_writes_self_contained_html(gm, tmp_path: Path):
-    """spec: docs/plans/core-kb.md#done-2 — map writes HTML."""
+    """spec: docs/plans/core-kb.md#готово-2 — map writes HTML."""
     root = _index_kb(tmp_path)
     out = root / "docs-map.html"
     r = gm.cmd_map(root, out)
@@ -201,10 +201,10 @@ def test_map_writes_self_contained_html(gm, tmp_path: Path):
 
 
 def test_install_roots_are_never_indexed(gm, tmp_path: Path):
-    """invariant: .dsh (DSH) and .zcode (zcode) installs are not duplicated into the corpus."""
+    """invariant: .agents, .dsh and .zcode installs are not duplicated into the corpus."""
     (tmp_path / "docs").mkdir()
     (tmp_path / "docs" / "README.md").write_text("# KB\n", encoding="utf-8")
-    for install in (".dsh", ".zcode"):
+    for install in (".agents", ".dsh", ".zcode"):
         hidden = tmp_path / install / "skills" / "kb-search" / "SKILL.md"
         hidden.parent.mkdir(parents=True, exist_ok=True)
         hidden.write_text("# copied skill\n", encoding="utf-8")
@@ -212,9 +212,10 @@ def test_install_roots_are_never_indexed(gm, tmp_path: Path):
         if with_git:
             subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
         found = {p.relative_to(tmp_path).as_posix() for p in gm.iter_md(tmp_path)}
+        assert ".agents" in gm.EXCLUDE_DIRS
         assert ".dsh" in gm.EXCLUDE_DIRS and ".zcode" in gm.EXCLUDE_DIRS
         assert "docs/README.md" in found
-        for install in (".dsh", ".zcode"):
+        for install in (".agents", ".dsh", ".zcode"):
             assert not any(rel.startswith(install + "/") for rel in found), \
                 f"{install} leaked into the corpus (git={with_git})"
 
@@ -532,10 +533,10 @@ def test_i8_flat_layout_blocks_ontology_drift(gm, tmp_path: Path, monkeypatch):
 
 
 def test_i8_warns_when_the_package_is_external(gm, tmp_path: Path, monkeypatch):
-    """invariant: I8 — an external .dsh package gets a WARN, not an ERR."""
-    monkeypatch.setattr(gm, "PKG_ROOT", tmp_path / "package")
+    """invariant: I8 — an external .agents package gets a WARN, not an ERR."""
+    monkeypatch.setattr(gm, "PKG_ROOT", tmp_path / ".agents")
     _doc(tmp_path, "docs/ontology.md", "# Project\n\n## Semantic layer\n\n| a | b |\n")
-    _doc(tmp_path / "package", "skills/kb-curate/ontology.md",
+    _doc(tmp_path / ".agents", "skills/kb-curate/ontology.md",
          "# Package\n\n## Semantic layer\n\n| c | d |\n")
     issues = [i for i in gm.cmd_lint(tmp_path)["issues"] if i[1] == "I8"]
     assert issues and issues[0][0] == "WARN"

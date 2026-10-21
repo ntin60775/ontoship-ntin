@@ -1,6 +1,6 @@
 ---
 node_type: reference
-title: Testing — spec, invariants, target tests
+title: Тестирование — спека, инварианты, target-тесты
 service: _platform
 status: active
 updated: 2026-10-19
@@ -9,163 +9,170 @@ links:
   relates_to: [README.md, ../decisions/ontoship-core.md, sources.md]
 ---
 
-# Testing — spec, invariants, target tests
+# Тестирование — спека, инварианты, target-тесты
 
-The quality rule of the canon has **three** legitimate purposes for a test, not two:
+Правило качества канона даёт тесту **три** законные цели, а не две:
 
-1. **Spec test** — proves a clause of the spec: the observable behaviour the customer
-   asked for. Acceptance criteria live here.
-2. **Invariant guard** — protects a project invariant: what must never break, even when
-   the spec is silent.
-3. **Target test** — reproduces a real failure (bug, incident, production report). It is
-   generated **from the failure**, not from the spec: given the codebase, the exception
-   or symptom, and the location, the agent writes a test that makes the failure happen.
+1. **Spec-тест** — доказывает пункт спеки: наблюдаемое поведение, которое заказал
+   клиент. Здесь живут критерии приёмки.
+2. **Инвариантный охранник** — защищает инвариант проекта: то, что не должно ломаться
+   никогда, даже когда спека молчит.
+3. **Target-тест** — воспроизводит реальный сбой (баг, инцидент, продакшн-отчёт). Он
+   порождается **из сбоя**, а не из спеки: получив кодовую базу, исключение или
+   симптом и место, агент пишет тест, который заставляет сбой произойти.
 
-A test with none of the three is an orphan: it cannot be justified and cannot be removed
-by a rule. A test that merely restates the implementation is not evidence.
+Тест без ни одной из трёх целей — сирота: его нельзя обосновать и нельзя удалить по
+правилу. Тест, который лишь пересказывает реализацию, не доказательство.
 
-## Why target tests are a separate class
+## Почему target-тесты — отдельный класс
 
-A spec test is a **projection** of the spec into executable form — partial and distorted.
-It checks what the spec author thought to write, at the seam they chose. In practice tests
-can acquire priority over the spec (Microsoft's reward-hacking observation, cited by the
-operator), and a stale test then protects a requirement that no longer exists. A target
-test does not encode a spec projection at all: it encodes an observed failure, so it does
-not conflict with the spec and cannot be "gamed" by re-wording it.
+Spec-тест — **проекция** спеки в исполняемую форму, частичная и искажённая. Он
+проверяет то, что автор спеки додумался записать, в выбранном им шве. На практике
+тесты могут приобретать приоритет над спекой (наблюдение Microsoft о reward hacking,
+которое приводит оператор), и устаревший тест тогда защищает требование, которого
+больше нет. Target-тест не кодирует проекцию спеки вообще: он кодирует наблюдённый
+сбой, поэтому не конфликтует со спекой и его нельзя «обыграть» переформулировкой.
 
-Target tests are the strongest evidence for a **fix**: the test must fail on the buggy
-tree and pass after the fix, and it must reproduce the real failure path — not an
-artificial exception.
+Target-тесты — сильнейшее доказательство **исправления**: тест должен падать на
+дереве с багом и проходить после исправления, и он должен воспроизводить реальный
+путь сбоя, а не искусственное исключение.
 
-## What the ESEM 2026 study actually shows
+## Что на самом деле показывает исследование ESEM 2026
 
 Jiayu Liu and Yanjun Wu, *Beyond Heuristics? Rethinking Targeted Unit Test Generation in
 the Era of LLM Agents*, ESEM 2026, LIPIcs vol. 394, 47:1–47:21,
 [DOI 10.4230/LIPIcs.ESEM.2026.47](https://doi.org/10.4230/LIPIcs.ESEM.2026.47).
 
-**Design.** 210 real-world Java **runtime exception** bugs from 66 projects. The agent gets
-the buggy codebase, the exception type and the line-level location; it must produce a
-JUnit suite that triggers that exception at that line (execution oracle: exception type +
-target location at the top of the stack trace). No spec, no patch — reproduction only.
+**Дизайн.** 210 реальных багов **runtime-исключений** в Java из 66 проектов. Агент
+получает кодовую базу с багом, тип исключения и место на уровне строки; он должен
+построить JUnit-набор, который вызывает это исключение в этой строке (оракул
+исполнения: тип исключения + целевое место на вершине стектрейса). Ни спеки, ни
+патча — только воспроизведение.
 
-**Results (Table 2 and §4.2).**
+**Результаты (таблица 2 и §4.2).**
 
-| approach | success rate |
+| подход | доля успеха |
 |---|---|
-| Claude Code + GPT-5 | **89.5%** (325.8 s, $1.09 per bug) |
-| OpenHands + GPT-5 | 87.6% |
-| OpenCode + DeepSeek-V3.2 | 65.2% ($0.04, 774.1 s) |
-| UnitCon (SOTA targeted tool) | 49.6% |
-| EvoSuite | 39.4% |
-| Randoop | 21.3% |
+| Claude Code + GPT-5 | **89,5 %** (325,8 с, $1,09 за баг) |
+| OpenHands + GPT-5 | 87,6 % |
+| OpenCode + DeepSeek-V3.2 | 65,2 % ($0,04, 774,1 с) |
+| UnitCon (SOTA-инструмент target-тестов) | 49,6 % |
+| EvoSuite | 39,4 % |
+| Randoop | 21,3 % |
 
-**What the paper supports.** LLM agents with code exploration, execution feedback and
-dynamic API access are much better at **reproducing a known bug** than coverage-oriented
-or heuristic tools. The advantage comes from direct code comprehension, iterative
-refinement on execution output, and choosing public call paths or reflection to reach the
-buggy location. Even the open-source configuration (65.2%) beats every traditional tool.
+**Что подтверждает статья.** LLM-агенты с исследованием кода, обратной связью по
+исполнению и динамическим доступом к API гораздо лучше **воспроизводят известный
+баг**, чем инструменты, ориентированные на покрытие или эвристики. Преимущество даёт
+прямое понимание кода, итеративное уточнение по выводу исполнения и выбор публичных
+путей вызова или рефлексии, чтобы добраться до места бага. Даже конфигурация с
+открытой моделью (65,2 %) обходит все традиционные инструменты.
 
-**What the paper does not show.** It does **not** measure TDD, does not compare
-spec-derived tests with target tests, and does not report a 53% baseline. The closest
-number is UnitCon's 49.6%. The "53%" and the claim that ordinary unit tests miss half the
-bugs are the expert's broader argument (possibly from another source) — keep them as a
-separate citation, not as this paper's result. The paper's baselines are test-generation
-**tools**, not developer-written TDD suites.
+**Что статья не показывает.** Она **не** измеряет TDD, не сравнивает тесты,
+выведенные из спеки, с target-тестами и не сообщает базовую линию 53 %. Ближайшее
+число — 49,6 % у UnitCon. «53 %» и утверждение, что обычные unit-тесты пропускают
+половину багов, — более широкий аргумент эксперта (возможно, из другого источника);
+держать их отдельной ссылкой, а не результатом этой статьи. Базовые линии статьи —
+**инструменты генерации тестов**, а не наборы TDD, написанные разработчиками.
 
-**Quality caveats.** High reproduction is not high quality. In the manual sample of 90
-successful cases: **5.6%** are degenerate paths (exceptions forced with artificial inputs
-such as raw nulls into internal methods), **16.7%** bypass public entry workflows to
-manipulate private APIs or internal singletons (structurally fragile), and **72.2%** have
-low semantic clarity (`testBug`, `boom`, cryptic hardcoded JSON). Generated tests are
-structurally more fragile than developer-written ones.
+**Оговорки о качестве.** Высокое воспроизведение не равно высокому качеству. В ручной
+выборке из 90 успешных случаев: **5,6 %** — вырожденные пути (исключения, вызванные
+искусственными входами вроде сырых null во внутренние методы), **16,7 %** обходят
+публичные входные workflow и манипулируют приватными API или внутренними синглтонами
+(структурно хрупко), а **72,2 %** имеют низкую семантическую ясность (`testBug`,
+`boom`, загадочный захардкоженный JSON). Сгенерированные тесты структурно хрупче
+написанных разработчиками.
 
-**Failure modes** (RQ3): Insufficient Exploration 41.5%, Inadequate Reasoning 25.5%,
-Tool Misuse 14.0%, Incorrect Focus 11.5%. These are the checklist for an agentic
-target-test loop.
+**Режимы сбоя** (RQ3): Insufficient Exploration 41,5 %, Inadequate Reasoning 25,5 %,
+Tool Misuse 14,0 %, Incorrect Focus 11,5 %. Это чек-лист для агентного цикла
+target-теста.
 
-**Boundaries.** Java runtime exceptions only; the authors argue the core capabilities are
-language-agnostic, but logical/assertion bugs may need spec context, and concurrency bugs
-need temporal control that is out of scope. The 15-minute budget matters: tightening to 10
-minutes costs ~7 points for closed models and more for the open one; 20–25 minutes is the
-plateau.
+**Границы.** Только runtime-исключения Java; авторы утверждают, что ключевые
+способности не зависят от языка, но логическим багам и багам утверждений может
+понадобиться контекст спеки, а багам конкурентности нужно управление временем, которое
+вне рамок. Бюджет 15 минут важен: сжатие до 10 минут стоит около 7 пунктов для
+закрытых моделей и больше для открытой; 20–25 минут — плато.
 
-## Target-test quality bar
+## Планка качества target-теста
 
-A target test is evidence only if all of these hold:
+Target-тест — доказательство, только если выполнено всё:
 
-- **Real failure path.** The failure is reproduced through the product's real entry point;
-  an artificial exception (raw null into an internal method, forced throw) is not a
-  reproduction. If the bug is genuinely inside a private seam, say so and justify it.
-- **Red → green.** The test fails on the base commit for the right reason, and passes
-  after the fix. A test that passes before the fix proves nothing.
-- **Stable and deterministic.** No flaky timing, network, ordering or environment
-  dependence; the failure is the bug, not the harness.
-- **Readable.** A descriptive name, a minimal fixture, parameters that a reader can
-  explain. `testBug`/`boom` and cryptic blobs are a quality defect, not a shortcut.
-- **Reviewed.** A second pair of eyes (human or an independent agent) checks that the
-  test reproduces the reported failure, not a nearby or invented one.
-- **Kept only while the failure class is live.** When the bug class is fixed for good or
-  the feature is retired, delete the target test like any stale spec test.
+- **Реальный путь сбоя.** Сбой воспроизводится через реальную входную точку продукта;
+  искусственное исключение (сырой null во внутренний метод, принудительный throw) —
+  не воспроизведение. Если баг действительно внутри приватного шва, скажи это и
+  обоснуй.
+- **Red → green.** Тест падает на базовом коммите по правильной причине и проходит
+  после исправления. Тест, который проходит до исправления, ничего не доказывает.
+- **Стабильность и детерминизм.** Никакой зависимости от таймингов, сети, порядка или
+  окружения; сбой — это баг, а не харнесс.
+- **Читаемость.** Описательное имя, минимальная фикстура, параметры, которые читатель
+  может объяснить. `testBug`/`boom` и загадочные блобы — дефект качества, а не
+  сокращение.
+- **Ревью.** Вторая пара глаз (человек или независимый агент) проверяет, что тест
+  воспроизводит заявленный сбой, а не соседний или выдуманный.
+- **Хранить, пока класс сбоя жив.** Когда класс багов исправлен навсегда или функция
+  выведена из эксплуатации, удали target-тест, как любой устаревший spec-тест.
 
-## When to use which class
+## Когда какой класс использовать
 
-| situation | primary class | notes |
+| ситуация | основной класс | заметки |
 |---|---|---|
-| New behaviour with a customer-visible contract | spec test | acceptance criteria; expected values from the spec |
-| A defect report, crash, regression, incident | target test | reproduce first, then fix; quality bar above |
-| A project invariant (security, format, compatibility, data integrity) | invariant guard | deterministic, cheap, broad |
-| Logic with no independent oracle | none — first find the proof | a test that restates the code is tautological |
-| UI/browser behaviour | target or spec at the E2E level | agent via MCP + screenshot; not a hand-written safe path |
-| Performance/scale | invariant guard (budget) | index/lint/map budgets for the engine |
+| Новое поведение с видимым клиенту контрактом | spec-тест | критерии приёмки; ожидаемые значения из спеки |
+| Отчёт о дефекте, краш, регрессия, инцидент | target-тест | сначала воспроизведи, потом исправляй; планка выше |
+| Инвариант проекта (безопасность, формат, совместимость, целостность данных) | инвариантный охранник | детерминированный, дешёвый, широкий |
+| Логика без независимого оракула | никакой — сначала найди доказательство | тест, пересказывающий код, тавтологичен |
+| Поведение UI/браузера | target или spec на уровне E2E | агент через MCP + скриншот; не написанный вручную безопасный путь |
+| Производительность/масштаб | инвариантный охранник (бюджет) | бюджеты index/lint/map для движка |
 
-**Channels are instruments, not purposes:** unit/contract, E2E/smoke, expected output,
-recorded replay, browser/snapshot, performance. A target test can live in any channel; a
-spec test usually lives in unit/contract or E2E.
+**Каналы — инструменты, а не цели:** unit/contract, E2E/smoke, ожидаемый вывод,
+записанное воспроизведение, браузер/снимок, производительность. Target-тест может
+жить в любом канале; spec-тест обычно живёт в unit/contract или E2E.
 
-## The agentic target-test loop
+## Агентный цикл target-теста
 
-The paper's successful loop is: read the code → infer the failure condition → draft a
-test → execute → refine on feedback. For the skill:
+Успешный цикл из статьи: прочитай код → выведи условие сбоя → набросай тест →
+выполни → уточни по обратной связи. Для скилла:
 
-1. **Reproduce** — get a tight, deterministic command that goes red on the reported
-   failure (the `diagnose` discipline: a named command, already run, that can go red).
-2. **Explore** — read the code and logs enough to name the precondition that triggers the
-   failure. Insufficient exploration is the largest failure mode (41.5%).
-3. **Reason** — state the failure mechanism and the expected observation before writing
-   the test (25.5% failures are inadequate reasoning).
-4. **Draft and run** — one test at a time, execute, refine; keep the test suite minimal.
-5. **Quality gate** — check the bar above: real path, red→green, stable, readable,
-   reviewed; reject degenerate or private-API shortcuts.
-6. **Fix** — the fix follows the reproduced failure; the target test stays as the
-   regression guard.
-7. **Diagnose on failure** — if no reproduction after the budget, stop and report what was
-   tried and what is missing (environment, artifact, instrumentation), rather than writing
-   a shallow test.
+1. **Воспроизведи** — получи тесную детерминированную команду, которая краснеет на
+   заявленном сбое (дисциплина `diagnose`: названная команда, уже запущенная, которая
+   умеет краснеть).
+2. **Исследуй** — прочитай код и логи достаточно, чтобы назвать предусловие, которое
+   вызывает сбой. Недостаточное исследование — крупнейший режим сбоя (41,5 %).
+3. **Рассуди** — сформулируй механизм сбоя и ожидаемое наблюдение до написания теста
+   (25,5 % сбоев — недостаточное рассуждение).
+4. **Набросай и запусти** — по одному тесту за раз, выполняй, уточняй; держи набор
+   минимальным.
+5. **Планка качества** — проверь пункты выше: реальный путь, red→green, стабильность,
+   читаемость, ревью; отвергай вырожденные обходы и обходы через приватный API.
+6. **Исправь** — исправление следует за воспроизведённым сбоем; target-тест остаётся
+   регрессионным охранником.
+7. **Диагностируй при неудаче** — если воспроизведения нет после бюджета, остановись
+   и доложи, что пробовал и чего не хватает (окружение, артефакт, инструментация), а
+   не пиши поверхностный тест.
 
-Budget: the study used 15 minutes and $0.04–$1.09 per bug; the open model trades quality
-for cost. Set a per-bug budget in the skill; do not let target generation eat a whole
-session.
+Бюджет: в исследовании было 15 минут и $0,04–$1,09 за баг; открытая модель меняет
+качество на стоимость. Задай бюджет на баг в скилле; не позволяй генерации target-
+тестов съесть всю сессию.
 
-## Metrics
+## Метрики
 
-- **Spec coverage** — spec clauses with at least one failing-capable test.
-- **Invariant coverage** — invariants with a guard.
-- **Target coverage** — fixed defects with a red→green target test; escaped defects per
-  period.
-- **Stale tests removed** — a first-class count, not a cleanup chore.
-- **Suite cost** — runtime and flakiness; a suite that the agent cannot run is not a
-  suite.
+- **Покрытие спеки** — пункты спеки хотя бы с одним тестом, способным упасть.
+- **Покрытие инвариантов** — инварианты с охранником.
+- **Покрытие target** — исправленные дефекты с red→green target-тестом; утёкшие
+  дефекты за период.
+- **Удалённые устаревшие тесты** — полноценный счётчик, а не уборка.
+- **Стоимость набора** — время выполнения и флейки; набор, который агент не может
+  запустить, — не набор.
 
-Not metrics: number of tests, line coverage, "green suite" without a read log.
+Не метрики: число тестов, покрытие строк, «зелёный набор» без прочитанного лога.
 
-## Relationship to TDD
+## Связь с TDD
 
-The study does not refute TDD; it shows that **targeted** generation against a known
-failure is a much stronger signal than coverage-oriented generation. The practical
-reading: keep spec tests for acceptance, invariant guards for the system's promises, and
-generate target tests as the response to real failures. A test base grown only from specs
-is a projection; a test base grown from failures does not encode the spec's distortions.
-Both are needed; neither replaces the other.
+Исследование не опровергает TDD; оно показывает, что **целевая** генерация против
+известного сбоя даёт гораздо более сильный сигнал, чем генерация под покрытие.
+Практическое чтение: держи spec-тесты для приёмки, инвариантных охранников для
+обещаний системы и генерируй target-тесты как ответ на реальные сбои. База тестов,
+выросшая только из спек, — проекция; база, выросшая из сбоев, не кодирует искажения
+спеки. Нужны обе; ни одна не заменяет другую.
 
-The 53% figure and the Microsoft reward-hacking argument belong to the operator's
-argument, not to this paper. If the 53% is used in the canon, cite its source separately.
+Цифра 53 % и аргумент Microsoft о reward hacking принадлежат аргументу оператора, а
+не этой статье. Если 53 % используются в каноне, цитируй источник отдельно.

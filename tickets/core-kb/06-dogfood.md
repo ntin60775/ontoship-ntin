@@ -1,59 +1,62 @@
 # 06: dogfood
 
-**What to build:** the core runs on its own repository. Install the three skills into
-this repo's `.dsh/skills/`, run the init skill, build the index, lint the KB, search it,
-and check that a fresh DSH session lists the skills in its catalog.
+**Что построить:** ядро работает на собственном репозитории. Установи три скилла в
+`.dsh/skills/` этого репозитория, запусти скилл init, построй индекс, проверь KB
+линтом, найди её поиском и проверь, что свежая сессия DSH видит скиллы в своём
+каталоге.
 
-**Blocked by:** 05 (done).
+**Блокируется:** 05 (сделан).
 
-**Status:** done (2026-10-21)
+**Статус:** сделан (2026-10-21)
 
-- [x] `scripts/install.sh /home/prog7/home/dev/contrib/forks/ontoship-dsh` creates the
-      three links; `--check` exits 0.
-- [x] `python3 skills/kb-search/gitmark.py index` builds `.gitmark/index.db`;
-      `lint --strict` exits 0 on this repo's `docs/`.
-- [x] `search "canon"` returns `docs/decisions/ontoship-core.md`;
-      `search "target test"` returns `docs/reference/testing.md`.
-- [x] `map` writes an HTML file; `stat --json` is valid JSON.
-- [x] A fresh DSH session in this repo lists `kb-search`, `kb-curate`, `init` in the
-      skill catalog (the catalog is discovered from `.dsh/skills`).
-- [x] The runbook `docs/ops/continue.md` is updated from the run's facts (next ticket,
-      state); the ephemeral `.scratch/handoff-current.md` may be refreshed too.
+- [x] `scripts/install.sh /home/prog7/home/dev/contrib/forks/ontoship-ntin` создаёт три
+      ссылки; `--check` выходит с кодом 0. (Репозиторий переименован из
+      `ontoship-dsh`; ссылки пересозданы под новый путь 2026-10-21.)
+- [x] `python3 skills/kb-search/gitmark.py index` строит `.gitmark/index.db`;
+      `lint --strict` выходит с кодом 0 на `docs/` этого репозитория.
+- [x] `search "canon"` возвращает `docs/decisions/ontoship-core.md`;
+      `search "target test"` возвращает `docs/reference/testing.md`.
+- [x] `map` пишет HTML-файл; `stat --json` — валидный JSON.
+- [x] Свежая сессия DSH в этом репозитории видит `kb-search`, `kb-curate`, `init` в
+      каталоге скиллов (каталог обнаруживается из `.dsh/skills`).
+- [x] Runbook `docs/ops/continue.md` обновлён фактами прогона (следующий тикет,
+      состояние); эфемерный `.scratch/handoff-current.md` тоже может быть обновлён.
 
-**What can I demo when this is done?** The session opens this repo, the catalog shows the
-three skills, `search "canon"` opens the canon, `lint --strict` is clean, and the map
-exists.
+**Что я могу показать, когда это готово?** Сессия открывает этот репозиторий, каталог
+показывает три скилла, `search "canon"` открывает канон, `lint --strict` чистый, а
+карта существует.
 
-## Evidence (2026-10-21)
+## Доказательства (2026-10-21)
 
-- **Delivered in `88fc09a`:** the managed block in `AGENTS.md` (20 lines; the block is
-  747 bytes). `.gitignore` already had the three lines, so it is unchanged. The three
-  skills are linked in the gitignored `.dsh/skills`: `kb-search` was already correct and
-  stayed unchanged; `kb-curate` and `init` were added.
-- **Install** (`.scratch/ticket-06/install.log`): first run `unchanged kb-search`,
-  `linked kb-curate`, `linked init`; second run all three `unchanged`; `--check` → three
-  `ok` lines and `check: ok`, exit 0.
-- **Init** (`.scratch/ticket-06/init.log`): the run used the ticket-04 execution trace,
-  which extracts the block from `skills/init/SKILL.md`; first run `AGENTS.md: appended`,
-  `.gitignore: unchanged`; markers exactly 1 and 1; second run `AGENTS.md: unchanged`
-  with the same sha256 `e19930d4…`; `git diff` shows only the 20 added lines.
-- **Dogfood** (`.scratch/ticket-06/dogfood.log`): `gitmark 0.1.0`; `index` → 24 files,
-  118 chunks, 36 links → `.gitmark/index.db`; `lint --strict` → `✓ чисто` (24 files);
-  `search "canon"` returns `docs/decisions/ontoship-core.md` (top hit is the decisions
-  index, the canon is second); `search "target test"` ranks `docs/reference/testing.md`
-  first and fills the next hits; `map -o docs-map.html` → 152,584 bytes; `stat --json`
-  parses to `{"indexed": true, "files": 24, "chunks": 118, "links": 36, "areas": 8,
-  "trigram": true}`.
-- **Catalog** (`.scratch/ticket-06/verify.log`): immediately after install DSH replaced
-  this session's skill catalog with one containing `init`, `kb-curate` and `kb-search`;
-  `skill(init)` resolved its base directory to `.dsh/skills/init` and read the installed
-  copy. No separate fresh session was opened: the live catalog refresh is the same
-  filesystem discovery a new session performs, and no restart was needed. The three
-  frontmatter names were also checked on disk. A literal new session is an optional
-  confirmation, not open work.
-- **Scope:** no engine, skill, ontology or test change. `.dsh/`, `.gitmark/` and
-  `docs-map.html` are ignored by git; the only tracked change from the run is `AGENTS.md`.
-  `pytest` → 162 passed; `lint --strict` clean after the block.
+- **Поставлено в `88fc09a`:** управляемый блок в `AGENTS.md` (20 строк; блок занимает
+  747 байт). В `.gitignore` три строки уже были, поэтому он не изменился. Три скилла
+  связаны в `.dsh/skills` под gitignore: `kb-search` уже был правильным и остался без
+  изменений; `kb-curate` и `init` добавлены.
+- **Установка** (`.scratch/ticket-06/install.log`): первый прогон
+  `unchanged kb-search`, `linked kb-curate`, `linked init`; второй прогон все три
+  `unchanged`; `--check` → три строки `ok` и `check: ok`, код 0.
+- **Init** (`.scratch/ticket-06/init.log`): прогон использовал трассу исполнения
+  тикета 04, которая извлекает блок из `skills/init/SKILL.md`; первый прогон
+  `AGENTS.md: appended`, `.gitignore: unchanged`; маркеры ровно 1 и 1; второй прогон
+  `AGENTS.md: unchanged` с тем же sha256 `e19930d4…`; `git diff` показывает только 20
+  добавленных строк.
+- **Dogfood** (`.scratch/ticket-06/dogfood.log`): `gitmark 0.1.0`; `index` → 24 файла,
+  118 чанков, 36 ссылок → `.gitmark/index.db`; `lint --strict` → `✓ чисто` (24 файла);
+  `search "canon"` возвращает `docs/decisions/ontoship-core.md` (верхний хит — индекс
+  решений, канон второй); `search "target test"` ставит `docs/reference/testing.md`
+  первым и заполняет следующие хиты; `map -o docs-map.html` → 152 584 байта;
+  `stat --json` разбирается в `{"indexed": true, "files": 24, "chunks": 118,
+  "links": 36, "areas": 8, "trigram": true}`.
+- **Каталог** (`.scratch/ticket-06/verify.log`): сразу после установки DSH заменил
+  каталог скиллов этой сессии на содержащий `init`, `kb-curate` и `kb-search`;
+  `skill(init)` разрешил свою базовую директорию в `.dsh/skills/init` и прочитал
+  установленную копию. Отдельная свежая сессия не открывалась: живое обновление
+  каталога — то же обнаружение файловой системы, которое выполняет новая сессия, и
+  перезапуск не понадобился. Три имени frontmatter также проверены на диске.
+  Буквально новая сессия — необязательное подтверждение, а не открытая работа.
+- **Рамки:** ни движок, ни скиллы, ни онтология, ни тесты не менялись. `.dsh/`,
+  `.gitmark/` и `docs-map.html` игнорируются git; единственное отслеживаемое изменение
+  прогона — `AGENTS.md`. `pytest` → 162 passed; `lint --strict` чистый после блока.
 
-**Remaining:** nothing in `core-kb`; the unit is closed. The next unit needs an operator
-decision and a plan before tickets are cut.
+**Остаток:** в `core-kb` ничего; юнит закрыт. Следующему юниту нужно решение
+оператора и план до нарезки тикетов.
