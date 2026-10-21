@@ -19,7 +19,9 @@ links:
 - [plans/](plans/README.md) — durable-контракты планов. [core-kb.md](plans/core-kb.md),
   устанавливаемое ядро KB, завершён (тикеты 01–06);
   [harness-agnostic.md](plans/harness-agnostic.md) — один project-local корень
-  `.agents/skills` для zcode, DSH и Qoder (завершён; тикеты 01–04).
+  `.agents/skills` для zcode, DSH и Qoder (завершён; тикеты 01–04);
+  [workflow-skills.md](plans/workflow-skills.md) — фазы метода как скиллы
+  (черновик до план-гейта).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.

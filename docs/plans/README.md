@@ -6,7 +6,7 @@ status: active
 updated: 2026-10-21
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -20,6 +20,8 @@ links:
 - [harness-agnostic.md](harness-agnostic.md) — один project-local корень
   `.agents/skills` для zcode, DSH и Qoder (утверждён 2026-10-21; завершён, тикеты
   01–04).
+- [workflow-skills.md](workflow-skills.md) — фазы метода как скиллы: `grilling`,
+  `to-tickets`, `ship`, `testing` (черновик; ждёт план-гейта).
 
-Оба юнита закрыты; открытая работа и пробелы харнессов записаны в
-[continue.md](../ops/continue.md).
+Два юнита закрыты; спека третьего ждёт план-гейта. Открытая работа и пробелы
+харнессов записаны в [continue.md](../ops/continue.md).
