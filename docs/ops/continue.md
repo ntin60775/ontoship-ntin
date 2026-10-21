@@ -36,19 +36,20 @@ approved.
 | `6c1cce6` | docs(ops): close ticket 03, hand off to 04 |
 | `90f0846` | ticket 04: `init` skill and its contract test |
 | `dce10f0` | ticket 05: `scripts/install.sh` and its contract test |
+| `88fc09a` | ticket 06: dogfood — the managed block in `AGENTS.md` |
 
-Tickets 01–05 are **implemented and committed**: `skills/kb-search/gitmark.py`
-(1302 lines), `skills/kb-search/SKILL.md`, `skills/kb-curate/SKILL.md`,
-`skills/kb-curate/ontology.md`, `docs/ontology.md`, `skills/init/SKILL.md`,
-`scripts/install.sh`, `tests/` (162 passed), `lint --strict` clean. The three skills are
-contract-tested; the ontology model is one body in two copies (I8); the init block is 747
-bytes and its temp-repo matrix covers create/append/replace/fail/idempotence; install is
-link/copy/check, idempotent, and has a 9-test contract. This repo's `AGENTS.md` does
-**not** carry the block yet — ticket 06 runs init here. This repo's `.dsh/skills` is not
-yet dogfooded either; ticket 06 installs and checks. Next is ticket 06.
+Tickets 01–06 are **implemented and committed**; the first unit `core-kb` is complete and
+dogfooded. `skills/kb-search/gitmark.py` (1302 lines), the three skills, `scripts/install.sh`
+and `tests/` (162 passed) are in place; `lint --strict` is clean. This repo's `AGENTS.md`
+now carries the 747-byte managed block, and `.dsh/skills` has the three links with
+`--check` 0. `index` = 24 files / 119 chunks / 36 links; `search "canon"` and
+`search "target test"` return the expected docs; `map` and `stat --json` work. There is
+**no next ticket**: the next unit needs an operator decision and a plan first.
 
 ## Where things live
 
+- `AGENTS.md` — the entry point; it carries the managed ontoship block (ticket 06) that
+  points at the installed engine and the maintain commands.
 - `docs/decisions/ontoship-core.md` — the canon (3 artefacts, 3 phases, 2 separations,
   1 quality rule; spec durable / tickets ephemeral).
 - `docs/reference/testing.md` — spec / invariant / target tests, quality bar, agentic loop.
@@ -74,16 +75,17 @@ yet dogfooded either; ticket 06 installs and checks. Next is ticket 06.
   writes only `<project>/.dsh/skills`; does not run init.
 - `tests/` — engine, skill-contract and install tests; run
   `python3 -m pytest tests/ -q` (162 passed; stdlib + pytest, no Node).
-- `.dsh/skills/` — the gitignored project-local install; `scripts/install.sh` maintains
-  it, ticket 06 dogfoods it here (the current `kb-search` link is from the earlier demo).
+- `.dsh/skills/` — the gitignored project-local install, dogfooded by ticket 06: three
+  links (`kb-search`, `kb-curate`, `init`), `scripts/install.sh --check` exits 0.
 - `.scratch/handoff-current.md` — the previous session snapshot (ephemeral).
 
 ## Ticket order
 
 **01 engine → 02 kb-search → 03 kb-curate/ontology → 04 init → 05 install → 06 dogfood.**
 
-01–05 are implemented and committed; 06 is next. 05 waited for 02–04; 06 waits for 05.
-Install comes after the skills exist; it links them, it does not run init.
+All six are done; `core-kb` is closed. There is no ticket 07: the next unit must be
+planned, approved by the operator and cut into tickets before code starts. Do not invent
+a ticket or reopen the canon.
 
 ## Environment facts
 
@@ -94,13 +96,15 @@ Install comes after the skills exist; it links them, it does not run init.
   `~/.dsh/skills` (400). A skill is `<name>/SKILL.md` or flat `<name>.md`; nested
   `**/SKILL.md` is not discovered. A directory symlink is stat'ed and followed (a broken
   link is ignored), so an install may link a bundle. Frontmatter needs `name` and
-  `description`; `user-invocable` / `disable-model-invocation` are supported.
+  `description`; `user-invocable` / `disable-model-invocation` are supported. The
+  filesystem provider watches the roots: after ticket 06's install the running session's
+  catalog gained `init`, `kb-curate` and `kb-search` without a restart.
 - **Playwright MCP:** configured in `~/.dsh/profiles/web/cordis.patch.yml` (backup
   `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
   `headless: true`, `executablePath: /usr/bin/chromium`). The running DSH predates the
   patch: restart it (`kill $(cat /run/user/1000/dsh-web.pid)` then `~/.local/bin/dsh-web`)
-  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–05 did not need the browser;
+  to get `mcp__playwright-mcp__*` in new sessions. Tickets 01–06 did not need the browser;
   do not fake E2E if it is absent.
 - Python 3.13, stdlib only for the engine; `pytest` is available. `node/npm/npx` are not
   in PATH; the engine must not need Node.
@@ -109,39 +113,28 @@ Install comes after the skills exist; it links them, it does not run init.
 
 ```text
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-dsh — чистый
-OntoShip-core (DSH). План core-kb утверждён; репозиторий самодостаточен.
+OntoShip-core (DSH). Юнит core-kb (тикеты 01–06) завершён, закоммичен и dogfooded:
+движок, три скилла (kb-search, kb-curate, init), scripts/install.sh, 162 passed,
+lint --strict чистый; AGENTS.md содержит ontoship-блок, .dsh/skills — три ссылки,
+--check 0.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/testing.md, docs/reference/sources.md,
 docs/plans/core-kb.md, tickets/README.md, tickets/core-kb/06-dogfood.md.
 
-Тикеты 01–05 реализованы и закоммичены: skills/kb-search/gitmark.py (1302 строки),
-skills/kb-search/SKILL.md, skills/kb-curate/SKILL.md, skills/kb-curate/ontology.md,
-docs/ontology.md, skills/init/SKILL.md, scripts/install.sh, tests/ (162 passed),
-lint --strict чистый. Не переделывай движок, kb-search, kb-curate/ontology, init и
-install; не смешивай их изменения с коммитом 06.
+Тикета 07 нет. Не придумывай следующий тикет и не переоткрывай канон: следующий юнит
+выбирает оператор. Если он называет workflow-скиллы (grilling, to-tickets, ship,
+testing), сначала нужен утверждённый план; grilling ещё не реализован — назови это,
+не начинай код без плана.
 
-Сделай тикет 06 (dogfood). Установи ядро в этот репозиторий:
-scripts/install.sh "$PWD"; --check должен быть 0, kb-search уже стоит корректным
-линком и должен остаться unchanged, добавятся kb-curate и init. Выполни здесь init:
-управляемый блок появится в AGENTS.md, три строки .gitignore уже есть; второй прогон
-init ничего не меняет. Затем index, lint --strict, search "canon" →
-docs/decisions/ontoship-core.md, search "target test" → docs/reference/testing.md,
-map и stat --json. Веди TodoWrite по шагам тикета.
+Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
+python3 .dsh/skills/kb-search/gitmark.py index; lint --strict → 0;
+search "canon" → docs/decisions/ontoship-core.md; search "target test" →
+docs/reference/testing.md; stat --json валиден; map пишет docs-map.html (игнорируется).
+.dsh/, .gitmark/, .scratch/ и *-map.html не коммитятся.
 
-Каталог скиллов: текущая сессия загрузила его до установки, поэтому она не доказывает
-discovery. Проверь свежую DSH-сессию в этом репозитории; если открыть её нельзя —
-честно назови пробел, не выдавай старый каталог за новый и не имитируй E2E.
-
-Проверка — spec: установка и --check 0, init идемпотентен, index строит
-.gitmark/index.db, lint --strict 0, оба search, map пишет HTML, stat --json валиден,
-свежий каталог содержит kb-search/kb-curate/init. Лог прогона читай. .dsh/, .gitmark/
-и *-map.html игнорируются git; AGENTS.md и .gitignore после init — реальные изменения
-репозитория.
-
-В конце отчёт фактами: что сделано, чем доказано, что осталось; обнови
-tickets/core-kb/06-dogfood.md и docs/ops/continue.md. Один тикет за прогон;
-канон не переоткрывай; при реальном конфликте останови и спроси оператора.
+В конце отчёт фактами: что сделано, чем доказано, что осталось. Один тикет за прогон;
+при реальном конфликте останови и спроси оператора.
 ```
 
 ## Rules of continuation
