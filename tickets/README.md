@@ -12,8 +12,8 @@ Durable-контракт лежит в [`docs/plans/`](../docs/plans/README.md).
 2026-10-21, все четыре тикета сделаны; они лежат в
 [`harness-agnostic/`](harness-agnostic/01-install-root.md) как история. Третий юнит — [workflow-skills](../docs/plans/workflow-skills.md): спека утверждена
 2026-10-21; тикеты нарезаны 2026-10-21 после оценки агента — один вопрос
-ask-инструмента на тикет, с вариантами действий (канон, «Три фазы»). Тикеты 01–05
-сделаны; 06 (dogfood) открыт.
+ask-инструмента на тикет, с вариантами действий (канон, «Три фазы»). Юнит закрыт
+2026-10-22: тикеты 01–06 сделаны, 06 (dogfood) дал сквозной прогон.
 
 | # | тикет | блокируется |
 |---|---|---|
@@ -23,6 +23,15 @@ ask-инструмента на тикет, с вариантами действ
 | 04 | [testing](workflow-skills/04-testing.md) | — |
 | 05 | [install](workflow-skills/05-install.md) | 01, 02, 03, 04 |
 | 06 | [dogfood](workflow-skills/06-dogfood.md) | 05 |
+
+Dogfood-прогон 06 оставил свой игрушечный юнит — режим `--dry-run` установщика.
+Спека [`install-dry-run`](../docs/plans/install-dry-run.md) ждёт решения оператора
+(статус `draft`); 01 сделан, 02 открыт:
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [dry-run: link-режим](install-dry-run/01-dry-run-link.md) | — |
+| 02 | [dry-run: copy-режим](install-dry-run/02-dry-run-copy.md) | 01 |
 
 Закрытый юнит `harness-agnostic` остаётся историей:
 
