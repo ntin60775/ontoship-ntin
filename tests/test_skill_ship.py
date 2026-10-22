@@ -26,8 +26,8 @@ SKILL = REPO / "skills" / "ship" / "SKILL.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 ANCHOR_RE = re.compile(r"\b[\w-]+(?:\.[\w-]+)+:\d+")
-PASS_STEPS = ("**worktree", "**доказательные тесты", "**один прогон ревью",
-              "**проверки dev и prod", "**merge")
+PASS_STEPS = ("**worktree", "**реализация", "**доказательные тесты",
+              "**один прогон ревью", "**проверки dev и prod", "**merge")
 REQUIRED_PHRASES = (
     "один проход",
     "worktree",
