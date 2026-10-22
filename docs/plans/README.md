@@ -3,7 +3,7 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 links:
   part_of: [../README.md]
   relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, ../decisions/ontoship-core.md, ../ops/continue.md]
@@ -21,8 +21,9 @@ links:
   `.agents/skills` для zcode, DSH и Qoder (утверждён 2026-10-21; завершён, тикеты
   01–04).
 - [workflow-skills.md](workflow-skills.md) — фазы метода как скиллы: `grilling`,
-  `to-tickets`, `ship`, `testing` (утверждена 2026-10-21; тикеты режет
-  `to-tickets` по вызову оператора).
+  `to-tickets`, `ship`, `testing` (утверждена 2026-10-21; тикеты 01–05 сделаны,
+  06 открыт).
 
-Два юнита закрыты; спека третьего утверждена 2026-10-21, тикетов пока нет.
-Открытая работа и пробелы харнессов записаны в [continue.md](../ops/continue.md).
+Два юнита закрыты; спека третьего утверждена 2026-10-21, тикеты 01–05 сделаны,
+06 (dogfood) открыт. Открытая работа и пробелы харнессов записаны в
+[continue.md](../ops/continue.md).

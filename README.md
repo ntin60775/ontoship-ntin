@@ -27,15 +27,16 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 тикетов, открытая работа и стартовый промпт. Юниты
 [core-kb](docs/plans/core-kb.md) и [harness-agnostic](docs/plans/harness-agnostic.md)
 завершены; записи тикетов лежат в [tickets/](tickets/README.md). Текущий юнит —
-workflow-скиллы: план утверждён 2026-10-21, тикеты 01–06 нарезаны, `grilling` и
-`to-tickets` сделаны; следующий — 03 `ship`.
+workflow-скиллы: план утверждён 2026-10-21, тикеты 01–06 нарезаны; 01–05 сделаны,
+следующий — 06 `dogfood`.
 
 ## Состояние
 
 **Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на dogfood:
-движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 191 тест и
-чистый `lint --strict`. Workflow-скиллы: `grilling` и `to-tickets` готовы; `ship`,
-`testing`, установка и dogfood впереди. Открытая работа записана в
+движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 219 тестов и
+чистый `lint --strict`. Workflow-скиллы `grilling`, `to-tickets`, `ship` и `testing`
+готовы; установка ставит семь скиллов. Впереди сквозной dogfood-прогон. Открытая
+работа записана в
 [docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту). Предыдущая линия
 ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) хранится как **строгий
 профиль** и история — не умолчание.
