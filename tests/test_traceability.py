@@ -8,7 +8,12 @@ invariants stay descriptive until their durable reference exists.
 
 The criterion after ``#`` is a human locator, not an HTML anchor: numbered plan
 items have no heading anchor, so the guard checks that the file exists and the
-criterion is non-empty.
+criterion is non-empty. The marker carries the statement; ``path#section`` names
+the durable artifact or rule it guards, not necessarily the verbatim wording.
+
+Markers are read at line start, optionally after a docstring opening quote. An
+inline mention inside prose or a code literal is not a marker: the guard cannot
+tell a claim from an example there, so those mentions stay out of scope.
 
 spec: docs/decisions/ontoship-core.md#одно правило качества — durable traceability
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the contract check can fail
