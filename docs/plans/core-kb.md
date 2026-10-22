@@ -3,7 +3,7 @@ node_type: plan
 title: core-kb — устанавливаемое ядро базы знаний
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 links:
   relates_to: [harness-agnostic.md, ../decisions/ontoship-core.md, ../reference/sources.md]
 ---
@@ -54,8 +54,9 @@ inventory**.
 - `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; источник тикета 01.
 - `skills/kb-search/SKILL.md`, `skills/kb-search/gitmark.py` — вендорный движок,
   урезанный и адаптированный к путям `.dsh`.
-- `skills/kb-curate/SKILL.md`, `skills/kb-curate/ontology.md` — правила онтологии и
-  поставляемая модель (I1–I6, I8–I10; I7 вне ядра).
+- `skills/kb-curate/SKILL.md`, `skills/kb-curate/ontology.md` — правила онтологии
+  (CREATE / UPDATE / DEPRECATE / LINK / REINDEX) и поставляемая модель
+  (I1–I6, I8–I10; I7 вне ядра).
 - `skills/init/SKILL.md` — управляемый блок в `AGENTS.md`, строки `.gitignore`.
 - `scripts/install.sh` — project-local установка, ссылка/копия, `--check`.
 - `tests/` — тесты движка, адаптированные к урезанной поверхности; тест идемпотентности

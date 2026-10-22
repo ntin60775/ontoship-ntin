@@ -1,7 +1,7 @@
 """Contract for the kb-curate skill and the shipped ontology model.
 
-spec: docs/plans/core-kb.md#рамки — skills/kb-curate/SKILL.md and ontology.md
-spec: tickets/core-kb/03-kb-curate-ontology.md — CREATE/UPDATE/DEPRECATE/LINK/REINDEX
+spec: docs/plans/core-kb.md#рамки — skills/kb-curate/SKILL.md and ontology.md;
+      CREATE/UPDATE/DEPRECATE/LINK/REINDEX
 invariant: I2 — docs/ontology.md is the single type vocabulary
 invariant: I8 — project and shipped ontology bodies agree from the first `## `
 invariant: I1/I4 — a curated doc passes; removing its type or breaking its link fails
@@ -101,7 +101,8 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_skill_contract_can_fail():
-    """invariant: the contract check rejects a missing operation, model or name."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check rejects a missing operation, model or name."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -182,7 +183,7 @@ def test_project_and_shipped_ontology_bodies_agree(gm):
 
 
 def test_invariant_table_is_exactly_the_core_set(gm):
-    """spec: ticket 03 — I1–I6 and I8–I10; I7 stays out of the core."""
+    """spec: docs/plans/core-kb.md#рамки — I1–I6 and I8–I10; I7 stays out of the core."""
     body = _body_from_first_h2(PROJECT)
     ids = INVARIANT_ROW.findall(body)
     assert set(ids) == CORE_INVARIANTS
@@ -225,7 +226,7 @@ def _cli(root: Path) -> subprocess.CompletedProcess:
 
 
 def test_demo_doc_passes_then_i1_and_i4_fail_strict(gm, tmp_path: Path):
-    """spec: ticket 03 — a doc with a type, body link and README link passes; mutations fail."""
+    """spec: docs/plans/core-kb.md#готово-3 — a doc with a type, body link and README link passes; mutations fail."""
     root = _demo_repo(tmp_path)
     assert gm.cmd_lint(root)["errors"] == []
     assert _cli(root).returncode == 0

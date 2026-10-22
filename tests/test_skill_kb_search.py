@@ -7,7 +7,7 @@ checks pin that and the ticket-02 surface, not the prose.
 spec: docs/plans/core-kb.md#рамки — skills/kb-search/SKILL.md
 spec: docs/plans/core-kb.md#ограничения — DSH frontmatter; no inventory/serve/registry,
 no provenance, Reel, acceptance chord
-invariant: the skill reports only what the engine returns
+invariant: docs/plans/core-kb.md#рамки — the skill reports only what the engine returns
 """
 from __future__ import annotations
 
@@ -105,7 +105,7 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_description_with_a_colon_stays_valid_yaml():
-    """invariant: unquoted ': ' in the description drops the skill from the DSH catalog."""
+    """invariant: docs/plans/core-kb.md#ограничения — unquoted ': ' in the description drops the skill from the DSH catalog."""
     fields, _ = _parse(SKILL.read_text("utf-8"))
     raw = fields["description"]
     assert ": " in _unquote(raw)
@@ -140,7 +140,7 @@ def test_skill_omits_a_forbidden_entity(term: str):
 
 
 def test_skill_degrades_honestly():
-    """invariant: the skill reports only what the engine returns."""
+    """invariant: docs/plans/core-kb.md#рамки — the skill reports only what the engine returns."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "нет индекса" in lowered
@@ -150,7 +150,7 @@ def test_skill_degrades_honestly():
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a missing command and a forbidden entity."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the contract check rejects a missing command and a forbidden entity."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 

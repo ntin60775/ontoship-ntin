@@ -6,8 +6,9 @@ the verbatim block — and prove the check can fail (mutation probe).
 
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed block,
       .gitignore (four lines), harness-neutral prose
-spec: tickets/harness-agnostic/02-portable-skills.md — portable paths; .agents/skills/
-invariant: no registry, provenance, Reel or acceptance chord; no harness root named
+invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance, Reel or
+      acceptance chord
+invariant: docs/plans/harness-agnostic.md#готово — no harness root named
 """
 from __future__ import annotations
 
@@ -164,7 +165,7 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_block_is_verbatim_and_has_one_marker_pair():
-    """spec: ticket 04 — the managed block, `<!-- BEGIN ontoship -->` … `<!-- END … -->`."""
+    """spec: docs/plans/harness-agnostic.md#готово — the managed block, `<!-- BEGIN ontoship -->` … `<!-- END … -->`."""
     text = SKILL.read_text("utf-8")
     assert _block(text) == BLOCK
     # The prose marker, the template and the verification grep each name the pair once.
@@ -172,13 +173,14 @@ def test_block_is_verbatim_and_has_one_marker_pair():
 
 
 def test_gitignore_lines_are_the_four_the_kb_requires():
-    """spec: ticket 02 — `.gitmark/`, `*-map.html`, `.scratch/`, `.agents/skills/`."""
+    """spec: docs/plans/harness-agnostic.md#готово — `.gitmark/`, `*-map.html`, `.scratch/`, `.agents/skills/`."""
     lines = _standalone_lines(SKILL.read_text("utf-8"))
     assert lines == list(GITIGNORE_LINES)
 
 
 def test_contract_can_fail():
-    """invariant: the contract check rejects a missing marker, line, name or a leaked entity."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check rejects a missing marker, line, name or a leaked entity."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 

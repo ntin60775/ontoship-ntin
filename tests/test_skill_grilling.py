@@ -7,8 +7,8 @@ recommended answer, facts-vs-decisions split, and the spec exit at the plan gate
 spec: docs/plans/workflow-skills.md#готово — skills/grilling/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — no strict-profile apparatus,
 autonomous flag is out of scope for v1
-invariant: the agent never answers for the operator
-invariant: skill texts name no harness root (harness-agnostic)
+invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
+invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
 
@@ -123,7 +123,7 @@ def test_skill_carries_the_interview_mechanism():
 
 
 def test_agent_never_answers_for_the_operator():
-    """invariant: the agent never answers for the operator; silence is not consent."""
+    """invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator; silence is not consent."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "факты — работа агента" in lowered
@@ -147,7 +147,7 @@ def test_autonomous_flag_is_out_of_scope_for_v1():
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
-    """invariant: harness-agnostic — no harness-specific skill root in skill texts."""
+    """invariant: docs/plans/harness-agnostic.md#готово — no harness-specific skill root in skill texts."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"
@@ -163,7 +163,7 @@ def test_skill_omits_strict_profile_entities(term: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a missing phrase and a forbidden entity."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the contract check rejects a missing phrase and a forbidden entity."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 

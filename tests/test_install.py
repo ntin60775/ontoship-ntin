@@ -6,9 +6,8 @@ drift and legacy reporting, and the refusal to write or destroy anything outside
 destination.
 
 spec: docs/plans/harness-agnostic.md#готово — .agents/skills/{kb-search,kb-curate,init};
-      link/copy; --check; legacy .dsh/.zcode/.qoder warnings
-spec: tickets/harness-agnostic/01-install-root.md — idempotent; --check names drift
-invariant: writes only <project>/.agents/skills; --check is read-only and deletes nothing
+      link/copy; idempotent; --check names drift; legacy .dsh/.zcode/.qoder warnings
+invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
 
@@ -88,7 +87,7 @@ def project(tmp_path: Path) -> Path:
 
 
 def test_installer_is_executable() -> None:
-    """spec: ticket 01 — `scripts/install.sh <project>` is the install channel."""
+    """spec: docs/plans/harness-agnostic.md#готово — `scripts/install.sh <project>` is the install channel."""
     assert INSTALL.is_file()
     assert os.access(INSTALL, os.X_OK), "install.sh must be executable"
 
@@ -96,7 +95,7 @@ def test_installer_is_executable() -> None:
 def test_fresh_install_links_three_skills_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: harness-agnostic#готово-1 — three links under .agents/skills."""
+    """spec: docs/plans/harness-agnostic.md#готово — three links under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -120,7 +119,7 @@ def test_fresh_install_links_three_skills_and_writes_nothing_else(
 
 
 def test_second_install_is_idempotent(project: Path) -> None:
-    """spec: ticket 01 — a second run makes no change."""
+    """spec: docs/plans/harness-agnostic.md#готово — a second run makes no change."""
     first = run(project)
     assert first.returncode == 0, output(first)
     before = tree(project)
@@ -132,7 +131,7 @@ def test_second_install_is_idempotent(project: Path) -> None:
 
 
 def test_check_is_clean_and_read_only(project: Path) -> None:
-    """spec: ticket 01 — `--check` exits 0 when all links point at this repo."""
+    """spec: docs/plans/harness-agnostic.md#готово — `--check` exits 0 when all links point at this repo."""
     install = run(project)
     assert install.returncode == 0, output(install)
     before = tree(project)
@@ -146,7 +145,7 @@ def test_check_is_clean_and_read_only(project: Path) -> None:
 
 
 def test_check_on_a_fresh_project_names_all_three_without_writing(tmp_path: Path) -> None:
-    """spec: ticket 01 — missing skills are named; the check still writes nothing."""
+    """spec: docs/plans/harness-agnostic.md#готово — missing skills are named; the check still writes nothing."""
     fresh = tmp_path / "fresh"
     fresh.mkdir()
     result = run(fresh, "--check")
@@ -157,7 +156,7 @@ def test_check_on_a_fresh_project_names_all_three_without_writing(tmp_path: Path
 
 
 def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
-    """spec: ticket 01 — a missing or wrong link is named with exit 1 (mutation probe)."""
+    """spec: docs/plans/harness-agnostic.md#готово — a missing or wrong link is named with exit 1 (mutation probe)."""
     install = run(project)
     assert install.returncode == 0, output(install)
     dest = project / ".agents" / "skills"
@@ -180,7 +179,7 @@ def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
 
 
 def test_check_warns_about_legacy_entries_without_deleting_them(project: Path) -> None:
-    """spec: harness-agnostic#готово-2 — legacy .dsh/.zcode/.qoder links warn, never fail."""
+    """spec: docs/plans/harness-agnostic.md#готово — legacy .dsh/.zcode/.qoder links warn, never fail."""
     install = run(project)
     assert install.returncode == 0, output(install)
 
@@ -206,7 +205,7 @@ def test_check_warns_about_legacy_entries_without_deleting_them(project: Path) -
 
 
 def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
-    """invariant: the installer writes only .agents/skills and deletes no legacy link."""
+    """invariant: docs/plans/harness-agnostic.md#готово — the installer writes only .agents/skills and deletes no legacy link."""
     dsh = project / ".dsh" / "skills"
     dsh.mkdir(parents=True)
     legacy = dsh / "kb-search"
@@ -223,7 +222,7 @@ def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:
-    """spec: ticket 01 — `--copy` produces three real directories, not links."""
+    """spec: docs/plans/harness-agnostic.md#готово — `--copy` produces three real directories, not links."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
@@ -244,7 +243,7 @@ def test_copy_install_is_detached(tmp_path: Path) -> None:
 
 
 def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None:
-    """spec: ticket 01 — copies are checked by content; a changed or missing copy drifts."""
+    """spec: docs/plans/harness-agnostic.md#готово — copies are checked by content; a changed or missing copy drifts."""
     project = tmp_path / "copied"
     project.mkdir()
     first = run(project, "--copy")
@@ -271,7 +270,7 @@ def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None
 
 
 def test_install_refuses_to_clobber_a_real_directory(project: Path) -> None:
-    """invariant: a detached copy is never replaced by a link, and no half install happens."""
+    """invariant: docs/plans/harness-agnostic.md#готово — a detached copy is never replaced by a link, and no half install happens."""
     occupied = project / ".agents" / "skills" / "kb-search"
     occupied.mkdir(parents=True)
     sentinel = occupied / "SKILL.md"

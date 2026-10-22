@@ -11,8 +11,8 @@ spec: docs/plans/workflow-skills.md#готово — skills/ship/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — ship is model-inaccessible
 spec: docs/decisions/ontoship-core.md#три фазы — one pass, stop points from
 «Ограничения», review gives leads
-invariant: one review pass — no convergence loop
-invariant: skill texts name no harness root (harness-agnostic)
+invariant: docs/decisions/ontoship-core.md#три фазы — one review pass, no convergence loop
+invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
 
@@ -176,7 +176,7 @@ def test_stop_points_come_from_the_spec():
 
 
 def test_review_is_one_pass_and_yields_leads():
-    """invariant: one review pass — leads, fix the named findings, stop."""
+    """invariant: docs/decisions/ontoship-core.md#три фазы — one review pass; leads, fix the named findings, stop."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "один прогон ревью" in lowered
@@ -209,7 +209,7 @@ def test_skill_anchors_to_the_canon():
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
-    """invariant: harness-agnostic — no harness-specific skill root in skill texts."""
+    """invariant: docs/plans/harness-agnostic.md#готово — no harness-specific skill root in skill texts."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"
@@ -217,8 +217,9 @@ def test_skill_names_no_harness_root(root: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a missing flag, a loop, a fake PR,
-    a stop-point regression, an anchor, and a missing name."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check rejects a missing flag, a loop, a fake PR, a stop-point
+    regression, an anchor, and a missing name."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 

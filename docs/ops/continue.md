@@ -156,8 +156,8 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   умолчанию ссылки, `--copy` — отсоединённая копия, `--check` — расхождение (код 0/1,
   называет каждый скилл) и предупреждение о legacy-корнях; идемпотентна; пишет только
   `<project>/.agents/skills`; init не запускает.
-- `tests/` — тесты движка, контрактов скиллов и установки; запуск
-  `python3 -m pytest tests/ -q` (217 passed; stdlib + pytest, без Node).
+- `tests/` — тесты движка, контрактов скиллов, установки и сторож трассировки;
+  запуск `python3 -m pytest tests/ -q` (219 passed; stdlib + pytest, без Node).
 - `.agents/skills/` — project-local установка под gitignore, проверенная dogfood в
   тикете 04: три ссылки (`kb-search`, `kb-curate`, `init`),
   `scripts/install.sh --check "$PWD"` выходит с кодом 0. `.dsh` удалён.
@@ -218,7 +218,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
 Юниты core-kb (тикеты 01–06) и harness-agnostic (тикеты 01–04) завершены. Третий
 юнит workflow-skills: спека docs/plans/workflow-skills.md утверждена, тикеты
-01–04 сделаны (grilling, to-tickets, ship, testing; 217 passed, lint --strict
+01–04 сделаны (grilling, to-tickets, ship, testing; 219 passed, lint --strict
 чистый, 41 файл). Установка пока ставит три скилла — канал расширит тикет 05.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,

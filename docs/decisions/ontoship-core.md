@@ -3,7 +3,7 @@ node_type: decision
 title: OntoShip core — канон
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 tags: [canon, method, kb, grilling, tickets, ship, testing]
 links:
   relates_to: [../README.md, ../reference/sources.md]
@@ -91,8 +91,10 @@ links:
 Тест без ни одной из трёх целей — сирота: его нельзя обосновать и нельзя удалить по
 правилу. Следствия:
 
-- трассируемость в имени теста или комментарии: `spec: <path>#<criterion>`,
-  `invariant: I<n>` или `target: <bug/incident ref>`;
+- трассируемость в имени теста или комментарии: `spec: <path>#<criterion>`;
+  `invariant: I<n>` для инварианта онтологии или
+  `invariant: <path>#<section> — <statement>` для инварианта проекта;
+  `target: <bug/incident ref>`;
 - ожидаемое значение берётся из спеки, литерала или разобранного примера — никогда не
   пересчитывается тем же способом, что код;
 - новая матрица идёт с негативной или мутационной пробой: тест должен уметь падать;

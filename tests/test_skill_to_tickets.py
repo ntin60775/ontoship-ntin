@@ -8,9 +8,9 @@ criteria, blocking edges, quiz) and stay user-invoked: the frontmatter pins
 spec: docs/plans/workflow-skills.md#готово — skills/to-tickets/SKILL.md
 spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket,
 criteria fall on the base commit, no file:line anchors
-invariant: the model never invokes this skill
-invariant: a user-invoked skill never calls another user-invoked skill
-invariant: skill texts name no harness root (harness-agnostic)
+invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
+invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
+invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
 
@@ -121,7 +121,7 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_skill_is_user_invoked_only():
-    """invariant: the model never invokes this skill; the skill calls no user skill."""
+    """invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill; the skill calls no user skill."""
     fields, body = _parse(SKILL.read_text("utf-8"))
     assert fields.get("disable-model-invocation", "").lower() == "true"
     lowered = re.sub(r"\s+", " ", body.lower())
@@ -177,7 +177,7 @@ def test_slicing_handoff_follows_the_canon():
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
-    """invariant: harness-agnostic — no harness-specific skill root in skill texts."""
+    """invariant: docs/plans/harness-agnostic.md#готово — no harness-specific skill root in skill texts."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"
@@ -185,7 +185,7 @@ def test_skill_names_no_harness_root(root: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a missing flag, an anchor, and regressions."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the contract check rejects a missing flag, an anchor, and regressions."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 

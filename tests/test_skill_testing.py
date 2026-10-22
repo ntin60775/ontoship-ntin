@@ -13,9 +13,9 @@ classes, independent expected value, target bar, seven-step cycle, metrics
 spec: docs/decisions/ontoship-core.md#одно правило качества — three goals,
 traceability markers, independent expected value, channels as tools,
 coverage in spec items
-invariant: the skill stays model-invocable (only to-tickets and ship are
-model-inaccessible)
-invariant: skill texts name no harness root (harness-agnostic)
+invariant: docs/plans/workflow-skills.md#ограничения — the skill stays
+model-invocable; only to-tickets and ship are model-inaccessible
+invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
 
@@ -37,6 +37,7 @@ TARGET_BAR = ("реальный путь сбоя", "red→green", "стабил
 CHANNELS = ("unit/contract", "e2e/smoke", "ожидаемый вывод",
             "записанное воспроизведение", "браузер/снимок", "производительность")
 TRACE_MARKERS = ("spec: <path>#<criterion>", "invariant: i<n>",
+                 "invariant: <path>#<section> — <statement>",
                  "target: <bug/incident ref>")
 REQUIRED_PHRASES = (
     "ровно три законные цели",
@@ -161,7 +162,8 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 
 def test_skill_is_model_invocable():
-    """invariant: the model loads the skill while writing and reviewing tests."""
+    """invariant: docs/plans/workflow-skills.md#ограничения — the model loads
+    the skill while writing and reviewing tests."""
     fields, body = _parse(SKILL.read_text("utf-8"))
     assert fields.get("disable-model-invocation", "").lower() != "true"
     lowered = _normalized_lower(body)
@@ -274,7 +276,8 @@ def test_skill_anchors_to_the_canon():
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
-    """invariant: harness-agnostic — no harness-specific skill root in skill texts."""
+    """invariant: docs/plans/harness-agnostic.md#готово — no harness-specific
+    skill root in skill texts."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"
@@ -282,9 +285,10 @@ def test_skill_names_no_harness_root(root: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: the contract check rejects a forbidden metric, a lost cycle
-    step, a model-invocation ban, an anchor, a tautological oracle, a lost
-    traceability marker and a missing name."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check rejects a forbidden metric, a lost cycle step, a
+    model-invocation ban, an anchor, a tautological oracle, a lost traceability
+    marker and a missing name."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -317,6 +321,12 @@ def test_contract_check_can_fail():
     untraceable = text.replace("invariant: I<n>", "инвариант — номер", 1)
     assert untraceable != text
     assert any("invariant: i<n>" in error for error in _contract_errors(untraceable))
+
+    project_invariant = text.replace(
+        "invariant: <path>#<section> — <statement>", "инвариант проекта", 1)
+    assert project_invariant != text
+    assert any("invariant: <path>#<section> — <statement>" in error
+               for error in _contract_errors(project_invariant))
 
     oracular_matrix = text.replace("тест должен уметь падать",
                                    "тест может оставаться зелёным", 1)
