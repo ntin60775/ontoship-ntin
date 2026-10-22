@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # OntoShip core — project-local install.
 #
-# usage: scripts/install.sh [--copy | --check] <project>
+# usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
 #
 # The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
 # skill root shared by zcode, DSH and Qoder. The default install links the seven skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
-# form and names every missing or drifted skill. Legacy harness roots (.dsh, .zcode,
-# .qoder) are reported as warnings and never written or deleted. The install is
-# idempotent and writes only under <project>/.agents/skills. It links the skills; it
-# does not run the init skill.
+# form and names every missing or drifted skill. --dry-run prints the planned links and
+# runs the same preflight checks without writing; planning a --copy install is not
+# implemented yet. Legacy harness roots (.dsh, .zcode, .qoder) are reported as warnings
+# and never written or deleted. The install is idempotent and writes only under
+# <project>/.agents/skills. It links the skills; it does not run the init skill.
 
 set -euo pipefail
 
@@ -22,13 +23,15 @@ readonly REPO=$(CDPATH= cd -- "$here/.." && pwd -P)
 
 usage() {
   cat <<'EOF'
-usage: scripts/install.sh [--copy | --check] <project>
+usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
 
 Install the OntoShip core into <project>/.agents/skills, the project-local skill root
 shared by zcode, DSH and Qoder.
 
   (default)  symlink the seven skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing
+  --dry-run  print the planned links and run the same preflight checks without
+             writing; cannot be combined with --check or --copy (yet)
   --copy     copy the skill directories instead (detached install)
   --check    verify the install; warn about legacy .dsh/.zcode/.qoder entries;
              exit 1 and name each missing or drifted skill
@@ -49,11 +52,15 @@ usage_error() {
 }
 
 mode=link
+dry_run=0
 project=
 while (($# > 0)); do
   arg=$1
   shift
   case $arg in
+    --dry-run)
+      dry_run=1
+      ;;
     --copy | --check)
       if [[ $mode != "link" && $mode != "${arg#--}" ]]; then
         usage_error "--copy and --check are mutually exclusive"
@@ -81,6 +88,10 @@ done
 
 [[ -n $project ]] || usage_error "missing <project>"
 [[ -d $project ]] || usage_error "not a project directory: $project"
+if ((dry_run)); then
+  [[ $mode != "check" ]] || usage_error "--dry-run and --check are mutually exclusive"
+  [[ $mode != "copy" ]] || usage_error "--dry-run with --copy is not implemented"
+fi
 project=$(CDPATH= cd -- "$project" && pwd -P)
 readonly dest=$project/.agents/skills
 
@@ -174,7 +185,14 @@ check() {
 
 # Refuse the whole run rather than half-install or destroy a detached copy.
 preflight_install() {
-  local name path
+  local name path parent=$project/.agents
+  # mkdir -p cannot repair a file or a dangling link on the way to the root.
+  if [[ ( -e $parent || -L $parent ) && ! -d $parent ]]; then
+    die "refusing to replace a non-directory: $parent"
+  fi
+  if [[ ( -e $dest || -L $dest ) && ! -d $dest ]]; then
+    die "refusing to replace a non-directory: $dest"
+  fi
   for name in "${SKILLS[@]}"; do
     path=$dest/$name
     if [[ $mode == copy ]]; then
@@ -209,6 +227,21 @@ install_links() {
   done
 }
 
+# Mirror install_links without touching the disk; the wording never claims a write.
+plan_links() {
+  local name path src
+  [[ -d $dest ]] || printf 'would create %s\n' "$dest"
+  for name in "${SKILLS[@]}"; do
+    path=$dest/$name
+    src=$REPO/skills/$name
+    if is_link_to "$path" "$src"; then
+      printf 'would leave %s unchanged\n' "$name"
+    else
+      printf 'would link %s -> %s\n' "$name" "$src"
+    fi
+  done
+}
+
 install_copies() {
   local name path src
   for name in "${SKILLS[@]}"; do
@@ -235,8 +268,12 @@ case $mode in
     ;;
   link)
     preflight_install
-    mkdir -p -- "$dest"
-    install_links
+    if ((dry_run)); then
+      plan_links
+    else
+      mkdir -p -- "$dest"
+      install_links
+    fi
     ;;
   copy)
     preflight_install

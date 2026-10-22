@@ -310,3 +310,107 @@ def test_install_refuses_to_clobber_a_real_directory(project: Path) -> None:
     assert sentinel.read_text("utf-8") == "detached\n"
     assert not (project / ".agents" / "skills" / "kb-curate").exists()
     assert not (project / ".agents" / "skills" / "init").exists()
+
+
+def test_dry_run_plans_a_link_install_without_writing(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — --dry-run prints the link plan and writes nothing."""
+    project = tmp_path / "fresh"
+    project.mkdir()
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 0, output(result)
+
+    dest = project / ".agents" / "skills"
+    assert f"would create {dest}" in result.stdout
+    for name in SKILLS:
+        assert f"would link {name} -> {REPO / 'skills' / name}" in result.stdout
+    plan = [line for line in result.stdout.splitlines() if line.startswith("would link ")]
+    assert len(plan) == len(SKILLS), plan
+    assert not (project / ".agents").exists(), "--dry-run must not create the install root"
+    assert tree(project) == before
+
+
+def test_dry_run_reports_a_complete_link_install_as_unchanged(project: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — an existing install is planned as unchanged, tree untouched."""
+    install = run(project)
+    assert install.returncode == 0, output(install)
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 0, output(result)
+    for name in SKILLS:
+        assert f"would leave {name} unchanged" in result.stdout
+    plan = [line for line in result.stdout.splitlines() if line.startswith("would leave ")]
+    assert len(plan) == len(SKILLS), plan
+    assert "would create" not in result.stdout
+    assert "would link" not in result.stdout
+    assert tree(project) == before
+
+
+def test_dry_run_runs_preflight_and_refuses_like_a_real_install(project: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — the plan refuses a path a real install would refuse."""
+    occupied = project / ".agents" / "skills" / "kb-search"
+    occupied.mkdir(parents=True)
+    sentinel = occupied / "SKILL.md"
+    sentinel.write_text("detached\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 1
+    assert "refusing to replace" in output(result)
+    assert sentinel.read_text("utf-8") == "detached\n"
+    assert not (project / ".agents" / "skills" / "kb-curate").exists()
+    assert tree(project) == before
+
+
+def test_dry_run_refuses_a_blocked_install_root(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — a blocked root is refused, never planned as writable."""
+    project = tmp_path / "blocked-root"
+    project.mkdir()
+    (project / ".agents").mkdir()
+    (project / ".agents" / "skills").write_text("not a directory\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 1
+    assert "refusing to replace a non-directory" in output(result)
+    assert "would link" not in result.stdout, "a refused install must not print a plan"
+    assert tree(project) == before
+
+    parent_blocked = tmp_path / "blocked-parent"
+    parent_blocked.mkdir()
+    (parent_blocked / ".agents").write_text("not a directory\n", encoding="utf-8")
+    parent_before = tree(parent_blocked)
+
+    result = run(parent_blocked, "--dry-run")
+    assert result.returncode == 1
+    assert "refusing to replace a non-directory" in output(result)
+    assert tree(parent_blocked) == parent_before
+
+
+def test_dry_run_rejects_check_and_copy(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — --check conflicts; --copy is ticket 02."""
+    project = tmp_path / "fresh"
+    project.mkdir()
+    before = tree(project)
+
+    with_check = run(project, "--dry-run", "--check")
+    assert with_check.returncode == 2
+    assert "mutually exclusive" in output(with_check)
+
+    with_copy = run(project, "--dry-run", "--copy")
+    assert with_copy.returncode == 2
+    assert "not implemented" in output(with_copy)
+
+    assert tree(project) == before
+
+
+def test_usage_names_dry_run(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — usage and the script header name the mode."""
+    result = run(tmp_path, "--help")
+    assert result.returncode == 0, output(result)
+    assert "--dry-run" in result.stdout
+
+    header = INSTALL.read_text(encoding="utf-8").splitlines()[:12]
+    assert any("--dry-run" in line for line in header), "the script header must document --dry-run"
