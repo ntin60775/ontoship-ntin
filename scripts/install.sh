@@ -4,7 +4,7 @@
 # usage: scripts/install.sh [--copy | --check] <project>
 #
 # The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
-# skill root shared by zcode, DSH and Qoder. The default install links the three skill
+# skill root shared by zcode, DSH and Qoder. The default install links the seven skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
 # form and names every missing or drifted skill. Legacy harness roots (.dsh, .zcode,
 # .qoder) are reported as warnings and never written or deleted. The install is
@@ -13,7 +13,7 @@
 
 set -euo pipefail
 
-readonly SKILLS=(kb-search kb-curate init)
+readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing)
 readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
 readonly EXCLUDES=(-x __pycache__ -x '*.pyc')
 
@@ -27,7 +27,8 @@ usage: scripts/install.sh [--copy | --check] <project>
 Install the OntoShip core into <project>/.agents/skills, the project-local skill root
 shared by zcode, DSH and Qoder.
 
-  (default)  symlink kb-search, kb-curate and init to this repository
+  (default)  symlink the seven skill bundles to this repository:
+             kb-search, kb-curate, init, grilling, to-tickets, ship, testing
   --copy     copy the skill directories instead (detached install)
   --check    verify the install; warn about legacy .dsh/.zcode/.qoder entries;
              exit 1 and name each missing or drifted skill

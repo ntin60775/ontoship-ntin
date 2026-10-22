@@ -5,8 +5,8 @@ root, so these checks pin its observable effects: the `.agents/skills` layout, i
 drift and legacy reporting, and the refusal to write or destroy anything outside its
 destination.
 
-spec: docs/plans/harness-agnostic.md#готово — .agents/skills/{kb-search,kb-curate,init};
-      link/copy; idempotent; --check names drift; legacy .dsh/.zcode/.qoder warnings
+spec: docs/plans/workflow-skills.md#готово — seven skills in <project>/.agents/skills;
+      link/copy; idempotent; --check names each missing or drifted skill
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing")
 
 
 def run(project: Path, *flags: str) -> subprocess.CompletedProcess[str]:
@@ -92,10 +92,10 @@ def test_installer_is_executable() -> None:
     assert os.access(INSTALL, os.X_OK), "install.sh must be executable"
 
 
-def test_fresh_install_links_three_skills_and_writes_nothing_else(
+def test_fresh_install_links_seven_skills_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — three links under .agents/skills."""
+    """spec: docs/plans/workflow-skills.md#готово — seven links under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -119,7 +119,7 @@ def test_fresh_install_links_three_skills_and_writes_nothing_else(
 
 
 def test_second_install_is_idempotent(project: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — a second run makes no change."""
+    """spec: docs/plans/workflow-skills.md#готово — a second run makes no change."""
     first = run(project)
     assert first.returncode == 0, output(first)
     before = tree(project)
@@ -131,7 +131,7 @@ def test_second_install_is_idempotent(project: Path) -> None:
 
 
 def test_check_is_clean_and_read_only(project: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — `--check` exits 0 when all links point at this repo."""
+    """spec: docs/plans/workflow-skills.md#готово — `--check` exits 0 when all seven links point at this repo."""
     install = run(project)
     assert install.returncode == 0, output(install)
     before = tree(project)
@@ -144,8 +144,8 @@ def test_check_is_clean_and_read_only(project: Path) -> None:
     assert tree(project) == before, "--check must not write"
 
 
-def test_check_on_a_fresh_project_names_all_three_without_writing(tmp_path: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — missing skills are named; the check still writes nothing."""
+def test_check_on_a_fresh_project_names_all_seven_without_writing(tmp_path: Path) -> None:
+    """spec: docs/plans/workflow-skills.md#готово — every missing skill is named; the check still writes nothing."""
     fresh = tmp_path / "fresh"
     fresh.mkdir()
     result = run(fresh, "--check")
@@ -156,7 +156,7 @@ def test_check_on_a_fresh_project_names_all_three_without_writing(tmp_path: Path
 
 
 def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — a missing or wrong link is named with exit 1 (mutation probe)."""
+    """spec: docs/plans/workflow-skills.md#готово — a missing or wrong link is named with exit 1 (mutation probe)."""
     install = run(project)
     assert install.returncode == 0, output(install)
     dest = project / ".agents" / "skills"
@@ -166,6 +166,16 @@ def test_check_names_each_missing_or_wrong_link(project: Path) -> None:
     assert missing.returncode == 1
     assert any(line.startswith("drift: kb-curate:") for line in output(missing).splitlines())
     assert any(line.startswith("ok kb-search") for line in output(missing).splitlines())
+
+    relink = run(project)
+    assert relink.returncode == 0, output(relink)
+    (dest / "ship").unlink()
+    missing_workflow = run(project, "--check")
+    assert missing_workflow.returncode == 1
+    assert any(line.startswith("drift: ship:")
+               for line in output(missing_workflow).splitlines())
+    assert any(line.startswith("ok testing")
+               for line in output(missing_workflow).splitlines())
 
     relink = run(project)
     assert relink.returncode == 0, output(relink)
@@ -222,7 +232,7 @@ def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — `--copy` produces three real directories, not links."""
+    """spec: docs/plans/workflow-skills.md#готово — `--copy` produces seven real directories, not links."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
@@ -243,7 +253,7 @@ def test_copy_install_is_detached(tmp_path: Path) -> None:
 
 
 def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None:
-    """spec: docs/plans/harness-agnostic.md#готово — copies are checked by content; a changed or missing copy drifts."""
+    """spec: docs/plans/workflow-skills.md#готово — copies are checked by content; a changed or missing copy drifts."""
     project = tmp_path / "copied"
     project.mkdir()
     first = run(project, "--copy")

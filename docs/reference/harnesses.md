@@ -3,7 +3,7 @@ node_type: reference
 title: Совместимость харнессов — project-local скиллы и AGENTS.md
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 tags: [harness, skills, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
@@ -25,9 +25,10 @@ Qoder; слой адаптеров не нужен. Справочник фик�
 | zcode 3.16.2 | `.agents/skills` и `.zcode/skills` в каждом workspace-корне | оба — кандидаты workspace | `NodeContextSourceAdapter` ищет файл от рабочего каталога вверх |
 | Qoder 0.4.8 | `.agents/skills` при `skills.loadFromAgentsDirectory: true` | один корень | загружает `AGENTS.md` проекта и файлы предков |
 
-Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда
-`kb-search`, `kb-curate` и `init`. Все три харнесса читают `AGENTS.md` из корня
-проекта, поэтому точка входа и управляемый блок живут там.
+Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда семь
+скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`, `ship`,
+`testing`. Все три харнесса читают `AGENTS.md` из корня проекта, поэтому точка
+входа и управляемый блок живут там.
 
 ## Доказательства
 
