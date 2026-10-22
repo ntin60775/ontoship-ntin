@@ -6,7 +6,7 @@ status: active
 updated: 2026-10-22
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -23,7 +23,9 @@ links:
 - [workflow-skills.md](workflow-skills.md) — фазы метода как скиллы: `grilling`,
   `to-tickets`, `ship`, `testing` (утверждена 2026-10-21; тикеты 01–05 сделаны,
   06 открыт).
+- [install-dry-run.md](install-dry-run.md) — режим `--dry-run` установщика: план без
+  записи (черновик dogfood-прогона 2026-10-22; план-гейт вживую не пройден).
 
 Два юнита закрыты; спека третьего утверждена 2026-10-21, тикеты 01–05 сделаны,
-06 (dogfood) открыт. Открытая работа и пробелы харнессов записаны в
-[continue.md](../ops/continue.md).
+06 (dogfood) открыт. Игрушечная спека dogfood-прогона ждёт решения оператора.
+Открытая работа и пробелы харнессов записаны в [continue.md](../ops/continue.md).
