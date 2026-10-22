@@ -279,6 +279,24 @@ def test_second_copy_run_is_idempotent_and_detects_drift(tmp_path: Path) -> None
     assert any(line.startswith("drift: init:") for line in output(missing).splitlines())
 
 
+def test_copy_install_refuses_to_overwrite_a_drifted_copy(tmp_path: Path) -> None:
+    """invariant: docs/plans/harness-agnostic.md#готово — a drifted copy is never overwritten and no half install happens."""
+    project = tmp_path / "copied"
+    project.mkdir()
+    first = run(project, "--copy")
+    assert first.returncode == 0, output(first)
+
+    drifted = project / ".agents" / "skills" / "ship" / "SKILL.md"
+    drifted.write_text("edited\n", encoding="utf-8")
+    before = tree(project)
+
+    second = run(project, "--copy")
+    assert second.returncode != 0
+    assert "copy differs" in output(second)
+    assert drifted.read_text("utf-8") == "edited\n"
+    assert tree(project) == before, "--copy must not overwrite or half-install"
+
+
 def test_install_refuses_to_clobber_a_real_directory(project: Path) -> None:
     """invariant: docs/plans/harness-agnostic.md#готово — a detached copy is never replaced by a link, and no half install happens."""
     occupied = project / ".agents" / "skills" / "kb-search"
