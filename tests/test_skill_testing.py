@@ -8,11 +8,11 @@ the seven-step agent cycle, channels named as tools rather than goals, and
 metrics counting spec items, invariants and fixed defects — never lines or
 test counts.
 
-spec: docs/plans/workflow-skills.md#готово — skills/testing/SKILL.md
-spec: tickets/workflow-skills/04-testing.md — three classes, traceability,
-independent source, target bar, seven-step cycle, channels, metrics
+spec: docs/plans/workflow-skills.md#готово — skills/testing/SKILL.md: three
+classes, independent expected value, target bar, seven-step cycle, metrics
 spec: docs/decisions/ontoship-core.md#одно правило качества — three goals,
-independent expected value, coverage in spec items
+traceability markers, independent expected value, channels as tools,
+coverage in spec items
 invariant: the skill stays model-invocable (only to-tickets and ship are
 model-inaccessible)
 invariant: skill texts name no harness root (harness-agnostic)
@@ -50,6 +50,8 @@ REQUIRED_PHRASES = (
     "спеки, литерала или разобранного примера",
     "не пересчитывается тем же способом",
     "тавтологичен",
+    "негативной или мутационной пробой",
+    "тест должен уметь падать",
     "каналы — инструменты, а не цели",
     "может жить в любом канале",
     "покрытие считается пунктами спеки, инвариантами и исправленными "
@@ -168,7 +170,7 @@ def test_skill_is_model_invocable():
 
 
 def test_skill_carries_the_three_classes():
-    """spec: tickets/workflow-skills/04-testing.md — three test classes."""
+    """spec: docs/plans/workflow-skills.md#готово — item 4: three test classes."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "ровно три законные цели" in lowered
@@ -181,7 +183,8 @@ def test_skill_carries_the_three_classes():
 
 
 def test_every_goal_is_traceable():
-    """spec: tickets/workflow-skills/04-testing.md — spec:/invariant:/target:."""
+    """spec: docs/decisions/ontoship-core.md#одно правило качества — the goal
+    is traceable in the test name or comment."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     for marker in TRACE_MARKERS:
@@ -223,7 +226,8 @@ def test_agent_cycle_has_seven_steps_in_order():
 
 
 def test_channels_are_tools_not_goals():
-    """spec: tickets/workflow-skills/04-testing.md — channels are tools."""
+    """spec: docs/decisions/ontoship-core.md#одно правило качества — channels
+    are tools (how), spec/invariant/target are goals (what)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "каналы — инструменты, а не цели" in lowered
@@ -235,7 +239,8 @@ def test_channels_are_tools_not_goals():
 
 
 def test_metrics_count_spec_items_invariants_and_defects():
-    """spec: tickets/workflow-skills/04-testing.md — metrics, not lines."""
+    """spec: docs/plans/workflow-skills.md#готово — item 4: coverage counts
+    spec items, invariants and fixed defects."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert ("покрытие считается пунктами спеки, инвариантами и исправленными "
@@ -312,6 +317,12 @@ def test_contract_check_can_fail():
     untraceable = text.replace("invariant: I<n>", "инвариант — номер", 1)
     assert untraceable != text
     assert any("invariant: i<n>" in error for error in _contract_errors(untraceable))
+
+    oracular_matrix = text.replace("тест должен уметь падать",
+                                   "тест может оставаться зелёным", 1)
+    assert oracular_matrix != text
+    assert any("тест должен уметь падать" in error
+               for error in _contract_errors(oracular_matrix))
 
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))

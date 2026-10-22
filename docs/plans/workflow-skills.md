@@ -3,7 +3,7 @@ node_type: plan
 title: workflow-skills — фазы метода как скиллы
 service: _platform
 status: active
-updated: 2026-10-21
+updated: 2026-10-22
 links:
   relates_to: [../decisions/ontoship-core.md, harness-agnostic.md, ../reference/sources.md, ../reference/testing.md, ../ops/continue.md]
 ---
@@ -102,8 +102,8 @@ links:
 
 - Никаких реестров, provenance, аккордов приёмки и автоматической цепочки
   grilling → to-tickets — это строгий профиль, не ядро (канон).
-- `to-tickets` и `ship` недоступны модели; скиллы не вызывают других
-  пользовательских скиллов.
+- `to-tickets` и `ship` недоступны модели; `grilling` и `testing` модельные —
+  агент применяет их сам; скиллы не вызывают других пользовательских скиллов.
 - Скиллы — проза на русском; машинные литералы — на английском. Движок
   `gitmark.py` не расширяется; тесты — stdlib + pytest.
 - `vendor/` не трогаем; канон, тест-стратегия и онтология не переоткрываются.
