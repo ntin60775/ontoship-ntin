@@ -64,7 +64,9 @@ links:
 passed** (`45a0584`); `lint --strict` чистый (40 файлов). Тикет 04 (`testing`)
 сделан тем же порядком: модельный скилл — носитель правила качества — и 15
 контрактных проверок, **217 passed** (`de3b34d`); `lint --strict` чистый
-(41 файл). Следующий — тикет 05.
+(41 файл). Тикет 05 (`install`) расширил канал до семи скиллов и обновил
+контракт: **219 passed** (`6b09458`); `lint --strict` чистый (41 файл), локальная
+установка — семь ссылок. Следующий — тикет 06 (dogfood).
 
 Второй юнит проверил Qoder свежими сессиями: все три скилла видны, `kb-search` и
 `kb-curate` загружены, поиск вернул канон. DSH и zcode живой каталог не подтвердили:
@@ -81,13 +83,13 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
    (spec-, инвариантные и target-тесты) существуют как скиллы с контрактными
    тестами. [README](../../README.md) называет все четыре; канон описывает три
    фазы.
-2. **Механика ship — скиллы есть, установки нет.** Проход ship определяют канон
-   и скиллы `ship` и `testing`; канал установки расширит тикет 05. План-гейт
+2. **Механика ship — скиллы и установка есть.** Проход ship определяют канон и
+   скиллы `ship` и `testing`; `scripts/install.sh` ставит семь скиллов. План-гейт
    пройден 2026-10-21: [workflow-skills.md](../plans/workflow-skills.md)
    утверждён.
-3. **Тикеты 05–06 не начаты.** Нарезка сделана 2026-10-21
+3. **Тикет 06 не начат.** Нарезка сделана 2026-10-21
    ([tickets/workflow-skills/](../../tickets/workflow-skills/01-grilling.md));
-   тикеты 01–04 закрыты. Один тикет за прогон.
+   тикеты 01–05 закрыты. Один тикет за прогон.
 4. **Определение готовности не показано.** Ни один сквозной прогон не провёл тикет
    из свежей сессии через план → тикеты → ship → `main`. У репозитория нет remote и
    CI (`git remote -v` пуст), поэтому путь PR/merge не проверен; если DoD требует
@@ -122,8 +124,8 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   сделаны, юнит закрыт.
 - `tickets/harness-agnostic/01…04.md` — тикеты второго юнита; все четыре сделаны,
   юнит закрыт.
-- `tickets/workflow-skills/01…06.md` — тикеты третьего юнита; 01–04 сделаны,
-  05–06 не начаты.
+- `tickets/workflow-skills/01…06.md` — тикеты третьего юнита; 01–05 сделаны,
+  06 открыт.
 - `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; тикет 01 копирует
   и урезает её в `skills/kb-search/`.
 - `skills/kb-search/` — урезанный движок (тикет 01) и пользовательский `SKILL.md`
@@ -152,15 +154,17 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   значения, планка target-теста, агентный цикл из семи шагов, каналы —
   инструменты; модельный — запрета вызова нет, недоступны модели только
   `to-tickets` и `ship`.
-- `scripts/install.sh` — project-local установка (тикет 01 второго юнита): по
-  умолчанию ссылки, `--copy` — отсоединённая копия, `--check` — расхождение (код 0/1,
-  называет каждый скилл) и предупреждение о legacy-корнях; идемпотентна; пишет только
+- `scripts/install.sh` — project-local установка (тикет 01 второго юнита; тикет 05
+  `workflow-skills` расширил её до семи бандлов): по умолчанию ссылки, `--copy` —
+  отсоединённая копия, `--check` — расхождение (код 0/1, называет каждый скилл) и
+  предупреждение о legacy-корнях; идемпотентна; пишет только
   `<project>/.agents/skills`; init не запускает.
 - `tests/` — тесты движка, контрактов скиллов, установки и сторож трассировки;
   запуск `python3 -m pytest tests/ -q` (219 passed; stdlib + pytest, без Node).
 - `.agents/skills/` — project-local установка под gitignore, проверенная dogfood в
-  тикете 04: три ссылки (`kb-search`, `kb-curate`, `init`),
-  `scripts/install.sh --check "$PWD"` выходит с кодом 0. `.dsh` удалён.
+  тикете 04: семь ссылок (`kb-search`, `kb-curate`, `init`, `grilling`,
+  `to-tickets`, `ship`, `testing`), `scripts/install.sh --check "$PWD"` выходит с
+  кодом 0. `.dsh` удалён.
 - `.scratch/handoff-current.md` — снимок предыдущей сессии (эфемерный).
 
 ## Порядок тикетов
@@ -172,7 +176,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 03 справочник харнессов → 04 dogfood на трёх.** Все четыре сделаны; юнит закрыт.
 
 `workflow-skills`: **01 grilling → 02 to-tickets → 03 ship → 04 testing →
-05 install → 06 dogfood.** 01–04 сделаны; 05 открыт, 06 — после 05.
+05 install → 06 dogfood.** 01–05 сделаны; 06 открыт, после 05.
 Спека утверждена, нарезка готова — не переоткрывай её. Открытая работа —
 в разделе [Что осталось (по проекту)](#что-осталось-по-проекту).
 
@@ -218,20 +222,20 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
 Юниты core-kb (тикеты 01–06) и harness-agnostic (тикеты 01–04) завершены. Третий
 юнит workflow-skills: спека docs/plans/workflow-skills.md утверждена, тикеты
-01–04 сделаны (grilling, to-tickets, ship, testing; 219 passed, lint --strict
-чистый, 41 файл). Установка пока ставит три скилла — канал расширит тикет 05.
+01–05 сделаны (grilling, to-tickets, ship, testing, install; 219 passed, lint
+--strict чистый, 41 файл). Установка ставит семь скиллов, --check на этом
+репозитории → 0.
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/harnesses.md,
 docs/reference/testing.md, docs/reference/sources.md, docs/plans/core-kb.md,
 docs/plans/harness-agnostic.md, tickets/README.md,
-tickets/harness-agnostic/04-dogfood.md.
+tickets/workflow-skills/05-install.md.
 
-Следующий тикет — 05 (install): семь скиллов в <project>/.agents/skills —
-kb-search, kb-curate, init, grilling, to-tickets, ship, testing; --check
-называет каждый; идемпотентность, --copy и предупреждения о legacy-корнях
-сохраняются; tests/test_install.py обновлён. Читай спеку
-docs/plans/workflow-skills.md и tickets/workflow-skills/05-install.md. Канон
+Следующий тикет — 06 (dogfood): сквозной прогон на игрушечной спеке —
+grilling → to-tickets → ship до коммита; отчёт прогона в трекере; PR-путь
+назван пробелом, потому что remote нет. Читай спеку
+docs/plans/workflow-skills.md и tickets/workflow-skills/06-dogfood.md. Канон
 не переоткрывай; нарезка утверждена.
 
 Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
