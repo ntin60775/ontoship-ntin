@@ -65,7 +65,8 @@ passed** (`45a0584`); `lint --strict` чистый (40 файлов). Тикет
 сделан тем же порядком: модельный скилл — носитель правила качества — и 15
 контрактных проверок, **217 passed** (`de3b34d`); `lint --strict` чистый
 (41 файл). Тикет 05 (`install`) расширил канал до семи скиллов и обновил
-контракт: **219 passed** (`6b09458`); `lint --strict` чистый (41 файл), локальная
+контракт: **219 passed** на закрытии (`6b09458`), **220** после правки ревью;
+`lint --strict` чистый (41 файл), локальная
 установка — семь ссылок. Следующий — тикет 06 (dogfood).
 
 Второй юнит проверил Qoder свежими сессиями: все три скилла видны, `kb-search` и
@@ -160,11 +161,11 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   предупреждение о legacy-корнях; идемпотентна; пишет только
   `<project>/.agents/skills`; init не запускает.
 - `tests/` — тесты движка, контрактов скиллов, установки и сторож трассировки;
-  запуск `python3 -m pytest tests/ -q` (219 passed; stdlib + pytest, без Node).
-- `.agents/skills/` — project-local установка под gitignore, проверенная dogfood в
-  тикете 04: семь ссылок (`kb-search`, `kb-curate`, `init`, `grilling`,
-  `to-tickets`, `ship`, `testing`), `scripts/install.sh --check "$PWD"` выходит с
-  кодом 0. `.dsh` удалён.
+  запуск `python3 -m pytest tests/ -q` (220 passed; stdlib + pytest, без Node).
+- `.agents/skills/` — project-local установка под gitignore: тикет 04 проверил
+  три ссылки (`kb-search`, `kb-curate`, `init`), тикет 05 добавил четыре
+  (`grilling`, `to-tickets`, `ship`, `testing`); `scripts/install.sh --check
+  "$PWD"` выходит с кодом 0. `.dsh` удалён.
 - `.scratch/handoff-current.md` — снимок предыдущей сессии (эфемерный).
 
 ## Порядок тикетов
@@ -222,7 +223,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
 Юниты core-kb (тикеты 01–06) и harness-agnostic (тикеты 01–04) завершены. Третий
 юнит workflow-skills: спека docs/plans/workflow-skills.md утверждена, тикеты
-01–05 сделаны (grilling, to-tickets, ship, testing, install; 219 passed, lint
+01–05 сделаны (grilling, to-tickets, ship, testing, install; 220 passed, lint
 --strict чистый, 41 файл). Установка ставит семь скиллов, --check на этом
 репозитории → 0.
 

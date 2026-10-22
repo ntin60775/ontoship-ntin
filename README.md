@@ -33,7 +33,7 @@ workflow-скиллы: план утверждён 2026-10-21, тикеты 01�
 ## Состояние
 
 **Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на dogfood:
-движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 219 тестов и
+движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 220 тестов и
 чистый `lint --strict`. Workflow-скиллы `grilling`, `to-tickets`, `ship` и `testing`
 готовы; установка ставит семь скиллов. Впереди сквозной dogfood-прогон. Открытая
 работа записана в
