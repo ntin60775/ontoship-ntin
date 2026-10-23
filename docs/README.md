@@ -22,7 +22,7 @@ links:
   `.agents/skills` для zcode, DSH и Qoder (завершён; тикеты 01–04);
   [workflow-skills.md](plans/workflow-skills.md) — фазы метода как скиллы
   (завершена 2026-10-22; тикеты 01–06); [install-dry-run.md](plans/install-dry-run.md) —
-  игрушечный юнит dogfood-прогона, утверждён 2026-10-23 (открыт тикет 02).
+  игрушечный юнит dogfood-прогона: утверждён и завершён 2026-10-23 (тикеты 01–02).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.

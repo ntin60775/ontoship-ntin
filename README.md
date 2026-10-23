@@ -28,13 +28,13 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 [core-kb](docs/plans/core-kb.md), [harness-agnostic](docs/plans/harness-agnostic.md)
 и [workflow-skills](docs/plans/workflow-skills.md) завершены; записи тикетов лежат в
 [tickets/](tickets/README.md). Dogfood-прогон 06 оставил игрушечный юнит
-[`install-dry-run`](docs/plans/install-dry-run.md): тикет 01 влит, тикет 02 открыт,
-спека утверждена оператором 2026-10-23.
+[`install-dry-run`](docs/plans/install-dry-run.md): спека утверждена оператором,
+тикеты 01–02 влиты — юнит закрыт 2026-10-23.
 
 ## Состояние
 
 **Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на dogfood:
-движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 226 тестов и
+движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 229 тестов и
 чистый `lint --strict`. Workflow-скиллы `grilling`, `to-tickets`, `ship` и `testing`
 готовы; установка ставит семь скиллов. Сквозной dogfood-прогон прошёл 2026-10-22:
 интервью → тикеты → `ship` до локального merge. Открытая работа записана в

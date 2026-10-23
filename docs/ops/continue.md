@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-10-22
+updated: 2026-10-23
 tags: [runbook, start, handoff, core-kb, harness, workflow]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -41,21 +41,25 @@ links:
 | `1e9851c` | тикет 06 `workflow-skills`: спека dogfood-прогона `install-dry-run` |
 | `82aeb6b` | тикет 06 `workflow-skills`: два тикета игрушечного юнита |
 | `10a78bd` | тикет 06 `workflow-skills`: `--dry-run` установщика, 226 passed |
+| `be1c814` | docs: откат записи об утверждении спеки `install-dry-run` задним числом |
+| `64a35e2` | docs: спека `install-dry-run` утверждена оператором вживую |
+| `815b3e9` | тикет 02 `install-dry-run`: `--dry-run --copy`, 229 passed |
 
 Первый юнит `core-kb` завершён и проверен на dogfood. Второй юнит
 `harness-agnostic` закоммичен 2026-10-21 (`0767142`): один project-local корень
 `.agents/skills`. Третий юнит `workflow-skills` закрыт 2026-10-22: четыре скилла
 фаз с контрактными тестами, установка семи бандлов, сквозной dogfood.
 Итог: `skills/kb-search/gitmark.py` (1305 строк), семь скиллов, `scripts/install.sh`,
-`tests/` — **226 passed**; `lint --strict` чистый (44 файла); `index` покрывает
+`tests/` — **229 passed**; `lint --strict` чистый (44 файла); `index` покрывает
 44 markdown-файла; `.agents/skills` — семь ссылок, `--check` → 0; `map` и
 `stat --json` работают.
 
 Dogfood провёл игрушечный юнит `install-dry-run` через три фазы: спека → два
-тикета → один срез до локального merge. Подробности и пробелы — в
-[tickets/workflow-skills/06-dogfood.md](../../tickets/workflow-skills/06-dogfood.md).
-Спека осталась `draft`: живого план-гейта не было, судьбу спеки и фичи решает
-оператор. PR-путь не проверен — remote нет.
+тикета → один срез до локального merge. 2026-10-23 оператор утвердил спеку вживую,
+до кода тикета 02 (`64a35e2`); тикет 02 влит (`815b3e9`), юнит закрыт: `--dry-run`
+планирует link и copy, полный набор — 229 passed. Пробелы прогона — в
+[tickets/workflow-skills/06-dogfood.md](../../tickets/workflow-skills/06-dogfood.md),
+пробел ревью тикета 02 — в самом тикете. PR-путь не проверен — remote нет.
 
 Второй юнит проверил Qoder свежими сессиями: все три скилла видны, `kb-search` и
 `kb-curate` загружены, поиск вернул канон. DSH и zcode живой каталог не подтвердили:
@@ -66,20 +70,14 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 
 Три юнита закрыты. Ниже открытые пункты; исполнение — один тикет за прогон.
 
-1. **Тикет 02 `install-dry-run` не начат.** Copy-режим `--dry-run`: сейчас
-   `--dry-run --copy` отказывает с кодом 2. Тикет 01 сделан (`10a78bd`).
-   [Спека](../plans/install-dry-run.md) — черновик dogfood-прогона.
-2. **Судьба спеки `install-dry-run` — решение оператора.** Оставить и
-   переутвердить, оставить как учение или удалить вместе с фичей; ни один вариант
-   не выбран.
-3. **Живой план-гейт и приёмка тикетов не проводились.** В dogfood-прогоне
-   оператор не отвечал на раунд `grilling` и не принимал тикеты отдельными
-   вопросами; прогон шёл по рекомендованным умолчаниям. Следующий реальный юнит
-   должен пройти эти гейты вживую.
-4. **PR-путь не проверен.** `git remote -v` пуст, CI нет; merge в dogfood был
-   локальным fast-forward. Если определение готовности требует PR, remote —
-   решение оператора.
-5. **DSH и zcode не показали живой каталог скиллов.** Пробелы окружения, не
+1. **Приёмка тикетов отдельными вопросами не проводилась.** В dogfood-прогоне и на
+   тикете 02 оператор не принимал тикеты отдельными вопросами. План-гейт
+   `install-dry-run` при этом пройден вживую 2026-10-23 — спека утверждена до кода
+   тикета 02. Следующий реальный юнит проходит приёмку тикетов вживую.
+2. **PR-путь не проверен.** `git remote -v` пуст, CI нет; merge был локальным
+   fast-forward. Если определение готовности требует PR, remote — решение
+   оператора.
+3. **DSH и zcode не показали живой каталог скиллов.** Пробелы окружения, не
    проекта; подробности ниже.
 
 **Замечание о проверке каталога.** Qoder 0.4.8 проверен свежей сессией 2026-10-21:
@@ -109,7 +107,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 - `docs/plans/workflow-skills.md` — завершённая спека третьего юнита (тикеты 01–06):
   четыре скилла фаз, `grilling`, `to-tickets`, `ship`, `testing`.
 - `docs/plans/install-dry-run.md` — игрушечная спека dogfood-прогона: режим
-  `--dry-run` установщика. Статус `draft`; судьба — решение оператора.
+  `--dry-run` установщика. Утверждена 2026-10-23; юнит завершён (тикеты 01–02).
 - `docs/ontology.md` — копия онтологии этого репозитория и единственный словарь типов
   для I2; I8 сравнивает её тело с первого заголовка `## ` с
   `skills/kb-curate/ontology.md`.
@@ -119,8 +117,8 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   юнит закрыт.
 - `tickets/workflow-skills/01…06.md` — тикеты третьего юнита; все шесть сделаны,
   юнит закрыт. 06 хранит отчёт dogfood-прогона и его пробелы.
-- `tickets/install-dry-run/01…02.md` — игрушечный юнит прогона: 01 сделан и влит,
-  02 (copy-режим) открыт.
+- `tickets/install-dry-run/01…02.md` — игрушечный юнит прогона; оба тикета сделаны
+  и влиты (`10a78bd`, `815b3e9`), юнит закрыт 2026-10-23.
 - `vendor/ontoship-zcode/` — база движка (MIT) и её базовые тесты; тикет 01 копирует
   и урезает её в `skills/kb-search/`.
 - `skills/kb-search/` — урезанный движок (тикет 01) и пользовательский `SKILL.md`
@@ -153,11 +151,12 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   `workflow-skills` расширил её до семи бандлов; тикет 06 добавил `--dry-run`):
   по умолчанию ссылки, `--copy` — отсоединённая копия, `--check` — расхождение
   (код 0/1, называет каждый скилл) и предупреждение о legacy-корнях, `--dry-run` —
-  план `would create` / `would link` / `would leave … unchanged` без записи и с тем
-  же preflight (код 1 на занятом пути); идемпотентна; пишет только
-  `<project>/.agents/skills`; init не запускает. `--dry-run --copy` пока код 2.
+  план `would create` / `would link` / `would copy` / `would leave … unchanged`
+  без записи и с тем же preflight (код 1 на занятом пути, `copy differs` на
+  разошедшейся копии); `--dry-run --check` — код 2; идемпотентна; пишет только
+  `<project>/.agents/skills`; init не запускает.
 - `tests/` — тесты движка, контрактов скиллов, установки и сторож трассировки;
-  запуск `python3 -m pytest tests/ -q` (226 passed; stdlib + pytest, без Node).
+  запуск `python3 -m pytest tests/ -q` (229 passed; stdlib + pytest, без Node).
 - `.agents/skills/` — project-local установка под gitignore: тикет 04 проверил
   три ссылки (`kb-search`, `kb-curate`, `init`), тикет 05 добавил четыре
   (`grilling`, `to-tickets`, `ship`, `testing`); `scripts/install.sh --check
@@ -176,7 +175,7 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 05 install → 06 dogfood.** Все шесть сделаны; юнит закрыт 2026-10-22.
 
 `install-dry-run` (игрушечный юнит dogfood): **01 link-режим → 02 copy-режим.**
-01 сделан; 02 открыт. Открытая работа — в разделе
+Оба сделаны; юнит закрыт 2026-10-23. Открытая работа — в разделе
 [Что осталось (по проекту)](#что-осталось-по-проекту).
 
 ## Факты окружения
@@ -204,6 +203,9 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   `.agents/skills` (`app.asar`, `resolveAncestorWorkspaceRoots`). Headless-режима нет:
   `zcode --help` поднимает GUI и не печатает справку. **Живой каталог workspace не
   проверен**; файловая раскладка `.agents/skills` на месте.
+- **Субагенты сессии 2026-10-23:** тип `general-purpose` дважды не ответил
+  (таймаут 600 с), тип `Explore` не стартовал (`provider-not-found`); ревью тикета
+  02 проведено исполнителем отдельным проходом — пробел записан в тикете.
 - Матрица и источники: [docs/reference/harnesses.md](../reference/harnesses.md).
 - **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
   копия `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
@@ -219,11 +221,11 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 
 ```text
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
-Юниты core-kb (тикеты 01–06), harness-agnostic (01–04) и workflow-skills (01–06)
-завершены. Итог: семь скиллов, установка в .agents/skills (--check → 0), 226 passed,
-lint --strict чистый (44 файла). Dogfood-прогон 06 провёл игрушечный юнит
-install-dry-run: тикет 01 влит (10a78bd), тикет 02 (copy-режим) открыт, спека
-docs/plans/install-dry-run.md осталась draft.
+Юниты core-kb (тикеты 01–06), harness-agnostic (01–04), workflow-skills (01–06) и
+игрушечный install-dry-run (01–02) завершены. Итог: семь скиллов, установка в
+.agents/skills (--check → 0), 229 passed, lint --strict чистый (44 файла).
+--dry-run установщика планирует link и copy; спека install-dry-run утверждена
+оператором вживую 2026-10-23, до кода тикета 02 (64a35e2 → 815b3e9).
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
 docs/decisions/ontoship-core.md, docs/reference/harnesses.md,
@@ -231,12 +233,13 @@ docs/reference/testing.md, docs/reference/sources.md,
 docs/plans/workflow-skills.md, docs/plans/install-dry-run.md, tickets/README.md,
 tickets/workflow-skills/06-dogfood.md.
 
-Открытые решения оператора: судьба спеки install-dry-run (оставить, переутвердить,
-удалить вместе с фичей) и тикет 02. PR-путь не проверен: remote нет. Живой
-план-гейт и приёмку тикетов повторить на следующем реальном юните.
+Открыто: приёмка тикетов отдельными вопросами — провести на следующем реальном
+юните; новый юнит начинается с grilling по явной команде оператора. PR-путь не
+проверен: remote нет.
 
 Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
-scripts/install.sh --dry-run "$PWD" → семь would leave … unchanged, диск не меняется;
+scripts/install.sh --dry-run "$PWD" → семь would leave … unchanged;
+scripts/install.sh --dry-run --copy "$PWD" → семь would copy, диск не меняется;
 python3 .agents/skills/kb-search/gitmark.py index; lint --strict → 0;
 search "canon" → docs/decisions/ontoship-core.md; search "target test" →
 docs/reference/testing.md в топ-3 (первым идёт tickets/workflow-skills/04-testing.md —
