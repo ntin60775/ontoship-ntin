@@ -6,9 +6,9 @@
 # The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
 # skill root shared by zcode, DSH and Qoder. The default install links the seven skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
-# form and names every missing or drifted skill. --dry-run prints the planned links and
-# runs the same preflight checks without writing; planning a --copy install is not
-# implemented yet. Legacy harness roots (.dsh, .zcode, .qoder) are reported as warnings
+# form and names every missing or drifted skill. --dry-run prints the planned links
+# or copies and runs the same preflight checks without writing. Legacy harness roots
+# (.dsh, .zcode, .qoder) are reported as warnings
 # and never written or deleted. The install is idempotent and writes only under
 # <project>/.agents/skills. It links the skills; it does not run the init skill.
 
@@ -30,8 +30,8 @@ shared by zcode, DSH and Qoder.
 
   (default)  symlink the seven skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing
-  --dry-run  print the planned links and run the same preflight checks without
-             writing; cannot be combined with --check or --copy (yet)
+  --dry-run  print the planned links (or copies with --copy) and run the same
+             preflight checks without writing; cannot be combined with --check
   --copy     copy the skill directories instead (detached install)
   --check    verify the install; warn about legacy .dsh/.zcode/.qoder entries;
              exit 1 and name each missing or drifted skill
@@ -90,7 +90,6 @@ done
 [[ -d $project ]] || usage_error "not a project directory: $project"
 if ((dry_run)); then
   [[ $mode != "check" ]] || usage_error "--dry-run and --check are mutually exclusive"
-  [[ $mode != "copy" ]] || usage_error "--dry-run with --copy is not implemented"
 fi
 project=$(CDPATH= cd -- "$project" && pwd -P)
 readonly dest=$project/.agents/skills
@@ -262,6 +261,20 @@ install_copies() {
   done
 }
 
+# Mirror install_copies without touching the disk; the wording never claims a write.
+plan_copies() {
+  local name path
+  [[ -d $dest ]] || printf 'would create %s\n' "$dest"
+  for name in "${SKILLS[@]}"; do
+    path=$dest/$name
+    if is_copy_of "$path" "$REPO/skills/$name"; then
+      printf 'would leave %s unchanged\n' "$name"
+    else
+      printf 'would copy %s -> %s\n' "$name" "$path"
+    fi
+  done
+}
+
 case $mode in
   check)
     check
@@ -277,7 +290,11 @@ case $mode in
     ;;
   copy)
     preflight_install
-    mkdir -p -- "$dest"
-    install_copies
+    if ((dry_run)); then
+      plan_copies
+    else
+      mkdir -p -- "$dest"
+      install_copies
+    fi
     ;;
 esac

@@ -389,8 +389,8 @@ def test_dry_run_refuses_a_blocked_install_root(tmp_path: Path) -> None:
     assert tree(parent_blocked) == parent_before
 
 
-def test_dry_run_rejects_check_and_copy(tmp_path: Path) -> None:
-    """spec: docs/plans/install-dry-run.md#готово — --check conflicts; --copy is ticket 02."""
+def test_dry_run_rejects_check(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — --check conflicts with --dry-run."""
     project = tmp_path / "fresh"
     project.mkdir()
     before = tree(project)
@@ -399,10 +399,61 @@ def test_dry_run_rejects_check_and_copy(tmp_path: Path) -> None:
     assert with_check.returncode == 2
     assert "mutually exclusive" in output(with_check)
 
-    with_copy = run(project, "--dry-run", "--copy")
-    assert with_copy.returncode == 2
-    assert "not implemented" in output(with_copy)
+    assert tree(project) == before
 
+
+def test_dry_run_plans_a_copy_install_without_writing(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — --dry-run --copy prints the copy plan and writes nothing."""
+    project = tmp_path / "fresh"
+    project.mkdir()
+    before = tree(project)
+
+    result = run(project, "--dry-run", "--copy")
+    assert result.returncode == 0, output(result)
+
+    dest = project / ".agents" / "skills"
+    assert f"would create {dest}" in result.stdout
+    for name in SKILLS:
+        assert f"would copy {name} -> {dest / name}" in result.stdout
+    plan = [line for line in result.stdout.splitlines() if line.startswith("would copy ")]
+    assert len(plan) == len(SKILLS), plan
+    assert not (project / ".agents").exists(), "--dry-run must not create the install root"
+    assert tree(project) == before
+
+
+def test_dry_run_reports_a_complete_copy_install_as_unchanged(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — an existing detached copy is planned as unchanged, tree untouched."""
+    project = tmp_path / "copied"
+    project.mkdir()
+    install = run(project, "--copy")
+    assert install.returncode == 0, output(install)
+    before = tree(project)
+
+    result = run(project, "--dry-run", "--copy")
+    assert result.returncode == 0, output(result)
+    for name in SKILLS:
+        assert f"would leave {name} unchanged" in result.stdout
+    plan = [line for line in result.stdout.splitlines() if line.startswith("would leave ")]
+    assert len(plan) == len(SKILLS), plan
+    assert "would create" not in result.stdout
+    assert "would copy" not in result.stdout
+    assert tree(project) == before
+
+
+def test_dry_run_copy_refuses_a_drifted_copy_like_a_real_install(tmp_path: Path) -> None:
+    """spec: docs/plans/install-dry-run.md#готово — a drifted copy gets copy differs, exit 1, no write."""
+    project = tmp_path / "copied"
+    project.mkdir()
+    install = run(project, "--copy")
+    assert install.returncode == 0, output(install)
+    drifted = project / ".agents" / "skills" / "ship" / "SKILL.md"
+    drifted.write_text("edited\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project, "--dry-run", "--copy")
+    assert result.returncode == 1
+    assert "copy differs" in output(result)
+    assert drifted.read_text("utf-8") == "edited\n"
     assert tree(project) == before
 
 
