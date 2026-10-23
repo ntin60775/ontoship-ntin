@@ -3,7 +3,7 @@ node_type: plan
 title: workflow-skills — фазы метода как скиллы
 service: _platform
 status: active
-updated: 2026-10-22
+updated: 2026-10-23
 links:
   relates_to: [../decisions/ontoship-core.md, harness-agnostic.md, ../reference/sources.md, ../reference/testing.md, ../ops/continue.md]
 ---
@@ -13,8 +13,8 @@ links:
 **Состояние (2026-10-22): завершён.** Оператор утвердил план 2026-10-21, подтвердив
 все четыре решения ниже; альтернативы не выбраны. Тикеты 01–06 сделаны; 06 (dogfood)
 провёл игрушечный юнит `install-dry-run` через grilling → to-tickets → ship до
-локального merge. Судьба игрушечной спеки — решение оператора, PR-путь не проверен:
-remote нет.
+локального merge. Игрушечная спека утверждена оператором 2026-10-23; PR-путь не
+проверен: remote нет.
 
 ## Цель
 

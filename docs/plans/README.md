@@ -3,7 +3,7 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-10-22
+updated: 2026-10-23
 links:
   part_of: [../README.md]
   relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, ../decisions/ontoship-core.md, ../ops/continue.md]
@@ -24,9 +24,8 @@ links:
   `to-tickets`, `ship`, `testing` (утверждена 2026-10-21; завершена 2026-10-22,
   тикеты 01–06).
 - [install-dry-run.md](install-dry-run.md) — режим `--dry-run` установщика: план без
-  записи (черновик dogfood-прогона 2026-10-22; план-гейт вживую не пройден, судьба
-  спеки — решение оператора).
+  записи (утверждён оператором 2026-10-23; открыт тикет 02 copy-режима).
 
-Три юнита закрыты; игрушечная спека dogfood-прогона ждёт решения оператора.
+Три юнита закрыты; игрушечная спека dogfood-прогона утверждена 2026-10-23.
 Открытая работа и пробелы харнессов записаны в
 [continue.md](../ops/continue.md).
