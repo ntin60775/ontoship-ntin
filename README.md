@@ -29,7 +29,7 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 и [workflow-skills](docs/plans/workflow-skills.md) завершены; записи тикетов лежат в
 [tickets/](tickets/README.md). Dogfood-прогон 06 оставил игрушечный юнит
 [`install-dry-run`](docs/plans/install-dry-run.md): тикет 01 влит, тикет 02 открыт,
-спека утверждена задним числом 2026-10-22.
+судьба спеки — решение оператора.
 
 ## Состояние
 
