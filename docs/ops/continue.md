@@ -211,7 +211,8 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   `~/.zcode/v2/provider_config.json` чисткой 2026-10-23 (до того был выключен,
   карты `qwen3.6-fp8` уже не было); вместе с ним ушли его две карты моделей,
   позиция в `providerOrder` и оверраи несуществующего `account:zai-start-plan`;
-  бэкап до чистки — `~/.zcode/tmp/backup/provider_config.json.bak-20261023`.
+  бэкап до чистки удалён по просьбе оператора в тот же день — ключ `neuraldeep`
+  нигде на диске не сохраняется.
   Перевязка 2026-10-23: пользовательское
   определение `Explore.md` (модель
   `account:zai-individual-coding-plan/GLM-5.3-Flash`, `thoughtLevel: high`) лежит в
