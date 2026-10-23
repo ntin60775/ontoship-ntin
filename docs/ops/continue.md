@@ -208,8 +208,12 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   Повторная проба в тот же день: `general-purpose` отвечает (~9 с), сбой был
   временным; `Explore` не стартует устойчиво — прибит к провайдеру
   `neuraldeep-sub/qwen3.6-fp8`, которого нет в списке моделей хоста (zai, alibaba,
-  deepseek) и в конфиге (там только `neuraldeep-search` — MCP-поиск). Починка —
-  правка определения типа агента или провайдер на хосте, вне репозитория.
+  deepseek) и в конфиге (там только `neuraldeep-search` — MCP-поиск). Перевязка
+  2026-10-23: пользовательское определение `Explore.md` (модель
+  `account:zai-individual-coding-plan/GLM-5.3-Flash`, `thoughtLevel: high`) лежит в
+  `~/.zcode/cli/agents/` и `~/.zcode/agents/` — хост сканирует
+  `<storageRoot>/agents` и `<project>/.zcode/agents`; в живой сессии реестр типов
+  кэширован, проверка перевязки — свежей сессией.
 - Матрица и источники: [docs/reference/harnesses.md](../reference/harnesses.md).
 - **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
   копия `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
