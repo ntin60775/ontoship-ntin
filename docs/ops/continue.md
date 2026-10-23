@@ -203,9 +203,13 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   `.agents/skills` (`app.asar`, `resolveAncestorWorkspaceRoots`). Headless-режима нет:
   `zcode --help` поднимает GUI и не печатает справку. **Живой каталог workspace не
   проверен**; файловая раскладка `.agents/skills` на месте.
-- **Субагенты сессии 2026-10-23:** тип `general-purpose` дважды не ответил
-  (таймаут 600 с), тип `Explore` не стартовал (`provider-not-found`); ревью тикета
-  02 проведено исполнителем отдельным проходом — пробел записан в тикете.
+- **Субагенты сессии 2026-10-23:** во время тикета 02 тип `general-purpose` дважды
+  не ответил (таймаут 600 с) — ревью провёл исполнитель, пробел записан в тикете.
+  Повторная проба в тот же день: `general-purpose` отвечает (~9 с), сбой был
+  временным; `Explore` не стартует устойчиво — прибит к провайдеру
+  `neuraldeep-sub/qwen3.6-fp8`, которого нет в списке моделей хоста (zai, alibaba,
+  deepseek) и в конфиге (там только `neuraldeep-search` — MCP-поиск). Починка —
+  правка определения типа агента или провайдер на хосте, вне репозитория.
 - Матрица и источники: [docs/reference/harnesses.md](../reference/harnesses.md).
 - **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
   копия `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
