@@ -206,13 +206,14 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
 - **Субагенты сессии 2026-10-23:** во время тикета 02 тип `general-purpose` дважды
   не ответил (таймаут 600 с) — ревью провёл исполнитель, пробел записан в тикете.
   Повторная проба в тот же день: `general-purpose` отвечает (~9 с), сбой был
-  временным; `Explore` не стартует устойчиво — прибит к провайдеру
-  `neuraldeep-sub/qwen3.6-fp8`, которого нет в списке моделей хоста (zai, alibaba,
-  deepseek) и в конфиге (там только `neuraldeep-search` — MCP-поиск). Перевязка
-  2026-10-23: пользовательское определение `Explore.md` (модель
+  временным; `Explore` не стартует устойчиво — его сохранённый выбор субагента
+  указывает на `neuraldeep-sub/qwen3.6-fp8`, а провайдер `neuraldeep-sub` в
+  `~/.zcode/v2/provider_config.json` выключен (`enabled: false`), плюс карта
+  `qwen3.6-fp8` из конфига удалена. Перевязка 2026-10-23: пользовательское
+  определение `Explore.md` (модель
   `account:zai-individual-coding-plan/GLM-5.3-Flash`, `thoughtLevel: high`) лежит в
-  `~/.zcode/cli/agents/` и `~/.zcode/agents/` — хост сканирует
-  `<storageRoot>/agents` и `<project>/.zcode/agents`; в живой сессии реестр типов
+  `~/.zcode/cli/agents/` и `~/.zcode/agents/` — профиль замещает встроенную запись
+  целиком, его `model:` побеждает сохранённый выбор; в живой сессии реестр типов
   кэширован, проверка перевязки — свежей сессией.
 - Матрица и источники: [docs/reference/harnesses.md](../reference/harnesses.md).
 - **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
