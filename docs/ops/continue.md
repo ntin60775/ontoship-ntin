@@ -207,9 +207,12 @@ DSH `headless` падает с `MISSING_CREDENTIAL`, у zcode нет headless-р
   не ответил (таймаут 600 с) — ревью провёл исполнитель, пробел записан в тикете.
   Повторная проба в тот же день: `general-purpose` отвечает (~9 с), сбой был
   временным; `Explore` не стартует устойчиво — его сохранённый выбор субагента
-  указывает на `neuraldeep-sub/qwen3.6-fp8`, а провайдер `neuraldeep-sub` в
-  `~/.zcode/v2/provider_config.json` выключен (`enabled: false`), плюс карта
-  `qwen3.6-fp8` из конфига удалена. Перевязка 2026-10-23: пользовательское
+  указывает на `neuraldeep-sub/qwen3.6-fp8`. Провайдер `neuraldeep-sub` удалён из
+  `~/.zcode/v2/provider_config.json` чисткой 2026-10-23 (до того был выключен,
+  карты `qwen3.6-fp8` уже не было); вместе с ним ушли его две карты моделей,
+  позиция в `providerOrder` и оверраи несуществующего `account:zai-start-plan`;
+  бэкап до чистки — `~/.zcode/tmp/backup/provider_config.json.bak-20261023`.
+  Перевязка 2026-10-23: пользовательское
   определение `Explore.md` (модель
   `account:zai-individual-coding-plan/GLM-5.3-Flash`, `thoughtLevel: high`) лежит в
   `~/.zcode/cli/agents/` и `~/.zcode/agents/` — профиль замещает встроенную запись
