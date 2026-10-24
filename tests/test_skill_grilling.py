@@ -32,6 +32,7 @@ REQUIRED_PHRASES = (
     "цель / готово / рамки / ограничения / контекст",
     "план-гейт",
     "один вопрос на тикет",
+    "ask-инструмент хоста",
     "вне рамок",
     "не выдумывай",
 )
@@ -117,9 +118,19 @@ def test_skill_carries_the_interview_mechanism():
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in ("дерево дизайна", "фронтир", "рекомендованный ответ",
+                   "ask-инструмент хоста",
                    "docs/plans/<slug>.md", "цель / готово / рамки / ограничения / контекст",
                    "план-гейт"):
         assert phrase in lowered, f"the mechanism phrase {phrase!r} is missing"
+
+
+def test_frontier_goes_through_the_host_ask_tool():
+    """invariant: docs/decisions/ontoship-core.md#три фазы — frontier reaches the
+    operator through the host ask tool, not as a wall of chat questions."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "ask-инструмент хоста" in lowered
+    assert "полотно вопросов в чате — дефект" in lowered
 
 
 def test_agent_never_answers_for_the_operator():
