@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-10-23
+updated: 2026-10-24
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -25,7 +25,10 @@ links:
   тикеты 01–06).
 - [install-dry-run.md](install-dry-run.md) — режим `--dry-run` установщика: план без
   записи (утверждён и завершён 2026-10-23, тикеты 01–02).
+- [review-config.md](review-config.md) — проектный конфиг субагентов и штатное
+  независимое ревью через адаптеры харнессов (draft: решения 1–7 приняты
+  оператором, 8–9 ждут план-гейта).
 
 Четыре юнита закрыты: три основных и игрушечный `install-dry-run` (2026-10-23).
-Открытая работа и пробелы харнессов записаны в
-[continue.md](../ops/continue.md).
+Пятый юнит `review-config` на план-гейте. Открытая работа и пробелы харнессов
+записаны в [continue.md](../ops/continue.md).
