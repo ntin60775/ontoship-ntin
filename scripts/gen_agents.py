@@ -68,6 +68,10 @@ def parse_config(raw: bytes) -> tuple[dict[str, str], list[str]]:
         model = section["model"]
         if not isinstance(model, str) or not model.strip():
             raise ConfigError(f"[agents.{name}]: 'model' must be a non-empty string")
+        if any(ord(ch) < 32 or ord(ch) == 127 for ch in model):
+            raise ConfigError(
+                f"[agents.{name}]: 'model' must not contain control characters"
+            )
         for key in section:
             if key != "model":
                 warnings.append(f"[agents.{name}]: unknown key {key!r} ignored")
@@ -133,8 +137,6 @@ def sync(project: Path) -> int:
         if target.is_file() and target.read_text(encoding="utf-8") == expected:
             print(f"{name}: ok")
             continue
-        if not agents_dir.is_dir():
-            agents_dir.mkdir(parents=True)
         if not target.exists():
             print(f"{name}: created")
         else:
@@ -143,7 +145,13 @@ def sync(project: Path) -> int:
                 print(f"{name}: model {old!r} -> {roles[name]!r} — regenerated")
             else:
                 print(f"{name}: content differs — regenerated")
-        target.write_text(expected, encoding="utf-8")
+        try:
+            if not agents_dir.is_dir():
+                agents_dir.mkdir(parents=True)
+            target.write_text(expected, encoding="utf-8")
+        except OSError as exc:
+            print(f"gen_agents: cannot write {target}: {exc}", file=sys.stderr)
+            return 1
     print(f"{len(roles)} role(s) in sync")
     return 0
 

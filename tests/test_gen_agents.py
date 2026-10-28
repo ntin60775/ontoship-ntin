@@ -164,6 +164,54 @@ def test_broken_toml_fails(project: Path) -> None:
     assert result.stderr.strip()
 
 
+@pytest.mark.parametrize(
+    ("body", "named", "needle"),
+    [
+        ('[agents.critic]\nmodel = 5\n', "critic", "'model' must be a non-empty string"),
+        ('[agents.critic]\nmodel = true\n', "critic", "'model' must be a non-empty string"),
+        ('[agents.critic]\nmodel = ""\n', "critic", "'model' must be a non-empty string"),
+        ('[agents.critic]\nmodel = "  "\n', "critic", "'model' must be a non-empty string"),
+        ('[agents.critic]\nmodel = "a\\nb"\n', "critic", "control characters"),
+        ('[agents."../evil"]\nmodel = "m"\n', "../evil", "invalid role name"),
+        ('[agents.".."]\nmodel = "m"\n', "..", "invalid role name"),
+        ('agents.critic = "m"\n', "critic", "must be a table"),
+    ],
+)
+def test_invalid_config_fails_with_named_error(
+    project: Path, body: str, named: str, needle: str
+) -> None:
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(body, encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 1
+    assert named in result.stderr
+    assert needle in result.stderr
+    assert not (project / ".zcode").exists()
+
+
+def test_zcode_as_regular_file_fails_without_traceback(project: Path) -> None:
+    write_config(project, {"critic": "provider-a/model-x"})
+    (project / ".zcode").write_text("not a directory", encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 1
+    assert "cannot write" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+def test_model_with_special_characters_roundtrips(project: Path) -> None:
+    # TOML literal string keeps the quote and the backslash in the value
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(
+        '[agents.critic]\nmodel = \'a"b\\c\'\n', encoding="utf-8"
+    )
+    assert run(project).returncode == 0
+    text = definitions(project)["critic.md"]
+    assert 'model: "a\\"b\\\\c"' in text  # YAML-escaped exactly so
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    assert "critic: ok" in result.stdout
+
+
 def test_repo_gitignores_agent_definitions() -> None:
     gitignore = (REPO / ".gitignore").read_text(encoding="utf-8")
     assert ".zcode/agents/" in gitignore
