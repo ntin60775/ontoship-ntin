@@ -8,3 +8,5 @@ __pycache__/
 .pytest_cache/
 # project-local install (symlinks/copies are local, not source)
 .agents/skills/
+# generated agent definitions (derived from .agents/config.toml, account-bound)
+.zcode/agents/
