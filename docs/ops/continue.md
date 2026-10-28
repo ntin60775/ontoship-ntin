@@ -260,38 +260,41 @@ Dogfood провёл игрушечный юнит `install-dry-run` через 
 
 ```text
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
-Юниты core-kb (тикеты 01–06), harness-agnostic (01–04), workflow-skills (01–06) и
-игрушечный install-dry-run (01–02) завершены. Итог: семь скиллов, установка в
-.agents/skills (--check → 0), 229 passed, lint --strict чистый (44 файла).
---dry-run установщика планирует link и copy; спека install-dry-run утверждена
-оператором вживую 2026-10-23, до кода тикета 02 (64a35e2 → 815b3e9).
+Четыре юнита закрыты: core-kb, harness-agnostic, workflow-skills, install-dry-run.
+Пятый юнит review-config: план-гейт пройден 2026-10-28 — спека
+docs/plans/review-config.md в active, решения 1–14 за оператором (реестр ролей
+в .agents/config.toml, панель четырёх ревью-ролей, критик — модельный скилл,
+запускаемый сразу после нарезки, паки только-промпты, адаптер — генерация
+определений, фолбэк недоступной модели на модель сессии). Тикеты 01–05 нарезаны
+ask-ом и приняты (tickets/review-config/, база 0b54a62). Этот прогон — тикет 01
+«Механизм: конфиг и генерация определений».
 
 Прочитай по порядку: AGENTS.md, docs/ops/continue.md,
-docs/decisions/ontoship-core.md, docs/reference/harnesses.md,
-docs/reference/testing.md, docs/reference/sources.md,
-docs/plans/workflow-skills.md, docs/plans/install-dry-run.md, tickets/README.md,
-tickets/workflow-skills/06-dogfood.md.
+docs/decisions/ontoship-core.md, docs/reference/testing.md,
+docs/plans/review-config.md, tickets/review-config/01-mechanism.md.
 
-Открыто: юнит review-config — спека утверждена 2026-10-28 (active, решения
-1–14), тикеты 01–05 нарезаны и приняты (75806a0); исполнение — один тикет за
-прогон с 01; приёмка каждого тикета — отдельным вопросом (правило в «Правилах
-продолжения»); критик юнита — модельный скилл: запуск сразу после нарезки
-(у следующих юнитов) или после тикета 03 (первопроходец), не в момент ship.
-PR-путь закрыт решением 2026-10-24: remote не заводим, готовность юнита
-доказывает локальный merge. Живой каталог подтверждён в zcode (2026-10-24) и
-Qoder (2026-10-21); DSH — пробел окружения.
+Факты для тикета 01: загрузчик агентов zcode читает ~/.zcode/cli/agents и
+<project>/.zcode/agents при сборке конфигурации сессии (подхват нового типа —
+полный перезапуск приложения); проба 2026-10-28 подтвердила регистрацию типа и
+применение model из frontmatter (раздел «Контекст» спеки). Определения —
+производные: не коммитятся; тикет добавляет .zcode/agents/ в .gitignore.
+Модели — только активных подписанных провайдеров (ListModels, сейчас 10;
+старт-план не подписан). Полный набор сейчас 230 passed.
 
-Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0;
-scripts/install.sh --dry-run "$PWD" → семь would leave … unchanged;
-scripts/install.sh --dry-run --copy "$PWD" → семь would copy, диск не меняется;
-python3 .agents/skills/kb-search/gitmark.py index; lint --strict → 0;
-search "canon" → docs/decisions/ontoship-core.md; search "target test" →
-docs/reference/testing.md в топ-3 (первым идёт tickets/workflow-skills/04-testing.md —
-так было и на базовом коммите); stat --json валиден; map пишет docs-map.html.
-.agents/skills/, .gitmark/, .scratch/ и *-map.html не коммитятся.
+Исполнение: worktree от 0b54a62, tracer-bullet по демо-пути тикета, тесты до
+реализации красные. Один тикет за прогон. После ship-прохода — приёмка тикета
+отдельным вопросом ask-инструмента. Решения и развилки — только через ask с
+рекомендацией первым. Критик юнита — модельный скилл: первый прогон сразу после
+влития тикета 03 (не в этом прогоне).
 
-В конце отчёт фактами: что сделано, чем доказано, что осталось. Один тикет за прогон;
-при реальном конфликте останови и спроси оператора.
+Если оператор просит проверить состояние: scripts/install.sh --check "$PWD" → 0
+(семь бандлов, critic появится тикетом 03); python3
+.agents/skills/kb-search/gitmark.py index; lint --strict → 0; search "canon" →
+docs/decisions/ontoship-core.md; stat --json валиден. .agents/skills/,
+.gitmark/, .scratch/, *-map.html и .zcode/agents/ не коммитятся.
+
+В конце отчёт фактами: что сделано, чем доказано, что осталось. Один тикет за
+прогон; при реальном конфликте останови и спроси оператора.
 ```
 
 ## Правила продолжения
