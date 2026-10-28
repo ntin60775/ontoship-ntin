@@ -1,5 +1,7 @@
 # 01: механизм — конфиг и генерация определений
 
+**Спека:** [docs/plans/review-config.md](../../docs/plans/review-config.md)
+
 **Что построить:** реестр ролей `.agents/config.toml` (секция `[agents.<name>]`,
 ключ `model` обязателен) и генератор: по одному определению агента на роль в
 `<project>/.zcode/agents/<name>.md` с `model:` из конфига. Сверка модели
