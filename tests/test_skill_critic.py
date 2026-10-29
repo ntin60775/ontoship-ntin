@@ -2,8 +2,8 @@
 
 The bundle must be discoverable as ``<root>/critic/SKILL.md`` and carry the
 plan-critic contract: a model-invoked skill (no ``disable-model-invocation``)
-the agent launches right after the unit's last ticket is accepted, in the same
-run as the slicing — one run per unit, reading the spec and every ticket whole,
+the agent launches right after the unit's last ticket is accepted, before
+the first ship — one run per unit, reading the spec and every ticket whole,
 on a model that differs from the session model with no fallback, reporting
 findings to the operator before the first ship and never re-asking plan-gate
 decisions.
@@ -27,9 +27,8 @@ DESCRIPTION_MAX = 500
 CHECKLIST = ("покрытость", "связность", "рёбра", "демо-пути", "честность критериев")
 REQUIRED_PHRASES = (
     "сразу после приёмки последнего тикета",
-    "в том же прогоне, что и нарезку",
+    "до первого ship",
     "не командой оператора",
-    "не в момент ship",
     "один прогон на юнит",
     "спеку",
     "тикеты юнита целиком",
@@ -136,7 +135,7 @@ def test_skill_is_model_invoked():
     lowered = _normalized_lower(body)
     assert "агент запускает" in lowered
     assert "один прогон на юнит" in lowered
-    assert "в том же прогоне, что и нарезку" in lowered
+    assert "до первого ship" in lowered
     assert "не командой оператора" in lowered
 
 
