@@ -1,4 +1,4 @@
-"""Contract for the ship skill (workflow-skills ticket 03).
+"""Contract for the ship skill (workflow-skills ticket 03, review-config ticket 04).
 
 The bundle must be discoverable as ``<root>/ship/SKILL.md`` and carry the
 phase-3 single pass — worktree, implementation, proof tests, exactly one
@@ -7,10 +7,25 @@ review pass, dev/prod checks, merge — with stop points read from the spec's
 and honest degradation without a remote: a local commit and a named gap,
 never a faked PR.
 
+The review pass runs as a specialists panel (review-config ticket 04): roles
+from ``.agents/config.toml`` run in parallel in one pass, the executor
+deduplicates findings into one report; a role's input is its scope and
+checklist, its output a verdict and findings with priorities and leads;
+independence is artifacts, never the run's story. Definition models are
+checked against the config before launch and regenerated on drift
+(decision 9); an unavailable role model falls back to the session model,
+marked in the report (decision 14); a failure on the fallback too means one
+retry and a stop (decision 4); a base-set role missing from the config is a
+named gap in the report, not a silent skip; the critic gate must hold before
+a unit's first ship.
+
 spec: docs/plans/workflow-skills.md#готово — skills/ship/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — ship is model-inaccessible
 spec: docs/decisions/ontoship-core.md#три фазы — one pass, stop points from
 «Ограничения», review gives leads
+spec: docs/plans/review-config.md#готово — ship ведёт ревью панелью
+spec: docs/plans/review-config.md#ограничения — панель один прогон,
+пропущенная роль названа, критик-гейт перед первым ship юнита
 invariant: docs/decisions/ontoship-core.md#три фазы — one review pass, no convergence loop
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -56,6 +71,32 @@ FORBIDDEN_PHRASES = (
     "повторяй прогоны ревью",
     "до нуля находок",
     "создай pull request",
+)
+PANEL_PHRASES = (
+    "ревью-панель",
+    "параллельно в одном прогоне",
+    "один отчёт",
+    "дедуплицируй",
+    "область и чек-лист",
+    "вердикт",
+    "приоритет",
+    "зацепк",
+    "артефакты",
+    "не ход исполнения",
+    ".agents/config.toml",
+    "модель определения",
+    "перегенерируй",
+    "фолбэк на модель сессии",
+    "пометкой в отчёте",
+    "повторная проба",
+    "затем остановка",
+    "базового набора",
+    "пропуск в отчёте",
+    "критик-гейт",
+    "до первого ship юнита",
+    "запись прогона",
+    "docs/reference/review-roles.md",
+    "docs/reference/harnesses.md",
 )
 
 
@@ -121,6 +162,9 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    for phrase in PANEL_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"panel: missing required phrase {phrase!r}")
     for phrase in FORBIDDEN_PHRASES:
         if phrase in lowered:
             errors.append(f"body: forbidden convergence-loop or PR-imitation "
@@ -277,3 +321,111 @@ def test_contract_check_can_fail():
                              if not line.startswith("name:"))
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
+
+
+def test_panel_runs_roles_from_config_in_one_pass():
+    """spec: docs/plans/review-config.md#готово — роли из конфига параллельно
+    в одном прогоне, исполнитель дедуплицирует находки в один отчёт."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "ревью-панель" in lowered
+    assert ".agents/config.toml" in lowered
+    assert "параллельно в одном прогоне" in lowered
+    assert "один отчёт" in lowered
+    assert "дедуплицируй" in lowered
+    assert "docs/reference/review-roles.md" in lowered
+
+
+def test_panel_role_input_output_and_independence():
+    """spec: docs/plans/review-config.md#готово — вход роли: область и
+    чек-лист; выход: вердикт и находки с приоритетами и зацепками;
+    независимость — артефакты, не ход исполнения."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "область и чек-лист" in lowered
+    assert "вердикт" in lowered
+    assert "приоритет" in lowered
+    assert "зацепк" in lowered
+    assert "артефакты" in lowered
+    assert "не ход исполнения" in lowered
+
+
+def test_panel_checks_definitions_before_launch():
+    """spec: docs/plans/review-config.md#готово — до запуска ролей сверка
+    модели определения с конфигом, расхождение — перегенерация (решение 9);
+    способы запуска живут в матрице харнессов, не в тексте скилла."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "модель определения" in lowered
+    assert "перегенерируй" in lowered
+    assert "docs/reference/harnesses.md" in lowered
+
+
+def test_panel_fallback_is_marked_and_failure_stops():
+    """spec: docs/plans/review-config.md#готово — недоступная модель роли:
+    фолбэк на модель сессии с пометкой в отчёте (решение 14); провал и на
+    фолбэке — одна повторная проба, затем остановка (решение 4)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "фолбэк на модель сессии" in lowered
+    assert "пометкой в отчёте" in lowered
+    assert "повторная проба" in lowered
+    assert "затем остановка" in lowered
+
+
+def test_panel_names_missing_base_set_roles():
+    """spec: docs/plans/review-config.md#ограничения — роль базового набора
+    без секции в конфиге не запускается, а называется в отчёте пропуском."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "базового набора" in lowered
+    assert "пропуск в отчёте" in lowered
+
+
+def test_critic_gate_holds_before_the_units_first_ship():
+    """spec: docs/plans/review-config.md#ограничения — критик-гейт: юнит не
+    идёт в первый ship без прогона критика; проход подтверждает гейт ссылкой
+    на запись прогона."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "критик-гейт" in lowered
+    assert "до первого ship юнита" in lowered
+    assert "запись прогона" in lowered
+
+
+def test_panel_check_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    panel contract rejects a lost deduplication order, a lost fallback mark,
+    a lost retry-and-stop, a silent base-set skip, a lost regeneration and a
+    lost critic gate."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_dedup = text.replace("Дедуплицируй повторяющиеся находки — ",
+                            "Собери находки подряд — ", 1)
+    assert no_dedup != text, "mutation must change the text"
+    assert any("дедуплицируй" in error for error in _contract_errors(no_dedup))
+
+    unmarked = text.replace("с пометкой в отчёте", "без пометки", 1)
+    assert unmarked != text
+    assert any("пометкой в отчёте" in error
+               for error in _contract_errors(unmarked))
+
+    no_stop = text.replace("затем остановка прохода", "затем продолжение", 1)
+    assert no_stop != text
+    assert any("затем остановка" in error for error in _contract_errors(no_stop))
+
+    silent_skip = text.replace("назови её пропуск в отчёте",
+                               "запусти её на модели сессии", 1)
+    assert silent_skip != text
+    assert any("пропуск в отчёте" in error
+               for error in _contract_errors(silent_skip))
+
+    no_regen = text.replace("перегенерируй", "перепиши", 1)
+    assert no_regen != text
+    assert any("перегенерируй" in error
+               for error in _contract_errors(no_regen))
+
+    no_gate = text.replace("Критик-гейт", "Проверка критика", 1)
+    assert no_gate != text
+    assert any("критик-гейт" in error for error in _contract_errors(no_gate))
