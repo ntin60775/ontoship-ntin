@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-10-27
+updated: 2026-10-29
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -26,9 +26,13 @@ links:
 - [install-dry-run.md](install-dry-run.md) — режим `--dry-run` установщика: план без
   записи (утверждён и завершён 2026-10-23, тикеты 01–02).
 - [review-config.md](review-config.md) — проектный конфиг субагентов, панель
-  ревью-специалистов и критик плана (утверждён 2026-10-28, решения 1–14; юнит
-  открыт — нарезка тикетов).
+  ревью-специалистов и критик плана (утверждён 2026-10-28, решения 1–14; завершён
+  2026-10-29, тикеты 01–05).
+- [evidence-verification.md](evidence-verification.md) — артефакт доказательства
+  вместо красно-зелёного семафора: носители в «Готово», разбор расхождений,
+  ранняя оценка цены доказательства (draft — на план-гейте, решения 1–6).
 
-Четыре юнита закрыты: три основных и игрушечный `install-dry-run` (2026-10-23).
-Пятый юнит `review-config` утверждён на план-гейте 2026-10-28 — нарезка тикетов.
-Открытая работа и пробелы харнессов записаны в [continue.md](../ops/continue.md).
+Пять юнитов закрыты: четыре основных и игрушечный `install-dry-run`
+(2026-10-23); `review-config` закрыт 2026-10-29. Шестой юнит
+`evidence-verification` — на план-гейте. Открытая работа и пробелы харнессов
+записаны в [continue.md](../ops/continue.md).
