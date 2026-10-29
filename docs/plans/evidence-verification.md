@@ -2,7 +2,7 @@
 node_type: plan
 title: evidence-verification — артефакт доказательства вместо красно-зелёного семафора
 service: _platform
-status: draft
+status: active
 updated: 2026-10-29
 tags: [plan, testing, evidence, artifacts, do-178c, acceptance]
 links:
@@ -11,8 +11,8 @@ links:
 
 # evidence-verification — артефакт доказательства вместо красно-зелёного семафора
 
-Draft-спека шестого юнита. На план-гейте; решения 1–6 — ask-раунд оператора
-2026-10-29.
+Спека шестого юнита. **Утверждена оператором на план-гейте 2026-10-29**;
+решения 1–6 — ask-раунд оператора того же дня.
 
 ## Цель
 
