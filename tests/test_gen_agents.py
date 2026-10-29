@@ -19,6 +19,7 @@ spec: docs/plans/review-config.md#рамки — определения роле
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -211,6 +212,90 @@ def test_model_with_special_characters_roundtrips(project: Path) -> None:
     result = run(project)
     assert result.returncode == 0, result.stderr
     assert "critic: ok" in result.stdout
+
+
+def test_foreign_file_with_a_role_name_is_refused_not_overwritten(
+    project: Path,
+) -> None:
+    """spec: docs/plans/review-config.md#готово — определения производные
+    от конфига; генератор не затирает чужой файл, совпавший с ролью по имени
+    (зацепка P3-3 тикета 01, закрыта по команде оператора)."""
+    write_config(
+        project,
+        {"critic": "provider-a/model-x", "reviewer-spec": "provider-a/model-x"},
+    )
+    agents = project / ".zcode" / "agents"
+    agents.mkdir(parents=True)
+    (agents / "critic.md").write_text("рукописная заметка про критика\n", encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 1
+    assert "critic.md" in result.stderr
+    assert "refusing" in result.stderr
+    # Preflight: a conflict blocks the whole run, nothing is written
+    assert (agents / "critic.md").read_text(encoding="utf-8") == "рукописная заметка про критика\n"
+    assert not (agents / "reviewer-spec.md").exists()
+
+
+def test_handcrafted_file_with_the_marker_is_regenerated(project: Path) -> None:
+    # A drifted file carrying the generated marker is the generator's own
+    # output: rewritten, not refused.
+    write_config(project, {"critic": "provider-a/model-x"})
+    target = project / ".zcode" / "agents"
+    target.mkdir(parents=True)
+    (target / "critic.md").write_text(
+        '---\nmodel: "old/model"\n---\n\n# critic\n\n'
+        "Определение производное, но текст разошёлся.\n",
+        encoding="utf-8",
+    )
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    assert frontmatter_model(definitions(project)["critic.md"]) == "provider-a/model-x"
+
+
+def test_render_names_the_running_generator(project: Path) -> None:
+    # The definition names the generator that actually ran: the absolute
+    # path when run from outside the project, the bundle path inside it
+    # (зацепка P3-1 тикета 02, закрыта по команде оператора).
+    write_config(project, {"critic": "provider-a/model-x"})
+    assert run(project).returncode == 0
+    assert str(GEN.resolve()) in definitions(project)["critic.md"]
+
+    installed = project / ".agents" / "skills" / "init"
+    installed.mkdir(parents=True)
+    shutil.copyfile(GEN, installed / "gen_agents.py")
+    result = subprocess.run(
+        ["python3", str(installed / "gen_agents.py"), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert ".agents/skills/init/gen_agents.py" in definitions(project)["critic.md"]
+
+
+def test_refusal_guard_is_load_bearing(project: Path) -> None:
+    # With the marker emptied the guard never fires and the foreign file
+    # is silently clobbered — the exact behaviour the refusal test forbids.
+    write_config(project, {"critic": "provider-a/model-x"})
+    agents = project / ".zcode" / "agents"
+    agents.mkdir(parents=True)
+    (agents / "critic.md").write_text("рукописный файл\n", encoding="utf-8")
+    broken = project / "gen_broken.py"
+    broken.write_text(
+        GEN.read_text(encoding="utf-8").replace(
+            'MARKER = "Определение производное"',
+            'MARKER = ""',
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["python3", str(broken), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert (agents / "critic.md").read_text(encoding="utf-8") != "рукописный файл\n"
 
 
 def test_repo_gitignores_agent_definitions() -> None:
