@@ -465,3 +465,25 @@ def test_usage_names_dry_run(tmp_path: Path) -> None:
 
     header = INSTALL.read_text(encoding="utf-8").splitlines()[:12]
     assert any("--dry-run" in line for line in header), "the script header must document --dry-run"
+
+
+def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
+    """spec: docs/plans/review-config.md#готово — the init bundle carries
+    gen_agents.py, so a detached copy install can run the generation."""
+    project = tmp_path / "copied"
+    project.mkdir()
+    result = run(project, "--copy")
+    assert result.returncode == 0, output(result)
+
+    generator = project / ".agents" / "skills" / "init" / "gen_agents.py"
+    assert generator.is_file(), "the init bundle must carry gen_agents.py"
+
+    # The installed copy runs on its own: no config in the project — nothing to generate.
+    probe = subprocess.run(
+        ["python3", str(generator), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert probe.returncode == 0, probe.stderr
+    assert "nothing to generate" in probe.stdout

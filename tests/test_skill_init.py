@@ -1,11 +1,15 @@
 """Contract for the init skill and the managed block it writes.
 
 The skill is prose: its "code" is the text an agent follows. These checks pin the
-shipped artifact — the DSH frontmatter, the two files init owns, the marker cases and
-the verbatim block — and prove the check can fail (mutation probe).
+shipped artifact — the DSH frontmatter, the three files init owns (AGENTS.md,
+.gitignore and the role registry .agents/config.toml), the marker cases, the
+verbatim block and the bootstrap contract — and prove the check can fail
+(mutation probe).
 
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed block,
       .gitignore (four lines), harness-neutral prose
+spec: docs/plans/review-config.md#готово — init спрашивает модели ролей ядра
+      ask-ом, пишет .agents/config.toml и запускает генератор из бандла
 invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance, Reel or
       acceptance chord
 invariant: docs/plans/harness-agnostic.md#готово — no harness root named
@@ -20,6 +24,20 @@ SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
 GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/")
+CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic")
+GENERATOR_PATH = ".agents/skills/init/gen_agents.py"
+BOOTSTRAP_NEEDLES = (
+    "Три файла, ничего больше",
+    ".agents/config.toml",
+    "назови пробел и остановись",
+    "активные модели",
+    "модель сессии",
+    "отказ с объяснением",
+    "пропуск",
+    "не дописывай",
+    "не трогай",
+    GENERATOR_PATH,
+) + CORE_ROLES
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".zcode", ".qoder", "commands.md")
 
@@ -131,6 +149,10 @@ def _contract_errors(text: str) -> list[str]:
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
 
+    for needle in BOOTSTRAP_NEEDLES:
+        if needle not in body:
+            errors.append(f"bootstrap: missing {needle!r}")
+
     for term in FORBIDDEN:
         if _mentions(text, term):
             errors.append(f"forbidden entity {term!r}")
@@ -216,3 +238,82 @@ def test_contract_can_fail():
     edited_block = text.replace("## База знаний (OntoShip)",
                                 "## База знаний (изменено)", 1)
     assert any("verbatim" in error for error in _contract_errors(edited_block))
+
+
+def test_init_owns_the_role_registry_as_a_third_file():
+    """spec: docs/plans/review-config.md#готово — контракт «два файла» расширен до трёх:
+    AGENTS.md, .gitignore, .agents/config.toml."""
+    text = SKILL.read_text("utf-8")
+    assert "Три файла, ничего больше" in text
+    assert ".agents/config.toml" in text
+
+
+def test_bootstrap_asks_core_role_models_from_active_host_models():
+    """spec: docs/plans/review-config.md#готово — вопрос по ролям текущей версии
+    ядра, выбор из доступных моделей хоста."""
+    text = SKILL.read_text("utf-8")
+    for role in CORE_ROLES:
+        assert role in text, f"core role {role} is not named"
+    assert "ask" in text
+    assert "активные модели" in text
+
+
+def test_critic_model_must_differ_from_the_session_model():
+    """spec: docs/plans/review-config.md#готово — для critic совпадение выбранной
+    модели с сессионной — отказ с объяснением."""
+    text = SKILL.read_text("utf-8")
+    assert "обязана отличаться от модели сессии" in text
+    assert "отказ с объяснением" in text
+
+
+def test_existing_config_is_untouched_and_a_new_role_is_a_named_gap():
+    """spec: docs/plans/review-config.md#ограничения — новая роль ядра при
+    существующем конфиге: названный пропуск, без молчаливой дописки."""
+    text = SKILL.read_text("utf-8")
+    assert "не трогай" in text
+    assert "пропуск" in text
+    assert "не дописывай" in text
+
+
+def test_no_model_source_stops_with_a_named_gap():
+    """spec: docs/plans/review-config.md#готово — деградация без источника
+    моделей — названный пробел."""
+    text = SKILL.read_text("utf-8")
+    assert "назови пробел и остановись" in text
+
+
+def test_bootstrap_runs_the_bundled_generator():
+    """spec: docs/plans/review-config.md#готово — генерация определений доступна
+    установленному проекту: бандл init несёт генератор (решение оператора
+    2026-10-29)."""
+    text = SKILL.read_text("utf-8")
+    assert GENERATOR_PATH in text
+
+
+def test_bootstrap_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    bootstrap contract rejects a lost registry, a lost core role, a lost refusal,
+    a lost gap rule and a lost generator path."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_registry = text.replace(".agents/config.toml", ".agents/roles.toml")
+    assert no_registry != text
+    assert any(".agents/config.toml" in error for error in _contract_errors(no_registry))
+
+    # "kritic" does not contain the needle, so the replacement really removes it.
+    no_critic = text.replace("critic", "kritic")
+    assert no_critic != text
+    assert any("critic" in error for error in _contract_errors(no_critic))
+
+    no_refusal = text.replace("отказ с объяснением и перевыбор", "перевыбор")
+    assert no_refusal != text
+    assert any("отказ с объяснением" in error for error in _contract_errors(no_refusal))
+
+    no_gap = text.replace("назови пробел и остановись", "остановись")
+    assert no_gap != text
+    assert any("назови пробел и остановись" in error for error in _contract_errors(no_gap))
+
+    no_generator = text.replace(GENERATOR_PATH, "gen.py")
+    assert no_generator != text
+    assert any(GENERATOR_PATH in error for error in _contract_errors(no_generator))
