@@ -5,8 +5,10 @@ root, so these checks pin its observable effects: the `.agents/skills` layout, i
 drift and legacy reporting, and the refusal to write or destroy anything outside its
 destination.
 
-spec: docs/plans/workflow-skills.md#готово — seven skills in <project>/.agents/skills;
+spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents/skills;
       link/copy; idempotent; --check names each missing or drifted skill
+spec: docs/plans/review-config.md#готово — the install channel carries eight
+      bundles: critic joins the seven
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -21,7 +23,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic")
 
 
 def run(project: Path, *flags: str) -> subprocess.CompletedProcess[str]:
@@ -92,10 +94,10 @@ def test_installer_is_executable() -> None:
     assert os.access(INSTALL, os.X_OK), "install.sh must be executable"
 
 
-def test_fresh_install_links_seven_skills_and_writes_nothing_else(
+def test_fresh_install_links_eight_skills_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: docs/plans/workflow-skills.md#готово — seven links under .agents/skills."""
+    """spec: docs/plans/review-config.md#готово — eight links under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -131,7 +133,7 @@ def test_second_install_is_idempotent(project: Path) -> None:
 
 
 def test_check_is_clean_and_read_only(project: Path) -> None:
-    """spec: docs/plans/workflow-skills.md#готово — `--check` exits 0 when all seven links point at this repo."""
+    """spec: docs/plans/workflow-skills.md#готово — `--check` exits 0 when all eight links point at this repo."""
     install = run(project)
     assert install.returncode == 0, output(install)
     before = tree(project)
@@ -144,7 +146,7 @@ def test_check_is_clean_and_read_only(project: Path) -> None:
     assert tree(project) == before, "--check must not write"
 
 
-def test_check_on_a_fresh_project_names_all_seven_without_writing(tmp_path: Path) -> None:
+def test_check_on_a_fresh_project_names_all_eight_without_writing(tmp_path: Path) -> None:
     """spec: docs/plans/workflow-skills.md#готово — every missing skill is named; the check still writes nothing."""
     fresh = tmp_path / "fresh"
     fresh.mkdir()
@@ -232,7 +234,7 @@ def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:
-    """spec: docs/plans/workflow-skills.md#готово — `--copy` produces seven real directories, not links."""
+    """spec: docs/plans/workflow-skills.md#готово — `--copy` produces eight real directories, not links."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
