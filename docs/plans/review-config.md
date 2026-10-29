@@ -3,7 +3,7 @@ node_type: plan
 title: review-config — проектный конфиг субагентов и штатное независимое ревью
 service: _platform
 status: active
-updated: 2026-10-28
+updated: 2026-10-29
 tags: [plan, review, config, adapters, subagents, critic, ship]
 links:
   relates_to: [../decisions/ontoship-core.md, ../reference/harnesses.md, ../ops/continue.md, install-dry-run.md]
@@ -189,8 +189,12 @@ links:
   для бутстрапа: init предлагает модели только активных подписанных
   провайдеров — набор динамический, поэтому сверка модели при запуске роли
   обязательна (пункт «Готово» 7).
-- `init` сейчас владеет ровно двумя файлами (`skills/init/SKILL.md`); конфиг —
-  третье владение, расширение контракта фиксирует решение 1.
+- С тикета 02 `init` владеет тремя файлами (`skills/init/SKILL.md`): `AGENTS.md`,
+  `.gitignore`, `.agents/config.toml` — расширение контракта зафиксировано
+  решением 1. Носитель генератора — бандл init: `skills/init/gen_agents.py`
+  (решение оператора 2026-10-29); установленный проект запускает его как
+  `.agents/skills/init/gen_agents.py` и в link-, и в copy-режиме, канал
+  установки при переносе не менялся.
 - Прецедент потерянной независимости —
   `tickets/install-dry-run/02-dry-run-copy.md`, раздел «Ревью».
 - Способы организации ревью по харнессам и их состояние —

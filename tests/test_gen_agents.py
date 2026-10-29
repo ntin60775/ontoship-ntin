@@ -2,7 +2,8 @@
 
 The generator is the zcode adapter mechanism of the unit: `.agents/config.toml`
 names the roles (`[agents.<name>]`, required key `model`) and
-`scripts/gen_agents.py` keeps one definition per role in `.zcode/agents/` with
+`skills/init/gen_agents.py` (carried by the init bundle, so an installed
+project can run it) keeps one definition per role in `.zcode/agents/` with
 the configured model. These checks pin the observable effects: validation
 distinguishes unknown (warn) from invalid (fail), definitions carry the
 configured model, a rerun with an unchanged config rewrites nothing, a model
@@ -24,7 +25,7 @@ from pathlib import Path
 import pytest
 
 REPO = Path(__file__).resolve().parent.parent
-GEN = REPO / "scripts" / "gen_agents.py"
+GEN = REPO / "skills" / "init" / "gen_agents.py"
 
 CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic")
 

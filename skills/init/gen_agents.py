@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """OntoShip core — generate zcode agent definitions from the role registry.
 
-usage: scripts/gen_agents.py <project>
+usage: skills/init/gen_agents.py <project>
 
-The registry is <project>/.agents/config.toml: one `[agents.<name>]` section
+The generator travels inside the init skill bundle, so an installed project
+runs it as .agents/skills/init/gen_agents.py. The registry is
+<project>/.agents/config.toml: one `[agents.<name>]` section
 per role with the required key `model`. The generator keeps exactly one
 definition per role in <project>/.zcode/agents/<name>.md with `model:` taken
 from the config. A definition whose content differs from the rendered one —
@@ -93,7 +95,7 @@ def render(name: str, model: str) -> str:
         "Роль ревью OntoShip. Модель назначена конфигом `.agents/config.toml`\n"
         f"(секция `[agents.{name}]`, ключ `model`); чек-лист роли передаётся при\n"
         "запуске панели. Определение производное — перегенерируется\n"
-        "`scripts/gen_agents.py`, не редактируется вручную.\n"
+        "`skills/init/gen_agents.py`, не редактируется вручную.\n"
     )
 
 
@@ -158,7 +160,7 @@ def sync(project: Path) -> int:
 
 def main(argv: list[str]) -> int:
     if len(argv) != 2 or argv[1] in ("-h", "--help"):
-        print("usage: scripts/gen_agents.py <project>", file=sys.stderr)
+        print("usage: skills/init/gen_agents.py <project>", file=sys.stderr)
         return 2
     project = Path(argv[1])
     if not project.is_dir():
