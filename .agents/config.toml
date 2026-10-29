@@ -1,0 +1,18 @@
+# OntoShip review-config role registry.
+# One [agents.<name>] section per role; `model` is required.
+# The critic model must differ from the session model (decision 10).
+
+[agents.reviewer-spec]
+model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+
+[agents.reviewer-tests]
+model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+
+[agents.reviewer-code]
+model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+
+[agents.reviewer-kb]
+model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+
+[agents.critic]
+model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
