@@ -20,6 +20,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "critic" / "SKILL.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
@@ -225,6 +227,26 @@ def test_contract_check_can_fail():
     assert silent_launch != text
     assert any("сразу после приёмки последнего тикета" in error
                for error in _contract_errors(silent_launch))
+
+
+@pytest.mark.parametrize(
+    ("needle", "replacement"),
+    [
+        ("спеку", "план"),
+        ("артефакты", "материалы"),
+        ("приоритет", "важность"),
+        ("зацепка", "указатель"),
+    ],
+)
+def test_every_short_marker_has_a_failing_probe(needle: str, replacement: str) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    removing any required phrase, however short, reddens the contract
+    (зацепка P3-2 тикета 03, закрыта по команде оператора)."""
+    text = SKILL.read_text("utf-8")
+    mutated = text.replace(needle, replacement)
+    assert mutated != text, f"the mutation must remove {needle!r}"
+    errors = _contract_errors(mutated)
+    assert any(f"missing required phrase '{needle}'" in error for error in errors), errors
 
 
 def test_no_forbidden_harness_root():

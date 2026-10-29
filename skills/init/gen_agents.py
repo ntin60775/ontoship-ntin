@@ -9,9 +9,16 @@ runs it as .agents/skills/init/gen_agents.py. The registry is
 per role with the required key `model`. The generator keeps exactly one
 definition per role in <project>/.zcode/agents/<name>.md with `model:` taken
 from the config. A definition whose content differs from the rendered one —
-a changed model above all — is reported (old and new model) and rewritten;
-unchanged definitions are left untouched, so a rerun with an unchanged config
-never rewrites files. No config file means nothing to do and nothing written.
+a changed model above all — is reported (old and new model, unquoted) and
+rewritten; unchanged definitions are left untouched, so a rerun with an
+unchanged config never rewrites files. No config file means nothing to do and
+nothing written. Each definition names the generator that ran it: relative
+to the project inside it, absolute when run from elsewhere.
+
+A file already sitting on a definition path but carrying no generated marker
+is foreign: the run refuses to overwrite it (exit 1, the file named) before
+writing anything. The marker heuristic treats any file quoting the marker
+sentence as generated — a hand-written file that quotes it is still clobbered.
 
 Validation distinguishes unknown from invalid: unknown sections or keys warn
 on stderr and do not fail; a role without `model`, a non-string or empty
@@ -26,6 +33,7 @@ import tomllib
 from pathlib import Path
 
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+MARKER = "Определение производное"
 
 
 class ConfigError(Exception):
@@ -81,7 +89,16 @@ def parse_config(raw: bytes) -> tuple[dict[str, str], list[str]]:
     return roles, warnings
 
 
-def render(name: str, model: str) -> str:
+def self_ref(project: Path) -> str:
+    """This generator as a definition should name it."""
+    gen = Path(__file__).resolve()
+    try:
+        return str(gen.relative_to(project.resolve()))
+    except ValueError:
+        return str(gen)
+
+
+def render(name: str, model: str, gen_ref: str) -> str:
     """One definition: frontmatter carries the configured model."""
     quoted = model.replace("\\", "\\\\").replace('"', '\\"')
     return (
@@ -95,12 +112,16 @@ def render(name: str, model: str) -> str:
         "Роль ревью OntoShip. Модель назначена конфигом `.agents/config.toml`\n"
         f"(секция `[agents.{name}]`, ключ `model`); чек-лист роли передаётся при\n"
         "запуске панели. Определение производное — перегенерируется\n"
-        "`skills/init/gen_agents.py`, не редактируется вручную.\n"
+        f"`{gen_ref}`, не редактируется вручную.\n"
     )
 
 
 def current_model(path: Path) -> str | None:
-    """The `model:` value of an existing definition's frontmatter."""
+    """The `model:` value of an existing definition's frontmatter.
+
+    The two backslash escapes the renderer emits are folded back; any other
+    escape passes through unchanged.
+    """
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
     except OSError:
@@ -114,7 +135,7 @@ def current_model(path: Path) -> str | None:
             value = line[len("model:"):].strip()
             if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
                 value = value[1:-1]
-            return value
+            return re.sub(r"\\(.)", r"\1", value)
     return None
 
 
@@ -133,9 +154,28 @@ def sync(project: Path) -> int:
         print(f"gen_agents: warning: {warning}", file=sys.stderr)
 
     agents_dir = project / ".zcode" / "agents"
+    gen_ref = self_ref(project)
+    plan = []
     for name in sorted(roles):
-        target = agents_dir / f"{name}.md"
-        expected = render(name, roles[name])
+        plan.append((name, agents_dir / f"{name}.md", render(name, roles[name], gen_ref)))
+
+    conflicts = []
+    for _, target, expected in plan:
+        if not target.is_file():
+            continue
+        current = target.read_text(encoding="utf-8")
+        if current != expected and MARKER not in current:
+            conflicts.append(target)
+    if conflicts:
+        for target in conflicts:
+            print(
+                f"gen_agents: {target.relative_to(project)}: not a generated "
+                "definition — refusing to overwrite; rename or remove it",
+                file=sys.stderr,
+            )
+        return 1
+
+    for name, target, expected in plan:
         if target.is_file() and target.read_text(encoding="utf-8") == expected:
             print(f"{name}: ok")
             continue
@@ -144,7 +184,7 @@ def sync(project: Path) -> int:
         else:
             old = current_model(target)
             if old is not None and old != roles[name]:
-                print(f"{name}: model {old!r} -> {roles[name]!r} — regenerated")
+                print(f"{name}: model {old} -> {roles[name]} — regenerated")
             else:
                 print(f"{name}: content differs — regenerated")
         try:
