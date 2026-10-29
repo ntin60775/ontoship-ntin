@@ -45,6 +45,8 @@ REQUIRED_PHRASES = (
     "локальный коммит",
     "названный пробел",
     "не имитируй",
+    "отчёт фактами стоит в чате перед вызовом",
+    "в поле вопроса — одно предложение",
     "docs/plans/<slug>.md",
     "docs/decisions/ontoship-core.md",
     "три фазы",
@@ -199,6 +201,18 @@ def test_degradation_without_remote_is_honest():
     assert "создай pull request" not in lowered
 
 
+def test_acceptance_ask_carries_the_decision_not_the_report():
+    """invariant: docs/decisions/ontoship-core.md#три фазы — the acceptance ask
+    carries the decision, not the report; the factual report stays in chat
+    before the call, option descriptions carry consequences."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "приёмка тикета идёт отдельным ask-вопросом" in lowered
+    assert "отчёт фактами стоит в чате перед вызовом" in lowered
+    assert "в поле вопроса — одно предложение" in lowered
+    assert "следствия выбора, не доказательства" in lowered
+
+
 def test_skill_anchors_to_the_canon():
     """spec: docs/decisions/ontoship-core.md#три фазы — the skill cites its phase."""
     body = _parse(SKILL.read_text("utf-8"))[1]
@@ -252,6 +266,12 @@ def test_contract_check_can_fail():
                             "## Один проход\n\nСмотри `skills/ship/SKILL.md:42`.", 1)
     assert anchored != text
     assert any("SKILL.md:42" in error for error in _contract_errors(anchored))
+
+    stuffed = text.replace("отчёт фактами стоит в чате перед вызовом",
+                           "отчёт фактами входит в поле вопроса", 1)
+    assert stuffed != text
+    assert any("отчёт фактами стоит в чате перед вызовом" in error
+               for error in _contract_errors(stuffed))
 
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))

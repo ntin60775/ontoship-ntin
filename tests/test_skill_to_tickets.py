@@ -35,6 +35,7 @@ REQUIRED_PHRASES = (
     ".scratch/<slug>/issues/",
     "один вопрос на тикет",
     "принять как предложено",
+    "два-три предложения, не отчёт",
     "вызывает пользователь",
 )
 FORBIDDEN_PHRASES = (
@@ -170,6 +171,7 @@ def test_slicing_handoff_follows_the_canon():
     assert "решение о нарезке принимаешь ты" in lowered
     assert "нарезка — решение оператора" not in lowered
     assert "один вопрос на тикет" in lowered
+    assert "выдержка в два-три предложения, не отчёт" in lowered
     assert "принять как предложено" in lowered
     assert "изменить формулировку" in lowered
     assert "режут план; тикет принимают или нет" in lowered
@@ -215,3 +217,9 @@ def test_contract_check_can_fail():
     assert weakened != text
     assert any("проверяем на дереве" in error
                for error in _contract_errors(weakened))
+
+    unbounded = text.replace("выдержка в два-три предложения, не отчёт",
+                             "выдержка любой длины", 1)
+    assert unbounded != text
+    assert any("два-три предложения, не отчёт" in error
+               for error in _contract_errors(unbounded))

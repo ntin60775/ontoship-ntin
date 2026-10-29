@@ -33,6 +33,8 @@ REQUIRED_PHRASES = (
     "план-гейт",
     "один вопрос на тикет",
     "ask-инструмент хоста",
+    "поле вопроса несёт само решение",
+    "не свидетельства",
     "вне рамок",
     "не выдумывай",
 )
@@ -133,6 +135,17 @@ def test_frontier_goes_through_the_host_ask_tool():
     assert "полотно вопросов в чате — дефект" in lowered
 
 
+def test_ask_question_field_carries_the_decision_not_the_report():
+    """invariant: docs/decisions/ontoship-core.md#три фазы — the ask question
+    field carries the decision, not the report; evidence stays in chat before
+    the call, option descriptions carry consequences."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "поле вопроса несёт само решение" in lowered
+    assert "идут в чат текстом перед вызовом" in lowered
+    assert "следствие выбора, не свидетельства" in lowered
+
+
 def test_agent_never_answers_for_the_operator():
     """invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator; silence is not consent."""
     body = _parse(SKILL.read_text("utf-8"))[1]
@@ -181,6 +194,12 @@ def test_contract_check_can_fail():
     missing_phrase = re.sub("дерево дизайна", "список идей", text, flags=re.IGNORECASE)
     assert missing_phrase != text
     assert any("дерево дизайна" in error for error in _contract_errors(missing_phrase))
+
+    stuffed = text.replace("Поле вопроса несёт само решение",
+                           "Поле вопроса несёт отчёт и доказательства", 1)
+    assert stuffed != text
+    assert any("поле вопроса несёт само решение" in error
+               for error in _contract_errors(stuffed))
 
     leaked_entity = text.replace("# Skill: grilling",
                                  "# Skill: grilling\n\nApparatus: challenger.", 1)
