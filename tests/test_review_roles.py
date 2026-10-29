@@ -9,8 +9,9 @@ core. ``docs/reference/harnesses.md`` must describe how each harness
 organizes the review panel: the working zcode way (role definitions from the
 config, the full-restart cost of a model change, the ``subagent_model``
 fallback path, the ``[current]`` marker for the session-model check) and DSH
-and Qoder each named a gap, never implemented silently. The reference is
-linked from the folder index.
+and Qoder each named a gap inside their own subsection of the review
+section, never implemented silently. The reference is linked from the folder
+index.
 
 spec: docs/plans/review-config.md#готово — справочник ролей и регламент паков
 spec: docs/plans/review-config.md#готово — матрица harnesses.md дополнена:
@@ -29,6 +30,8 @@ REFERENCE = REPO / "docs" / "reference" / "review-roles.md"
 HARNESSES = REPO / "docs" / "reference" / "harnesses.md"
 INDEX = REPO / "docs" / "reference" / "README.md"
 ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb")
+INDEPENDENCE_PHRASES = ("вердикт", "приоритет", "зацепк", "артефакты",
+                        "не ход исполнения")
 PACK_RULES = (
     "пак",
     "только промпты и чек-листы",
@@ -62,9 +65,9 @@ def _frontmatter(text: str) -> dict[str, str]:
 
 
 def _h3_sections(text: str) -> dict[str, str]:
-    """Map each ``### heading`` to its body (up to the next heading)."""
+    """Map each ``### heading`` to its body, up to the next heading of any level."""
     sections: dict[str, str] = {}
-    current = None
+    current: str | None = None
     chunks: list[str] = []
     for line in text.splitlines():
         if line.startswith("### "):
@@ -72,11 +75,52 @@ def _h3_sections(text: str) -> dict[str, str]:
                 sections[current] = "\n".join(chunks)
             current = line[4:].strip()
             chunks = []
+        elif line.startswith("#"):
+            # h1/h2/h4 end the section and never start one
+            if current is not None:
+                sections[current] = "\n".join(chunks)
+                current = None
         elif current is not None:
             chunks.append(line)
     if current is not None:
         sections[current] = "\n".join(chunks)
     return sections
+
+
+def _review_section(harnesses: str) -> list[str] | None:
+    """Raw lines of the review section: the first ``## `` heading naming
+    ревью, up to the next ``## `` heading. Raw lines, no whitespace
+    collapsing — the per-harness checks below need real line structure."""
+    lines = harnesses.splitlines()
+    start = next((i for i, line in enumerate(lines)
+                  if line.startswith("## ") and "ревью" in line.lower()), None)
+    if start is None:
+        return None
+    section: list[str] = []
+    for line in lines[start + 1:]:
+        if line.startswith("## "):
+            break
+        section.append(line)
+    return section
+
+
+def _h3_blocks(section: list[str]) -> dict[str, str]:
+    """Map each lowered ``###`` heading inside the section to its normalized
+    heading-plus-body — the whole block, so a gap named anywhere in it counts."""
+    blocks: dict[str, str] = {}
+    heading: str | None = None
+    chunks: list[str] = []
+    for line in section:
+        if line.startswith("### "):
+            if heading is not None:
+                blocks[heading] = _normalized_lower(" ".join(chunks))
+            heading = line[4:].strip().lower()
+            chunks = [line[4:]]
+        elif heading is not None:
+            chunks.append(line)
+    if heading is not None:
+        blocks[heading] = _normalized_lower(" ".join(chunks))
+    return blocks
 
 
 def _normalized_lower(text: str) -> str:
@@ -108,17 +152,19 @@ def _reference_errors(text: str) -> list[str]:
             continue
         body = sections[matching[0]]
         lowered = _normalized_lower(body)
-        if "чек-лист" not in lowered:
+        marker = lowered.find("чек-лист")
+        if marker < 0:
             errors.append(f"role {role!r}: checklist is not named")
-        items = len(re.findall(r"(?m)^- ", body))
+            items = 0
+        else:
+            items = len(re.findall(r"(?m)^- ", body[marker:]))
         if items < 3:
             errors.append(f"role {role!r}: checklist has {items} items, need 3+")
         if "область" not in lowered:
             errors.append(f"role {role!r}: scope (область) is not named")
 
     lowered = _normalized_lower(text)
-    for phrase in ("вердикт", "приоритет", "зацепк", "артефакты",
-                   "не ход исполнения"):
+    for phrase in INDEPENDENCE_PHRASES:
         if phrase not in lowered:
             errors.append(f"missing required phrase {phrase!r}")
     for rule in PACK_RULES:
@@ -130,24 +176,21 @@ def _reference_errors(text: str) -> list[str]:
 def _harness_errors(harnesses: str, index: str) -> list[str]:
     """Every violated harness-matrix contract; empty means the rows are sound."""
     errors: list[str] = []
-    lowered = _normalized_lower(harnesses)
-    review_start = lowered.find("## ревью")
-    if review_start < 0:
+    section = _review_section(harnesses)
+    if section is None:
         return ["harnesses.md has no review section"]
-    next_h2 = lowered.find("\n## ", review_start)
-    review = lowered[review_start:next_h2 if next_h2 > 0 else len(lowered)]
+    whole = _normalized_lower(" ".join(section))
 
     for token in ZCODE_WAY:
-        if token not in review:
+        if token not in whole:
             errors.append(f"zcode review way is missing {token!r}")
+    blocks = _h3_blocks(section)
     for harness in ("dsh", "qoder"):
-        named_gap = False
-        for line in review.splitlines():
-            if harness in line and "пробел" in line:
-                named_gap = True
+        named_gap = any(harness in heading and "пробел" in block
+                        for heading, block in blocks.items())
         if not named_gap:
             errors.append(f"{harness} review way is not named a gap")
-    if "фолбэк" not in review:
+    if "фолбэк" not in whole:
         errors.append("the role-model fallback (decision 14) is not mentioned")
 
     if "review-roles.md" not in index:
@@ -177,8 +220,7 @@ def test_reference_states_input_output_and_independence():
     выход: вердикт и находки с приоритетами и зацепками; независимость —
     артефакты, не ход исполнения."""
     lowered = _normalized_lower(REFERENCE.read_text("utf-8"))
-    for phrase in ("область", "чек-лист", "вердикт", "приоритет", "зацепк",
-                   "артефакты", "не ход исполнения"):
+    for phrase in ("область", "чек-лист", *INDEPENDENCE_PHRASES):
         assert phrase in lowered, f"{phrase!r} is missing"
 
 
@@ -194,7 +236,7 @@ def test_reference_carries_the_pack_rules():
 def test_harnesses_describe_the_review_way_and_name_the_gaps():
     """spec: docs/plans/review-config.md#готово — матрица описывает способ
     ревью: zcode рабочий (определения, полный перезапуск, subagent_model),
-    DSH и Qoder — названные пробелы."""
+    DSH и Qoder — названные пробелы в своих подразделах раздела ревью."""
     errors = _harness_errors(HARNESSES.read_text("utf-8"),
                              INDEX.read_text("utf-8"))
     assert errors == []
@@ -209,8 +251,9 @@ def test_reference_is_linked_from_the_folder_index():
 
 def test_reference_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract rejects a lost checklist, a renamed role, a lost pack rule, an
-    unimplemented DSH/Qoder row, a lost zcode way and a broken index link."""
+    contract rejects a lost checklist, a renamed role, a lost pack rule, a
+    lost DSH/Qoder gap row (word, block and section level), a lost zcode way
+    and a broken index link."""
     text = REFERENCE.read_text("utf-8")
     assert _reference_errors(text) == []
 
@@ -229,16 +272,35 @@ def test_reference_check_can_fail():
     assert any("reviewer-<kontur>-<aspect>" in error
                for error in _reference_errors(no_pack_names))
 
+    # A role's checklist must be its own: dropping every bullet of the last
+    # role (whose section once swallowed the trailing sections) has to fail.
+    sections = _h3_sections(text)
+    kb_heading = next(h for h in sections if h.lower().startswith("reviewer-kb"))
+    kb_body = re.sub(r"(?m)^- .*$", "", sections[kb_heading], count=4)
+    stripped = text.replace(sections[kb_heading], kb_body, 1)
+    assert stripped != text
+    assert any("checklist has" in error for error in _reference_errors(stripped))
+
     harnesses = HARNESSES.read_text("utf-8")
     index = INDEX.read_text("utf-8")
     assert _harness_errors(harnesses, index) == []
 
-    # Every «пробел» must go: the DSH block keeps the word in its body line
-    # («dsh headless …»), so a single replacement would leave the gap named.
-    implemented = harnesses.replace("пробел", "реализовано")
-    assert implemented != harnesses
-    errors = _harness_errors(implemented, index)
+    # A gap must be named inside its own subsection: every «пробел» leaving
+    # the DSH block, or the block leaving the review section, must fail.
+    unimplemented = harnesses.replace("пробел", "реализовано")
+    assert unimplemented != harnesses
+    errors = _harness_errors(unimplemented, index)
     assert any("is not named a gap" in error for error in errors)
+
+    # Promoting the DSH gap row out of the review section (### → ##) must
+    # leave the section without its gap rows — both harnesses go missing.
+    # The fuller «### DSH» of the «Доказательства» section is a different row;
+    # the gap heading alone carries « — пробел».
+    deheaded = harnesses.replace("### DSH — пробел", "## DSH — пробел", 1)
+    assert deheaded != harnesses
+    errors = _harness_errors(deheaded, index)
+    assert any("dsh" in error for error in errors)
+    assert any("qoder" in error for error in errors)
 
     no_fallback = harnesses.replace("subagent_model", "agent tool", 1)
     assert no_fallback != harnesses
