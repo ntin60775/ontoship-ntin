@@ -511,7 +511,10 @@ tickets/evidence-verification/04-phase-checklists.md,
 skills/grilling/SKILL.md, skills/to-tickets/SKILL.md,
 tests/test_skill_grilling.py, tests/test_skill_to_tickets.py.
 
-Исполнение: worktree или ветка от текущего master, контрактные тесты
+Исполнение: изолированный git worktree от текущего master
+(`git worktree add <каталог> <ветка>`; правило оператора 2026-10-30 —
+шип всегда в worktree, «или ветку» отменено), вся работа и пробы —
+только там; контрактные тесты
 красные на базе до правок (красную пробу снимать checkout-ом базового
 коммита, не stash-ом — stash откатывает к HEAD с правкой); после —
 зелёные, полный набор зелёный, lint --strict чист, индекс пересобран.
