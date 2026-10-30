@@ -73,6 +73,34 @@ worktree»`, `body: forbidden … phrase 'или ветку'`). Зелёный �
 и `ontoship-ntin-wt-si01 83c6002 [si-01-unconditional-worktree]`;
 `git rev-parse --show-toplevel` из сессии коммитов тикета →
 `/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-si01`;
-`git status --porcelain` основного checkout → пусто.
+`git status --porcelain` основного checkout → пусто. Дифф среза меряется
+от базы: `git diff 83c6002..si-01-unconditional-worktree` — три файла
+(skills/ship/SKILL.md, tests/test_skill_ship.py, этот тикет), 83/8;
+master за время ревью ушёл дальше (параллельный юнит understanding-check),
+поэтому `git diff master..ветка` показывает чужие файлы — дифф среза
+читается только от `83c6002`. Гигиена индекса: `python3
+skills/kb-search/gitmark.py index` → `✓ index: 66 файлов · 308 чанков`.
 
-**Статус:** сделан в worktree, ревью-панель и merge впереди
+**Ревью-панель** `dwfrun-752d8bbe` (четыре роли параллельно, модель
+`deepseek-v4.1-flash-1017` из `.agents/config.toml`, `subagent_model`,
+сверка `gen_agents.py` до запуска — пять ролей в синке; вход — дифф,
+тикет, спека в worktree): четыре вердикта «принять с находками»,
+0 P1 / 2 P2 / 10 P3, 12 после дедупликации (совпадений между ролями не
+было; карточка panel-report). Роли независимо воспроизвели зелёные
+числа (контракт 20 passed, набор 312 passed, `lint --strict` чист на 66
+файлах) и красноту на базе `83c6002` (reviewer-tests: 4 failed / 16
+passed, те же имена упавших, оба новых утверждения). Закрыты правкой:
+срез шага 1 привязан к разделу «Один проход» (helper `_pass_step_one`,
+находка трёх ролей — унос фразы во вводную с маркером `**Worktree`
+оставлял контракт зелёным), запрет «или ветку» распространён на весь
+файл с frontmatter (проба вставки в description краснит), тест
+`test_step_one_demands_an_isolated_worktree` проверяет буквальный
+императив спеки «отдели изолированный worktree», добавлены пробы
+`moved_before` (унос до шага 1) и `reverted_header` («или ветку»
+в description), docstring `test_contract_check_can_fail` перечисляет
+новые пробы. Зацепки: «индекс пересобран» в критерии 3 без места
+осмотра — закрыт приложенным выводом команды index выше (критерий
+задним числом не переписывается); обновление индексов планов и runbook —
+шаг merge, плановое. Незакрытых дефектов среза панель не назвала.
+
+**Статус:** сделан, правки панели внесены, merge впереди

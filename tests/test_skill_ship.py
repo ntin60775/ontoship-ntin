@@ -11,7 +11,7 @@ never a faked PR.
 Step one demands an isolated worktree unconditionally (ship-isolation
 ticket 01): the phrase «изолированный worktree» lives in step 1 of the
 «Один проход» section, and the permissive «или ветку» is forbidden
-anywhere in the skill text.
+anywhere in the skill file, frontmatter included.
 
 The review pass runs as a specialists panel (review-config ticket 04): roles
 from ``.agents/config.toml`` run in parallel in one pass, the executor
@@ -140,6 +140,27 @@ def _normalized_lower(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower())
 
 
+def _pass_step_one(lowered: str) -> str:
+    """Slice step 1 inside the «Один проход» section; empty when absent.
+
+    Slicing is anchored to the section header so a phrase carried out of
+    step 1 into the intro (even with a ``**Worktree`` marker there) is
+    still caught as a loss. The text is whitespace-normalized, so the next
+    «## » header is searched as ``" ## "``.
+    """
+    section_start = lowered.find("## один проход")
+    if section_start == -1:
+        return ""
+    section_end = lowered.find(" ## ", section_start + 1)
+    if section_end == -1:
+        section_end = len(lowered)
+    section = lowered[section_start:section_end]
+    step_end = section.find("**реализация")
+    if step_end != -1:
+        section = section[:step_end]
+    return section
+
+
 def _contract_errors(text: str) -> list[str]:
     """Return every violated skill contract; empty means the skill is sound."""
     try:
@@ -171,16 +192,14 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
-    step1 = ""
-    if "**worktree" in lowered and "**реализация" in lowered:
-        step1 = lowered[lowered.find("**worktree"):lowered.find("**реализация")]
-    if "изолированный worktree" not in step1:
+    if "изолированный worktree" not in _pass_step_one(lowered):
         errors.append("body: step 1 must demand «изолированный worktree»")
     for phrase in PANEL_PHRASES:
         if phrase not in lowered:
             errors.append(f"panel: missing required phrase {phrase!r}")
+    full_text = _normalized_lower(text)
     for phrase in FORBIDDEN_PHRASES:
-        if phrase in lowered:
+        if phrase in full_text:
             errors.append(f"body: forbidden convergence-loop or PR-imitation "
                           f"phrase {phrase!r}")
     anchor = ANCHOR_RE.search(text)
@@ -226,17 +245,15 @@ def test_skill_carries_the_single_pass():
 
 def test_step_one_demands_an_isolated_worktree():
     """spec: docs/plans/ship-isolation.md#готово — шаг 1: безусловный
-    изолированный worktree; «или ветку» запрещена во всём тексте скилла."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    start = lowered.find("**worktree")
-    end = lowered.find("**реализация")
-    assert start != -1, "step 1 header is missing"
-    assert end > start, "step 2 header is missing"
-    assert "изолированный worktree" in lowered[start:end], \
-        "step 1 lost the unconditional isolated worktree"
-    assert "или ветку" not in lowered, \
-        "the permissive «или ветку» leaked back into the skill"
+    изолированный worktree; «или ветку» запрещена во всём файле скилла."""
+    text = SKILL.read_text("utf-8")
+    lowered = _normalized_lower(_parse(text)[1])
+    step1 = _pass_step_one(lowered)
+    assert step1, "the «Один проход» section or its step 1 is missing"
+    assert "отдели изолированный worktree" in step1, \
+        "step 1 lost the unconditional isolated worktree imperative"
+    assert "или ветку" not in _normalized_lower(text), \
+        "the permissive «или ветку» leaked back into the skill file"
 
 
 def test_stop_points_come_from_the_spec():
@@ -306,7 +323,9 @@ def test_skill_names_no_harness_root(root: str):
 def test_contract_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     contract check rejects a missing flag, a loop, a fake PR, a stop-point
-    regression, an anchor, and a missing name."""
+    regression, an anchor, a missing name, a lost isolated-worktree word,
+    the phrase carried out of step 1 (into the intro or another section),
+    and the «или ветку» comeback."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -351,11 +370,22 @@ def test_contract_check_can_fail():
     assert moved_out != weakened
     assert any("step 1" in error for error in _contract_errors(moved_out))
 
+    moved_before = weakened.replace(
+        "## Когда использовать",
+        "## Когда использовать\n\n**Worktree.** Изолированный worktree "
+        "обязателен.", 1)
+    assert moved_before != weakened
+    assert any("step 1" in error for error in _contract_errors(moved_before))
+
     reverted = text.replace(
         "worktree от базового коммита",
         "worktree или ветку от базового коммита", 1)
     assert reverted != text
     assert any("или ветку" in error for error in _contract_errors(reverted))
+
+    reverted_header = text.replace('description: "Фаза 3', 'description: "Фаза 3, worktree или ветку', 1)
+    assert reverted_header != text
+    assert any("или ветку" in error for error in _contract_errors(reverted_header))
 
     stuffed = text.replace("отчёт фактами стоит в чате перед вызовом",
                            "отчёт фактами входит в поле вопроса", 1)
