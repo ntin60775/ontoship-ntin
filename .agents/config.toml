@@ -1,18 +1,29 @@
 # OntoShip review-config role registry.
 # One [agents.<name>] section per role; `model` is required.
 # The critic model must differ from the session model (decision 10).
+# `level` is the reasoning level of the role, absent = the maximum available
+# (onto-doc decisions 3 and 4); the value is checked at launch time.
 
 [agents.reviewer-spec]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-tests]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-code]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-kb]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.critic]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.curator]
+model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+level = "max"

@@ -6,9 +6,14 @@ usage: skills/init/gen_agents.py <project>
 The generator travels inside the init skill bundle, so an installed project
 runs it as .agents/skills/init/gen_agents.py. The registry is
 <project>/.agents/config.toml: one `[agents.<name>]` section
-per role with the required key `model`. The generator keeps exactly one
-definition per role in <project>/.zcode/agents/<name>.md with `model:` taken
-from the config. A definition whose content differs from the rendered one —
+per role with the required key `model` and the optional key `level`. The
+generator keeps exactly one
+definition per role in <project>/.zcode/agents/<name>.md with `model:` and,
+when `level` is set, `thoughtLevel:` taken
+from the config; a role without `level` gets no such line. The level value is
+not validated against a catalogue of known levels — an unknown value passes
+through to the launch-time check; only a non-string or blank `level` is
+invalid. A definition whose content differs from the rendered one —
 a changed model above all — is reported (old and new model, unquoted) and
 rewritten; unchanged definitions are left untouched, so a rerun with an
 unchanged config never rewrites files. No config file means nothing to do and
@@ -22,7 +27,8 @@ sentence as generated — a hand-written file that quotes it is still clobbered.
 
 Validation distinguishes unknown from invalid: unknown sections or keys warn
 on stderr and do not fail; a role without `model`, a non-string or empty
-model, an unusable role name, a non-table role section and broken TOML fail
+model, a non-string or blank `level`, an unusable role name, a non-table role
+section and broken TOML fail
 with a named error (exit 1). Stdlib only (tomllib since Python 3.11).
 """
 from __future__ import annotations
@@ -40,12 +46,13 @@ class ConfigError(Exception):
     """Invalid config — refuse with a named error."""
 
 
-def parse_config(raw: bytes) -> tuple[dict[str, str], list[str]]:
-    """Return {role: model} and the warnings for unknown sections or keys.
+def parse_config(raw: bytes) -> tuple[dict[str, tuple[str, str | None]], list[str]]:
+    """Return {role: (model, level)} and the warnings for unknown sections or keys.
 
-    Raise ConfigError on anything invalid: broken TOML, a non-table `agents`
-    or role section, a role without `model`, a non-string or empty model, an
-    unusable role name.
+    The level is `None` when the section omits `level`. Raise ConfigError on
+    anything invalid: broken TOML, a non-table `agents`
+    or role section, a role without `model`, a non-string or empty model, a
+    non-string or blank `level`, an unusable role name.
     """
     try:
         data = tomllib.loads(raw.decode("utf-8"))
@@ -59,7 +66,7 @@ def parse_config(raw: bytes) -> tuple[dict[str, str], list[str]]:
         kind = "section" if isinstance(value, dict) else "key"
         warnings.append(f"unknown {kind} {key!r} ignored")
 
-    roles: dict[str, str] = {}
+    roles: dict[str, tuple[str, str | None]] = {}
     agents = data.get("agents")
     if agents is None:
         return roles, warnings
@@ -82,10 +89,15 @@ def parse_config(raw: bytes) -> tuple[dict[str, str], list[str]]:
             raise ConfigError(
                 f"[agents.{name}]: 'model' must not contain control characters"
             )
+        level = section.get("level")
+        if level is not None and (not isinstance(level, str) or not level.strip()):
+            raise ConfigError(
+                f"[agents.{name}]: 'level' must be a non-empty string when present"
+            )
         for key in section:
-            if key != "model":
+            if key not in ("model", "level"):
                 warnings.append(f"[agents.{name}]: unknown key {key!r} ignored")
-        roles[name] = model
+        roles[name] = (model, level)
     return roles, warnings
 
 
@@ -98,14 +110,16 @@ def self_ref(project: Path) -> str:
         return str(gen)
 
 
-def render(name: str, model: str, gen_ref: str) -> str:
-    """One definition: frontmatter carries the configured model."""
+def render(name: str, model: str, level: str | None, gen_ref: str) -> str:
+    """One definition: frontmatter carries the configured model and level."""
     quoted = model.replace("\\", "\\\\").replace('"', '\\"')
+    level_line = f'thoughtLevel: {level}\n' if level else ""
     return (
         "---\n"
         f'description: Ревью-роль OntoShip "{name}".\n'
         f'model: "{quoted}"\n'
-        "---\n"
+        + level_line
+        + "---\n"
         "\n"
         f"# {name}\n"
         "\n"
@@ -157,7 +171,10 @@ def sync(project: Path) -> int:
     gen_ref = self_ref(project)
     plan = []
     for name in sorted(roles):
-        plan.append((name, agents_dir / f"{name}.md", render(name, roles[name], gen_ref)))
+        model, level = roles[name]
+        plan.append(
+            (name, agents_dir / f"{name}.md", render(name, model, level, gen_ref))
+        )
 
     conflicts = []
     for _, target, expected in plan:
@@ -176,6 +193,7 @@ def sync(project: Path) -> int:
         return 1
 
     for name, target, expected in plan:
+        model = roles[name][0]
         if target.is_file() and target.read_text(encoding="utf-8") == expected:
             print(f"{name}: ok")
             continue
@@ -183,8 +201,8 @@ def sync(project: Path) -> int:
             print(f"{name}: created")
         else:
             old = current_model(target)
-            if old is not None and old != roles[name]:
-                print(f"{name}: model {old} -> {roles[name]} — regenerated")
+            if old is not None and old != model:
+                print(f"{name}: model {old} -> {model} — regenerated")
             else:
                 print(f"{name}: content differs — regenerated")
         try:

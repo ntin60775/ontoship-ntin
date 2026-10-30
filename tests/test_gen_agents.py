@@ -298,6 +298,110 @@ def test_refusal_guard_is_load_bearing(project: Path) -> None:
     assert (agents / "critic.md").read_text(encoding="utf-8") != "рукописный файл\n"
 
 
+LEVEL_BODY = (
+    '[agents.reviewer-spec]\nmodel = "provider-a/model-x"\nlevel = "max"\n'
+    '[agents.critic]\nmodel = "provider-a/model-x"\n'
+)
+
+
+def test_level_yields_thoughtlevel_and_absence_omits_it(project: Path) -> None:
+    """spec: docs/plans/onto-doc.md#готово — gen_agents выучивает `level`
+    и пишет `thoughtLevel` в определение; роль без ключа остаётся без строки
+    (решение 6)."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(LEVEL_BODY, encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    files = definitions(project)
+    assert "thoughtLevel: max" in files["reviewer-spec.md"]
+    assert "level" not in result.stderr  # the known key no longer warns
+    assert "thoughtLevel" not in files["critic.md"]
+
+
+def test_unknown_level_value_passes_through(project: Path) -> None:
+    """spec: docs/plans/onto-doc.md#готово — незнакомое значение `level`
+    проходит до сверки при запуске роли (решение 4)."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(
+        '[agents.critic]\nmodel = "provider-a/model-x"\nlevel = "banana"\n',
+        encoding="utf-8",
+    )
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    assert "thoughtLevel: banana" in definitions(project)["critic.md"]
+
+
+@pytest.mark.parametrize(
+    ("body", "needle"),
+    [
+        ('[agents.critic]\nmodel = "m"\nlevel = ""\n', "must be a non-empty string"),
+        ('[agents.critic]\nmodel = "m"\nlevel = "  "\n', "must be a non-empty string"),
+        ('[agents.critic]\nmodel = "m"\nlevel = 5\n', "must be a non-empty string"),
+        ('[agents.critic]\nmodel = "m"\nlevel = true\n', "must be a non-empty string"),
+    ],
+)
+def test_invalid_level_fails_with_named_error(
+    project: Path, body: str, needle: str
+) -> None:
+    """spec: docs/plans/onto-doc.md#готово — пустая строка `level` —
+    именованный отказ; невалидное значение не проходит молча."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(body, encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 1
+    assert "level" in result.stderr
+    assert needle in result.stderr
+    assert not (project / ".zcode").exists()
+
+
+def test_thoughtlevel_render_is_load_bearing(project: Path) -> None:
+    # With the thoughtLevel line dropped from the renderer the definition
+    # carries no level — the exact loss test_level_yields_thoughtlevel_...
+    # forbids.
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(LEVEL_BODY, encoding="utf-8")
+    broken = project / "gen_broken.py"
+    broken.write_text(
+        GEN.read_text(encoding="utf-8").replace(
+            "level_line = f'thoughtLevel: {level}\\n' if level else \"\"",
+            'level_line = ""',
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["python3", str(broken), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert "thoughtLevel" not in definitions(project)["reviewer-spec.md"]
+
+
+def test_empty_level_guard_is_load_bearing(project: Path) -> None:
+    # With the level check muted the empty value is accepted silently —
+    # the exact behaviour test_invalid_level_fails_with_named_error forbids.
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(
+        '[agents.critic]\nmodel = "m"\nlevel = ""\n', encoding="utf-8"
+    )
+    broken = project / "gen_broken.py"
+    broken.write_text(
+        GEN.read_text(encoding="utf-8").replace(
+            "if level is not None and (not isinstance(level, str) or not level.strip()):",
+            "if False:",
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["python3", str(broken), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+
+
 def test_repo_gitignores_agent_definitions() -> None:
     gitignore = (REPO / ".gitignore").read_text(encoding="utf-8")
     assert ".zcode/agents/" in gitignore
