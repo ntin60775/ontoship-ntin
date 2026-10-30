@@ -11,12 +11,20 @@ config, the full-restart cost of a model change, the ``subagent_model``
 fallback path, the ``[current]`` marker for the session-model check) and DSH
 and Qoder each named a gap inside their own subsection of the review
 section, never implemented silently. The reference is linked from the folder
-index.
+index. The ``reviewer-tests`` checklist additionally carries the two
+evidence items: every acceptance criterion must show what and where to look
+(command output, log line, file, live probe) plus a spec-sourced expectation
+— «тест прошёл» with no place to look is a finding — and the ticket must
+dissect every expectation/fact discrepancy or carry the line «не было»,
+linking the «Артефакт доказательства» section of docs/reference/testing.md
+(evidence-verification ticket 02).
 
 spec: docs/plans/review-config.md#готово — справочник ролей и регламент паков
 spec: docs/plans/review-config.md#готово — матрица harnesses.md дополнена:
 ревью DSH и Qoder описаны и названы пробелом
 spec: docs/plans/review-config.md#решения план-гейта — 9, 11, 12
+spec: docs/plans/evidence-verification.md#готово — reviewer-tests проверяет
+артефакт: оба пункта чек-листа, «тест прошёл» без места осмотра — находка
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
 contract check can fail
 """
@@ -46,6 +54,15 @@ ZCODE_WAY = (
     "полный перезапуск",
     "subagent_model",
     "[current]",
+)
+REVIEWER_TESTS_EVIDENCE = (
+    "что и где смотреть",
+    "вывод команды, строка лога, файл, живая проба",
+    "ожидание из спеки",
+    "тест прошёл",
+    "разбор каждого расхождения",
+    "не было",
+    "docs/reference/testing.md",
 )
 
 
@@ -127,6 +144,18 @@ def _normalized_lower(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower())
 
 
+def _reviewer_tests_evidence_errors(text: str) -> list[str]:
+    """Violated evidence items of the reviewer-tests checklist; empty is sound."""
+    sections = _h3_sections(text)
+    matching = [heading for heading in sections
+                if "reviewer-tests" in heading.lower()]
+    if not matching:
+        return ["role 'reviewer-tests' has no section"]
+    body = _normalized_lower(sections[matching[0]])
+    return [f"reviewer-tests checklist lost {phrase!r}"
+            for phrase in REVIEWER_TESTS_EVIDENCE if phrase not in body]
+
+
 def _reference_errors(text: str) -> list[str]:
     """Every violated review-roles contract; empty means the reference is sound."""
     errors: list[str] = []
@@ -170,6 +199,7 @@ def _reference_errors(text: str) -> list[str]:
     for rule in PACK_RULES:
         if rule not in lowered:
             errors.append(f"pack rule {rule!r} is missing")
+    errors.extend(_reviewer_tests_evidence_errors(text))
     return errors
 
 
@@ -231,6 +261,15 @@ def test_reference_carries_the_pack_rules():
     lowered = _normalized_lower(REFERENCE.read_text("utf-8"))
     for rule in PACK_RULES:
         assert rule in lowered, f"pack rule {rule!r} is missing"
+
+
+def test_reviewer_tests_checks_artifact_expectation_and_discrepancies():
+    """spec: docs/plans/evidence-verification.md#готово — чек-лист reviewer-tests
+    несёт оба пункта: «что и где смотреть + ожидание из спеки» («тест прошёл»
+    без места осмотра — находка) и «разбор каждого расхождения или строка
+    «не было»» со ссылкой на раздел testing.md."""
+    text = REFERENCE.read_text("utf-8")
+    assert _reviewer_tests_evidence_errors(text) == []
 
 
 def test_harnesses_describe_the_review_way_and_name_the_gaps():
@@ -313,3 +352,45 @@ def test_reference_check_can_fail():
     assert orphan != index
     assert any("does not link review-roles.md" in error
                for error in _harness_errors(harnesses, orphan))
+
+
+def test_evidence_items_can_fail():
+    """invariant: docs/plans/evidence-verification.md#готово — потеря любого
+    из двух пунктов чек-листа reviewer-tests красит контракт: маркер пункта,
+    список носителей, «тест прошёл», разбор расхождений, «не было» и ссылка
+    на раздел testing.md."""
+    text = REFERENCE.read_text("utf-8")
+    assert _reference_errors(text) == []
+
+    no_what_where = text.replace("что и где смотреть", "место осмотра", 1)
+    assert no_what_where != text
+    assert any("что и где смотреть" in error
+               for error in _reference_errors(no_what_where))
+
+    # The carriers list is wrapped across lines in the checklist; mutating
+    # its last word kills the phrase after whitespace normalisation.
+    no_carriers = text.replace("живая проба", "ручная проверка", 1)
+    assert no_carriers != text
+    assert any("вывод команды, строка лога, файл, живая проба" in error
+               for error in _reference_errors(no_carriers))
+
+    green_only = text.replace("тест прошёл", "зелёный тест", 1)
+    assert green_only != text
+    assert any("тест прошёл" in error
+               for error in _reference_errors(green_only))
+
+    no_dissection = text.replace("разбор каждого расхождения",
+                                 "разбор несовпадений", 1)
+    assert no_dissection != text
+    assert any("разбор каждого расхождения" in error
+               for error in _reference_errors(no_dissection))
+
+    no_clean_line = text.replace("не было", "отсутствовали", 1)
+    assert no_clean_line != text
+    assert any("'не было'" in error
+               for error in _reference_errors(no_clean_line))
+
+    no_link = text.replace("docs/reference/testing.md", "testing.md", 1)
+    assert no_link != text
+    assert any("docs/reference/testing.md" in error
+               for error in _reference_errors(no_link))

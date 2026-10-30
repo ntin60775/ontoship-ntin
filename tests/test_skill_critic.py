@@ -6,11 +6,17 @@ the agent launches right after the unit's last ticket is accepted, before
 the first ship — one run per unit, reading the spec and every ticket whole,
 on a model that differs from the session model with no fallback, reporting
 findings to the operator before the first ship and never re-asking plan-gate
-decisions.
+decisions. The checklist additionally carries the two evidence items of
+evidence-verification ticket 02: the price question — which «Готово» items
+will be expensive to prove and could be simplified or split before code —
+and the coverage check by carriers named in the «Готово» lines of new specs
+(decisions 2 and 5).
 
 spec: docs/plans/review-config.md#готово — skills/critic/SKILL.md, модельный
       скилл критика: запуск сразу после приёмки последнего тикета, чек-лист,
       один прогон на юнит, модель ≠ сессионная, без фолбэка
+spec: docs/plans/evidence-verification.md#готово — критик спрашивает про
+      дорогую верификацию и сверяет носители по строкам новых спек
 spec: docs/decisions/ontoship-core.md#три фазы — критик плана: находки
       оператору до ship, решения план-гейта не перепрашиваются
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -27,6 +33,12 @@ SKILL = REPO / "skills" / "critic" / "SKILL.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 CHECKLIST = ("покрытость", "связность", "рёбра", "демо-пути", "честность критериев")
+EVIDENCE_PHRASES = (
+    "дорого доказывать",
+    "упростить или разрезать до кода",
+    "по носителям, названным в строках",
+    "новых спек",
+)
 REQUIRED_PHRASES = (
     "сразу после приёмки последнего тикета",
     "до первого ship",
@@ -110,6 +122,9 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    for phrase in EVIDENCE_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"checklist: missing evidence phrase {phrase!r}")
     for item in CHECKLIST:
         if item not in lowered:
             errors.append(f"checklist: missing {item!r}")
@@ -171,6 +186,55 @@ def test_checklist_covers_the_five_spec_items():
     lowered = _normalized_lower(body)
     for item in CHECKLIST:
         assert item in lowered, f"checklist item {item!r} is missing"
+
+
+def test_checklist_asks_the_price_of_evidence():
+    """spec: docs/plans/evidence-verification.md#готово — в чек-лист входит
+    вопрос: какие пункты «Готово» будет дорого доказывать и нельзя ли
+    упростить или разрезать до кода (решение 5)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "дорого доказывать" in lowered
+    assert "упростить или разрезать до кода" in lowered
+
+
+def test_coverage_is_verified_by_carriers_of_new_specs():
+    """spec: docs/plans/evidence-verification.md#готово — покрытость «Готово»
+    сверяется по носителям, названным в строках новых спек (решение 2)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "по носителям, названным в строках" in lowered
+    assert "новых спек" in lowered
+
+
+def test_evidence_contract_can_fail():
+    """invariant: docs/plans/evidence-verification.md#готово — потеря вопроса
+    о цене доказательства или сверки носителей красит контракт критика."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_price = text.replace("дорого доказывать", "дорого проверять", 1)
+    assert no_price != text
+    assert any("дорого доказывать" in error
+               for error in _contract_errors(no_price))
+
+    no_split = text.replace("упростить или разрезать до кода", "упростить", 1)
+    assert no_split != text
+    assert any("упростить или разрезать до кода" in error
+               for error in _contract_errors(no_split))
+
+    no_carriers = text.replace("по носителям, названным в строках",
+                               "по носителям из тикетов", 1)
+    assert no_carriers != text
+    assert any("по носителям, названным в строках" in error
+               for error in _contract_errors(no_carriers))
+
+    # The description also says «новых спек»; the mutation must hit the body
+    # checklist, so it targets the body-only sentence opening.
+    old_specs_too = text.replace("У новых спек", "У всех спек", 1)
+    assert old_specs_too != text
+    assert any("новых спек" in error
+               for error in _contract_errors(old_specs_too))
 
 
 def test_findings_go_to_the_operator_before_the_first_ship():
