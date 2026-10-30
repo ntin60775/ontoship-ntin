@@ -29,7 +29,8 @@ links:
 - [reference/](reference/README.md) — сквозные справочники.
   [sources.md](reference/sources.md) — три источника и что из каждого взято;
   [testing.md](reference/testing.md) — spec-, инвариантные и target-тесты;
-  [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder;
+  [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder,
+  прогон ревью-панели и онто-дока;
   [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков;
   [text-style.md](reference/text-style.md) — канон текстов: скиллы, правила,
   справочники, сообщения гейтов.

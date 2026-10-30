@@ -7,7 +7,7 @@ updated: 2026-10-30
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
-  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, review-roles.md, ../ops/continue.md]
+  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, review-roles.md, ../ops/continue.md]
 ---
 
 # Совместимость харнессов
@@ -26,10 +26,10 @@ project-local корня `<project>/.agents/skills` достаточно для 
 | zcode 3.16.2 | `.agents/skills` и `.zcode/skills` в каждом workspace-корне | оба — кандидаты workspace | `NodeContextSourceAdapter` ищет файл от рабочего каталога вверх |
 | Qoder 0.4.8 | `.agents/skills` при `skills.loadFromAgentsDirectory: true` | один корень | загружает `AGENTS.md` проекта и файлы предков |
 
-Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда восемь
-скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`, `ship`,
-`testing`, `critic`. Все три харнесса читают `AGENTS.md` из корня проекта, поэтому точка
-входа и управляемый блок живут там.
+Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда
+девять скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`,
+`ship`, `testing`, `critic`, `onto-doc`. Все три харнесса читают `AGENTS.md`
+из корня проекта, поэтому точка входа и управляемый блок живут там.
 
 ## Доказательства
 
@@ -103,6 +103,30 @@ Qoder-адаптер отложен решением оператора: отк�
 или Qoder определения лягут в `.zcode/agents/` и прочитаны этими харнессами
 не будут — тот же пробел до живых сессий (решение 6 спеки
 [review-config](../plans/review-config.md)).
+
+## Прогон онто-дока по харнессам
+
+Спека — [onto-doc.md](../plans/onto-doc.md): кураторы идут на модели из
+`[agents.curator]` в `.agents/config.toml`; сверку модели и уровня с каталогом
+моделей несёт скилл `skills/onto-doc/SKILL.md`, сам прогон — сохранённый
+workflow. Контракт прогона общий, способы запуска различаются по харнессам.
+
+### zcode — прогон онто-дока
+
+Прогон — сохранённый workflow `.zcode/workflows/onto-doc.dwf.ts` с
+аргументами `root` (корень KB — worktree прогона), `plan` (куски декомпозиции
+`[{path, what}]`, по куратору на кусок) и `model` (назначенная модель для
+печати в log). Модель и уровень едут в `subagent_model` вида
+`<model>$<level>` — тот же транспорт, что у ревью-панели; сверку до запуска
+скилл делает по `ListModels`. Файл прогона печатает назначенную модель в log.
+Доказано пробой запуска `dwfrun-68b2fac1` (компиляция и пустой план); полный
+прогон с кураторами — тикет 05 спеки
+[onto-doc](../plans/onto-doc.md).
+
+### DSH и Qoder — пробел (до живых сессий)
+
+Способ запуска кураторов онто-дока в DSH и Qoder живой сессией не подтверждён
+— пробел, как у ревью-панели выше.
 
 ## Что это значит для проекта
 
