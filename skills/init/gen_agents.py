@@ -12,8 +12,9 @@ definition per role in <project>/.zcode/agents/<name>.md with `model:` and,
 when `level` is set, `thoughtLevel:` taken
 from the config; a role without `level` gets no such line. The level value is
 not validated against a catalogue of known levels — an unknown value passes
-through to the launch-time check; only a non-string or blank `level` is
-invalid. A definition whose content differs from the rendered one —
+through to the launch-time check; a non-string, blank or non-token `level`
+(a bare token: letters, digits, '.', '_', '-', the same shape as a role name)
+is invalid. A definition whose content differs from the rendered one —
 a changed model above all — is reported (old and new model, unquoted) and
 rewritten; unchanged definitions are left untouched, so a rerun with an
 unchanged config never rewrites files. No config file means nothing to do and
@@ -52,7 +53,8 @@ def parse_config(raw: bytes) -> tuple[dict[str, tuple[str, str | None]], list[st
     The level is `None` when the section omits `level`. Raise ConfigError on
     anything invalid: broken TOML, a non-table `agents`
     or role section, a role without `model`, a non-string or empty model, a
-    non-string or blank `level`, an unusable role name.
+    non-string or blank `level`, a `level` that is not a bare token, an
+    unusable role name.
     """
     try:
         data = tomllib.loads(raw.decode("utf-8"))
@@ -90,10 +92,16 @@ def parse_config(raw: bytes) -> tuple[dict[str, tuple[str, str | None]], list[st
                 f"[agents.{name}]: 'model' must not contain control characters"
             )
         level = section.get("level")
-        if level is not None and (not isinstance(level, str) or not level.strip()):
-            raise ConfigError(
-                f"[agents.{name}]: 'level' must be a non-empty string when present"
-            )
+        if level is not None:
+            if not isinstance(level, str) or not level.strip():
+                raise ConfigError(
+                    f"[agents.{name}]: 'level' must be a non-empty string when present"
+                )
+            if not NAME_RE.match(level):
+                raise ConfigError(
+                    f"[agents.{name}]: 'level' must be a bare token: letters, "
+                    "digits, '.', '_', '-'"
+                )
         for key in section:
             if key not in ("model", "level"):
                 warnings.append(f"[agents.{name}]: unknown key {key!r} ignored")
@@ -116,16 +124,16 @@ def render(name: str, model: str, level: str | None, gen_ref: str) -> str:
     level_line = f'thoughtLevel: {level}\n' if level else ""
     return (
         "---\n"
-        f'description: Ревью-роль OntoShip "{name}".\n'
+        f'description: Роль OntoShip "{name}".\n'
         f'model: "{quoted}"\n'
         + level_line
         + "---\n"
         "\n"
         f"# {name}\n"
         "\n"
-        "Роль ревью OntoShip. Модель назначена конфигом `.agents/config.toml`\n"
-        f"(секция `[agents.{name}]`, ключ `model`); чек-лист роли передаётся при\n"
-        "запуске панели. Определение производное — перегенерируется\n"
+        "Роль OntoShip. Модель назначена конфигом `.agents/config.toml`\n"
+        f"(секция `[agents.{name}]`, ключ `model`); канал запуска роли назначен\n"
+        "той же секцией конфига. Определение производное — перегенерируется\n"
         f"`{gen_ref}`, не редактируется вручную.\n"
     )
 
@@ -193,7 +201,7 @@ def sync(project: Path) -> int:
         return 1
 
     for name, target, expected in plan:
-        model = roles[name][0]
+        model, _ = roles[name]
         if target.is_file() and target.read_text(encoding="utf-8") == expected:
             print(f"{name}: ok")
             continue
