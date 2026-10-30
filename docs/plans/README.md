@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-10-29
+updated: 2026-10-30
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -31,10 +31,16 @@ links:
 - [evidence-verification.md](evidence-verification.md) — артефакт доказательства
   вместо красно-зелёного семафора: носители в «Готово», разбор расхождений,
   ранняя оценка цены доказательства (утверждён 2026-10-29, решения 1–6;
-  нарезка тикетов).
+  завершён 2026-10-30, тикеты 01–04).
+- [ship-isolation.md](ship-isolation.md) — безусловный изолированный worktree
+  для шипа: шаг 1 скилла ship и контракт без «или ветку» (утверждён
+  2026-10-30, решения 1–3; нарезка тикетов).
+- [onto-doc.md](onto-doc.md) — тяжёлая док-часть из оригинала: fan-out
+  кураторов на модели из конфига, `[agents.curator]` и уровни ролей
+  (draft, ждёт план-гейт; директивы оператора 2026-10-30).
 
-Пять юнитов закрыты: четыре основных и игрушечный `install-dry-run`
-(2026-10-23); `review-config` закрыт 2026-10-29. Шестой юнит
-`evidence-verification` утверждён на план-гейте 2026-10-29 — нарезка тикетов.
-Открытая работа и пробелы харнессов
+Шесть юнитов закрыты: четыре основных, игрушечный `install-dry-run`
+(2026-10-23) и `review-config` (2026-10-29), `evidence-verification` закрыт
+2026-10-30. Открыты мини-юнит `ship-isolation` (нарезка) и юнит `onto-doc`
+(draft до план-гейта). Открытая работа и пробелы харнессов
 записаны в [continue.md](../ops/continue.md).

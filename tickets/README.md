@@ -46,7 +46,7 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 | 04 | [панель в ship, справочник ролей](review-config/04-panel-ship-roles.md) | 01, 03 |
 | 05 | [живое доказательство](review-config/05-live-proof.md) | 01, 02, 03, 04 |
 
-Открытый юнит [`evidence-verification`](../docs/plans/evidence-verification.md):
+Закрытый юнит [`evidence-verification`](../docs/plans/evidence-verification.md):
 спека утверждена на план-гейте 2026-10-29 (решения 1–6 — ask-раунд оператора;
 решение 7 — 2026-10-30, итог разбора пропущенных шагов); тикеты 01–03 приняты
 2026-10-30 (02 — в переформулированной оператором редакции), тикет 04 —
@@ -61,6 +61,14 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 | 02 | [роли ревью](evidence-verification/02-review-roles.md) | 01 |
 | 03 | [ранняя фаза](evidence-verification/03-early-phase.md) | — |
 | 04 | [фазовые переходы](evidence-verification/04-phase-checklists.md) | 01, 03 |
+
+Открытый мини-юнит [`ship-isolation`](../docs/plans/ship-isolation.md): спека
+утверждена на план-гейте 2026-10-30 (решения 1–3 — ask-раунд оператора);
+нарезка — один тикет, по решению 2 спеки.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [безусловный worktree](ship-isolation/01-unconditional-worktree.md) | — |
 
 Закрытый юнит `harness-agnostic` остаётся историей:
 
