@@ -49,7 +49,7 @@ worktree.
 
 **Разбор расхождений.** Расхождений ожидание/факт в прогоне не было.
 
-**Доказательства.** База — `83c6002` (master), исполнение — worktree
+**Доказательства.** База — `83c6002` (main), исполнение — worktree
 `../ontoship-ntin-wt-si01`, ветка `si-01-unconditional-worktree`.
 Шаг 1 после правки (`skills/ship/SKILL.md`, раздел «Один проход»):
 «**Worktree.** Отдели изолированный worktree от базового коммита
@@ -69,15 +69,15 @@ worktree»`, `body: forbidden … phrase 'или ветку'`). Зелёный �
 другом разделе (`moved_out`) и возврат «или ветку» (`reverted`); полный
 набор — **312 passed = 311 + 1** in 3.41s; гигиена: `lint --strict` →
 `✓ чисто` (66 файлов), индекс пересобран. Артефакт изоляции:
-`git worktree list` → два дерева — основной checkout `83c6002 [master]`
+`git worktree list` → два дерева — основной checkout `83c6002 [main]`
 и `ontoship-ntin-wt-si01 83c6002 [si-01-unconditional-worktree]`;
 `git rev-parse --show-toplevel` из сессии коммитов тикета →
 `/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-si01`;
 `git status --porcelain` основного checkout → пусто. Дифф среза меряется
 от базы: `git diff 83c6002..si-01-unconditional-worktree` — три файла
 (skills/ship/SKILL.md, tests/test_skill_ship.py, этот тикет), 83/8;
-master за время ревью ушёл дальше (параллельный юнит understanding-check),
-поэтому `git diff master..ветка` показывает чужие файлы — дифф среза
+main за время ревью ушёл дальше (параллельный юнит understanding-check),
+поэтому `git diff main..ветка` показывает чужие файлы — дифф среза
 читается только от `83c6002`. Гигиена индекса: `python3
 skills/kb-search/gitmark.py index` → `✓ index: 66 файлов · 308 чанков`.
 

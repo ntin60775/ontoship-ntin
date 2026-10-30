@@ -24,7 +24,7 @@
 |---|---|---|---|
 | grilling | `skills/grilling/SKILL.md` | [docs/plans/install-dry-run.md](../../docs/plans/install-dry-run.md) | `1e9851c` |
 | to-tickets | `skills/to-tickets/SKILL.md` | [tickets/install-dry-run/01](../../tickets/install-dry-run/01-dry-run-link.md), [02](../../tickets/install-dry-run/02-dry-run-copy.md) | `82aeb6b` |
-| ship | `skills/ship/SKILL.md`, `skills/testing/SKILL.md` | `scripts/install.sh`, `tests/test_install.py` | `10a78bd` (влит в `master` быстрым перемотом) |
+| ship | `skills/ship/SKILL.md`, `skills/testing/SKILL.md` | `scripts/install.sh`, `tests/test_install.py` | `10a78bd` (влит в `main` быстрым перемотом) |
 
 ## Отчёт прогона (2026-10-22)
 
@@ -63,7 +63,7 @@ link-режим плюс временный отказ `--dry-run --copy` с к�
 `--dry-run "$PWD"` → семь `would leave … unchanged`, хэш дерева установки не
 изменился; `--dry-run --copy` → 2; `lint --strict` чистый (44 файла);
 `search "canon"` → `docs/decisions/ontoship-core.md`. Merge — локальный
-fast-forward в `master`, worktree удалён.
+fast-forward в `main`, worktree удалён.
 
 **Что доказано.** Все четыре критерия тикета: спека лежит в `docs/plans/`,
 тикеты с падающими на базе критериями опубликованы, один тикет дошёл до коммита

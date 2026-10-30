@@ -2,7 +2,7 @@
 
 **Спека:** [docs/plans/onto-doc.md](../../docs/plans/onto-doc.md)
 
-**Что построить:** выделенный git worktree от текущего master; движок
+**Что построить:** выделенный git worktree от текущего main; движок
 в worktree — `scripts/install.sh <worktree>` до прогона либо отслеживаемый
 путь: `python3 skills/kb-search/gitmark.py --root <worktree> …` —
 `.agents/skills/` в свежем worktree нет, он в `.gitignore`; сессия прогона —

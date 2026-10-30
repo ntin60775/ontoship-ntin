@@ -33,7 +33,7 @@ leave … unchanged` и неизменное дерево.
 ## Доказательства (2026-10-22)
 
 - **Коммит:** `10a78bd` — `scripts/install.sh` и `tests/test_install.py`; влит в
-  `master` быстрым перемотом из ветки `dogfood/install-dry-run`, worktree удалён.
+  `main` быстрым перемотом из ветки `dogfood/install-dry-run`, worktree удалён.
 - **Red→green:** на базовом коммите `82aeb6b` пять новых тестов падают (`unknown
   option`, в справке нет `--dry-run`); после реализации `tests/test_install.py` →
   17 passed, полный набор → **226 passed**. Логи:
