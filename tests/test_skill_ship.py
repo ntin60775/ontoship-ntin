@@ -19,7 +19,8 @@ deduplicates findings into one report; a role's input is its scope and
 checklist, its output a verdict and findings with priorities and leads;
 independence is artifacts, never the run's story. Definition models are
 checked against the config before launch and regenerated on drift
-(decision 9); an unavailable role model falls back to the session model,
+(decision 9); the check covers the model and the reasoning level (onto-doc
+decision 4). An unavailable role model falls back to the session model,
 marked in the report (decision 14); a failure on the fallback too means one
 retry and a stop (decision 4); a base-set role missing from the config is a
 named gap in the report, not a silent skip; the critic gate must hold before
@@ -93,7 +94,7 @@ PANEL_PHRASES = (
     "артефакты",
     "не ход исполнения",
     ".agents/config.toml",
-    "модель определения",
+    "модель и уровень определения",
     "перегенерируй",
     "фолбэк на модель сессии",
     "пометкой в отчёте",
@@ -429,10 +430,12 @@ def test_panel_role_input_output_and_independence():
 def test_panel_checks_definitions_before_launch():
     """spec: docs/plans/review-config.md#готово — до запуска ролей сверка
     модели определения с конфигом, расхождение — перегенерация (решение 9);
-    способы запуска живут в матрице харнессов, не в тексте скилла."""
+    способы запуска живут в матрице харнессов, не в тексте скилла.
+    spec: docs/plans/onto-doc.md#готово — сверка расширена с модели до
+    модели и уровня (решение 4)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "модель определения" in lowered
+    assert "модель и уровень определения" in lowered
     assert "перегенерируй" in lowered
     assert "docs/reference/harnesses.md" in lowered
 
@@ -472,10 +475,16 @@ def test_critic_gate_holds_before_the_units_first_ship():
 def test_panel_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     panel contract rejects a lost deduplication order, a lost fallback mark,
-    a lost retry-and-stop, a silent base-set skip, a lost regeneration and a
-    lost critic gate."""
+    a lost retry-and-stop, a silent base-set skip, a lost regeneration, a
+    lost level in the definition check and a lost critic gate."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
+
+    no_level = text.replace("модель и уровень определения",
+                            "модель определения", 1)
+    assert no_level != text
+    assert any("модель и уровень определения" in error
+               for error in _contract_errors(no_level))
 
     no_dedup = text.replace("Дедуплицируй повторяющиеся находки — ",
                             "Собери находки подряд — ", 1)
