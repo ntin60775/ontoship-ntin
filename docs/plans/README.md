@@ -6,7 +6,7 @@ status: active
 updated: 2026-10-30
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -38,9 +38,13 @@ links:
 - [onto-doc.md](onto-doc.md) — тяжёлая док-часть из оригинала: fan-out
   кураторов на модели из конфига, `[agents.curator]` и уровни ролей
   (утверждён 2026-10-30, решения 1–11; нарезка — тикеты 01–05).
+- [understanding-check.md](understanding-check.md) — сверка понимания вместо
+  квиза в нарезке: шаг 3 `to-tickets` и его контракт (draft, ждёт план-гейт;
+  направление задал оператор 2026-10-30).
 
 Шесть юнитов закрыты: четыре основных, игрушечный `install-dry-run`
 (2026-10-23) и `review-config` (2026-10-29), `evidence-verification` закрыт
-2026-10-30. Открыты мини-юнит `ship-isolation` (нарезка) и юнит `onto-doc`
-(draft до план-гейта). Открытая работа и пробелы харнессов
-записаны в [continue.md](../ops/continue.md).
+2026-10-30. Открыты мини-юнит `ship-isolation` (исполнение тикета 01
+отложено), юнит `onto-doc` (нарезка — тикеты 01–05) и мини-юнит
+`understanding-check` (draft до план-гейта). Открытая работа и пробелы
+харнессов записаны в [continue.md](../ops/continue.md).
