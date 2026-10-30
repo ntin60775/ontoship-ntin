@@ -3,16 +3,16 @@
 # The critic model must differ from the session model (decision 10).
 
 [agents.reviewer-spec]
-model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
 
 [agents.reviewer-tests]
-model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
 
 [agents.reviewer-code]
-model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
 
 [agents.reviewer-kb]
-model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
 
 [agents.critic]
 model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
