@@ -37,7 +37,7 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, 229 тестов и
 чистый `lint --strict`. Workflow-скиллы `grilling`, `to-tickets`, `ship` и `testing`
 готовы; скилл критика плана `critic` добавлен (тикет 03 `review-config`);
-установка ставит восемь скиллов. Сквозной dogfood-прогон прошёл 2026-10-22:
+установка ставит девять скиллов (последний — `onto-doc`). Сквозной dogfood-прогон прошёл 2026-10-22:
 интервью → тикеты → `ship` до локального merge. Открытая работа записана в
 [docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту). Предыдущая линия
 ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) хранится как **строгий

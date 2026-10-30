@@ -54,16 +54,21 @@ REQUIRED_PHRASES = (
     "workflow-транспортом",
     "kb-curate",
     "status: active",
+    "documents:[src/…]",
     "implemented_by",
     "`readme.md`-индекс папки",
+    "запускай независимые области параллельно",
     # step 4 — check and report, writing belongs to init (decision 2)
-    "точка входа",
+    "проверь, что",
+    "главный индекс",
+    "итог проверки — в отчёт",
     "домен скилла",
     # step 5 — derived output, engine literals
     "python3 skills/kb-search/gitmark.py lint",
     "gitmark.py index",
     "gitmark.py map -o docs-map.html",
     # step 6 — report
+    "покрытие kb до→после",
     "решения человека",
     # principle, word-for-word
     "md+git — источник истины",
@@ -80,15 +85,19 @@ REQUIRED_PHRASES = (
     "названный пробел и стоп",
     "не угадывание",
     "сохранённый workflow",
+    "тремя аргументами",
     "корень kb — worktree прогона",
-    "печатает назначенную модель",
-    "в log",
+    "(назначенная модель",
+    "прогон онто-дока по харнессам",
+    "печатает её в log",
     "пишет только внутри",
     "строку на область — куратор, файлы, отказ",
 )
 FORBIDDEN_PHRASES = (
     "$arguments",
     "${claude_plugin_root}",
+    "(task)",
+    "surveyor",
 )
 FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
 
@@ -272,11 +281,26 @@ def test_adaptations_are_limited_to_decision_two():
     assert any("${claude_plugin_root}" in error
                for error in _contract_errors(plugin_root_back))
 
+    task_back = text + "\nСпавни куратора командой (Task).\n"
+    assert any("(task)" in error for error in _contract_errors(task_back))
+
+    surveyor_back = text + "\nЗаведи отдельную роль surveyor для обследования.\n"
+    assert any("surveyor" in error for error in _contract_errors(surveyor_back))
+
+    write_entry = text.replace(
+        "запись точки входа —\n   домен скилла `init`",
+        "запиши точку входа", 1)
+    assert write_entry != text
+    assert any("домен скилла" in error
+               for error in _contract_errors(write_entry))
+
 
 def test_launch_procedure_verifies_model_and_level():
     """spec: docs/plans/onto-doc.md#готово — сверка model+level с каталогом
-    моделей: расхождение — стоп, каталога нет — названный пробел и стоп,
-    чтение отчёта и lint+index+map в сессии (решение 4)."""
+    моделей: расхождение — стоп, каталога нет — названный пробел и стоп;
+    запуск — тремя аргументами root/plan/model, путь — раздел прогона
+    онто-дока в матрице харнессов; чтение отчёта и lint+index+map в сессии
+    (решения 4 и 8)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "сверь модель и уровень" in lowered
@@ -284,9 +308,11 @@ def test_launch_procedure_verifies_model_and_level():
     assert "названный пробел и стоп" in lowered
     assert "не угадывание" in lowered
     assert "сохранённый workflow" in lowered
+    assert "тремя аргументами" in lowered
     assert "корень kb — worktree прогона" in lowered
-    assert "печатает назначенную модель" in lowered
-    assert "в log" in lowered
+    assert "(назначенная модель" in lowered
+    assert "печатает её в log" in lowered
+    assert "прогон онто-дока по харнессам" in lowered
     assert "строку на область — куратор, файлы, отказ" in lowered
     assert "python3 skills/kb-search/gitmark.py lint" in lowered
     assert "gitmark.py index" in lowered
@@ -341,19 +367,29 @@ def test_principle_is_word_for_word():
 
 
 @pytest.mark.parametrize(
-    ("needle", "replacement"),
+    "needle",
     [
-        ("python3 skills/kb-search/gitmark.py stat", "запусти stat"),
-        ("workflow-транспортом", "задачами"),
-        ("implemented_by", "ссылками"),
-        ("расхождение — стоп", "расхождение — замечание"),
-        ("названный пробел и стоп", "тихий пропуск"),
-        ("сохранённый workflow", "новый скрипт"),
-        ("корень kb — worktree прогона", "корень kb"),
-        ("строку на область — куратор, файлы, отказ", "список областей"),
+        "python3 skills/kb-search/gitmark.py stat",
+        "workflow-транспортом",
+        "documents:[src/…]",
+        "implemented_by",
+        "запускай независимые области параллельно",
+        "проверь, что",
+        "главный индекс",
+        "итог проверки — в отчёт",
+        "покрытие kb до→после",
+        "расхождение — стоп",
+        "названный пробел и стоп",
+        "сохранённый workflow",
+        "тремя аргументами",
+        "корень kb — worktree прогона",
+        "(назначенная модель",
+        "прогон онто-дока по харнессам",
+        "печатает её в log",
+        "строку на область — куратор, файлы, отказ",
     ],
 )
-def test_every_short_marker_has_a_failing_probe(needle: str, replacement: str) -> None:
+def test_every_short_marker_has_a_failing_probe(needle: str) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     removing any required phrase, however short, reddens the contract."""
     text = SKILL.read_text("utf-8")

@@ -45,29 +45,55 @@ if (!Array.isArray(planRaw)) {
   throw new Error("plan must be a list of {path, what} pieces");
 }
 const plan = planRaw as Piece[];
+if (plan.length === 0) {
+  throw new Error("plan is empty: one piece per doc area is required");
+}
+// Curators write only inside root; a relative path keeps them inside it.
+const seen = new Set<string>();
+for (const piece of plan) {
+  const path = String((piece as Piece | undefined)?.path ?? "");
+  if (!path || path.startsWith("/") || path.split("/").includes("..")) {
+    throw new Error(
+      `plan: path must be relative to root without '..': ${JSON.stringify(piece)}`,
+    );
+  }
+  if (seen.has(path)) {
+    throw new Error(`plan: duplicate doc area ${path}`);
+  }
+  seen.add(path);
+}
 log(`кураторы онто-дока идут на назначенную модель ${assigned}; корень KB: ${root}`);
 
 phase("Кураторы ведут свои области параллельно");
-const rows = await Promise.all(
+const rows: CuratorRow[] = await Promise.all(
   plan.map(async (piece, i) => {
     const curator = agent(`куратор-${i + 1}-${piece.path}`, {
       system:
         "Ты куратор базы знаний OntoShip. Веди строго свой срез по правилам " +
-        "kb-curate: md+git — источник истины, не дублируй, правь существующие " +
-        "документы. Пиши только внутри корня KB, за его пределы не выходи. " +
-        "Если задание невыполнимо или инструкции противоречат друг другу — " +
-        "верни отказ с причиной, а не обходи.",
+        "скилла kb-curate: md+git — источник истины, не дублируй. Пиши только " +
+        "внутри корня KB, за его пределы не выходи. Если задание невыполнимо " +
+        "или инструкции противоречат друг другу — верни отказ с причиной, " +
+        "а не обходи.",
     });
-    const row = await curator.ask<CuratorRow>(
+    const answer: unknown = await curator.ask(
       `Область: ${piece.path} — ${piece.what}. Корень KB: ${root}. ` +
-      `Прочитай ${root}/skills/kb-curate/SKILL.md и веди свой срез строго ` +
-      `по нему: сначала поиск (не дублируй); выбери node_type и правильную ` +
-      `папку; напиши frontmatter (node_type, title, service, ` +
-      `status: active, updated); добавь хотя бы одну типизированную ссылку ` +
-      `на документируемый код (documents / implemented_by); дополни ` +
-      `README-индекс папки. Верни строку: путь области, своё имя куратора, ` +
-      `созданные или обновлённые файлы от корня KB, отказ или пустую строку.`,
+      `Найди скилл kb-curate в корне KB: .agents/skills/kb-curate/SKILL.md, ` +
+      `а если его там нет — skills/kb-curate/SKILL.md; прочитай его и веди ` +
+      `свой срез строго по нему: операции, frontmatter, типизированные ` +
+      `ссылки и README-индекс папки — как велит скилл. Верни JSON-объект ` +
+      `с полями: path (путь области), curator (твоё имя куратора), files ` +
+      `(массив созданных или обновлённых файлов от корня KB), refusal ` +
+      `(причина отказа или пустая строка).`,
     );
+    const shape = answer as Partial<CuratorRow> | undefined;
+    const files: string[] =
+      shape && Array.isArray(shape.files) ? shape.files.map(String) : [];
+    const row: CuratorRow = {
+      path: String(shape?.path ?? piece.path),
+      curator: String(shape?.curator ?? `куратор-${i + 1}-${piece.path}`),
+      files,
+      refusal: String(shape?.refusal ?? ""),
+    };
     report(row);
     return row;
   }),

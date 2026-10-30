@@ -7,7 +7,7 @@ destination.
 
 spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents/skills;
       link/copy; idempotent; --check names each missing or drifted skill
-spec: docs/plans/review-config.md#готово — the install channel carries nine
+spec: docs/plans/onto-doc.md#готово — the install channel carries nine
       bundles: onto-doc joins the eight
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
@@ -118,7 +118,7 @@ def test_onto_doc_joins_as_the_ninth_bundle(project: Path) -> None:
 def test_fresh_install_links_nine_skills_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: docs/plans/review-config.md#готово — nine links under .agents/skills."""
+    """spec: docs/plans/onto-doc.md#готово — nine links under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -154,7 +154,7 @@ def test_second_install_is_idempotent(project: Path) -> None:
 
 
 def test_check_is_clean_and_read_only(project: Path) -> None:
-    """spec: docs/plans/workflow-skills.md#готово — `--check` exits 0 when all nine links point at this repo."""
+    """spec: docs/plans/workflow-skills.md#готово — `--check` exits 0 when every link points at this repo."""
     install = run(project)
     assert install.returncode == 0, output(install)
     before = tree(project)
@@ -255,7 +255,7 @@ def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:
-    """spec: docs/plans/workflow-skills.md#готово — `--copy` produces nine real directories, not links."""
+    """spec: docs/plans/workflow-skills.md#готово — `--copy` produces real directories, not links."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")

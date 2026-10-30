@@ -7,7 +7,7 @@ updated: 2026-10-30
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
-  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, review-roles.md, ../ops/continue.md]
+  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, review-roles.md, ../ops/continue.md]
 ---
 
 # Совместимость харнессов
@@ -26,10 +26,10 @@ project-local корня `<project>/.agents/skills` достаточно для 
 | zcode 3.16.2 | `.agents/skills` и `.zcode/skills` в каждом workspace-корне | оба — кандидаты workspace | `NodeContextSourceAdapter` ищет файл от рабочего каталога вверх |
 | Qoder 0.4.8 | `.agents/skills` при `skills.loadFromAgentsDirectory: true` | один корень | загружает `AGENTS.md` проекта и файлы предков |
 
-Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда девять
-скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`, `ship`,
-`testing`, `critic`, `onto-doc`. Все три харнесса читают `AGENTS.md` из корня проекта, поэтому точка
-входа и управляемый блок живут там.
+Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда
+девять скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`,
+`ship`, `testing`, `critic`, `onto-doc`. Все три харнесса читают `AGENTS.md`
+из корня проекта, поэтому точка входа и управляемый блок живут там.
 
 ## Доказательства
 
@@ -111,7 +111,7 @@ Qoder-адаптер отложен решением оператора: отк�
 моделей несёт скилл `skills/onto-doc/SKILL.md`, сам прогон — сохранённый
 workflow. Контракт прогона общий, способы запуска различаются по харнессам.
 
-### zcode — рабочий способ
+### zcode — прогон онто-дока
 
 Прогон — сохранённый workflow `.zcode/workflows/onto-doc.dwf.ts` с
 аргументами `root` (корень KB — worktree прогона), `plan` (куски декомпозиции
@@ -119,6 +119,9 @@ workflow. Контракт прогона общий, способы запус�
 печати в log). Модель и уровень едут в `subagent_model` вида
 `<model>$<level>` — тот же транспорт, что у ревью-панели; сверку до запуска
 скилл делает по `ListModels`. Файл прогона печатает назначенную модель в log.
+Доказано пробой запуска `dwfrun-68b2fac1` (компиляция и пустой план); полный
+прогон с кураторами — тикет 05 спеки
+[onto-doc](../plans/onto-doc.md).
 
 ### DSH и Qoder — пробел (до живых сессий)
 
