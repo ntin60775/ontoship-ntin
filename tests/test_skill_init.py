@@ -10,6 +10,9 @@ spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the 
       .gitignore (four lines), harness-neutral prose
 spec: docs/plans/review-config.md#готово — init спрашивает модели ролей ядра
       ask-ом, пишет .agents/config.toml и запускает генератор из бандла
+spec: docs/plans/onto-doc.md#готово — init спрашивает куратора шестым вопросом:
+      рекомендация — дефолт решения 3 по правилу отклонения решения 9, уровень —
+      максимум из доступных, без уровней ключ опускается
 invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance, Reel or
       acceptance chord
 invariant: docs/plans/harness-agnostic.md#готово — no harness root named
@@ -24,8 +27,10 @@ SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
 GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/")
-CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic")
+CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
+              "curator")
 GENERATOR_PATH = ".agents/skills/init/gen_agents.py"
+CURATOR_DEFAULT = "account:zai-individual-coding-plan/GLM-5.3-Flash"
 BOOTSTRAP_NEEDLES = (
     "Три файла, ничего больше",
     ".agents/config.toml",
@@ -37,6 +42,12 @@ BOOTSTRAP_NEEDLES = (
     "не дописывай",
     "не трогай",
     GENERATOR_PATH,
+    "Сверь шесть ролей ядра",
+    "Шестой вопрос — модель роли `curator`",
+    CURATOR_DEFAULT,
+    "иначе ближайшая активная с названным отклонением",
+    "максимум из доступных уровней выбранной модели",
+    "у модели без уровней ключ `level` опусти",
 ) + CORE_ROLES
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".zcode", ".qoder", "commands.md")
@@ -258,6 +269,19 @@ def test_bootstrap_asks_core_role_models_from_active_host_models():
     assert "активные модели" in text
 
 
+def test_bootstrap_asks_curator_sixth_per_solution_nine():
+    """spec: docs/plans/onto-doc.md#готово — init спрашивает куратора: шестой
+    вопрос с рекомендацией — дефолтом решения 3, только если он в активном
+    списке; иначе ближайшая активная с названным отклонением; уровень —
+    максимум по ListModels, без уровней ключ опускается (решение 9)."""
+    text = SKILL.read_text("utf-8")
+    assert "Шестой вопрос — модель роли `curator`" in text
+    assert CURATOR_DEFAULT in text
+    assert "иначе ближайшая активная с названным отклонением" in text
+    assert "максимум из доступных уровней выбранной модели" in text
+    assert "у модели без уровней ключ `level` опусти" in text
+
+
 def test_critic_model_must_differ_from_the_session_model():
     """spec: docs/plans/review-config.md#готово — для critic совпадение выбранной
     модели с сессионной — отказ с объяснением."""
@@ -317,3 +341,30 @@ def test_bootstrap_contract_can_fail():
     no_generator = text.replace(GENERATOR_PATH, "gen.py")
     assert no_generator != text
     assert any(GENERATOR_PATH in error for error in _contract_errors(no_generator))
+
+
+def test_curator_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    curator bootstrap rejects a lost sixth role, a lost level rule and a lost
+    deviation rule (onto-doc solution 9 mutations)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_curator = text.replace("curator", "kurator")
+    assert no_curator != text
+    assert any("curator" in error for error in _contract_errors(no_curator))
+
+    no_level = text.replace(
+        "и `level = \"<максимум из доступных уровней выбранной модели>\"`;\n"
+        "   у модели без уровней ключ `level` опусти.", "")
+    assert no_level != text
+    errors = _contract_errors(no_level)
+    assert any("максимум из доступных уровней выбранной модели" in error
+               for error in errors)
+    assert any("у модели без уровней ключ `level` опусти" in error for error in errors)
+
+    no_deviation = text.replace("иначе ближайшая активная с названным отклонением",
+                                "иная активная модель")
+    assert no_deviation != text
+    assert any("иначе ближайшая активная с названным отклонением" in error
+               for error in _contract_errors(no_deviation))
