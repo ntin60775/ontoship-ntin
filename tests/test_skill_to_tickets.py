@@ -8,6 +8,10 @@ criteria, blocking edges, quiz) and stay user-invoked: the frontmatter pins
 spec: docs/plans/workflow-skills.md#готово — skills/to-tickets/SKILL.md
 spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket,
 criteria fall on the base commit, no file:line anchors
+spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
+names an observable artifact and a spec-sourced expectation in both "Срезы"
+and "Порядок"; the pre-publish quiz asks «что я увижу и где»; a green test is
+a signal to read the artifact, not proof
 invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
 invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -37,7 +41,12 @@ REQUIRED_PHRASES = (
     "принять как предложено",
     "два-три предложения, не отчёт",
     "вызывает пользователь",
+    "сигнал к чтению артефакта, не доказательство",
+    "что я увижу и где",
 )
+EVIDENCE_SECTIONS = ("Срезы", "Порядок")
+EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
+CARRIERS_PHRASE = "вывод команды, строка лога, файл, живая проба"
 FORBIDDEN_PHRASES = (
     "нарезка — решение оператора",
     "проверяем на дереве",
@@ -71,6 +80,24 @@ def _unquote(value: str) -> str:
     return value
 
 
+def _sections(body: str) -> dict[str, str]:
+    """Split the body into ``## `` sections keyed by heading text."""
+    sections: dict[str, str] = {}
+    current: str | None = None
+    chunks: list[str] = []
+    for line in body.splitlines():
+        if line.startswith("## "):
+            if current is not None:
+                sections[current] = "\n".join(chunks)
+            current = line[3:].strip()
+            chunks = []
+        elif current is not None:
+            chunks.append(line)
+    if current is not None:
+        sections[current] = "\n".join(chunks)
+    return sections
+
+
 def _contract_errors(text: str) -> list[str]:
     """Return every violated skill contract; empty means the skill is sound."""
     try:
@@ -102,6 +129,19 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in FORBIDDEN_PHRASES:
         if phrase in lowered:
             errors.append(f"body: forbidden phrase {phrase!r}")
+    sections = _sections(body)
+    for title in EVIDENCE_SECTIONS:
+        if title not in sections:
+            errors.append(f"body: missing section {title!r}")
+            continue
+        section = re.sub(r"\s+", " ", sections[title].lower())
+        for phrase in EVIDENCE_SECTION_PHRASES:
+            if phrase not in section:
+                errors.append(f"body: section {title!r} must require {phrase!r}")
+    if "Срезы" in sections and CARRIERS_PHRASE not in re.sub(
+            r"\s+", " ", sections["Срезы"].lower()):
+        errors.append(f"body: section 'Срезы' must list the carriers "
+                      f"({CARRIERS_PHRASE!r})")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -175,6 +215,59 @@ def test_slicing_handoff_follows_the_canon():
     assert "принять как предложено" in lowered
     assert "изменить формулировку" in lowered
     assert "режут план; тикет принимают или нет" in lowered
+
+
+def test_criteria_carry_artifact_and_expectation():
+    """spec: docs/plans/evidence-verification.md#готово — artifact + spec-sourced expectation in every criterion, in both sections."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    sections = _sections(body)
+    for title in EVIDENCE_SECTIONS:
+        section = re.sub(r"\s+", " ", sections.get(title, "").lower())
+        assert section, f"section {title!r} is missing from the skill body"
+        for phrase in EVIDENCE_SECTION_PHRASES:
+            assert phrase in section, (
+                f"section {title!r} lost the requirement {phrase!r}")
+    slices = re.sub(r"\s+", " ", sections.get("Срезы", "").lower())
+    assert CARRIERS_PHRASE in slices, "the carriers list is missing from 'Срезы'"
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "сигнал к чтению артефакта, не доказательство" in lowered
+
+
+def test_quiz_asks_what_and_where():
+    """spec: docs/plans/evidence-verification.md#готово — the pre-publish quiz asks «что я увижу и где»."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "квиз перед публикацией" in lowered
+    assert "что я увижу и где" in lowered
+
+
+def test_evidence_contract_can_fail():
+    """invariant: docs/plans/evidence-verification.md#готово — losing the artifact requirement, the quiz question, or a section fails the contract."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    # The phrase may be wrapped across lines in «Срезы»; mutating the word
+    # itself kills the requirement after whitespace normalisation.
+    no_artifact = text.replace("наблюдаемый", "обычный", 1)
+    assert no_artifact != text
+    assert any("section 'Срезы' must require 'наблюдаемый артефакт'" in error
+               for error in _contract_errors(no_artifact))
+
+    # The same requirement must be catchable when it dies in «Порядок» too.
+    no_artifact_anywhere = text.replace("наблюдаемый", "обычный")
+    assert no_artifact_anywhere != no_artifact
+    assert any("section 'Порядок' must require 'наблюдаемый артефакт'" in error
+               for error in _contract_errors(no_artifact_anywhere))
+
+    no_quiz = text.replace("что я увижу и где", "что продемонстрируем", 1)
+    assert no_quiz != text
+    assert any("что я увижу и где" in error
+               for error in _contract_errors(no_quiz))
+
+    no_section = text.replace("## Порядок", "## Ход работы", 1)
+    assert no_section != text
+    assert any("missing section 'Порядок'" in error
+               for error in _contract_errors(no_section))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
