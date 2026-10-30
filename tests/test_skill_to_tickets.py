@@ -54,6 +54,10 @@ CRITIC_TRIGGER_PHRASES = (
     "запуск критика до первого ship",
     "нарезка не закончена без критика",
 )
+CRITIC_CONTRADICTIONS = (
+    "не запускается",
+    "не нужен",
+)
 FORBIDDEN_PHRASES = (
     "нарезка — решение оператора",
     "проверяем на дереве",
@@ -154,6 +158,10 @@ def _contract_errors(text: str) -> list[str]:
         for phrase in CRITIC_TRIGGER_PHRASES:
             if phrase not in sequence:
                 errors.append(f"body: section 'Порядок' must carry {phrase!r}")
+        for phrase in CRITIC_CONTRADICTIONS:
+            if phrase in sequence:
+                errors.append(f"body: section 'Порядок' carries "
+                              f"contradictory phrase {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -213,7 +221,7 @@ def test_tickets_publish_location():
     body = _parse(SKILL.read_text("utf-8"))[1]
     assert ".scratch/<slug>/issues/" in body
     assert "tickets/<slug>/" in body
-    assert "каждый файл несёт" in body.lower()
+    assert "каждый файл несёт" in re.sub(r"\s+", " ", body.lower())
 
 
 def test_slicing_handoff_follows_the_canon():
@@ -287,20 +295,22 @@ def test_slicing_ends_with_the_critic_run():
     последнего тикета нарезки — запуск критика до первого ship; нарезка не
     закончена без критика (решение 7). Фразы ищутся в разделе «Порядок»."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = re.sub(r"\s+", " ", _sections(body)["Порядок"].lower())
+    section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
+    assert section, "section 'Порядок' is missing from the skill body"
     for phrase in CRITIC_TRIGGER_PHRASES:
         assert phrase in section, f"the phrase {phrase!r} is missing from 'Порядок'"
 
 
 def test_critic_trigger_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check can fail: потеря триггера, сдвиг момента и ослабление
-    «не закончена» красят контракт to-tickets (мутационные пробы)."""
+    contract check can fail: потеря триггера, сдвиг момента, ослабление
+    «не закончена» и отрицание запуска критика красят контракт to-tickets
+    (мутационные пробы)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_trigger = text.replace("нарезка не закончена без критика",
-                              "нарезка закончена публикацией", 1)
+    no_trigger = text.replace("Нарезка не закончена без критика",
+                              "Нарезка закончена публикацией", 1)
     assert no_trigger != text
     assert any("нарезка не закончена без критика" in error
                for error in _contract_errors(no_trigger))
@@ -315,6 +325,19 @@ def test_critic_trigger_contract_can_fail():
     assert every_ticket != text
     assert any("после приёмки последнего тикета нарезки" in error
                for error in _contract_errors(every_ticket))
+
+    no_run = text.replace("запуск критика до первого ship",
+                          "критик до первого ship не нужен", 1)
+    assert no_run != text
+    assert any("не нужен" in error for error in _contract_errors(no_run))
+    assert any("запуск критика до первого ship" in error
+               for error in _contract_errors(no_run))
+
+    negated = text.replace("критика запускает агент сам",
+                           "критик не запускается сам", 1)
+    assert negated != text
+    assert any("не запускается" in error
+               for error in _contract_errors(negated))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))

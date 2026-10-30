@@ -61,11 +61,20 @@ EXIT_HEADING = "готовность и выход"
 PROOFREAD_PHRASES = (
     "контрольная вычитка",
     "перед план-гейтом",
+    "перечитай её целиком",
     "носители шагов",
     "условные решения",
-    "числа",
+    "числа согласованы между разделами",
     "противоречия между разделами",
 )
+PROOFREAD_CONTRADICTIONS = (
+    "не перечитывай",
+    "не названы",
+    "не сверяются",
+    "не устранены",
+    "правки — после гейта",
+)
+PROOFREAD_GATE_ITEM = "- **план-гейт:**"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -142,6 +151,13 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in PROOFREAD_PHRASES:
         if phrase not in proofread:
             errors.append(f"exit: missing proofread phrase {phrase!r}")
+    for phrase in PROOFREAD_CONTRADICTIONS:
+        if phrase in proofread:
+            errors.append(f"exit: contradictory proofread phrase {phrase!r}")
+    step_at = proofread.find("контрольная вычитка")
+    gate_at = proofread.find(PROOFREAD_GATE_ITEM)
+    if step_at >= 0 and gate_at >= 0 and step_at > gate_at:
+        errors.append("exit: the control read must precede the plan gate item")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -270,8 +286,9 @@ def test_spec_gets_a_control_read_before_the_plan_gate():
 
 def test_proofread_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check can fail: потеря названия шага, сдвиг момента и выпадение
-    элемента перечня красят контракт grilling (мутационные пробы)."""
+    contract check can fail: потеря названия шага, сдвиг момента, выпадение
+    элемента перечня, отрицание требования, отказ от вычитки и перестановка
+    шага после план-гейта красят контракт grilling (мутационные пробы)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -294,6 +311,32 @@ def test_proofread_contract_can_fail():
     assert no_contradictions != text
     assert any("противоречия между разделами" in error
                for error in _contract_errors(no_contradictions))
+
+    no_numbers = text.replace("числа согласованы между разделами",
+                              "цифры сходятся", 1)
+    assert no_numbers != text
+    assert any("числа согласованы между разделами" in error
+               for error in _contract_errors(no_numbers))
+
+    no_read = text.replace("Перечитай её целиком", "Не перечитывай её", 1)
+    assert no_read != text
+    assert any("перечитай её целиком" in error
+               for error in _contract_errors(no_read))
+    assert any("не перечитывай" in error
+               for error in _contract_errors(no_read))
+
+    unbounded = text.replace("Найденное правится до гейта; спека после гейта "
+                             "меняется только\n  решением оператора.",
+                             "Правки — после гейта, на усмотрение агента.", 1)
+    assert unbounded != text
+    assert any("правки — после гейта" in error
+               for error in _contract_errors(unbounded))
+
+    gate_first = text.replace("- **Контрольная вычитка",
+                              "- **План-гейт:** (ранний дубль) — **Контрольная вычитка", 1)
+    assert gate_first != text
+    assert any("must precede the plan gate item" in error
+               for error in _contract_errors(gate_first))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
