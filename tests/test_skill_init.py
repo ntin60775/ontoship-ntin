@@ -43,11 +43,14 @@ BOOTSTRAP_NEEDLES = (
     "не трогай",
     GENERATOR_PATH,
     "Сверь шесть ролей ядра",
+    "`critic`, `curator` — с секциями конфига",
     "Шестой вопрос — модель роли `curator`",
     CURATOR_DEFAULT,
-    "иначе ближайшая активная с названным отклонением",
+    "пока она в списке активных",
+    "назови отклонение от дефолта",
     "максимум из доступных уровней выбранной модели",
-    "у модели без уровней ключ `level` опусти",
+    "тот же список активных моделей шага 1",
+    "У модели без уровней ключ `level` опусти",
 ) + CORE_ROLES
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".zcode", ".qoder", "commands.md")
@@ -269,19 +272,6 @@ def test_bootstrap_asks_core_role_models_from_active_host_models():
     assert "активные модели" in text
 
 
-def test_bootstrap_asks_curator_sixth_per_solution_nine():
-    """spec: docs/plans/onto-doc.md#готово — init спрашивает куратора: шестой
-    вопрос с рекомендацией — дефолтом решения 3, только если он в активном
-    списке; иначе ближайшая активная с названным отклонением; уровень —
-    максимум по ListModels, без уровней ключ опускается (решение 9)."""
-    text = SKILL.read_text("utf-8")
-    assert "Шестой вопрос — модель роли `curator`" in text
-    assert CURATOR_DEFAULT in text
-    assert "иначе ближайшая активная с названным отклонением" in text
-    assert "максимум из доступных уровней выбранной модели" in text
-    assert "у модели без уровней ключ `level` опусти" in text
-
-
 def test_critic_model_must_differ_from_the_session_model():
     """spec: docs/plans/review-config.md#готово — для critic совпадение выбранной
     модели с сессионной — отказ с объяснением."""
@@ -345,8 +335,9 @@ def test_bootstrap_contract_can_fail():
 
 def test_curator_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    curator bootstrap rejects a lost sixth role, a lost level rule and a lost
-    deviation rule (onto-doc solution 9 mutations)."""
+    curator bootstrap rejects a lost sixth role (in the check list itself, not
+    just any mention), a lost active-list guard, a lost deviation rule, a lost
+    level rule and a lost level source (onto-doc solution 9 mutations)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -354,17 +345,34 @@ def test_curator_contract_can_fail():
     assert no_curator != text
     assert any("curator" in error for error in _contract_errors(no_curator))
 
-    no_level = text.replace(
-        "и `level = \"<максимум из доступных уровней выбранной модели>\"`;\n"
-        "   у модели без уровней ключ `level` опусти.", "")
-    assert no_level != text
-    errors = _contract_errors(no_level)
-    assert any("максимум из доступных уровней выбранной модели" in error
-               for error in errors)
-    assert any("у модели без уровней ключ `level` опусти" in error for error in errors)
+    # The named mutation: the sixth role dropped from the check list itself.
+    no_list = text.replace("`critic`, `curator` — с секциями", "`critic` — с секциями")
+    assert no_list != text
+    assert any("`critic`, `curator` — с секциями конфига" in error
+               for error in _contract_errors(no_list))
 
-    no_deviation = text.replace("иначе ближайшая активная с названным отклонением",
-                                "иная активная модель")
+    # Solution 9's guard: the default is recommended only while it is active.
+    no_guard = text.replace(" пока она в списке активных", "")
+    assert no_guard != text
+    assert any("пока она в списке активных" in error for error in _contract_errors(no_guard))
+
+    no_deviation = text.replace("и назови отклонение от дефолта.", "")
     assert no_deviation != text
-    assert any("иначе ближайшая активная с названным отклонением" in error
-               for error in _contract_errors(no_deviation))
+    assert any("назови отклонение от дефолта" in error for error in _contract_errors(no_deviation))
+
+    no_level = text.replace("максимум из доступных уровней выбранной модели",
+                            "заданный конфигом уровень")
+    assert no_level != text
+    assert any("максимум из доступных уровней выбранной модели" in error
+               for error in _contract_errors(no_level))
+
+    no_source = text.replace("тот же список активных моделей шага 1",
+                             "отдельный каталог уровней")
+    assert no_source != text
+    assert any("тот же список активных моделей шага 1" in error
+               for error in _contract_errors(no_source))
+
+    no_omit = text.replace("У модели без уровней ключ `level` опусти.", "")
+    assert no_omit != text
+    assert any("У модели без уровней ключ `level` опусти" in error
+               for error in _contract_errors(no_omit))
