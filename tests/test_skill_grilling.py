@@ -3,10 +3,14 @@
 The bundle must be discoverable as ``<root>/grilling/SKILL.md`` and carry the
 phase-1 mechanism: design tree, frontier rounds with numbered questions and a
 recommended answer, facts-vs-decisions split, and the spec exit at the plan gate.
+The frontier additionally asks the price-of-evidence question of
+evidence-verification ticket 03 before the spec is written (spec decision 5).
 
 spec: docs/plans/workflow-skills.md#готово — skills/grilling/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — no strict-profile apparatus,
 autonomous flag is out of scope for v1
+spec: docs/plans/evidence-verification.md#готово — во фронтир входит вопрос
+«как каждый пункт будет доказываться и что будет дорого» до написания спеки
 invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -39,6 +43,11 @@ REQUIRED_PHRASES = (
     "не выдумывай",
 )
 FORBIDDEN = ("challenger", "provenance", "реестр")
+EVIDENCE_PHRASES = (
+    "как каждый пункт будет доказываться и что будет дорого",
+    "до написания спеки",
+    "переформулируются или разрезаются на фронтире",
+)
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -96,6 +105,9 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    for phrase in EVIDENCE_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"frontier: missing evidence phrase {phrase!r}")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -167,6 +179,35 @@ def test_autonomous_flag_is_out_of_scope_for_v1():
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "автономный режим" in lowered
     assert "вне рамок" in lowered
+
+
+def test_frontier_asks_the_price_of_evidence():
+    """spec: docs/plans/evidence-verification.md#готово — во фронтир входит
+    вопрос «как каждый пункт будет доказываться и что будет дорого» — до
+    написания спеки; дорогие пункты переформулируются или разрезаются на
+    фронтире (решение 5)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "как каждый пункт будет доказываться и что будет дорого" in lowered
+    assert "до написания спеки" in lowered
+    assert "переформулируются или разрезаются на фронтире" in lowered
+
+
+def test_evidence_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря вопроса о цене доказательства красит
+    контракт grilling (мутационная проба на потерю вопроса)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_price = text.replace("и что будет дорого", "и сколько это стоит", 1)
+    assert no_price != text
+    assert any("как каждый пункт будет доказываться" in error
+               for error in _contract_errors(no_price))
+
+    late = text.replace("до написания спеки", "после написания спеки", 1)
+    assert late != text
+    assert any("до написания спеки" in error for error in _contract_errors(late))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
