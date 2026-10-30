@@ -305,7 +305,8 @@ reviewer-spec — детали в тикете 04. Фолбэков и проп�
 не заводится, готовность юнита доказывает локальный merge; завести remote можно
 отдельным решением, к готовности он не привязан. **2026-10-30 remote заведён
 командой оператора:** `git@github.com:ntin60775/ontoship-ntin.git` (private,
-SSH, `master` запушен и трекает `origin/master`) — PR-путь и push/fetch
+SSH; `master` запушен и в тот же день переименован в `main` — default-ветка
+GitHub, `origin/master` удалён) — PR-путь и push/fetch
 подтверждены живым пушем.
 
 1. **Критик юнита `review-config` отработал 2026-10-29** — первый живой прогон
@@ -650,7 +651,7 @@ tickets/ship-isolation/01-unconditional-worktree.md, docs/plans/onto-doc.md,
 tickets/onto-doc/, docs/plans/understanding-check.md,
 skills/to-tickets/SKILL.md.
 
-Исполнение любого тикета: изолированный git worktree от текущего master
+Исполнение любого тикета: изолированный git worktree от текущего main
 (`git worktree add <каталог> <ветка>`; правило оператора 2026-10-30 —
 шип всегда в worktree, «или ветку» отменено), вся работа и пробы — только
 там; контрактные тесты красные на базе до правок; после — зелёные,
