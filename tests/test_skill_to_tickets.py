@@ -2,18 +2,22 @@
 
 The bundle must be discoverable as ``<root>/to-tickets/SKILL.md``, carry the
 phase-2 slicing mechanism (tracer-bullet vertical slices, demo path, base-commit
-criteria, blocking edges, quiz) and stay user-invoked: the frontmatter pins
-``disable-model-invocation: true``.
+criteria, blocking edges, comprehension check) and stay user-invoked: the
+frontmatter pins ``disable-model-invocation: true``.
 
 spec: docs/plans/workflow-skills.md#готово — skills/to-tickets/SKILL.md
 spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket,
 criteria fall on the base commit, no file:line anchors
 spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
 names an observable artifact and a spec-sourced expectation in both "Срезы"
-and "Порядок"; the pre-publish quiz asks «что я увижу и где»; a green test is
-a signal to read the artifact, not proof; slicing ends with the critic run —
-после приёмки последнего тикета нарезки запуск критика до первого ship,
-нарезка не закончена без критика (решение 7)
+and "Порядок"; a green test is a signal to read the artifact, not proof;
+slicing ends with the critic run — после приёмки последнего тикета нарезки
+запуск критика до первого ship, нарезка не закончена без критика (решение 7)
+spec: docs/plans/understanding-check.md#готово — step 3 of "Порядок" is
+a comprehension check: the agent asks about its own understanding of every
+slice («Задумка тикета N, как я её понял: … Верно?», self-sufficient);
+a mismatch sends the slice back for rewording before publication; the word
+«квиз» survives in this test only inside mutation probes (решения 1–5)
 invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
 invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -35,7 +39,7 @@ REQUIRED_PHRASES = (
     "демо-путь",
     "базовом коммите",
     "блокирующие рёбра",
-    "квиз",
+    "сверка понимания",
     "file:line",
     "что я могу показать",
     ".scratch/<slug>/issues/",
@@ -44,7 +48,8 @@ REQUIRED_PHRASES = (
     "два-три предложения, не отчёт",
     "вызывает пользователь",
     "сигнал к чтению артефакта, не доказательство",
-    "что я увижу и где",
+    "как я её понял",
+    "верно?",
 )
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
 EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
@@ -57,6 +62,15 @@ CRITIC_TRIGGER_PHRASES = (
 CRITIC_CONTRADICTIONS = (
     "не запускается",
     "не нужен",
+)
+CHECK_SECTION_PHRASES = (
+    "сверка понимания",
+    "как я её понял",
+    "верно?",
+)
+CHECK_FORBIDDEN_PHRASES = (
+    "квиз перед публикацией",
+    "что я увижу и где",
 )
 FORBIDDEN_PHRASES = (
     "нарезка — решение оператора",
@@ -162,6 +176,13 @@ def _contract_errors(text: str) -> list[str]:
             if phrase in sequence:
                 errors.append(f"body: section 'Порядок' carries "
                               f"contradictory phrase {phrase!r}")
+        for phrase in CHECK_SECTION_PHRASES:
+            if phrase not in sequence:
+                errors.append(f"body: section 'Порядок' must carry {phrase!r}")
+        for phrase in CHECK_FORBIDDEN_PHRASES:
+            if phrase in sequence:
+                errors.append(f"body: section 'Порядок' carries "
+                              f"forbidden phrase {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -191,11 +212,12 @@ def test_skill_is_user_invoked_only():
 
 
 def test_skill_carries_the_slicing_mechanism():
-    """spec: docs/plans/workflow-skills.md#готово — slices, demo path, quiz."""
+    """spec: docs/plans/workflow-skills.md#готово — slices, demo path, comprehension check."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in ("вертикальные срезы", "демо-путь", "базовом коммите",
-                   "блокирующие рёбра", "квиз", "что я могу показать"):
+                   "блокирующие рёбра", "сверка понимания",
+                   "что я могу показать"):
         assert phrase in lowered, f"the slicing phrase {phrase!r} is missing"
 
 
@@ -253,16 +275,59 @@ def test_criteria_carry_artifact_and_expectation():
     assert "сигнал к чтению артефакта, не доказательство" in lowered
 
 
-def test_quiz_asks_what_and_where():
-    """spec: docs/plans/evidence-verification.md#готово — the pre-publish quiz asks «что я увижу и где»."""
+def test_step_three_is_a_comprehension_check():
+    """spec: docs/plans/understanding-check.md#готово — шаг 3 «Порядка» —
+    сверка понимания: вопрос агента о собственном понимании каждого среза,
+    самодостаточный; фразы ищутся в разделе «Порядок», не по всему телу."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = re.sub(r"\s+", " ", body.lower())
-    assert "квиз перед публикацией" in lowered
-    assert "что я увижу и где" in lowered
+    section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
+    assert section, "section 'Порядок' is missing from the skill body"
+    for phrase in CHECK_SECTION_PHRASES:
+        assert phrase in section, f"the phrase {phrase!r} is missing from 'Порядок'"
+    for phrase in CHECK_FORBIDDEN_PHRASES:
+        assert phrase not in section, (
+            f"the retired phrase {phrase!r} survives in 'Порядок'")
+
+
+def _drop_step_three(text: str) -> str:
+    """Remove the whole step-3 block: from the ``3. `` line to the next step."""
+    lines = text.splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith("3. "))
+    end = next(i for i in range(start + 1, len(lines))
+               if re.match(r"\d+\. ", lines[i]))
+    return "\n".join(lines[:start] + lines[end:])
+
+
+def test_comprehension_check_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: возврат «квиза», потеря «как я её понял»
+    и удаление шага 3 красят контракт to-tickets (мутационные пробы,
+    решение 4 understanding-check)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    quiz_back = text.replace("Сверка понимания:", "Квиз перед публикацией:", 1)
+    assert quiz_back != text
+    assert any("must carry 'сверка понимания'" in error
+               for error in _contract_errors(quiz_back))
+    assert any("forbidden phrase 'квиз перед публикацией'" in error
+               for error in _contract_errors(quiz_back))
+
+    no_phrase = text.replace("как я её понял", "как он задуман", 1)
+    assert no_phrase != text
+    assert any("must carry 'как я её понял'" in error
+               for error in _contract_errors(no_phrase))
+
+    no_step = _drop_step_three(text)
+    assert no_step != text
+    errors = _contract_errors(no_step)
+    assert any("must carry 'сверка понимания'" in error for error in errors)
+    assert any("must carry 'как я её понял'" in error for error in errors)
+    assert any("must carry 'верно?'" in error for error in errors)
 
 
 def test_evidence_contract_can_fail():
-    """invariant: docs/plans/evidence-verification.md#готово — losing the artifact requirement, the quiz question, or a section fails the contract."""
+    """invariant: docs/plans/evidence-verification.md#готово — losing the artifact requirement or a section fails the contract."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -278,11 +343,6 @@ def test_evidence_contract_can_fail():
     assert no_artifact_anywhere != no_artifact
     assert any("section 'Порядок' must require 'наблюдаемый артефакт'" in error
                for error in _contract_errors(no_artifact_anywhere))
-
-    no_quiz = text.replace("что я увижу и где", "что продемонстрируем", 1)
-    assert no_quiz != text
-    assert any("что я увижу и где" in error
-               for error in _contract_errors(no_quiz))
 
     no_section = text.replace("## Порядок", "## Ход работы", 1)
     assert no_section != text
