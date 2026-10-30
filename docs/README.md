@@ -3,7 +3,7 @@ node_type: index
 title: Документация — главный индекс
 service: _platform
 status: active
-updated: 2026-10-29
+updated: 2026-10-30
 links:
   relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, ops/README.md, reference/README.md]
 ---
@@ -21,8 +21,8 @@ links:
   [harness-agnostic.md](plans/harness-agnostic.md) — один project-local корень
   `.agents/skills` для zcode, DSH и Qoder (завершён; тикеты 01–04);
   [workflow-skills.md](plans/workflow-skills.md) — фазы метода как скиллы
-  (завершена 2026-10-22; тикеты 01–06); [install-dry-run.md](plans/install-dry-run.md) —
-  игрушечный юнит dogfood-прогона: утверждён и завершён 2026-10-23 (тикеты 01–02).
+  (завершён; тикеты 01–06); [install-dry-run.md](plans/install-dry-run.md) —
+  игрушечный юнит dogfood-прогона: утверждён и завершён (тикеты 01–02).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.

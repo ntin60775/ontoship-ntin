@@ -6,7 +6,7 @@ status: active
 updated: 2026-10-30
 links:
   part_of: [../README.md]
-  relates_to: [harnesses.md, review-roles.md, sources.md, ../decisions/ontoship-core.md]
+  relates_to: [harnesses.md, review-roles.md, sources.md, text-style.md, ../decisions/ontoship-core.md]
 ---
 
 # Справочники
@@ -20,3 +20,5 @@ links:
   Qoder: матрица, ранги, `AGENTS.md` и доказательства из исходников.
 - [review-roles.md](review-roles.md) — контракты четырёх ревью-ролей базового
   набора, вход и выход роли, регламент паков контуров.
+- [text-style.md](text-style.md) — канон текстов: скиллы, правила, справочники,
+  сообщения гейтов.
