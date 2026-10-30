@@ -11,7 +11,9 @@ criteria fall on the base commit, no file:line anchors
 spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
 names an observable artifact and a spec-sourced expectation in both "Срезы"
 and "Порядок"; the pre-publish quiz asks «что я увижу и где»; a green test is
-a signal to read the artifact, not proof
+a signal to read the artifact, not proof; slicing ends with the critic run —
+после приёмки последнего тикета нарезки запуск критика до первого ship,
+нарезка не закончена без критика (решение 7)
 invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
 invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -47,6 +49,11 @@ REQUIRED_PHRASES = (
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
 EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
 CARRIERS_PHRASE = "вывод команды, строка лога, файл, живая проба"
+CRITIC_TRIGGER_PHRASES = (
+    "после приёмки последнего тикета нарезки",
+    "запуск критика до первого ship",
+    "нарезка не закончена без критика",
+)
 FORBIDDEN_PHRASES = (
     "нарезка — решение оператора",
     "проверяем на дереве",
@@ -142,6 +149,11 @@ def _contract_errors(text: str) -> list[str]:
             r"\s+", " ", sections["Срезы"].lower()):
         errors.append(f"body: section 'Срезы' must list the carriers "
                       f"({CARRIERS_PHRASE!r})")
+    if "Порядок" in sections:
+        sequence = re.sub(r"\s+", " ", sections["Порядок"].lower())
+        for phrase in CRITIC_TRIGGER_PHRASES:
+            if phrase not in sequence:
+                errors.append(f"body: section 'Порядок' must carry {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -268,6 +280,41 @@ def test_evidence_contract_can_fail():
     assert no_section != text
     assert any("missing section 'Порядок'" in error
                for error in _contract_errors(no_section))
+
+
+def test_slicing_ends_with_the_critic_run():
+    """spec: docs/plans/evidence-verification.md#готово — после приёмки
+    последнего тикета нарезки — запуск критика до первого ship; нарезка не
+    закончена без критика (решение 7). Фразы ищутся в разделе «Порядок»."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = re.sub(r"\s+", " ", _sections(body)["Порядок"].lower())
+    for phrase in CRITIC_TRIGGER_PHRASES:
+        assert phrase in section, f"the phrase {phrase!r} is missing from 'Порядок'"
+
+
+def test_critic_trigger_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря триггера, сдвиг момента и ослабление
+    «не закончена» красят контракт to-tickets (мутационные пробы)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_trigger = text.replace("нарезка не закончена без критика",
+                              "нарезка закончена публикацией", 1)
+    assert no_trigger != text
+    assert any("нарезка не закончена без критика" in error
+               for error in _contract_errors(no_trigger))
+
+    late = text.replace("до первого ship", "после первого ship", 1)
+    assert late != text
+    assert any("запуск критика до первого ship" in error
+               for error in _contract_errors(late))
+
+    every_ticket = text.replace("последнего тикета нарезки",
+                                "каждого тикета нарезки", 1)
+    assert every_ticket != text
+    assert any("после приёмки последнего тикета нарезки" in error
+               for error in _contract_errors(every_ticket))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))

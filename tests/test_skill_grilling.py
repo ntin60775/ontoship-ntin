@@ -5,12 +5,17 @@ phase-1 mechanism: design tree, frontier rounds with numbered questions and a
 recommended answer, facts-vs-decisions split, and the spec exit at the plan gate.
 The frontier additionally asks the price-of-evidence question of
 evidence-verification ticket 03 before the spec is written (spec decision 5).
+The exit section additionally carries the control read of the draft spec
+before the plan gate of evidence-verification ticket 04 (spec decision 7).
 
 spec: docs/plans/workflow-skills.md#готово — skills/grilling/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — no strict-profile apparatus,
 autonomous flag is out of scope for v1
 spec: docs/plans/evidence-verification.md#готово — во фронтир входит вопрос
 «как каждый пункт будет доказываться и что будет дорого» до написания спеки
+spec: docs/plans/evidence-verification.md#готово — контрольная вычитка спеки
+перед план-гейтом: носители шагов, условные решения, числа, противоречия
+между разделами
 invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -52,6 +57,15 @@ EVIDENCE_PHRASES = (
 )
 EVIDENCE_CONTRADICTION = "после написания спеки"
 FRONTIER_HEADING = "дерево дизайна и фронтир"
+EXIT_HEADING = "готовность и выход"
+PROOFREAD_PHRASES = (
+    "контрольная вычитка",
+    "перед план-гейтом",
+    "носители шагов",
+    "условные решения",
+    "числа",
+    "противоречия между разделами",
+)
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -124,6 +138,10 @@ def _contract_errors(text: str) -> list[str]:
             errors.append(f"frontier: missing evidence phrase {phrase!r}")
     if EVIDENCE_CONTRADICTION in frontier:
         errors.append(f"frontier: contradictory phrase {EVIDENCE_CONTRADICTION!r}")
+    proofread = re.sub(r"\s+", " ", _section(body, EXIT_HEADING).lower())
+    for phrase in PROOFREAD_PHRASES:
+        if phrase not in proofread:
+            errors.append(f"exit: missing proofread phrase {phrase!r}")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -236,6 +254,46 @@ def test_evidence_contract_can_fail():
     no_imperative = text.replace("Задай вопрос", "Обсуди", 1)
     assert no_imperative != text
     assert any("задай вопрос" in error for error in _contract_errors(no_imperative))
+
+
+def test_spec_gets_a_control_read_before_the_plan_gate():
+    """spec: docs/plans/evidence-verification.md#готово — контрольная вычитка
+    спеки перед план-гейтом: носители шагов, условные решения, числа,
+    противоречия между разделами (решение 7). Фразы ищутся внутри раздела
+    «Готовность и выход», не по всему телу скилла."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = re.sub(r"\s+", " ", _section(body, EXIT_HEADING).lower())
+    for phrase in PROOFREAD_PHRASES:
+        assert phrase in section, \
+            f"the phrase {phrase!r} is missing from the exit section"
+
+
+def test_proofread_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря названия шага, сдвиг момента и выпадение
+    элемента перечня красят контракт grilling (мутационные пробы)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_step = text.replace("Контрольная вычитка", "Финальный просмотр", 1)
+    assert no_step != text
+    assert any("контрольная вычитка" in error
+               for error in _contract_errors(no_step))
+
+    late = text.replace("перед план-гейтом", "после план-гейта", 1)
+    assert late != text
+    assert any("перед план-гейтом" in error for error in _contract_errors(late))
+
+    no_carriers = text.replace("носители шагов", "шаги", 1)
+    assert no_carriers != text
+    assert any("носители шагов" in error
+               for error in _contract_errors(no_carriers))
+
+    no_contradictions = text.replace("противоречия между разделами",
+                                     "несостыковки", 1)
+    assert no_contradictions != text
+    assert any("противоречия между разделами" in error
+               for error in _contract_errors(no_contradictions))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
