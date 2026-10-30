@@ -30,6 +30,8 @@ links:
   [sources.md](reference/sources.md) — три источника и что из каждого взято;
   [testing.md](reference/testing.md) — spec-, инвариантные и target-тесты;
   [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder;
-  [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков.
+  [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков;
+  [text-style.md](reference/text-style.md) — канон текстов: скиллы, правила,
+  справочники, сообщения гейтов.
 - [ontology.md](ontology.md) — словарь типов, frontmatter, типизированные ссылки и
   инварианты, которые проверяет lint; I2 читает его таблицу `node_type`.

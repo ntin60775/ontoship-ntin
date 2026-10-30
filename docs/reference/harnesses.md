@@ -48,7 +48,7 @@ project-local корня `<project>/.agents/skills` достаточно для 
 - Сканирование идёт вверх по дереву от каждого workspace-корня; `.zcode/skills` и
   `.agents/skills` — оба кандидата.
 - `AGENTS.md` разрешает `NodeContextSourceAdapter` от рабочего каталога вверх.
-- Живая сессия zcode 3.16.2: все семь скиллов проекта видны из `.agents/skills`;
+- Живая сессия zcode 3.16.2: все скиллы проекта видны из `.agents/skills`;
   инструмент `Skill` загрузил `kb-search`, `search "canon"` вернул
   `docs/decisions/ontoship-core.md`. Headless-режим не понадобился — проверка
   шла в живой интерактивной сессии.
