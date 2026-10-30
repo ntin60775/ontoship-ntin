@@ -1,4 +1,5 @@
-"""Contract for the ship skill (workflow-skills ticket 03, review-config ticket 04).
+"""Contract for the ship skill (workflow-skills ticket 03, review-config
+ticket 04, ship-isolation ticket 01).
 
 The bundle must be discoverable as ``<root>/ship/SKILL.md`` and carry the
 phase-3 single pass — worktree, implementation, proof tests, exactly one
@@ -6,6 +7,11 @@ review pass, dev/prod checks, merge — with stop points read from the spec's
 «Ограничения» section, review yielding leads instead of a convergence loop,
 and honest degradation without a remote: a local commit and a named gap,
 never a faked PR.
+
+Step one demands an isolated worktree unconditionally (ship-isolation
+ticket 01): the phrase «изолированный worktree» lives in step 1 of the
+«Один проход» section, and the permissive «или ветку» is forbidden
+anywhere in the skill text.
 
 The review pass runs as a specialists panel (review-config ticket 04): roles
 from ``.agents/config.toml`` run in parallel in one pass, the executor
@@ -26,6 +32,8 @@ spec: docs/decisions/ontoship-core.md#три фазы — one pass, stop points 
 spec: docs/plans/review-config.md#готово — ship ведёт ревью панелью
 spec: docs/plans/review-config.md#ограничения — панель один прогон,
 пропущенная роль названа, критик-гейт перед первым ship юнита
+spec: docs/plans/ship-isolation.md#готово — шаг 1 безусловный изолированный
+worktree, «или ветку» запрещена во всём тексте скилла
 invariant: docs/decisions/ontoship-core.md#три фазы — one review pass, no convergence loop
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -71,6 +79,7 @@ FORBIDDEN_PHRASES = (
     "повторяй прогоны ревью",
     "до нуля находок",
     "создай pull request",
+    "или ветку",
 )
 PANEL_PHRASES = (
     "ревью-панель",
@@ -162,6 +171,11 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    step1 = ""
+    if "**worktree" in lowered and "**реализация" in lowered:
+        step1 = lowered[lowered.find("**worktree"):lowered.find("**реализация")]
+    if "изолированный worktree" not in step1:
+        errors.append("body: step 1 must demand «изолированный worktree»")
     for phrase in PANEL_PHRASES:
         if phrase not in lowered:
             errors.append(f"panel: missing required phrase {phrase!r}")
@@ -208,6 +222,21 @@ def test_skill_carries_the_single_pass():
         f"a pass step is missing: {list(zip(PASS_STEPS, positions))}"
     assert positions == sorted(positions), \
         "the pass steps must appear in worktree → … → merge order"
+
+
+def test_step_one_demands_an_isolated_worktree():
+    """spec: docs/plans/ship-isolation.md#готово — шаг 1: безусловный
+    изолированный worktree; «или ветку» запрещена во всём тексте скилла."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    start = lowered.find("**worktree")
+    end = lowered.find("**реализация")
+    assert start != -1, "step 1 header is missing"
+    assert end > start, "step 2 header is missing"
+    assert "изолированный worktree" in lowered[start:end], \
+        "step 1 lost the unconditional isolated worktree"
+    assert "или ветку" not in lowered, \
+        "the permissive «или ветку» leaked back into the skill"
 
 
 def test_stop_points_come_from_the_spec():
@@ -310,6 +339,23 @@ def test_contract_check_can_fail():
                             "## Один проход\n\nСмотри `skills/ship/SKILL.md:42`.", 1)
     assert anchored != text
     assert any("SKILL.md:42" in error for error in _contract_errors(anchored))
+
+    weakened = text.replace("Отдели изолированный worktree", "Отдели worktree", 1)
+    assert weakened != text, "mutation must change the text"
+    assert any("изолированный worktree" in error
+               for error in _contract_errors(weakened))
+
+    moved_out = weakened.replace(
+        "## Деградация без remote",
+        "## Деградация без remote\n\nИзолированный worktree обязателен.", 1)
+    assert moved_out != weakened
+    assert any("step 1" in error for error in _contract_errors(moved_out))
+
+    reverted = text.replace(
+        "worktree от базового коммита",
+        "worktree или ветку от базового коммита", 1)
+    assert reverted != text
+    assert any("или ветку" in error for error in _contract_errors(reverted))
 
     stuffed = text.replace("отчёт фактами стоит в чате перед вызовом",
                            "отчёт фактами входит в поле вопроса", 1)
