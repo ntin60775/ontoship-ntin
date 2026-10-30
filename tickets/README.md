@@ -62,10 +62,10 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 | 03 | [ранняя фаза](evidence-verification/03-early-phase.md) | — |
 | 04 | [фазовые переходы](evidence-verification/04-phase-checklists.md) | 01, 03 |
 
-Открытый мини-юнит [`ship-isolation`](../docs/plans/ship-isolation.md): спека
+Закрытый мини-юнит [`ship-isolation`](../docs/plans/ship-isolation.md): спека
 утверждена на план-гейте 2026-10-30 (решения 1–3 — ask-раунд оператора);
-тикет 01 сделан и влит (merge `355285a`, панель `dwfrun-752d8bbe`), ждёт
-приёмки.
+тикет 01 сделан, влит и принят 2026-10-30 (merge `355285a`, панель
+`dwfrun-752d8bbe`).
 
 | # | тикет | блокируется |
 |---|---|---|
