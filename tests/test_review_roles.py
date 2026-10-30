@@ -60,6 +60,7 @@ REVIEWER_TESTS_EVIDENCE = (
     "вывод команды, строка лога, файл, живая проба",
     "ожидание из спеки",
     "тест прошёл",
+    "без места осмотра — находка",
     "разбор каждого расхождения",
     "не было",
     "docs/reference/testing.md",
@@ -145,15 +146,26 @@ def _normalized_lower(text: str) -> str:
 
 
 def _reviewer_tests_evidence_errors(text: str) -> list[str]:
-    """Violated evidence items of the reviewer-tests checklist; empty is sound."""
+    """Violated evidence items of the reviewer-tests checklist; empty is sound.
+
+    The roles loop in ``_reference_errors`` owns the missing-section and
+    unnamed-checklist errors, so this helper stays silent on both instead of
+    duplicating them. The phrases are checked inside the checklist part of
+    the section only: prose above it must not keep the contract green when
+    the checklist loses an item.
+    """
     sections = _h3_sections(text)
     matching = [heading for heading in sections
                 if "reviewer-tests" in heading.lower()]
     if not matching:
-        return ["role 'reviewer-tests' has no section"]
+        return []
     body = _normalized_lower(sections[matching[0]])
+    marker = body.find("чек-лист")
+    if marker < 0:
+        return []
+    tail = body[marker:]
     return [f"reviewer-tests checklist lost {phrase!r}"
-            for phrase in REVIEWER_TESTS_EVIDENCE if phrase not in body]
+            for phrase in REVIEWER_TESTS_EVIDENCE if phrase not in tail]
 
 
 def _reference_errors(text: str) -> list[str]:
@@ -355,10 +367,11 @@ def test_reference_check_can_fail():
 
 
 def test_evidence_items_can_fail():
-    """invariant: docs/plans/evidence-verification.md#готово — потеря любого
-    из двух пунктов чек-листа reviewer-tests красит контракт: маркер пункта,
-    список носителей, «тест прошёл», разбор расхождений, «не было» и ссылка
-    на раздел testing.md."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря любой части двух пунктов чек-листа
+    reviewer-tests красит его — маркер пункта, список носителей, «тест
+    прошёл», следствие-находку, разбор расхождений, «не было» и ссылку на
+    раздел testing.md."""
     text = REFERENCE.read_text("utf-8")
     assert _reference_errors(text) == []
 
@@ -374,10 +387,21 @@ def test_evidence_items_can_fail():
     assert any("вывод команды, строка лога, файл, живая проба" in error
                for error in _reference_errors(no_carriers))
 
+    no_expectation = text.replace("ожидание из спеки",
+                                  "ожидание из требований", 1)
+    assert no_expectation != text
+    assert any("ожидание из спеки" in error
+               for error in _reference_errors(no_expectation))
+
     green_only = text.replace("тест прошёл", "зелёный тест", 1)
     assert green_only != text
     assert any("тест прошёл" in error
                for error in _reference_errors(green_only))
+
+    no_finding = text.replace("без места осмотра", "без указания места", 1)
+    assert no_finding != text
+    assert any("без места осмотра — находка" in error
+               for error in _reference_errors(no_finding))
 
     no_dissection = text.replace("разбор каждого расхождения",
                                  "разбор несовпадений", 1)

@@ -208,8 +208,9 @@ def test_coverage_is_verified_by_carriers_of_new_specs():
 
 
 def test_evidence_contract_can_fail():
-    """invariant: docs/plans/evidence-verification.md#готово — потеря вопроса
-    о цене доказательства или сверки носителей красит контракт критика."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря вопроса о цене доказательства или сверки
+    носителей красит контракт критика."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
