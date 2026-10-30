@@ -1,18 +1,24 @@
 """Contract for the role registry and the agent-definition generator.
 
 The generator is the zcode adapter mechanism of the unit: `.agents/config.toml`
-names the roles (`[agents.<name>]`, required key `model`) and
+names the roles (`[agents.<name>]`, required key `model`, optional key
+`level`) and
 `skills/init/gen_agents.py` (carried by the init bundle, so an installed
 project can run it) keeps one definition per role in `.zcode/agents/` with
-the configured model. These checks pin the observable effects: validation
+the configured model and, when `level` is set, the configured thoughtLevel.
+These checks pin the observable effects: validation
 distinguishes unknown (warn) from invalid (fail), definitions carry the
-configured model, a rerun with an unchanged config rewrites nothing, a model
+configured model and level, a rerun with an unchanged config rewrites nothing,
+a model
 drift is named and fixed by regeneration, and a missing config writes nothing.
 
 spec: docs/plans/review-config.md#готово — schema `.agents/config.toml` (секция
       `[agents.<name>]`, ключ `model`; незнакомое — предупреждение, неверное —
       отказ); генерация по одному определению на роль, сверка модели,
       перегенерация при расхождении
+spec: docs/plans/onto-doc.md#готово — gen_agents выучивает `level` и пишет
+      `thoughtLevel`; пустая строка `level` — именованный отказ, незнакомое
+      значение проходит до сверки при запуске
 spec: docs/plans/review-config.md#рамки — определения ролей производные от
       конфига: `.zcode/agents/` в `.gitignore`, не коммитятся
 """
@@ -71,6 +77,27 @@ def frontmatter_model(text: str) -> str | None:
             break
         if line.startswith("model:"):
             value = line[len("model:"):].strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+                value = value[1:-1]
+            return value
+    return None
+
+
+def frontmatter_level(text: str) -> str | None:
+    """The `thoughtLevel:` value of the frontmatter, or None.
+
+    Reads only the frontmatter block: a `thoughtLevel:` line dropped into the
+    body after the closing `---` does not count — the host parses the
+    frontmatter, not the body.
+    """
+    lines = text.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    for line in lines[1:]:
+        if line.strip() == "---":
+            return None
+        if line.startswith("thoughtLevel:"):
+            value = line[len("thoughtLevel:"):].strip()
             if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
                 value = value[1:-1]
             return value
@@ -296,6 +323,148 @@ def test_refusal_guard_is_load_bearing(project: Path) -> None:
     )
     assert result.returncode == 0
     assert (agents / "critic.md").read_text(encoding="utf-8") != "рукописный файл\n"
+
+
+LEVEL_BODY = (
+    '[agents.reviewer-spec]\nmodel = "provider-a/model-x"\nlevel = "max"\n'
+    '[agents.critic]\nmodel = "provider-a/model-x"\n'
+)
+
+
+def test_level_yields_thoughtlevel_and_absence_omits_it(project: Path) -> None:
+    """spec: docs/plans/onto-doc.md#готово — gen_agents выучивает `level`
+    и пишет `thoughtLevel` в определение; роль без ключа остаётся без строки
+    (решения 4 и 6: генератор только опускает строку, максимум при
+    отсутствующем ключе назначает сверка при запуске)."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(LEVEL_BODY, encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    files = definitions(project)
+    assert frontmatter_level(files["reviewer-spec.md"]) == "max"
+    assert "level" not in result.stderr  # the known key no longer warns
+    assert frontmatter_level(files["critic.md"]) is None
+
+
+def test_unknown_level_value_passes_through(project: Path) -> None:
+    """spec: docs/plans/onto-doc.md#готово — незнакомое значение `level`
+    проходит до сверки при запуске роли (решение 4)."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(
+        '[agents.critic]\nmodel = "provider-a/model-x"\nlevel = "banana"\n',
+        encoding="utf-8",
+    )
+    result = run(project)
+    assert result.returncode == 0, result.stderr
+    assert frontmatter_level(definitions(project)["critic.md"]) == "banana"
+
+
+@pytest.mark.parametrize(
+    ("body", "needle"),
+    [
+        (
+            '[agents.critic]\nmodel = "m"\nlevel = ""\n',
+            "must be a non-empty string when present",
+        ),
+        (
+            '[agents.critic]\nmodel = "m"\nlevel = "  "\n',
+            "must be a non-empty string when present",
+        ),
+        (
+            '[agents.critic]\nmodel = "m"\nlevel = 5\n',
+            "must be a non-empty string when present",
+        ),
+        (
+            '[agents.critic]\nmodel = "m"\nlevel = true\n',
+            "must be a non-empty string when present",
+        ),
+        ('[agents.critic]\nmodel = "m"\nlevel = "a\\nb"\n', "bare token"),
+        ('[agents.critic]\nmodel = "m"\nlevel = "max # c"\n', "bare token"),
+        ('[agents.critic]\nmodel = "m"\nlevel = "a: b"\n', "bare token"),
+    ],
+)
+def test_invalid_level_fails_with_named_error(
+    project: Path, body: str, needle: str
+) -> None:
+    """spec: docs/plans/onto-doc.md#готово — пустая строка `level` —
+    именованный отказ; невалидное значение не проходит молча, значение вне
+    голого токена (комментарий YAML, двоеточие, перенос строки) — тоже."""
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(body, encoding="utf-8")
+    result = run(project)
+    assert result.returncode == 1
+    assert "level" in result.stderr
+    assert needle in result.stderr
+    assert not (project / ".zcode").exists()
+
+
+def test_thoughtlevel_render_is_load_bearing(project: Path) -> None:
+    # With the thoughtLevel line dropped from the renderer the definition
+    # carries no level — the exact loss test_level_yields_thoughtlevel_...
+    # forbids.
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(LEVEL_BODY, encoding="utf-8")
+    broken = project / "gen_broken.py"
+    broken.write_text(
+        GEN.read_text(encoding="utf-8").replace(
+            "level_line = f'thoughtLevel: {level}\\n' if level else \"\"",
+            'level_line = ""',
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["python3", str(broken), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    assert frontmatter_level(definitions(project)["reviewer-spec.md"]) is None
+
+
+def test_empty_level_guard_is_load_bearing(project: Path) -> None:
+    # With the level check muted the empty value is accepted silently and the
+    # definition is written without the line — the exact behaviour
+    # test_invalid_level_fails_with_named_error forbids.
+    (project / ".agents").mkdir(parents=True)
+    (project / ".agents" / "config.toml").write_text(
+        '[agents.critic]\nmodel = "m"\nlevel = ""\n', encoding="utf-8"
+    )
+    broken = project / "gen_broken.py"
+    broken.write_text(
+        GEN.read_text(encoding="utf-8").replace(
+            "if level is not None:",
+            "if False:",
+        ),
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["python3", str(broken), str(project)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0
+    text = definitions(project).get("critic.md", "")
+    assert "model: " in text
+    assert frontmatter_level(text) is None
+
+
+def test_repo_registry_carries_six_sections_with_levels() -> None:
+    """spec: docs/plans/onto-doc.md#готово — реестр несёт шесть секций:
+    `[agents.curator]` с дефолтом решения 3, `level` во всех секциях
+    (решение 4)."""
+    import tomllib
+
+    data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
+    roles = data["agents"]
+    assert set(roles) == set(CORE_ROLES) | {"curator"}
+    assert (
+        roles["curator"]["model"]
+        == "account:zai-individual-coding-plan/GLM-5.3-Flash"
+    )
+    for section in roles.values():
+        assert section.get("level") == "max"
 
 
 def test_repo_gitignores_agent_definitions() -> None:
