@@ -3,10 +3,14 @@
 The bundle must be discoverable as ``<root>/grilling/SKILL.md`` and carry the
 phase-1 mechanism: design tree, frontier rounds with numbered questions and a
 recommended answer, facts-vs-decisions split, and the spec exit at the plan gate.
+The frontier additionally asks the price-of-evidence question of
+evidence-verification ticket 03 before the spec is written (spec decision 5).
 
 spec: docs/plans/workflow-skills.md#готово — skills/grilling/SKILL.md
 spec: docs/plans/workflow-skills.md#ограничения — no strict-profile apparatus,
 autonomous flag is out of scope for v1
+spec: docs/plans/evidence-verification.md#готово — во фронтир входит вопрос
+«как каждый пункт будет доказываться и что будет дорого» до написания спеки
 invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -39,6 +43,15 @@ REQUIRED_PHRASES = (
     "не выдумывай",
 )
 FORBIDDEN = ("challenger", "provenance", "реестр")
+EVIDENCE_PHRASES = (
+    "цена доказательства входит во фронтир",
+    "задай вопрос",
+    "как каждый пункт будет доказываться и что будет дорого",
+    "до написания спеки",
+    "переформулируются или разрезаются на фронтире",
+)
+EVIDENCE_CONTRADICTION = "после написания спеки"
+FRONTIER_HEADING = "дерево дизайна и фронтир"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -66,6 +79,15 @@ def _unquote(value: str) -> str:
     if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
         return value[1:-1]
     return value
+
+
+def _section(body: str, heading: str) -> str:
+    """Body of one ``## `` section matched case-insensitively by its heading."""
+    lowered = body.lower()
+    start = lowered.find(f"## {heading}")
+    if start < 0:
+        return ""
+    return body[start:].split("\n## ", 1)[0]
 
 
 def _contract_errors(text: str) -> list[str]:
@@ -96,6 +118,12 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
+    frontier = re.sub(r"\s+", " ", _section(body, FRONTIER_HEADING).lower())
+    for phrase in EVIDENCE_PHRASES:
+        if phrase not in frontier:
+            errors.append(f"frontier: missing evidence phrase {phrase!r}")
+    if EVIDENCE_CONTRADICTION in frontier:
+        errors.append(f"frontier: contradictory phrase {EVIDENCE_CONTRADICTION!r}")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -167,6 +195,47 @@ def test_autonomous_flag_is_out_of_scope_for_v1():
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "автономный режим" in lowered
     assert "вне рамок" in lowered
+
+
+def test_frontier_asks_the_price_of_evidence():
+    """spec: docs/plans/evidence-verification.md#готово — во фронтир входит
+    вопрос «как каждый пункт будет доказываться и что будет дорого» — до
+    написания спеки; дорогие пункты переформулируются или разрезаются на
+    фронтире (решение 5). Проверяется по месту: фразы ищутся внутри раздела
+    «Дерево дизайна и фронтир», не по всему телу скилла."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = re.sub(r"\s+", " ", _section(body, FRONTIER_HEADING).lower())
+    for phrase in EVIDENCE_PHRASES:
+        assert phrase in section, f"the phrase {phrase!r} is missing from the frontier section"
+    assert EVIDENCE_CONTRADICTION not in section, \
+        "the frontier section must not carry the contradicting wording"
+
+
+def test_evidence_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check can fail: потеря вопроса, сдвиг момента, отрицание
+    членства во фронтире и потеря императива красят контракт grilling
+    (мутационные пробы)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_price = text.replace("и что будет дорого", "и сколько это стоит", 1)
+    assert no_price != text
+    assert any("как каждый пункт будет доказываться" in error
+               for error in _contract_errors(no_price))
+
+    late = text.replace("до написания спеки", "после написания спеки", 1)
+    assert late != text
+    assert any("до написания спеки" in error for error in _contract_errors(late))
+
+    no_member = text.replace("входит во фронтир", "не входит во фронтир", 1)
+    assert no_member != text
+    assert any("цена доказательства входит во фронтир" in error
+               for error in _contract_errors(no_member))
+
+    no_imperative = text.replace("Задай вопрос", "Обсуди", 1)
+    assert no_imperative != text
+    assert any("задай вопрос" in error for error in _contract_errors(no_imperative))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
