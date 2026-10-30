@@ -16,8 +16,9 @@ slicing ends with the critic run — после приёмки последне�
 spec: docs/plans/understanding-check.md#готово — step 3 of "Порядок" is
 a comprehension check: the agent asks about its own understanding of every
 slice («Задумка тикета N, как я её понял: … Верно?», self-sufficient);
-a mismatch sends the slice back for rewording before publication; the word
-«квиз» survives in this test only inside mutation probes (решения 1–5)
+a mismatch sends the slice back for rewording before publication; the
+retired quiz wording stays out of the skill and the runbook, and inside
+this test lives only in mutation probes and the contract ban (решения 1–5)
 invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
 invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -48,8 +49,6 @@ REQUIRED_PHRASES = (
     "два-три предложения, не отчёт",
     "вызывает пользователь",
     "сигнал к чтению артефакта, не доказательство",
-    "как я её понял",
-    "верно?",
 )
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
 EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
@@ -212,7 +211,8 @@ def test_skill_is_user_invoked_only():
 
 
 def test_skill_carries_the_slicing_mechanism():
-    """spec: docs/plans/workflow-skills.md#готово — slices, demo path, comprehension check."""
+    """spec: docs/plans/workflow-skills.md#готово — slices, demo path;
+    spec: docs/plans/understanding-check.md#готово — comprehension check."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in ("вертикальные срезы", "демо-путь", "базовом коммите",
@@ -289,13 +289,17 @@ def test_step_three_is_a_comprehension_check():
             f"the retired phrase {phrase!r} survives in 'Порядок'")
 
 
-def _drop_step_three(text: str) -> str:
-    """Remove the whole step-3 block: from the ``3. `` line to the next step."""
+def _step_three_block(text: str) -> str:
+    """Return the full step-3 block inside «Порядок»: the ``3. `` line and
+    its continuation lines, up to the next numbered step. A ``3. `` line
+    elsewhere in the skill must not steer a probe."""
     lines = text.splitlines()
-    start = next(i for i, line in enumerate(lines) if line.startswith("3. "))
+    order = next(i for i, line in enumerate(lines) if line == "## Порядок")
+    start = next(i for i in range(order + 1, len(lines))
+                 if lines[i].startswith("3. "))
     end = next(i for i in range(start + 1, len(lines))
                if re.match(r"\d+\. ", lines[i]))
-    return "\n".join(lines[:start] + lines[end:])
+    return "\n".join(lines[start:end])
 
 
 def test_comprehension_check_can_fail():
@@ -306,11 +310,22 @@ def test_comprehension_check_can_fail():
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    quiz_back = text.replace("Сверка понимания:", "Квиз перед публикацией:", 1)
+    # The full retired step text carries both forbidden phrases; planting it
+    # back must trip the ban, not just the missing-phrase check.
+    old_step = (
+        "3. Квиз перед публикацией: два-три проверочных вопроса оператору "
+        "о срезах и\n"
+        "   рёбрах; среди них — «что я увижу и где»: какой артефакт покажет "
+        "тикет и где\n"
+        "   его читать; расхождение в понимании — возврат в `grilling`."
+    )
+    quiz_back = text.replace(_step_three_block(text), old_step, 1)
     assert quiz_back != text
     assert any("must carry 'сверка понимания'" in error
                for error in _contract_errors(quiz_back))
     assert any("forbidden phrase 'квиз перед публикацией'" in error
+               for error in _contract_errors(quiz_back))
+    assert any("forbidden phrase 'что я увижу и где'" in error
                for error in _contract_errors(quiz_back))
 
     no_phrase = text.replace("как я её понял", "как он задуман", 1)
@@ -318,7 +333,7 @@ def test_comprehension_check_can_fail():
     assert any("must carry 'как я её понял'" in error
                for error in _contract_errors(no_phrase))
 
-    no_step = _drop_step_three(text)
+    no_step = text.replace(_step_three_block(text) + "\n", "", 1)
     assert no_step != text
     errors = _contract_errors(no_step)
     assert any("must carry 'сверка понимания'" in error for error in errors)
