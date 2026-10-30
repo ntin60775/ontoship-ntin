@@ -138,7 +138,8 @@ def _contract_errors(text: str) -> list[str]:
         for phrase in EVIDENCE_SECTION_PHRASES:
             if phrase not in section:
                 errors.append(f"body: section {title!r} must require {phrase!r}")
-    if CARRIERS_PHRASE not in re.sub(r"\s+", " ", sections.get("Срезы", "").lower()):
+    if "Срезы" in sections and CARRIERS_PHRASE not in re.sub(
+            r"\s+", " ", sections["Срезы"].lower()):
         errors.append(f"body: section 'Срезы' must list the carriers "
                       f"({CARRIERS_PHRASE!r})")
     anchor = ANCHOR_RE.search(text)
@@ -221,11 +222,12 @@ def test_criteria_carry_artifact_and_expectation():
     body = _parse(SKILL.read_text("utf-8"))[1]
     sections = _sections(body)
     for title in EVIDENCE_SECTIONS:
-        section = re.sub(r"\s+", " ", sections[title].lower())
+        section = re.sub(r"\s+", " ", sections.get(title, "").lower())
+        assert section, f"section {title!r} is missing from the skill body"
         for phrase in EVIDENCE_SECTION_PHRASES:
             assert phrase in section, (
                 f"section {title!r} lost the requirement {phrase!r}")
-    slices = re.sub(r"\s+", " ", sections["Срезы"].lower())
+    slices = re.sub(r"\s+", " ", sections.get("Срезы", "").lower())
     assert CARRIERS_PHRASE in slices, "the carriers list is missing from 'Срезы'"
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "сигнал к чтению артефакта, не доказательство" in lowered
@@ -250,6 +252,12 @@ def test_evidence_contract_can_fail():
     assert no_artifact != text
     assert any("section 'Срезы' must require 'наблюдаемый артефакт'" in error
                for error in _contract_errors(no_artifact))
+
+    # The same requirement must be catchable when it dies in «Порядок» too.
+    no_artifact_anywhere = text.replace("наблюдаемый", "обычный")
+    assert no_artifact_anywhere != no_artifact
+    assert any("section 'Порядок' must require 'наблюдаемый артефакт'" in error
+               for error in _contract_errors(no_artifact_anywhere))
 
     no_quiz = text.replace("что я увижу и где", "что продемонстрируем", 1)
     assert no_quiz != text
