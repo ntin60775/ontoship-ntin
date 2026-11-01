@@ -15,8 +15,7 @@ This is the **baseline**, not the deliverable. Ticket 01 copies it into
 | `LICENSE` | MIT, © vakovalskii and OntoShip contributors / 1cprog7 |
 
 Not copied: the source repo's `docs/` (strict profile and history), plans, and
-anything that depends on `.zcode` or on the host's agent runtime. `workflows`
-left this blanket list: the doc part is built from the original `/onto-doc` by
-the `onto-doc` unit, and its run workflow is tracked in this repository at
-`.zcode/workflows/onto-doc.dwf.ts`. Other `.zcode` paths and the host's agent
-runtime stay unvendored.
+any other `.zcode` path or host-runtime dependency. `workflows` left this
+blanket list: the doc part is built from the original `/onto-doc` by the
+`onto-doc` unit, and its run workflow is tracked in this repository at
+`.zcode/workflows/onto-doc.dwf.ts`.

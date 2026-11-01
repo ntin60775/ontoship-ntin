@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-01
 tags: [index, skills, installer]
 links:
-  part_of: [../AGENTS.md]
+  part_of: [../README.md]
   relates_to: [../docs/ops/continue.md]
 ---
 

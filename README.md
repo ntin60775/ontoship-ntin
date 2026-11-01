@@ -33,16 +33,17 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 
 ## Состояние
 
-**Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на dogfood:
-движок GitMark, `kb-search`, `kb-curate`, `init` и `scripts/install.sh`, чистый
-`lint --strict`. Фазы метода — скиллы `grilling`, `to-tickets`, `ship` и `testing`;
-рядом скилл критика плана `critic` и скилл онто-дока `onto-doc`. Состав установки
-ведёт `scripts/install.sh`, индекс скиллов — `skills/README.md`. Сквозной
-dogfood-прогон прошёл 2026-10-22: интервью → тикеты → `ship` до локального merge.
-Открытая работа записана в
-[docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту). Предыдущая линия
-([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode)) хранится как **строгий
-профиль** и история — не умолчание.
+**Pre-alpha, самодостаточный.** Ядро KB (`core-kb`) завершено и проверено на
+dogfood: движок GitMark, `kb-search`, `kb-curate`, `init` и
+`scripts/install.sh`, чистый `lint --strict`. Фазы метода — скиллы
+`grilling`, `to-tickets`, `ship`; правило качества — `testing`; рядом скилл
+критика плана `critic` и скилл онто-дока `onto-doc`. Состав установки ведёт
+`scripts/install.sh`, индекс скиллов — [skills/README.md](skills/README.md).
+Сквозной dogfood-прогон прошёл 2026-10-22: интервью → тикеты → `ship` до
+локального merge. Открытая работа записана в
+[docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту).
+Предыдущая линия ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode))
+хранится как **строгий профиль** и история — не умолчание.
 
 ## Лицензия
 

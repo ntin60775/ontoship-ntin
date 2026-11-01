@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-10-30
+updated: 2026-11-01
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -17,7 +17,8 @@ links:
 ## Где мы
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
-самодостаточен: база движка вендорена, тикеты отслеживаются, пять юнитов завершены.
+самодостаточен: база движка вендорена, тикеты отслеживаются, восемь юнитов
+и мини-юнитов завершены.
 Каталог переименован из `ontoship-dsh`; исторические логи в `.scratch/ticket-06/`
 сохраняют старое имя.
 
@@ -426,8 +427,8 @@ GitHub, старое имя на remote удалено) — PR-путь и push/
   решением 10 и в «Готово» 5 расширила чек-лист критика.
 - `docs/plans/onto-doc.md` — спека седьмого юнита (active): тяжёлая док-часть
   из оригинала — fan-out кураторов на модели из конфига; нарезка — тикеты
-  01–05; тикеты 01–02 влиты и приняты (merge `fa0f56a`, `443f72f`), 03 влит
-  и ждёт приёмки (`b37869e`).
+  01–05; тикеты 01–03 влиты и приняты (merge `fa0f56a`, `443f72f`,
+  `b37869e`).
 - `docs/plans/understanding-check.md` — спека мини-юнита (active): сверка
   понимания вместо квиза в нарезке; тикет 01 влит (панель
   `dwfrun-c609052e`; юнит закрыт 2026-10-30 — тикет принят.
