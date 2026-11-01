@@ -691,7 +691,9 @@ def test_usage_names_dry_run(tmp_path: Path) -> None:
 
 def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
     """spec: docs/plans/review-config.md#готово — the init bundle carries
-    gen_agents.py, so a detached copy install can run the generation."""
+    gen_agents.py, so a detached copy install can run the generation.
+    spec: docs/plans/role-registry.md#готово-4 — the bundle is installed
+    whole, so roles.py rides along next to gen_agents.py."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
@@ -699,6 +701,8 @@ def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
 
     generator = project / ".agents" / "skills" / "init" / "gen_agents.py"
     assert generator.is_file(), "the init bundle must carry gen_agents.py"
+    registry = project / ".agents" / "skills" / "init" / "roles.py"
+    assert registry.is_file(), "the init bundle must carry roles.py"
 
     # The installed copy runs on its own: no config in the project — nothing to generate.
     probe = subprocess.run(

@@ -3,7 +3,7 @@ node_type: index
 title: Скиллы — бандлы установщика
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-02
 tags: [index, skills, installer]
 links:
   part_of: [../README.md]
@@ -21,7 +21,7 @@ links:
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
   REINDEX; модель онтологии.
 - [init/](init/SKILL.md) — управляемый блок, `.gitignore`, конфиг ролей,
-  генератор `gen_agents.py`.
+  реестр ролей `roles.py`, генератор `gen_agents.py`.
 - [grilling/](grilling/SKILL.md) — интервью по фронтиру, выход в спеку
   на план-гейт.
 - [to-tickets/](to-tickets/SKILL.md) — нарезка спеки на tracer-bullet

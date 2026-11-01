@@ -34,7 +34,10 @@ import pytest
 REPO = Path(__file__).resolve().parent.parent
 GEN = REPO / "skills" / "init" / "gen_agents.py"
 
-CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic")
+# Aligned with the machine source skills/init/roles.py (plan role-registry,
+# decision 2); the anchor test tests/test_role_registry.py keeps the parity.
+CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
+              "curator")
 
 
 def run(project: Path) -> subprocess.CompletedProcess[str]:
@@ -458,7 +461,7 @@ def test_repo_registry_carries_six_sections_with_levels() -> None:
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
     roles = data["agents"]
-    assert set(roles) == set(CORE_ROLES) | {"curator"}
+    assert set(roles) == set(CORE_ROLES)
     assert (
         roles["curator"]["model"]
         == "account:zai-individual-coding-plan/GLM-5.3-Flash"
