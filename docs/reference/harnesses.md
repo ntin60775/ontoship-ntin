@@ -3,7 +3,7 @@ node_type: reference
 title: Совместимость харнессов — project-local скиллы и AGENTS.md
 service: _platform
 status: active
-updated: 2026-10-30
+updated: 2026-11-01
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
@@ -13,10 +13,10 @@ links:
 # Совместимость харнессов
 
 Проверено по исходникам и живой конфигурации трёх харнессов. Вывод: одного
-project-local корня `<project>/.agents/skills` достаточно для zcode, DSH и Qoder;
-слой адаптеров не нужен. Живые каталоги подтвердили сессии Qoder и zcode; DSH —
-пробел окружения. Справочник фиксирует доказательства, чтобы следующая сессия
-не выводила их заново.
+project-local корня `<project>/.agents/skills` достаточно для zcode, DSH и
+Qoder; слой адаптеров не нужен. Живые каталоги подтвердили сессии Qoder и
+zcode; DSH — пробел окружения. Справочник фиксирует доказательства, чтобы
+следующая сессия не выводила их заново.
 
 ## Матрица
 
@@ -45,8 +45,8 @@ project-local корня `<project>/.agents/skills` достаточно для 
 - Источник: `app.asar`; функции `resolveAncestorWorkspaceRoots` →
   `getWorkspaceZcodeSkillRoot` / `getWorkspaceAgentsSkillRoot`, их потребляет
   сканирование workspace в `T3`.
-- Сканирование идёт вверх по дереву от каждого workspace-корня; `.zcode/skills` и
-  `.agents/skills` — оба кандидата.
+- Сканирование идёт вверх по дереву от каждого workspace-корня;
+  `.zcode/skills` и `.agents/skills` — оба кандидата.
 - `AGENTS.md` разрешает `NodeContextSourceAdapter` от рабочего каталога вверх.
 - Живая сессия zcode 3.16.2: все скиллы проекта видны из `.agents/skills`;
   инструмент `Skill` загрузил `kb-search`, `search "canon"` вернул
@@ -57,10 +57,10 @@ project-local корня `<project>/.agents/skills` достаточно для 
 
 - Источник: `qoder-worker-runtime.obf.mjs`; функции
   `buildProjectSkillDirectorySet` и `resolveAgentSkillsDir`.
-- `<cwd>/.agents/skills` загружается, когда `skills.loadFromAgentsDirectory` равен
-  `true`; в живом манифесте запуска стоит `true`.
-- Пользовательский `~/.agents/skills` виден в сессии, но проект использует только
-  project-local корень.
+- `<cwd>/.agents/skills` загружается, когда `skills.loadFromAgentsDirectory`
+  равен `true`; в живом манифесте запуска стоит `true`.
+- Пользовательский `~/.agents/skills` виден в сессии, но проект использует
+  только project-local корень.
 - `AGENTS.md` загружается вместе с файлами предков.
 
 ## Ревью-панель по харнессам
@@ -119,8 +119,8 @@ workflow. Контракт прогона общий, способы запус�
 печати в log). Модель и уровень едут в `subagent_model` вида
 `<model>$<level>` — тот же транспорт, что у ревью-панели; сверку до запуска
 скилл делает по `ListModels`. Файл прогона печатает назначенную модель в log.
-Доказано пробой запуска `dwfrun-68b2fac1` (компиляция и пустой план); полный
-прогон с кураторами — тикет 05 спеки
+Доказано контрактом файла прогона (`tests/test_workflow_onto_doc.py`);
+полный прогон с кураторами — тикет 05 спеки
 [onto-doc](../plans/onto-doc.md).
 
 ### DSH и Qoder — пробел (до живых сессий)
@@ -132,20 +132,22 @@ workflow. Контракт прогона общий, способы запус�
 
 - Один канонический корень: `<project>/.agents/skills`. Копий под харнессы нет.
 - Установленный движок лежит рядом со своим `SKILL.md`:
-  `.agents/skills/kb-search/gitmark.py`. Скилл не хардкодит расположение проекта.
-- Старые записи `.dsh/skills`, `.zcode/skills` и `.qoder/skills`, ведущие в этот
-  репозиторий, — legacy. `scripts/install.sh --check` предупреждает о них и никогда
-  их не удаляет; удаление — решение оператора.
-- `.agents/skills/` пишется в `.gitignore` скиллом `init`: установка локальна и не
-  коммитится.
+  `.agents/skills/kb-search/gitmark.py`. Скилл не хардкодит расположение
+  проекта.
+- Старые записи `.dsh/skills`, `.zcode/skills` и `.qoder/skills`, ведущие в
+  этот репозиторий, — legacy. `scripts/install.sh --check` предупреждает о
+  них и никогда их не удаляет; удаление — решение оператора.
+- `.agents/skills/` пишется в `.gitignore` скиллом `init`: установка
+  локальна и не коммитится.
 
 ## Запасные варианты и границы
 
-- **Qoder с выключенным `loadFromAgentsDirectory`.** `.agents/skills` не попадает в
-  каталог. Включи настройку; копировать скиллы в харнесс-специфичный корень в этом
-  юните нельзя.
-- **zcode, если `.agents/skills` не виден.** `.zcode/skills` — харнесс-специфичный
-  корень; переход на него — новый план, а не адаптер, добавленный здесь.
+- **Qoder с выключенным `loadFromAgentsDirectory`.** `.agents/skills` не
+  попадает в каталог. Включи настройку; копировать скиллы в
+  харнесс-специфичный корень в этом юните нельзя.
+- **zcode, если `.agents/skills` не виден.** `.zcode/skills` —
+  харнесс-специфичный корень; переход на него — новый план, а не адаптер,
+  добавленный здесь.
 - **DSH.** `.dsh/skills` остаётся только legacy-корнем в `EXCLUDE_DIRS` движка:
   старая установка не должна попадать в корпус KB.
 - **Проверка.** Файловая раскладка доказывает только наличие бандлов. Каталог
@@ -159,4 +161,5 @@ workflow. Контракт прогона общий, способы запус�
 - План: [harness-agnostic.md](../plans/harness-agnostic.md) — решение и тикеты.
 - Роли: [review-roles.md](review-roles.md) — контракты панели и регламент паков.
 - Установка: [scripts/install.sh](../../scripts/install.sh) — канал и `--check`.
-- Состояние: [continue.md](../ops/continue.md) — что проверено в этом репозитории.
+- Состояние: [continue.md](../ops/continue.md) — что проверено в этом
+  репозитории.

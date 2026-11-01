@@ -3,10 +3,11 @@ node_type: reference
 title: Тестирование — спека, инварианты, target-тесты
 service: _platform
 status: active
-updated: 2026-10-30
+updated: 2026-11-01
 tags: [testing, target-tests, tdd, evidence, agents, esem2026]
 links:
-  relates_to: [README.md, ../decisions/ontoship-core.md, sources.md, ../plans/evidence-verification.md]
+  part_of: [README.md]
+  relates_to: [../decisions/ontoship-core.md, sources.md, ../plans/evidence-verification.md]
 ---
 
 # Тестирование — спека, инварианты, target-тесты

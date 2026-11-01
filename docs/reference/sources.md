@@ -3,10 +3,11 @@ node_type: reference
 title: Источники основной идеи
 service: _platform
 status: active
-updated: 2026-10-19
+updated: 2026-11-01
 tags: [sources, ontoship, grilling, to-tickets, testing]
 links:
-  relates_to: [README.md, ../decisions/ontoship-core.md]
+  part_of: [README.md]
+  relates_to: [../decisions/ontoship-core.md]
 ---
 
 # Источники основной идеи

@@ -70,6 +70,7 @@ links:
 | `b927552` | merge тикета 04 `evidence-verification`: контрольная вычитка в grilling, триггер критика в to-tickets, панель dwfrun-764905d3, 311 passed |
 | `443f72f` | merge тикета 02 `onto-doc`: скилл онто-дока и файл прогона, девятый бандл, сверка ship модель+уровень, панель dwfrun-843e0324, 357 passed |
 | `b37869e` | merge тикета 03 `onto-doc`: init — шестая роль бутстрапа, панель dwfrun-f933a3d1, 358 passed |
+| `909ffe3` | правки панели dwfrun-75996917 тикета 04 `onto-doc`; срез `8d50818` влит fast-forward — вендор-README и индексы, 358 passed |
 
 Первый юнит `core-kb` завершён и проверен на dogfood. Второй юнит
 `harness-agnostic` закоммичен 2026-10-21 (`0767142`): один project-local корень

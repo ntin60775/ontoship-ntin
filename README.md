@@ -24,12 +24,16 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 Источники и что из каждого взято: [docs/reference/sources.md](docs/reference/sources.md).
 
 **Начни здесь:** [docs/ops/continue.md](docs/ops/continue.md) — состояние, порядок
-тикетов, открытая работа и стартовый промпт. Юниты
-[core-kb](docs/plans/core-kb.md), [harness-agnostic](docs/plans/harness-agnostic.md)
-и [workflow-skills](docs/plans/workflow-skills.md) завершены; записи тикетов лежат в
-[tickets/](tickets/README.md). Dogfood-прогон 06 оставил игрушечный юнит
-[`install-dry-run`](docs/plans/install-dry-run.md): спека утверждена оператором,
-тикеты 01–02 влиты — юнит закрыт 2026-10-23.
+тикетов, открытая работа и стартовый промпт. Завершены юниты
+[core-kb](docs/plans/core-kb.md), [harness-agnostic](docs/plans/harness-agnostic.md),
+[workflow-skills](docs/plans/workflow-skills.md), игрушечный
+[`install-dry-run`](docs/plans/install-dry-run.md),
+[review-config](docs/plans/review-config.md),
+[evidence-verification](docs/plans/evidence-verification.md) и мини-юниты
+[ship-isolation](docs/plans/ship-isolation.md),
+[understanding-check](docs/plans/understanding-check.md); записи тикетов лежат
+в [tickets/](tickets/README.md). Открыт юнит [onto-doc](docs/plans/onto-doc.md):
+тикеты 01–04 влиты и приняты, свободен 05 — живое доказательство.
 
 ## Состояние
 
