@@ -9,6 +9,10 @@ spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents
       link/copy; idempotent; --check names each missing or drifted skill
 spec: docs/plans/onto-doc.md#готово — the install channel carries nine
       bundles: onto-doc joins the eight
+spec: docs/plans/review-loose-ends.md#готово — the installer array is the
+      machine source: the bundle index, the usage listing, this file's tuple
+      and the AGENTS.md layout row agree with it, both ways; harnesses.md
+      carries no count before «скилл»/«бандл»
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -38,6 +42,92 @@ def run(project: Path, *flags: str) -> subprocess.CompletedProcess[str]:
 
 def output(result: subprocess.CompletedProcess[str]) -> str:
     return result.stdout + result.stderr
+
+
+# A digit or a base-form Russian numeral right before «скилл»/«бандл» — a stale
+# count snapshot. Declared blind spots: declined numeral forms («девяти») and a
+# count separated from the noun by another word.
+COUNTED_NOUN = re.compile(
+    r"(?:\d+|один|одна|дв[ае]|три|четыре|пять|шесть|семь|восемь|девять|десять)"
+    r"\s+(?:скилл|бандл)",
+    re.IGNORECASE,
+)
+
+
+def _usage_listing(source: str) -> list[str]:
+    """Bundle names as the usage heredoc lists them under the (default) row."""
+    if "cat <<'EOF'" not in source:
+        return []
+    usage = source.split("cat <<'EOF'\n", 1)[1].split("\nEOF", 1)[0]
+    names: list[str] = []
+    in_listing = False
+    for line in usage.splitlines():
+        if "(default)" in line and "symlink" in line:
+            in_listing = True
+            continue
+        if in_listing:
+            if not line.startswith(" " * 13):
+                break
+            names.extend(part.strip() for part in line.split(",") if part.strip())
+    return names
+
+
+def _parity_errors(root: Path) -> list[str]:
+    """Every violated bundle-parity rule; empty means the carriers agree.
+
+    The installer array is the machine source; the parsed variable is not
+    named SKILLS — that name is taken by this module's tuple, itself a carrier
+    under check.
+    """
+    errors: list[str] = []
+    install = root / "scripts" / "install.sh"
+    if not install.is_file():
+        return ["parity: scripts/install.sh is missing"]
+    source = install.read_text("utf-8")
+    match = re.search(r"^readonly SKILLS=\(([^)]*)\)", source, re.MULTILINE)
+    if not match:
+        return ["parity: install.sh carries no readonly SKILLS array"]
+    bundles = match.group(1).split()
+
+    index = root / "skills" / "README.md"
+    listed: list[str] = []
+    if not index.is_file():
+        errors.append("parity: skills/README.md is missing")
+    else:
+        listed = re.findall(r"^- \[([a-z0-9-]+)/\]\(",
+                            index.read_text("utf-8"), re.MULTILINE)
+    for name in bundles:
+        if name not in listed:
+            errors.append(f"parity: skills/README.md misses the {name} bundle")
+    for name in listed:
+        if name not in bundles:
+            errors.append(f"parity: skills/README.md lists a phantom {name} bundle")
+
+    names = _usage_listing(source)
+    if names != bundles:
+        errors.append("parity: the usage listing drifts from the installer array")
+
+    own_source = root / "tests" / "test_install.py"
+    if not own_source.is_file():
+        errors.append("parity: tests/test_install.py is missing")
+    else:
+        declared_match = re.search(r"^SKILLS = \(([^)]*)\)",
+                                   own_source.read_text("utf-8"), re.MULTILINE)
+        if not declared_match:
+            errors.append("parity: tests/test_install.py carries no SKILLS tuple")
+        else:
+            declared = [part.strip().strip("\"'")
+                        for part in declared_match.group(1).split(",")]
+            if declared != bundles:
+                errors.append("parity: the test tuple drifts from the installer array")
+
+    agents = root / "AGENTS.md"
+    if not agents.is_file():
+        errors.append("parity: AGENTS.md is missing")
+    elif not re.search(r"^skills/\s+.*skills/README\.md",
+                       agents.read_text("utf-8"), re.MULTILINE):
+        errors.append("parity: the AGENTS.md layout row does not point at skills/README.md")
+    return errors
 
 
 def tree(root: Path) -> dict[str, tuple[str, int, int, str]]:
@@ -95,6 +185,74 @@ def test_installer_is_executable() -> None:
     assert os.access(INSTALL, os.X_OK), "install.sh must be executable"
 
 
+def test_bundle_carriers_stay_in_parity_with_the_installer() -> None:
+    """spec: docs/plans/review-loose-ends.md#готово — the installer array is the
+    machine source; the index, the usage listing, this file's tuple and the
+    AGENTS.md layout row agree with it, both ways: no missing, no phantom."""
+    assert _parity_errors(REPO) == []
+
+
+def test_parity_can_fail(tmp_path: Path) -> None:
+    """invariant: docs/plans/review-loose-ends.md#готово — the parity check
+    catches a dropped index row, a phantom bundle, a cut layout link and a
+    deleted index (mutation probes)."""
+    assert _parity_errors(REPO) == []
+
+    install_source = INSTALL.read_text("utf-8")
+    index_source = (REPO / "skills" / "README.md").read_text("utf-8")
+    agents_source = (REPO / "AGENTS.md").read_text("utf-8")
+    own_source = Path(__file__).read_text("utf-8")
+
+    def carriers(readme: str | None, agents: str = agents_source) -> Path:
+        root = tmp_path / "carriers"
+        shutil.rmtree(root, ignore_errors=True)
+        (root / "scripts").mkdir(parents=True)
+        (root / "skills").mkdir()
+        (root / "tests").mkdir(parents=True)
+        (root / "scripts" / "install.sh").write_text(install_source, "utf-8")
+        if readme is not None:
+            (root / "skills" / "README.md").write_text(readme, "utf-8")
+        (root / "AGENTS.md").write_text(agents, "utf-8")
+        (root / "tests" / "test_install.py").write_text(own_source, "utf-8")
+        return root
+
+    # A dropped index row: the kb-curate entry with its wrapped second line.
+    kept: list[str] = []
+    skipping = False
+    for line in index_source.splitlines(keepends=True):
+        if line.startswith("- ["):
+            skipping = line.startswith("- [kb-curate/")
+        if not skipping:
+            kept.append(line)
+    dropped_row = "".join(kept)
+    assert dropped_row != index_source
+    errors = _parity_errors(carriers(dropped_row))
+    assert any("misses the kb-curate bundle" in error for error in errors), errors
+
+    # A phantom bundle joins the index.
+    phantom = index_source + "- [extra-skill/](extra-skill/SKILL.md) — фантом.\n"
+    errors = _parity_errors(carriers(phantom))
+    assert any("lists a phantom extra-skill bundle" in error for error in errors), errors
+
+    # The AGENTS.md layout row loses the pointer to the index.
+    cut_link = agents_source.replace("индекс — skills/README.md", "индекс")
+    assert cut_link != agents_source
+    errors = _parity_errors(carriers(index_source, cut_link))
+    assert any("does not point at skills/README.md" in error for error in errors), errors
+
+    # The index is gone.
+    errors = _parity_errors(carriers(None))
+    assert any("skills/README.md is missing" in error for error in errors), errors
+
+
+def test_harnesses_carries_no_bundle_count() -> None:
+    """spec: docs/plans/review-loose-ends.md#готово — harnesses.md names no
+    count before «скилл»/«бандл»; the composition lives in skills/README.md."""
+    text = (REPO / "docs" / "reference" / "harnesses.md").read_text("utf-8")
+    match = COUNTED_NOUN.search(text)
+    assert match is None, f"a count snapshot before a counted noun: {match.group(0)!r}"
+
+
 def test_onto_doc_joins_as_the_ninth_bundle(project: Path) -> None:
     """spec: docs/plans/onto-doc.md#готово — onto-doc is the ninth install
     bundle; all three carriers name it: the installer list, the usage line and
@@ -115,10 +273,10 @@ def test_onto_doc_joins_as_the_ninth_bundle(project: Path) -> None:
     assert "ok onto-doc (link)" in check.stdout
 
 
-def test_fresh_install_links_nine_skills_and_writes_nothing_else(
+def test_fresh_install_links_every_bundle_and_writes_nothing_else(
     project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """spec: docs/plans/onto-doc.md#готово — nine links under .agents/skills."""
+    """spec: docs/plans/onto-doc.md#готово — every bundle linked under .agents/skills."""
     home = tmp_path / "home"
     home.mkdir()
     monkeypatch.setenv("HOME", str(home))
@@ -167,7 +325,7 @@ def test_check_is_clean_and_read_only(project: Path) -> None:
     assert tree(project) == before, "--check must not write"
 
 
-def test_check_on_a_fresh_project_names_all_nine_without_writing(tmp_path: Path) -> None:
+def test_check_on_a_fresh_project_names_every_missing_skill_without_writing(tmp_path: Path) -> None:
     """spec: docs/plans/workflow-skills.md#готово — every missing skill is named; the check still writes nothing."""
     fresh = tmp_path / "fresh"
     fresh.mkdir()

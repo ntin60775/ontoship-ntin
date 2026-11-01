@@ -54,6 +54,9 @@ BOOTSTRAP_NEEDLES = (
 ) + CORE_ROLES
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".zcode", ".qoder", "commands.md")
+# review-loose-ends: the registry wording must stay neutral to role growth, so
+# the two old wordings are forbidden anywhere in the skill, in any case.
+FORBIDDEN_WORDINGS = ("реестр ролей ревью", "бутстрап ролей ревью")
 
 # The block from the spec, pinned independently of the skill text: the expected value
 # is this literal, not a re-extraction of the implementation.
@@ -170,6 +173,11 @@ def _contract_errors(text: str) -> list[str]:
     for term in FORBIDDEN:
         if _mentions(text, term):
             errors.append(f"forbidden entity {term!r}")
+
+    lowered = text.lower()
+    for phrase in FORBIDDEN_WORDINGS:
+        if phrase in lowered:
+            errors.append(f"forbidden wording {phrase!r}")
 
     try:
         block = _block(text)
@@ -376,3 +384,29 @@ def test_curator_contract_can_fail():
     assert no_omit != text
     assert any("У модели без уровней ключ `level` опусти" in error
                for error in _contract_errors(no_omit))
+
+
+def test_registry_wording_contract_can_fail():
+    """invariant: docs/plans/review-loose-ends.md#готово — the wording contract
+    rejects the old registry phrase and the old bootstrap heading brought back,
+    each once and in any case."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    reverted_body = text.replace("реестр ролей:", "реестр ролей ревью:", 1)
+    assert reverted_body != text
+    assert any("реестр ролей ревью" in error
+               for error in _contract_errors(reverted_body))
+
+    reverted_heading = text.replace("## 4. Бутстрап ролей\n",
+                                    "## 4. Бутстрап ролей ревью\n")
+    assert reverted_heading != text
+    assert any("бутстрап ролей ревью" in error
+               for error in _contract_errors(reverted_heading))
+
+    # Case-insensitive: a capitalised return in the description is caught too.
+    reverted_description = text.replace("реестр ролей .agents/config.toml",
+                                        "Реестр ролей ревью .agents/config.toml")
+    assert reverted_description != text
+    assert any("реестр ролей ревью" in error
+               for error in _contract_errors(reverted_description))

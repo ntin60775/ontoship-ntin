@@ -27,9 +27,9 @@ zcode; DSH — пробел окружения. Справочник фикси�
 | Qoder 0.4.8 | `.agents/skills` при `skills.loadFromAgentsDirectory: true` | один корень | загружает `AGENTS.md` проекта и файлы предков |
 
 Скилл — это каталог бандла `<root>/<name>/SKILL.md`; установщик кладёт туда
-девять скиллов: `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`,
-`ship`, `testing`, `critic`, `onto-doc`. Все три харнесса читают `AGENTS.md`
-из корня проекта, поэтому точка входа и управляемый блок живут там.
+бандлы, состав называет индекс [skills/README.md](../../skills/README.md).
+Все три харнесса читают `AGENTS.md` из корня проекта, поэтому точка входа
+и управляемый блок живут там.
 
 ## Доказательства
 

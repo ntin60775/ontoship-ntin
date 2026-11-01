@@ -4,7 +4,7 @@
 # usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
 #
 # The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
-# skill root shared by zcode, DSH and Qoder. The default install links the nine skill
+# skill root shared by zcode, DSH and Qoder. The default install links the skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
 # form and names every missing or drifted skill. --dry-run prints the planned links
 # or copies and runs the same preflight checks without writing. Legacy harness roots
@@ -28,7 +28,7 @@ usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
 Install the OntoShip core into <project>/.agents/skills, the project-local skill root
 shared by zcode, DSH and Qoder.
 
-  (default)  symlink the nine skill bundles to this repository:
+  (default)  symlink the skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing,
              critic, onto-doc
   --dry-run  print the planned links (or copies with --copy) and run the same
