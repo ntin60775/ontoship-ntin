@@ -2,7 +2,7 @@
 node_type: plan
 title: review-loose-ends — закрытие зацепок ревью 03–04 юнита onto-doc
 service: _platform
-status: draft
+status: active
 updated: 2026-11-01
 tags: [plan, loose-ends, parity, roles, config]
 links:
