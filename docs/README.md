@@ -29,7 +29,9 @@ links:
   [ship-isolation.md](plans/ship-isolation.md) — изолированный worktree для
   шипа; [understanding-check.md](plans/understanding-check.md) — сверка
   понимания вместо квиза; [onto-doc.md](plans/onto-doc.md) — тяжёлая
-  док-часть, fan-out кураторов (завершён 2026-11-01, тикеты 01–05).
+  док-часть, fan-out кураторов (завершён 2026-11-01, тикеты 01–05);
+  открыт мини-юнит [review-loose-ends.md](plans/review-loose-ends.md) —
+  сторож паритета бандлов и нейтральные формулировки реестра ролей.
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.
