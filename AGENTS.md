@@ -23,7 +23,7 @@ tracer-bullet тикетами и гейтированным ship-потоком
 docs/          KB: канон, тестирование, источники, планы, ops
 tickets/       локальный трекер исполнения (не KB; закрытые тикеты хранят доказательства)
 vendor/        база движка ontoship-zcode (MIT); тикет 01 урезает её
-skills/        ядровые скиллы: kb-search, kb-curate, init
+skills/        скиллы-бандлы установщика; индекс — skills/README.md
 scripts/       project-local канал установки (link/copy/check)
 tests/         тесты движка, контрактов скиллов и установки
 ```
