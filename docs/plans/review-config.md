@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-01
 tags: [plan, review, config, adapters, subagents, critic, ship]
 links:
-  relates_to: [../decisions/ontoship-core.md, ../reference/harnesses.md, ../ops/continue.md, install-dry-run.md]
+  relates_to: [../decisions/ontoship-core.md, ../reference/harnesses.md, ../ops/continue.md, install-dry-run.md, onto-doc.md]
 ---
 
 # review-config — проектный конфиг субагентов и штатное независимое ревью
@@ -132,9 +132,9 @@ links:
 - Ядро растёт на один скилл: `critic` (модельный — запускается агентом сразу
   после приёмки последнего тикета юнита); установщик ставит восемь бандлов
   вместо семи.
-  Приписка юнита onto-doc (2026-10-30, решение 3 его спеки): счёт строк выше
-  устарел — ролей ядра шесть, добавлен `curator`; бандлов девять: `critic` —
-  восьмой, `onto-doc` — девятый.
+  Приписка юнита [onto-doc](onto-doc.md) (2026-10-30, решение 3 его спеки):
+  счёт строк выше устарел — ролей ядра шесть, добавлен `curator`; бандлов
+  девять: `critic` — восьмой, `onto-doc` — девятый.
 - Установка паков реализуется при первом реальном паке (контур 1С); регламент
   поставки — документом уже в этом юните.
 - Только zcode-адаптер рабочий; Qoder-адаптер — кандидат в следующий юнит после

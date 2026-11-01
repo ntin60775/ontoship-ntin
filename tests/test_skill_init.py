@@ -174,9 +174,11 @@ def _contract_errors(text: str) -> list[str]:
         if _mentions(text, term):
             errors.append(f"forbidden entity {term!r}")
 
-    lowered = text.lower()
+    # Whitespace is flattened first: the skill prose wraps at 80 columns, so a
+    # wording returned across a line break must still redden (panel probe).
+    flattened = re.sub(r"\s+", " ", text.lower())
     for phrase in FORBIDDEN_WORDINGS:
-        if phrase in lowered:
+        if phrase in flattened:
             errors.append(f"forbidden wording {phrase!r}")
 
     try:
@@ -410,3 +412,9 @@ def test_registry_wording_contract_can_fail():
     assert reverted_description != text
     assert any("реестр ролей ревью" in error
                for error in _contract_errors(reverted_description))
+
+    # A wording wrapped across a line break is caught too.
+    wrapped_return = text.replace("реестр ролей:", "реестр ролей\n  ревью:", 1)
+    assert wrapped_return != text
+    assert any("реестр ролей ревью" in error
+               for error in _contract_errors(wrapped_return))

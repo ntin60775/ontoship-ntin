@@ -44,31 +44,49 @@ def output(result: subprocess.CompletedProcess[str]) -> str:
     return result.stdout + result.stderr
 
 
-# A digit or a base-form Russian numeral right before «скилл»/«бандл» — a stale
-# count snapshot. Declared blind spots: declined numeral forms («девяти») and a
-# count separated from the noun by another word.
+# A digit or a Russian numeral — nominative plus the oblique case forms that
+# precede a counted noun — right before «скилл»/«бандл»: a stale count snapshot.
+# Declared blind spots: instrumental forms («девятью»), compound numerals
+# («двадцать один») and a count separated from the noun by another word.
 COUNTED_NOUN = re.compile(
-    r"(?:\d+|один|одна|дв[ае]|три|четыре|пять|шесть|семь|восемь|девять|десять)"
+    r"(?:\d+"
+    r"|один|одна|одно|одни"
+    r"|дв[ае]|двух|двумя"
+    r"|три|тр[её]х|тремя"
+    r"|четыре|четыр[её]х"
+    r"|пять|пяти"
+    r"|шесть|шести"
+    r"|семь|семи"
+    r"|восемь|восьми"
+    r"|девять|девяти"
+    r"|десять|десяти)"
     r"\s+(?:скилл|бандл)",
     re.IGNORECASE,
 )
 
 
 def _usage_listing(source: str) -> list[str]:
-    """Bundle names as the usage heredoc lists them under the (default) row."""
+    """Bundle names as the usage heredoc lists them under the (default) row.
+
+    The listing is the indented name rows after the "(default)" row; a row that
+    starts an option description ends it. Name-shaped tokens only, so a
+    reworded header row with the same listing stays green.
+    """
     if "cat <<'EOF'" not in source:
         return []
     usage = source.split("cat <<'EOF'\n", 1)[1].split("\nEOF", 1)[0]
     names: list[str] = []
     in_listing = False
     for line in usage.splitlines():
-        if "(default)" in line and "symlink" in line:
-            in_listing = True
+        if not in_listing:
+            if "(default)" in line:
+                in_listing = True
             continue
-        if in_listing:
-            if not line.startswith(" " * 13):
-                break
-            names.extend(part.strip() for part in line.split(",") if part.strip())
+        stripped = line.strip()
+        if not stripped or stripped.startswith("--") or not line.startswith("  "):
+            break
+        names.extend(part for part in (piece.strip() for piece in stripped.split(","))
+                     if re.fullmatch(r"[a-z0-9][a-z0-9-]*", part))
     return names
 
 
@@ -102,10 +120,14 @@ def _parity_errors(root: Path) -> list[str]:
     for name in listed:
         if name not in bundles:
             errors.append(f"parity: skills/README.md lists a phantom {name} bundle")
+    if sorted(listed) != sorted(bundles):
+        errors.append("parity: skills/README.md is not a permutation of the "
+                      "installer array (duplicate row?)")
 
     names = _usage_listing(source)
     if names != bundles:
-        errors.append("parity: the usage listing drifts from the installer array")
+        errors.append(f"parity: the usage listing {names} drifts from "
+                      f"the installer array {bundles}")
 
     own_source = root / "tests" / "test_install.py"
     if not own_source.is_file():
@@ -117,7 +139,8 @@ def _parity_errors(root: Path) -> list[str]:
             errors.append("parity: tests/test_install.py carries no SKILLS tuple")
         else:
             declared = [part.strip().strip("\"'")
-                        for part in declared_match.group(1).split(",")]
+                        for part in declared_match.group(1).split(",")
+                        if part.strip()]
             if declared != bundles:
                 errors.append("parity: the test tuple drifts from the installer array")
 
@@ -234,6 +257,14 @@ def test_parity_can_fail(tmp_path: Path) -> None:
     errors = _parity_errors(carriers(phantom))
     assert any("lists a phantom extra-skill bundle" in error for error in errors), errors
 
+    # A duplicated index row keeps both names present yet is not equality
+    # (panel probe: the old two-way membership check stayed green on it).
+    ship_row = next(line for line in index_source.splitlines()
+                    if line.startswith("- [ship/]"))
+    duplicated = index_source.replace(ship_row, ship_row + "\n" + ship_row, 1)
+    errors = _parity_errors(carriers(duplicated))
+    assert any("not a permutation" in error for error in errors), errors
+
     # The AGENTS.md layout row loses the pointer to the index.
     cut_link = agents_source.replace("индекс — skills/README.md", "индекс")
     assert cut_link != agents_source
@@ -251,6 +282,11 @@ def test_harnesses_carries_no_bundle_count() -> None:
     text = (REPO / "docs" / "reference" / "harnesses.md").read_text("utf-8")
     match = COUNTED_NOUN.search(text)
     assert match is None, f"a count snapshot before a counted noun: {match.group(0)!r}"
+    # «Готово» 3: the enumeration is replaced by a pointer, so the pointer must be there.
+    assert "skills/README.md" in text, "harnesses.md must point at the skills index"
+    # The guard catches oblique-case counts too (panel probe: «восьми бандлов»).
+    probe = text.replace("состав называет индекс", "состав из девяти скиллов называет")
+    assert COUNTED_NOUN.search(probe) is not None, "oblique-case counts must redden"
 
 
 def test_onto_doc_joins_as_the_ninth_bundle(project: Path) -> None:
