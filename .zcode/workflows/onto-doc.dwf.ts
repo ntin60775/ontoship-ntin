@@ -75,25 +75,37 @@ const rows: CuratorRow[] = await Promise.all(
         "или инструкции противоречат друг другу — верни отказ с причиной, " +
         "а не обходи.",
     });
-    const answer: unknown = await curator.ask(
-      `Область: ${piece.path} — ${piece.what}. Корень KB: ${root}. ` +
-      `Найди скилл kb-curate в корне KB: .agents/skills/kb-curate/SKILL.md, ` +
-      `а если его там нет — skills/kb-curate/SKILL.md; прочитай его и веди ` +
-      `свой срез строго по нему: операции, frontmatter, типизированные ` +
-      `ссылки и README-индекс папки — как велит скилл. Верни JSON-объект ` +
+    const answer = await curator.ask<CuratorRow>(
+      `Область: ${piece.path} — ${piece.what}. Корень KB: ${root}; команды ` +
+      `выполняй от корня KB, не из чекаута сессии. Найди скилл kb-curate ` +
+      `в корне KB: .agents/skills/kb-curate/SKILL.md, а если его там нет — ` +
+      `skills/kb-curate/SKILL.md; прочитай его и веди свой срез строго ` +
+      `по нему: операции, frontmatter, типизированные ссылки ` +
+      `и README-индекс папки — как велит скилл. Верни только JSON-объект ` +
       `с полями: path (путь области), curator (твоё имя куратора), files ` +
-      `(массив созданных или обновлённых файлов от корня KB), refusal ` +
-      `(причина отказа или пустая строка).`,
+      `(массив созданных или обновлённых файлов от корня KB; пустой — если ` +
+      `ничего не менял), refusal (причина отказа или пустая строка).`,
     );
+    // Typed ask returns a schema-validated row; the guard keeps an off-schema
+    // answer a named refusal of the row instead of a silent empty list
+    // (live run dwfrun-5efcd1d0 lost nine files to that silence).
     const shape = answer as Partial<CuratorRow> | undefined;
-    const files: string[] =
-      shape && Array.isArray(shape.files) ? shape.files.map(String) : [];
-    const row: CuratorRow = {
-      path: String(shape?.path ?? piece.path),
-      curator: String(shape?.curator ?? `куратор-${i + 1}-${piece.path}`),
-      files,
-      refusal: String(shape?.refusal ?? ""),
-    };
+    const row: CuratorRow =
+      shape && Array.isArray(shape.files) && typeof shape.refusal === "string"
+        ? {
+            path: String(shape.path ?? piece.path),
+            curator: String(shape.curator ?? `куратор-${i + 1}-${piece.path}`),
+            files: shape.files.map(String),
+            refusal: shape.refusal,
+          }
+        : {
+            path: piece.path,
+            curator: `куратор-${i + 1}-${piece.path}`,
+            files: [],
+            refusal:
+              "куратор ответил не по схеме: " +
+              JSON.stringify(answer).slice(0, 200),
+          };
     report(row);
     return row;
   }),

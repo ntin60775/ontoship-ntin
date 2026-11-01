@@ -134,6 +134,38 @@ def test_curators_follow_kb_curate_inside_the_root():
     assert ".agents/skills/kb-curate/SKILL.md" not in no_skill
 
 
+def test_curator_row_comes_from_a_typed_answer_never_silently_empty():
+    """invariant: docs/plans/onto-doc.md#готово — карточка прогона несёт строку
+    на область (куратор, файлы, отказ). Живой прогон dwfrun-5efcd1d0 поймал
+    сбой транспорта: нетипизированный ответ с прозой вокруг JSON молча
+    превращался в files: [] при девяти правках в worktree. Ответ куратора
+    типизирован, промпт требует только JSON, а ответ не по схеме — именованный
+    отказ строки, не пустой список."""
+    _, body = _split(WORKFLOW.read_text("utf-8"))
+    assert "ask<CuratorRow>" in body, \
+        "the curator answer must be typed: the row comes from a schema"
+    assert "только JSON" in body, \
+        "the ask must demand a JSON-only answer"
+    assert "ответил не по схеме" in body, \
+        "an off-schema answer must become a named refusal of the row"
+    for silent_default in ("map(String) : [];",
+                           'String(shape?.refusal ?? "")'):
+        assert silent_default not in body, \
+            f"silent default {silent_default!r} masks an off-schema answer"
+
+    untyped = body.replace("ask<CuratorRow>", "ask", 1)
+    assert untyped != body and "ask<CuratorRow>" not in untyped, \
+        "the mutation must drop the typed ask"
+
+    loose = body.replace("только JSON", "JSON", 1)
+    assert loose != body and "только JSON" not in loose, \
+        "the mutation must drop the JSON-only demand"
+
+    muted = body.replace("ответил не по схеме", "ответил пустым списком", 1)
+    assert muted != body and "ответил не по схеме" not in muted, \
+        "the mutation must drop the named refusal"
+
+
 def test_no_placeholders():
     """spec: docs/plans/onto-doc.md#готово — файл не несёт плейсхолдеров;
     проверка умеет падать: испорченный текст ловится той же функцией."""

@@ -92,6 +92,11 @@ REQUIRED_PHRASES = (
     "печатает её в log",
     "пишет только внутри",
     "строку на область — куратор, файлы, отказ",
+    # read-back of the run card against the worktree fact (live proof
+    # dwfrun-5efcd1d0: an unverified card reported empty files)
+    "сверь карточку с фактом",
+    "git diff --name-only",
+    "пустой `files` при непустом diff — расхождение",
 )
 FORBIDDEN_PHRASES = (
     "$arguments",
@@ -387,6 +392,9 @@ def test_principle_is_word_for_word():
         "прогон онто-дока по харнессам",
         "печатает её в log",
         "строку на область — куратор, файлы, отказ",
+        "сверь карточку с фактом",
+        "git diff --name-only",
+        "пустой `files` при непустом diff — расхождение",
     ],
 )
 def test_every_short_marker_has_a_failing_probe(needle: str) -> None:
