@@ -7,8 +7,8 @@ destination.
 
 spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents/skills;
       link/copy; idempotent; --check names each missing or drifted skill
-spec: docs/plans/onto-doc.md#готово — the install channel carries nine
-      bundles: onto-doc joins the eight
+spec: docs/plans/onto-doc.md#готово — the install channel carries the
+      onto-doc bundle: it joins the rest
 spec: docs/plans/review-loose-ends.md#готово — the installer array is the
       machine source: the bundle index, the usage listing, this file's tuple
       and the AGENTS.md layout row agree with it, both ways; harnesses.md
@@ -46,9 +46,12 @@ def output(result: subprocess.CompletedProcess[str]) -> str:
 
 # A digit or a Russian numeral — nominative plus the oblique case forms that
 # precede a counted noun — right before «скилл»/«бандл»: a stale count snapshot.
-# Declared blind spots: instrumental forms («девятью»), compound numerals
-# («двадцать один») and a count separated from the noun by another word.
+# The left lookbehind keeps a numeral hidden inside a word («смотри скиллы»)
+# from firing. Declared blind spots: instrumental forms («девятью»), compound
+# numerals («двадцать один»), a count after the noun and a count separated
+# from the noun by another word.
 COUNTED_NOUN = re.compile(
+    r"(?<![а-яёa-z\d])"
     r"(?:\d+"
     r"|один|одна|одно|одни"
     r"|дв[ае]|двух|двумя"
@@ -287,6 +290,8 @@ def test_harnesses_carries_no_bundle_count() -> None:
     # The guard catches oblique-case counts too (panel probe: «восьми бандлов»).
     probe = text.replace("состав называет индекс", "состав из девяти скиллов называет")
     assert COUNTED_NOUN.search(probe) is not None, "oblique-case counts must redden"
+    # A numeral hidden inside a word must not fire (probe of the left lookbehind).
+    assert COUNTED_NOUN.search("смотри скиллы и внутри бандла") is None
 
 
 def test_onto_doc_joins_the_install_channel(project: Path) -> None:

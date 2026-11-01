@@ -1,6 +1,6 @@
 """Contract for the review-roles reference and the harness review rows (review-config ticket 04).
 
-``docs/reference/review-roles.md`` must carry the four base-set role
+``docs/reference/review-roles.md`` must carry the base-set role
 contracts — ``reviewer-spec``, ``reviewer-tests``, ``reviewer-code``,
 ``reviewer-kb`` — each with a scope and a checklist, plus the pack rules:
 packs carry prompts and checklists only, role names follow
@@ -38,6 +38,26 @@ REFERENCE = REPO / "docs" / "reference" / "review-roles.md"
 HARNESSES = REPO / "docs" / "reference" / "harnesses.md"
 INDEX = REPO / "docs" / "reference" / "README.md"
 ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb")
+# The role-count snapshot guard of the reference layer — the same class as
+# COUNTED_ROLE in tests/test_skill_init.py; a numeral before «рол…» (optionally
+# «ревью-рол…») must not return into the reference or its index. Blind spots
+# match that guard: a count after the noun and ordinals before the noun.
+COUNTED_ROLE = re.compile(
+    r"(?<![а-яёa-z\d])"
+    r"(?:\d+"
+    r"|один|одна|одно|одни|одной|одному"
+    r"|дв[ае]|двух|двум|двумя"
+    r"|три|тр[ие]|трём|трем|тр[её]х|тремя"
+    r"|четыре|четыр[её]х|четырём|четырем|четырьмя"
+    r"|пять|пяти|пятью"
+    r"|шесть|шести|шестью"
+    r"|семь|семи|семью"
+    r"|восемь|восьми|восемью"
+    r"|девять|девяти|девятью"
+    r"|десять|десяти|десятью)"
+    r"\s+(?:ревью-)?рол",
+    re.IGNORECASE,
+)
 INDEPENDENCE_PHRASES = ("вердикт", "приоритет", "зацепк", "артефакты",
                         "не ход исполнения")
 PACK_RULES = (
@@ -255,6 +275,23 @@ def test_reference_carries_the_base_set_role_contracts():
         assert any(role in heading.lower() for heading in sections), \
             f"role {role} has no section"
     assert _reference_errors(text) == []
+
+
+def test_reference_layer_carries_no_role_count():
+    """invariant: docs/plans/review-loose-ends.md#цель — счётчики-срезы не
+    живут в справочниках: the reference and its index name no count before
+    «рол…», and a returned count reddens (panel probe dwfrun-71b03204)."""
+    for path in (REFERENCE, INDEX):
+        text = path.read_text("utf-8")
+        match = COUNTED_ROLE.search(text)
+        assert match is None, f"{path.name}: a counted role snapshot {match.group(0)!r}"
+
+    reference = REFERENCE.read_text("utf-8")
+    returned = reference.replace("Каждая роль базового набора",
+                                 "Базовый набор ядра — четыре роли; каждая", 1)
+    assert returned != reference
+    assert COUNTED_ROLE.search(returned) is not None, \
+        "a returned role count must redden the reference"
 
 
 def test_reference_states_input_output_and_independence():

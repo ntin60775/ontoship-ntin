@@ -3,7 +3,7 @@ node_type: reference
 title: Ревью-роли — базовый набор и регламент паков
 service: _platform
 status: active
-updated: 2026-10-30
+updated: 2026-11-01
 tags: [review, roles, panel, packs, ship]
 links:
   part_of: [README.md]

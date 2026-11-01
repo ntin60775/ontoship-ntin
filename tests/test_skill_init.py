@@ -59,39 +59,37 @@ FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
 # hooks: the counted bootstrap question is forbidden the same way.
 FORBIDDEN_WORDINGS = ("реестр ролей ревью", "бутстрап ролей ревью", "шестой вопрос")
 
-# hooks: a digit or a Russian numeral — nominative or oblique — right before
-# «рол…» (optionally «ревью-рол…») is a stale role-count snapshot. Declared
-# blind spots: ordinal numerals before other nouns («шестой вопрос» is
-# guarded by FORBIDDEN_WORDINGS) and a count separated from the noun by
-# another word.
+# hooks: a digit or a Russian numeral — nominative or the oblique case forms —
+# right before «рол…» (optionally «ревью-рол…») is a stale role-count snapshot.
+# The left lookbehind keeps a numeral hidden inside a word («внутри роли»,
+# «смотри роли», «опять роль») from firing. Declared blind spots: a count
+# after the noun («Ролей ядра — шесть») and ordinal numerals before the noun
+# itself («шестая роль»); ordinals before «вопрос» carry their own guard below.
 COUNTED_ROLE = re.compile(
+    r"(?<![а-яёa-z\d])"
     r"(?:\d+"
-    r"|один|одна|одно|одни"
-    r"|дв[ае]|двух|двумя"
-    r"|три|тр[ие]|тр[её]х|тремя"
-    r"|четыре|четыр[её]х"
-    r"|пять|пяти"
-    r"|шесть|шести"
-    r"|семь|семи"
-    r"|восемь|восьми"
-    r"|девять|девяти"
-    r"|десять|десяти)"
+    r"|один|одна|одно|одни|одной|одному"
+    r"|дв[ае]|двух|двум|двумя"
+    r"|три|тр[ие]|трём|трем|тр[её]х|тремя"
+    r"|четыре|четыр[её]х|четырём|четырем|четырьмя"
+    r"|пять|пяти|пятью"
+    r"|шесть|шести|шестью"
+    r"|семь|семи|семью"
+    r"|восемь|восьми|восемью"
+    r"|девять|девяти|девятью"
+    r"|десять|десяти|десятью)"
     r"\s+(?:ревью-)?рол",
     re.IGNORECASE,
 )
 
-
-def _declared_core_roles(text: str) -> list[str]:
-    """Role names of the check list, parsed from the skill's own enumeration.
-
-    The list line is «Сверь роли ядра — `a`, `b`, … — с секциями конфига»;
-    whitespace is flattened first because the prose wraps at 80 columns.
-    """
-    flattened = re.sub(r"\s+", " ", text)
-    match = re.search(r"Сверь роли ядра — (.*?) — с секциями конфига", flattened)
-    if not match:
-        return []
-    return re.findall(r"`([a-z0-9-]+)`", match.group(1))
+# A counted bootstrap question — an ordinal right before «вопрос» — is the
+# same stale snapshot; the neutral skill wording is «Отдельный вопрос».
+ORDINAL_QUESTION = re.compile(
+    r"(?<![а-яёa-z\d])"
+    r"(?:перв|втор|трет|четв[её]рт|пят|шест|седьм|восьм|девят|десят)[а-яё]*"
+    r"\s+вопрос",
+    re.IGNORECASE,
+)
 
 # The block from the spec, pinned independently of the skill text: the expected value
 # is this literal, not a re-extraction of the implementation.
@@ -171,6 +169,23 @@ def _mentions(text: str, term: str) -> bool:
     return term in lowered
 
 
+def _declared_core_roles(text: str) -> tuple[list[str], bool]:
+    """Role names of the check list, parsed from the skill's own enumeration.
+
+    The list line is «Сверь роли ядра — `a`, `b`, … — с секциями конфига»;
+    whitespace is flattened first because the prose wraps at 80 columns.
+    Returns the names and whether the anchor phrase was found at all; every
+    backticked token of the span must be a role-shaped name.
+    """
+    flattened = re.sub(r"\s+", " ", text)
+    match = re.search(r"Сверь роли ядра — (.*?) — с секциями конфига", flattened)
+    if not match:
+        return [], False
+    tokens = re.findall(r"`([^`]+)`", match.group(1))
+    roles = [token for token in tokens if re.fullmatch(r"[a-z0-9][a-z0-9-]*", token)]
+    return roles, len(roles) == len(tokens)
+
+
 def _contract_errors(text: str) -> list[str]:
     """Every violated init contract; empty means the skill is sound."""
     try:
@@ -220,9 +235,15 @@ def _contract_errors(text: str) -> list[str]:
     if counted_role:
         errors.append(f"bootstrap: a counted role snapshot {counted_role.group(0)!r}")
 
-    declared = _declared_core_roles(text)
+    counted_question = ORDINAL_QUESTION.search(text)
+    if counted_question:
+        errors.append(f"bootstrap: a counted question {counted_question.group(0)!r}")
+
+    declared, well_formed = _declared_core_roles(text)
+    if not well_formed:
+        errors.append("bootstrap: the check list carries a non-role token")
     if not declared:
-        errors.append("bootstrap: the core-role check list is missing")
+        errors.append("bootstrap: the core-role check list anchor is missing")
     else:
         for role in CORE_ROLES:
             if role not in declared:
@@ -230,6 +251,9 @@ def _contract_errors(text: str) -> list[str]:
         for role in declared:
             if role not in CORE_ROLES:
                 errors.append(f"bootstrap: the check list names a phantom {role} role")
+        if sorted(declared) != sorted(CORE_ROLES):
+            errors.append("bootstrap: the check list is not a permutation of "
+                          "the core roles (duplicate entry?)")
 
     try:
         block = _block(text)
@@ -506,3 +530,40 @@ def test_role_count_contract_can_fail():
     assert dropped != text
     assert any("misses the reviewer-code role" in error
                for error in _contract_errors(dropped))
+
+    # Panel probes (dwfrun-71b03204): a duplicate entry, a non-role token,
+    # the instrumental case, the next ordinal question, a rephrased anchor
+    # and the numeral hidden inside a word.
+    duplicated = text.replace("`reviewer-kb`, `critic`, `curator`",
+                              "`reviewer-kb`, `critic`, `curator`, `reviewer-kb`", 1)
+    assert duplicated != text
+    assert any("not a permutation" in error
+               for error in _contract_errors(duplicated))
+
+    alien_token = text.replace("`critic`, `curator` — с секциями",
+                               "`critic`, `Extra` — с секциями", 1)
+    assert alien_token != text
+    assert any("non-role token" in error
+               for error in _contract_errors(alien_token))
+
+    instrumental = text.replace("Сверь роли ядра —",
+                                "Сверь шестью ролями ядра —", 1)
+    assert instrumental != text
+    assert any("counted role snapshot" in error
+               for error in _contract_errors(instrumental))
+
+    next_ordinal = text.replace("Отдельный вопрос — модель роли `curator`",
+                                "Седьмой вопрос — модель роли `curator`")
+    assert next_ordinal != text
+    assert any("counted question" in error
+               for error in _contract_errors(next_ordinal))
+
+    rephrased_anchor = text.replace("Сверь роли ядра —", "Проверь роли ядра —", 1)
+    assert rephrased_anchor != text
+    assert any("check list anchor is missing" in error
+               for error in _contract_errors(rephrased_anchor))
+
+    # A numeral hidden inside a word must not fire (panel probe: «смотри
+    # роли», «опять роль» had redden a word-boundary-less regex).
+    for innocent in ("смотри роли", "опять роль", "внутри роли"):
+        assert COUNTED_ROLE.search(innocent) is None, innocent
