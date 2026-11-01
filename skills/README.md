@@ -21,7 +21,7 @@ links:
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
   REINDEX; модель онтологии.
 - [init/](init/SKILL.md) — управляемый блок, `.gitignore`, конфиг ролей,
-  реестр ролей `roles.py`, генератор `gen_agents.py`.
+  машинный источник перечня ролей `roles.py`, генератор `gen_agents.py`.
 - [grilling/](grilling/SKILL.md) — интервью по фронтиру, выход в спеку
   на план-гейт.
 - [to-tickets/](to-tickets/SKILL.md) — нарезка спеки на tracer-bullet

@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pytest
 
+import test_review_roles  # reuse: the reference section parser, not duplicated
 import test_skill_init  # reuse: the check-list parser, not duplicated
 
 REPO = Path(__file__).resolve().parent.parent
@@ -52,7 +53,7 @@ PROBES = (
     ("review-roles-tuple-drops-kb", "tests/test_review_roles.py",
      ', "reviewer-kb")', ')', "misses the reviewer-kb role"),
     ("review-roles-tuple-phantom", "tests/test_review_roles.py",
-     '"reviewer-kb")', '"reviewer-kb", "auditor")',
+     ', "reviewer-kb")', ', "reviewer-kb", "auditor")',
      "carries a phantom auditor role"),
     ("skill-check-line-drops-critic", "skills/init/SKILL.md",
      "`critic`, `curator` — с секциями", "`curator` — с секциями",
@@ -62,10 +63,10 @@ PROBES = (
      "carries a phantom auditor role"),
     ("reference-drops-section", "docs/reference/review-roles.md",
      "### reviewer-code — качество реализации\n", "",
-     "misses the reviewer-code role"),
+     "miss the reviewer-code role"),
     ("reference-phantom-section", "docs/reference/review-roles.md",
      "## Регламент паков", "### auditor — проба\n\n## Регламент паков",
-     "carries a phantom auditor role"),
+     "phantom section"),
     ("registry-duplicate-entry", REGISTRY,
      '"critic", "curator")', '"critic", "curator", "critic")',
      "duplicate entry"),
@@ -94,7 +95,8 @@ def _parity_side(own: list[str], other: list[str], label: str) -> list[str]:
     for role in other:
         if role not in own:
             errors.append(f"parity: {label} carries a phantom {role} role")
-    if sorted(own) != sorted(other):
+    if not errors and sorted(own) != sorted(other):
+        # Only a real duplicate survives the miss/phantom sweep above.
         errors.append(f"parity: {label} is not a permutation of the registry "
                       "tuple (duplicate entry?)")
     return errors
@@ -110,12 +112,12 @@ def _registry_internal_errors(root: Path) -> tuple[list[str] | None, list[str] |
     source = path.read_text("utf-8")
     code = "\n".join(line for line in source.splitlines()
                      if line.strip() and not line.strip().startswith("#"))
-    for token in ("def ", "class ", "import ", "lambda "):
+    for token in ("def ", "class ", "import ", "lambda ", "print(", "raise "):
         if token in code:
             errors.append(f"registry: roles.py carries executable logic "
                           f"({token.strip()})")
     assigned = re.findall(r"^([A-Za-z_]+) =", code, re.MULTILINE)
-    if assigned != ["CORE_ROLES", "PANEL_ROLES"]:
+    if sorted(assigned) != ["CORE_ROLES", "PANEL_ROLES"]:
         errors.append(f"registry: roles.py assigns {assigned or 'nothing'} "
                       "instead of the two tuples")
     core = _parsed_tuple(source, "CORE_ROLES")
@@ -176,11 +178,19 @@ def _registry_errors(root: Path) -> list[str]:
     if not reference.is_file():
         errors.append("parity: docs/reference/review-roles.md is missing")
     else:
-        sections = re.findall(r"^### ([a-z0-9][a-z0-9-]*) — ",
-                              reference.read_text("utf-8"), re.MULTILINE)
-        errors.extend(_parity_side(panel, sections,
-                                   "the base-set sections of "
-                                   "docs/reference/review-roles.md"))
+        # Same semantics as the reference contract: a role owns a section
+        # when its name occurs in the heading, not by an exact header shape.
+        headings = list(test_review_roles._h3_sections(reference.read_text("utf-8")))
+        for role in panel:
+            if not any(role in heading.lower() for heading in headings):
+                errors.append(f"parity: the base-set sections of "
+                              f"docs/reference/review-roles.md miss the "
+                              f"{role} role")
+        for heading in headings:
+            if not any(role in heading.lower() for role in panel):
+                errors.append(f"parity: the base-set sections of "
+                              f"docs/reference/review-roles.md name a phantom "
+                              f"section {heading!r}")
     return errors
 
 
@@ -223,9 +233,9 @@ def test_registry_holds_two_way_parity_now() -> None:
 def test_a_mutated_carrier_is_named_by_the_probe(
         tmp_path: Path, probe: str, rel: str, old: str, new: str,
         needle: str) -> None:
-    """target: each mutation — a dropped role, a phantom, a duplicate, a
-    broken subset — is caught and named, not just met with a non-empty
-    error list (spec, Готово 2)."""
+    """spec: docs/plans/role-registry.md#готово-2 — each mutation, ordered
+    by the plan: a dropped role, a phantom, a duplicate, a broken subset is
+    caught and named, not just met with a non-empty error list."""
     source = (REPO / rel).read_text("utf-8")
     assert old in source, f"the probe {probe} no longer matches its carrier"
     errors = _registry_errors(_carriers(tmp_path, **{rel: source.replace(old, new, 1)}))
