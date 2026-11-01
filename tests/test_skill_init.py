@@ -42,9 +42,9 @@ BOOTSTRAP_NEEDLES = (
     "не дописывай",
     "не трогай",
     GENERATOR_PATH,
-    "Сверь шесть ролей ядра",
+    "Сверь роли ядра",
     "`critic`, `curator` — с секциями конфига",
-    "Шестой вопрос — модель роли `curator`",
+    "Отдельный вопрос — модель роли `curator`",
     CURATOR_DEFAULT,
     "пока она в списке активных",
     "назови отклонение от дефолта",
@@ -56,7 +56,42 @@ FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".zcode", ".qoder", "commands.md")
 # review-loose-ends: the registry wording must stay neutral to role growth, so
 # the two old wordings are forbidden anywhere in the skill, in any case.
-FORBIDDEN_WORDINGS = ("реестр ролей ревью", "бутстрап ролей ревью")
+# hooks: the counted bootstrap question is forbidden the same way.
+FORBIDDEN_WORDINGS = ("реестр ролей ревью", "бутстрап ролей ревью", "шестой вопрос")
+
+# hooks: a digit or a Russian numeral — nominative or oblique — right before
+# «рол…» (optionally «ревью-рол…») is a stale role-count snapshot. Declared
+# blind spots: ordinal numerals before other nouns («шестой вопрос» is
+# guarded by FORBIDDEN_WORDINGS) and a count separated from the noun by
+# another word.
+COUNTED_ROLE = re.compile(
+    r"(?:\d+"
+    r"|один|одна|одно|одни"
+    r"|дв[ае]|двух|двумя"
+    r"|три|тр[ие]|тр[её]х|тремя"
+    r"|четыре|четыр[её]х"
+    r"|пять|пяти"
+    r"|шесть|шести"
+    r"|семь|семи"
+    r"|восемь|восьми"
+    r"|девять|девяти"
+    r"|десять|десяти)"
+    r"\s+(?:ревью-)?рол",
+    re.IGNORECASE,
+)
+
+
+def _declared_core_roles(text: str) -> list[str]:
+    """Role names of the check list, parsed from the skill's own enumeration.
+
+    The list line is «Сверь роли ядра — `a`, `b`, … — с секциями конфига»;
+    whitespace is flattened first because the prose wraps at 80 columns.
+    """
+    flattened = re.sub(r"\s+", " ", text)
+    match = re.search(r"Сверь роли ядра — (.*?) — с секциями конфига", flattened)
+    if not match:
+        return []
+    return re.findall(r"`([a-z0-9-]+)`", match.group(1))
 
 # The block from the spec, pinned independently of the skill text: the expected value
 # is this literal, not a re-extraction of the implementation.
@@ -180,6 +215,21 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in FORBIDDEN_WORDINGS:
         if phrase in flattened:
             errors.append(f"forbidden wording {phrase!r}")
+
+    counted_role = COUNTED_ROLE.search(text)
+    if counted_role:
+        errors.append(f"bootstrap: a counted role snapshot {counted_role.group(0)!r}")
+
+    declared = _declared_core_roles(text)
+    if not declared:
+        errors.append("bootstrap: the core-role check list is missing")
+    else:
+        for role in CORE_ROLES:
+            if role not in declared:
+                errors.append(f"bootstrap: the check list misses the {role} role")
+        for role in declared:
+            if role not in CORE_ROLES:
+                errors.append(f"bootstrap: the check list names a phantom {role} role")
 
     try:
         block = _block(text)
@@ -418,3 +468,41 @@ def test_registry_wording_contract_can_fail():
     assert wrapped_return != text
     assert any("реестр ролей ревью" in error
                for error in _contract_errors(wrapped_return))
+
+
+def test_role_count_contract_can_fail():
+    """invariant: docs/plans/review-loose-ends.md#цель — формулировки ролей
+    нейтральны к росту их числа: the contract rejects a counted check list,
+    a counted bootstrap question, a returned review-role count, a phantom
+    role and a dropped role in the check list."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    counted_list = text.replace("Сверь роли ядра —", "Сверь шесть ролей ядра —", 1)
+    assert counted_list != text
+    assert any("counted role snapshot" in error
+               for error in _contract_errors(counted_list))
+
+    counted_review = text.replace("Ревью-роли могут делить",
+                                  "Четыре ревью-роли могут делить", 1)
+    assert counted_review != text
+    assert any("counted role snapshot" in error
+               for error in _contract_errors(counted_review))
+
+    counted_question = text.replace("Отдельный вопрос — модель роли `curator`",
+                                    "Шестой вопрос — модель роли `curator`")
+    assert counted_question != text
+    assert any("шестой вопрос" in error
+               for error in _contract_errors(counted_question))
+
+    phantom = text.replace("`reviewer-spec`, `reviewer-tests`,",
+                           "`reviewer-spec`, `reviewer-tests`, `extra-role`,", 1)
+    assert phantom != text
+    assert any("phantom extra-role role" in error
+               for error in _contract_errors(phantom))
+
+    dropped = text.replace("`reviewer-spec`, `reviewer-tests`, `reviewer-code`,",
+                           "`reviewer-spec`, `reviewer-tests`,", 1)
+    assert dropped != text
+    assert any("misses the reviewer-code role" in error
+               for error in _contract_errors(dropped))

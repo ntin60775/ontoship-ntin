@@ -289,10 +289,10 @@ def test_harnesses_carries_no_bundle_count() -> None:
     assert COUNTED_NOUN.search(probe) is not None, "oblique-case counts must redden"
 
 
-def test_onto_doc_joins_as_the_ninth_bundle(project: Path) -> None:
-    """spec: docs/plans/onto-doc.md#готово — onto-doc is the ninth install
-    bundle; all three carriers name it: the installer list, the usage line and
-    the link/check output."""
+def test_onto_doc_joins_the_install_channel(project: Path) -> None:
+    """spec: docs/plans/onto-doc.md#готово — onto-doc joins the install
+    channel; all three carriers name it: the installer list, the usage line
+    and the link/check output."""
     source = INSTALL.read_text("utf-8")
     assert re.search(r"readonly SKILLS=.*\bonto-doc\b", source), \
         "install.sh must list the onto-doc bundle"

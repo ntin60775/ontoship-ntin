@@ -246,9 +246,9 @@ def test_reference_exists_with_sound_frontmatter():
     assert _reference_errors(REFERENCE.read_text("utf-8")) == []
 
 
-def test_reference_carries_the_four_base_set_role_contracts():
-    """spec: docs/plans/review-config.md#решения план-гейта — 11: четыре роли,
-    каждая — узкий чек-лист."""
+def test_reference_carries_the_base_set_role_contracts():
+    """spec: docs/plans/review-config.md#решения план-гейта — 11: роли
+    базового набора, каждая — узкий чек-лист."""
     text = REFERENCE.read_text("utf-8")
     sections = _h3_sections(text)
     for role in ROLES:
