@@ -2,7 +2,7 @@
 node_type: plan
 title: role-registry — машинный источник перечня ролей ядра
 service: _platform
-status: draft
+status: active
 updated: 2026-11-01
 tags: [plan, roles, registry, parity, init]
 links:
