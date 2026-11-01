@@ -28,8 +28,8 @@ links:
   доказательства вместо семафора (тикеты 01–04); мини-юниты
   [ship-isolation.md](plans/ship-isolation.md) — изолированный worktree для
   шипа; [understanding-check.md](plans/understanding-check.md) — сверка
-  понимания вместо квиза. Открыт [onto-doc.md](plans/onto-doc.md) — тяжёлая
-  док-часть, fan-out кураторов (тикеты 01–04 влиты и приняты, свободен 05).
+  понимания вместо квиза; [onto-doc.md](plans/onto-doc.md) — тяжёлая
+  док-часть, fan-out кураторов (завершён 2026-11-01, тикеты 01–05).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.

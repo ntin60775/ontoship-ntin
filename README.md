@@ -32,8 +32,8 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 [evidence-verification](docs/plans/evidence-verification.md) и мини-юниты
 [ship-isolation](docs/plans/ship-isolation.md),
 [understanding-check](docs/plans/understanding-check.md); записи тикетов лежат
-в [tickets/](tickets/README.md). Открыт юнит [onto-doc](docs/plans/onto-doc.md):
-тикеты 01–04 влиты и приняты, свободен 05 — живое доказательство.
+в [tickets/](tickets/README.md). Завершён и юнит [onto-doc](docs/plans/onto-doc.md):
+живое доказательство — тикет 05 — влит и принят 2026-11-01.
 
 ## Состояние
 
