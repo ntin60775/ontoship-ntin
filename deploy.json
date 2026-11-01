@@ -1,0 +1,25 @@
+{
+  "contract_version": 1,
+  "strategy": "replace",
+  "on_drift": "fail",
+  "mappings": [
+    { "from": "skills/kb-search", "to": ".zcode/skills/kb-search" },
+    { "from": "skills/kb-curate", "to": ".zcode/skills/kb-curate" },
+    { "from": "skills/init", "to": ".zcode/skills/init" },
+    { "from": "skills/grilling", "to": ".zcode/skills/grilling" },
+    { "from": "skills/to-tickets", "to": ".zcode/skills/to-tickets" },
+    { "from": "skills/ship", "to": ".zcode/skills/ship" },
+    { "from": "skills/testing", "to": ".zcode/skills/testing" },
+    { "from": "skills/critic", "to": ".zcode/skills/critic" },
+    { "from": "skills/onto-doc", "to": ".zcode/skills/onto-doc" }
+  ],
+  "post_update": [
+    {
+      "run": "python3 .zcode/skills/kb-search/gitmark.py index",
+      "if_exists": "docs"
+    },
+    {
+      "say": "Управляемый блок в AGENTS.md: запустите скилл init (идемпотентен) — создаст блок, доложит строки .gitignore и бутстрапнет .agents/config.toml с ролями; поиск по KB — скилл kb-search, индекс живёт в .gitmark/ (не коммитится)."
+    }
+  ]
+}
