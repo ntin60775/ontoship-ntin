@@ -11,15 +11,16 @@
     { "from": "skills/ship", "to": ".zcode/skills/ship" },
     { "from": "skills/testing", "to": ".zcode/skills/testing" },
     { "from": "skills/critic", "to": ".zcode/skills/critic" },
-    { "from": "skills/onto-doc", "to": ".zcode/skills/onto-doc" }
+    { "from": "skills/onto-doc", "to": ".zcode/skills/onto-doc" },
+    { "from": ".zcode/workflows/onto-doc.dwf.ts", "to": ".zcode/workflows/onto-doc.dwf.ts" }
   ],
   "post_update": [
     {
-      "run": "python3 .zcode/skills/kb-search/gitmark.py index",
-      "if_exists": "docs"
+      "say": "Запусти скилл init (идемпотентен): он создаст управляемый блок в AGENTS.md, доложит строки .gitignore и запишет .agents/config.toml с ролями; активных моделей у хоста нет — init назовёт пробел и остановится. Поиск по KB — скилл kb-search; индекс .gitmark/ производный и не коммитится — строку .gitignore доложит init."
     },
     {
-      "say": "Управляемый блок в AGENTS.md: запустите скилл init (идемпотентен) — создаст блок, доложит строки .gitignore и бутстрапнет .agents/config.toml с ролями; поиск по KB — скилл kb-search, индекс живёт в .gitmark/ (не коммитится)."
+      "run": "python3 .zcode/skills/kb-search/gitmark.py index",
+      "if_exists": "docs"
     }
   ]
 }

@@ -18,6 +18,7 @@ invariant: docs/plans/harness-agnostic.md#готово — writes only <project>
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
 import shutil
@@ -146,6 +147,31 @@ def _parity_errors(root: Path) -> list[str]:
                         if part.strip()]
             if declared != bundles:
                 errors.append("parity: the test tuple drifts from the installer array")
+
+    # The marketplace-plugin channel: deploy.json carries the same bundle set
+    # (plus non-skill mappings), plugin.json names the package.
+    deploy = root / "deploy.json"
+    plugin_json = root / ".zcode-plugin" / "plugin.json"
+    if not deploy.is_file() or not plugin_json.is_file():
+        errors.append("parity: deploy.json or .zcode-plugin/plugin.json is missing")
+    else:
+        try:
+            manifest = json.loads(deploy.read_text("utf-8"))
+            plugin = json.loads(plugin_json.read_text("utf-8"))
+        except ValueError as exc:
+            errors.append(f"parity: plugin packaging is not valid JSON ({exc})")
+        else:
+            mappings = [str(m.get("from", "")) for m in manifest.get("mappings", [])]
+            mapped = sorted(m for m in mappings if m.startswith("skills/"))
+            expected = sorted(f"skills/{name}" for name in bundles)
+            if mapped != expected:
+                errors.append(f"parity: deploy.json skill mappings {mapped} drift "
+                              f"from the installer array {expected}")
+            if ".zcode/workflows/onto-doc.dwf.ts" not in mappings:
+                errors.append("parity: deploy.json does not carry the onto-doc "
+                              "workflow file")
+            if not plugin.get("name") or not plugin.get("version"):
+                errors.append("parity: .zcode-plugin/plugin.json needs name and version")
 
     agents = root / "AGENTS.md"
     if not agents.is_file():
@@ -277,6 +303,36 @@ def test_parity_can_fail(tmp_path: Path) -> None:
     # The index is gone.
     errors = _parity_errors(carriers(None))
     assert any("skills/README.md is missing" in error for error in errors), errors
+
+    # The marketplace-plugin channel: a deploy.json whose skill mappings lose
+    # a bundle drifts from the installer array; losing the onto-doc workflow
+    # mapping is named on its own.
+    deploy_source = (REPO / "deploy.json").read_text("utf-8")
+    plugin_source = (REPO / ".zcode-plugin" / "plugin.json").read_text("utf-8")
+    workflow_source = (REPO / ".zcode" / "workflows" / "onto-doc.dwf.ts").read_text("utf-8")
+
+    def packaged(readme: str | None, deploy_text: str = deploy_source) -> Path:
+        root = carriers(readme)
+        (root / ".zcode-plugin").mkdir()
+        (root / "deploy.json").write_text(deploy_text, "utf-8")
+        (root / ".zcode-plugin" / "plugin.json").write_text(plugin_source, "utf-8")
+        (root / ".zcode" / "workflows").mkdir(parents=True)
+        (root / ".zcode" / "workflows" / "onto-doc.dwf.ts").write_text(
+            workflow_source, "utf-8")
+        return root
+
+    curate_row = '    { "from": "skills/kb-curate", "to": ".zcode/skills/kb-curate" },\n'
+    assert curate_row in deploy_source
+    errors = _parity_errors(packaged(index_source, deploy_source.replace(curate_row, "")))
+    assert any("drift from the installer array" in error for error in errors), errors
+
+    workflow_row = ('    { "from": ".zcode/workflows/onto-doc.dwf.ts", '
+                    '"to": ".zcode/workflows/onto-doc.dwf.ts" }\n')
+    assert workflow_row in deploy_source
+    cut_workflow = (deploy_source.replace(workflow_row, "")
+                    .replace("},\n  ],", "}\n  ],", 1))
+    errors = _parity_errors(packaged(index_source, cut_workflow))
+    assert any("does not carry the onto-doc" in error for error in errors), errors
 
 
 def test_harnesses_carries_no_bundle_count() -> None:

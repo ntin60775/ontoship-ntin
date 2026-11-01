@@ -26,10 +26,12 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
-GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/")
+GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".zcode/agents/")
 CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
               "curator")
-GENERATOR_PATH = ".agents/skills/init/gen_agents.py"
+# Channel-neutral template: the skill-bundle root is substituted at run time
+# (.agents/skills for the installer, .zcode/skills for the marketplace plugin).
+GENERATOR_LINE = "python3 <навыковый корень>/init/gen_agents.py <корень проекта>"
 CURATOR_DEFAULT = "account:zai-individual-coding-plan/GLM-5.3-Flash"
 BOOTSTRAP_NEEDLES = (
     "Три файла, ничего больше",
@@ -41,7 +43,7 @@ BOOTSTRAP_NEEDLES = (
     "пропуск",
     "не дописывай",
     "не трогай",
-    GENERATOR_PATH,
+    GENERATOR_LINE,
     "Сверь роли ядра",
     "`critic`, `curator` — с секциями конфига",
     "Отдельный вопрос — модель роли `curator`",
@@ -53,7 +55,9 @@ BOOTSTRAP_NEEDLES = (
     "У модели без уровней ключ `level` опусти",
 ) + CORE_ROLES
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
-             "serve", ".dsh", ".zcode", ".qoder", "commands.md")
+             "serve", ".dsh", ".qoder", "commands.md")
+# .zcode left the list with the marketplace-plugin channel: .zcode/skills is a
+# legitimate skill-bundle root now, and .zcode/agents is the generator's home.
 # review-loose-ends: the registry wording must stay neutral to role growth, so
 # the two old wordings are forbidden anywhere in the skill, in any case.
 # hooks: the counted bootstrap question is forbidden the same way.
@@ -100,15 +104,16 @@ BLOCK = """\
 - Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
   есть индекс `README.md`.
 - Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
-  `.agents/skills/kb-search/gitmark.py` для прямого запуска.
+  `<навыковый корень>/kb-search/gitmark.py`; корень — `.agents/skills` или
+  `.zcode/skills`, по каналу установки.
 - Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
   не дублируй.
 - Сопровождение после правки документов:
 
   ```sh
-  python3 .agents/skills/kb-search/gitmark.py index
-  python3 .agents/skills/kb-search/gitmark.py lint --strict
-  python3 .agents/skills/kb-search/gitmark.py map -o docs-map.html
+  python3 <навыковый корень>/kb-search/gitmark.py index
+  python3 <навыковый корень>/kb-search/gitmark.py lint --strict
+  python3 <навыковый корень>/kb-search/gitmark.py map -o docs-map.html
   ```
 
 - KB — это markdown + git: `.gitmark/`, `*-map.html` и `.scratch/` производные или
@@ -270,6 +275,16 @@ def _contract_errors(text: str) -> list[str]:
         if _standalone_lines(text).count(line) != 1:
             errors.append(f"body: expected exactly one standalone {line!r} rule")
 
+    # The channel line: the gitignore block names the installer root and both
+    # channel roots, so a plugin-installed init writes its own root instead.
+    channel_lines = [ln for ln in text.splitlines()
+                     if ln.strip().startswith(".agents/skills/")]
+    if len(channel_lines) != 1 or ".zcode/skills/" not in channel_lines[0]:
+        errors.append("body: the channel gitignore rule must name both roots "
+                      "(.agents/skills/ and .zcode/skills/) on one line")
+    if "<навыковый корень>" not in text:
+        errors.append("body: the skill-bundle root placeholder is missing")
+
     return errors
 
 
@@ -292,10 +307,15 @@ def test_block_is_verbatim_and_has_one_marker_pair():
     assert text.count(BEGIN) == text.count(END) == 3
 
 
-def test_gitignore_lines_are_the_four_the_kb_requires():
-    """spec: docs/plans/harness-agnostic.md#готово — `.gitmark/`, `*-map.html`, `.scratch/`, `.agents/skills/`."""
-    lines = _standalone_lines(SKILL.read_text("utf-8"))
+def test_gitignore_lines_are_the_five_the_kb_requires():
+    """spec: docs/plans/harness-agnostic.md#готово — `.gitmark/`, `*-map.html`,
+    `.scratch/`, строка навыкового корня канала и `.zcode/agents/`."""
+    text = SKILL.read_text("utf-8")
+    lines = _standalone_lines(text)
     assert lines == list(GITIGNORE_LINES)
+    channel = [ln for ln in text.splitlines()
+               if ln.strip().startswith(".agents/skills/")]
+    assert len(channel) == 1 and ".zcode/skills/" in channel[0]
 
 
 def test_contract_can_fail():
@@ -315,8 +335,8 @@ def test_contract_can_fail():
     leaked_entity = text + "\nCreate the docs/reference/commands.md registry.\n"
     assert any("registry" in error for error in _contract_errors(leaked_entity))
 
-    leaked_install_root = text + "\nInstall into .zcode/skills instead.\n"
-    assert any(".zcode" in error for error in _contract_errors(leaked_install_root))
+    leaked_qoder_root = text + "\nInstall into .qoder/skills instead.\n"
+    assert any(".qoder" in error for error in _contract_errors(leaked_qoder_root))
 
     leaked_legacy_root = text + "\nKeep the old .dsh/skills link.\n"
     assert any(".dsh" in error for error in _contract_errors(leaked_legacy_root))
@@ -385,7 +405,7 @@ def test_bootstrap_runs_the_bundled_generator():
     установленному проекту: бандл init несёт генератор (решение оператора
     2026-10-29)."""
     text = SKILL.read_text("utf-8")
-    assert GENERATOR_PATH in text
+    assert GENERATOR_LINE in text
 
 
 def test_bootstrap_contract_can_fail():
@@ -412,9 +432,9 @@ def test_bootstrap_contract_can_fail():
     assert no_gap != text
     assert any("назови пробел и остановись" in error for error in _contract_errors(no_gap))
 
-    no_generator = text.replace(GENERATOR_PATH, "gen.py")
+    no_generator = text.replace(GENERATOR_LINE, "gen.py")
     assert no_generator != text
-    assert any(GENERATOR_PATH in error for error in _contract_errors(no_generator))
+    assert any(GENERATOR_LINE in error for error in _contract_errors(no_generator))
 
 
 def test_curator_contract_can_fail():

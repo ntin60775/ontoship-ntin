@@ -121,17 +121,21 @@ def test_plan_guards_keep_curators_inside_root():
 
 def test_curators_follow_kb_curate_inside_the_root():
     """invariant: docs/plans/onto-doc.md#ограничения — куратор ведёт срез по
-    скиллу kb-curate: путь установленного бандла, а при его отсутствии —
-    путь репозитория; ответ — объект строки области."""
+    скиллу kb-curate: путь установленного бандла в любом из двух каналов, а
+    при их отсутствии — путь репозитория; ответ — объект строки области."""
     _, body = _split(WORKFLOW.read_text("utf-8"))
     assert ".agents/skills/kb-curate/SKILL.md" in body, \
-        "the installed bundle path must be tried first"
+        "the installer-channel bundle path must be tried first"
+    assert ".zcode/skills/kb-curate/SKILL.md" in body, \
+        "the marketplace-plugin channel path must be the second candidate"
     assert "skills/kb-curate/SKILL.md" in body
     for field in ("path", "curator", "files", "refusal"):
         assert field in body, f"the row field {field!r} must be in the ask"
 
     no_skill = body.replace(".agents/skills/kb-curate/SKILL.md", "x")
+    no_skill = no_skill.replace(".zcode/skills/kb-curate/SKILL.md", "x")
     assert ".agents/skills/kb-curate/SKILL.md" not in no_skill
+    assert ".zcode/skills/kb-curate/SKILL.md" not in no_skill
 
 
 def test_curator_row_comes_from_a_typed_answer_never_silently_empty():

@@ -90,8 +90,9 @@ python3 skills/kb-search/gitmark.py index
 python3 skills/kb-search/gitmark.py lint --strict
 ```
 
-После project-local установки движок лежит в `.agents/skills/kb-search/gitmark.py`;
-используй этот путь вместо `skills/kb-search/gitmark.py`.
+После project-local установки движок лежит в навыковом корне канала:
+`.agents/skills/kb-search/gitmark.py` или `.zcode/skills/kb-search/gitmark.py`;
+используй путь твоего канала вместо `skills/kb-search/gitmark.py`.
 
 `index` пересобирает `.gitmark/index.db`; он производный и никогда не коммитится.
 `lint` проверяет I1–I6 и I8–I10; `--strict` выходит с кодом 1, когда остаётся любой

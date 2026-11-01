@@ -78,7 +78,8 @@ const rows: CuratorRow[] = await Promise.all(
     const answer = await curator.ask<CuratorRow>(
       `Область: ${piece.path} — ${piece.what}. Корень KB: ${root}; команды ` +
       `выполняй от корня KB, не из чекаута сессии. Найди скилл kb-curate ` +
-      `в корне KB: .agents/skills/kb-curate/SKILL.md, а если его там нет — ` +
+      `в корне KB: .agents/skills/kb-curate/SKILL.md, иначе ` +
+      `.zcode/skills/kb-curate/SKILL.md, иначе ` +
       `skills/kb-curate/SKILL.md; прочитай его и веди свой срез строго ` +
       `по нему: операции, frontmatter, типизированные ссылки ` +
       `и README-индекс папки — как велит скилл. Верни только JSON-объект ` +

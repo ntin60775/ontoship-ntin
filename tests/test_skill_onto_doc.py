@@ -104,7 +104,9 @@ FORBIDDEN_PHRASES = (
     "(task)",
     "surveyor",
 )
-FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
+# .zcode left the ban list with the marketplace-plugin channel:
+# .zcode/skills is a legitimate skill-bundle root now.
+FORBIDDEN_ROOTS = (".dsh", ".qoder")
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:

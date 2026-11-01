@@ -84,7 +84,7 @@ def _contract_errors(text: str) -> list[str]:
     for term in ("provenance", "reel", "acceptance chord"):
         if re.search(rf"\b{re.escape(term)}\b", lowered):
             errors.append(f"forbidden entity {term!r}")
-    for root in (".dsh", ".zcode", ".qoder"):
+    for root in (".dsh", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
     return errors

@@ -28,11 +28,12 @@ git; движок ищет по детерминированному индек�
 python3 skills/kb-search/gitmark.py <command>
 ```
 
-После project-local установки тот же файл лежит в
-`.agents/skills/kb-search/gitmark.py`:
+После project-local установки тот же файл лежит в навыковом корне канала —
+`.agents/skills/kb-search/gitmark.py` (установка `scripts/install.sh`) или
+`.zcode/skills/kb-search/gitmark.py` (плагин маркета):
 
 ```sh
-python3 .agents/skills/kb-search/gitmark.py <command>
+python3 <навыковый-корень>/kb-search/gitmark.py <command>
 ```
 
 Скилл находит движок рядом со своим `SKILL.md`: если бандл загружен из другого корня,

@@ -88,7 +88,7 @@ def _contract_errors(text: str) -> list[str]:
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden entity {term!r}")
-    for root in (".dsh", ".zcode", ".qoder"):
+    for root in (".dsh", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
     return errors
@@ -122,9 +122,10 @@ def test_skill_names_the_kb_search_commands_and_json_contract():
     assert ".agents/skills" in body
 
 
-@pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
+@pytest.mark.parametrize("root", (".dsh", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
-    """spec: docs/plans/harness-agnostic.md#готово — the universal root only."""
+    """spec: docs/plans/harness-agnostic.md#готово — the universal root only;
+    .zcode/skills left the ban list with the marketplace-plugin channel."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"

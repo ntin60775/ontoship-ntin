@@ -70,9 +70,9 @@ description: "Полная сборка базы знаний репозитор
    пустой `files` при непустом diff — расхождение, разобрать его
    велит `docs/reference/testing.md`; карточку на веру не принимай.
 
-После project-local установки движок лежит в
-`.agents/skills/kb-search/gitmark.py`; используй этот путь вместо
-`skills/kb-search/gitmark.py`.
+После project-local установки движок лежит в навыковом корне канала:
+`.agents/skills/kb-search/gitmark.py` или `.zcode/skills/kb-search/gitmark.py`;
+используй путь твоего канала вместо `skills/kb-search/gitmark.py`.
 
 Принцип: md+git — источник истины; производное (индекс, граф)
 перегенерируется. Не дублируй — правь существующие документы. Держи кураторов

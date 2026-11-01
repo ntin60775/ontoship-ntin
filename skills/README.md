@@ -12,8 +12,10 @@ links:
 
 # Скиллы
 
-Бандлы установщика `scripts/install.sh` — он же машинный источник состава;
-установка ставит их в `<project>/.agents/skills/`. Ядро KB — `kb-search`,
+Состав скиллов ведут два машинных носителя под взаимным паритетом:
+массив `SKILLS` установщика `scripts/install.sh` — канал
+`<project>/.agents/skills` — и маппинги `deploy.json` плагина маркета —
+канал `<project>/.zcode/skills`. Ядро KB — `kb-search`,
 `kb-curate`, `init`; фазы метода — `grilling`, `to-tickets`, `ship`;
 правило качества — `testing`; ревью плана — `critic`; док-часть — `onto-doc`.
 
