@@ -40,9 +40,9 @@ EXCLUDE_DIRS = {
     ".git", "node_modules", ".next", "dist", "build", "__pycache__",
     ".pytest_cache", "_vendor", ".venv", "venv", "vendor",
     ".gitmark",
-    ".agents",  # universal project-local install: skills are not KB documents
+    ".agents",  # installer channel root: skills are not KB documents
+    ".zcode",   # marketplace-plugin channel root: same duplication
     ".dsh",     # legacy DSH install root: same duplication
-    ".zcode",   # legacy zcode install root: same duplication
 }
 DB_REL = ".gitmark/index.db"
 HEAD_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*$")
@@ -61,8 +61,9 @@ def repo_root(start: Path) -> Path:
 
 
 # Корень пакета — от расположения самого движка (<пакет>/skills/kb-search/gitmark.py).
-# В этом репо <пакет> = корень репо; при copy-установке
-# <проект>/.agents/skills/kb-search/... = .agents.
+# В этом репо <пакет> = корень репо; в установленном проекте
+# <проект>/.agents/skills/kb-search/... = .agents (installer) или
+# <проект>/.zcode/skills/kb-search/... = .zcode (marketplace plugin).
 # Путь не хардкодится и манифесты не читаются.
 PKG_ROOT = Path(__file__).resolve().parents[2]
 

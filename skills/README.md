@@ -1,10 +1,10 @@
 ---
 node_type: index
-title: Скиллы — бандлы установщика
+title: Скиллы — бандлы метода
 service: _platform
 status: active
 updated: 2026-11-02
-tags: [index, skills, installer]
+tags: [index, skills, bundles]
 links:
   part_of: [../README.md]
   relates_to: [../docs/ops/continue.md]
@@ -14,8 +14,9 @@ links:
 
 Состав скиллов ведут два машинных носителя под взаимным паритетом:
 массив `SKILLS` установщика `scripts/install.sh` — канал
-`<project>/.agents/skills` — и маппинги `deploy.json` плагина маркета —
-канал `<project>/.zcode/skills`. Ядро KB — `kb-search`,
+`<project>/.agents/skills` — и маппинги `deploy.json` плагина маркета
+(рядом лежит манифест `.zcode-plugin/plugin.json`) — канал
+`<project>/.zcode/skills`. Ядро KB — `kb-search`,
 `kb-curate`, `init`; фазы метода — `grilling`, `to-tickets`, `ship`;
 правило качества — `testing`; ревью плана — `critic`; док-часть — `onto-doc`.
 
@@ -35,5 +36,7 @@ links:
 - [onto-doc/](onto-doc/SKILL.md) — тяжёлая док-часть: fan-out кураторов
   по плану.
 
-Новый скилл появляется бандлом в `scripts/install.sh` и строкой здесь — одним
-коммитом; строка «Раскладки» в `AGENTS.md` ведёт сюда.
+Новый скилл появляется бандлом в `scripts/install.sh`, маппингом в
+`deploy.json` плагина маркета, строкой здесь и кортежем в
+`tests/test_install.py` — одним коммитом; паритет держит тот же тест.
+Строка «Раскладки» в `AGENTS.md` ведёт сюда.

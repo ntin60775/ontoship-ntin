@@ -145,6 +145,7 @@ def _contract_errors(text: str) -> list[str]:
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
+    # .zcode stays banned here: this skill names no channel roots.
     for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")

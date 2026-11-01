@@ -161,6 +161,7 @@ def _contract_errors(text: str) -> list[str]:
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
+    # .zcode stays banned here: this skill names no channel roots.
     for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")

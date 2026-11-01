@@ -26,7 +26,8 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
-GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".zcode/agents/")
+GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".zcode/agents/",
+                   ".zcode/workflows/")
 CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
               "curator")
 # Channel-neutral template: the skill-bundle root is substituted at run time
@@ -275,15 +276,24 @@ def _contract_errors(text: str) -> list[str]:
         if _standalone_lines(text).count(line) != 1:
             errors.append(f"body: expected exactly one standalone {line!r} rule")
 
-    # The channel line: the gitignore block names the installer root and both
-    # channel roots, so a plugin-installed init writes its own root instead.
-    channel_lines = [ln for ln in text.splitlines()
-                     if ln.strip().startswith(".agents/skills/")]
-    if len(channel_lines) != 1 or ".zcode/skills/" not in channel_lines[0]:
-        errors.append("body: the channel gitignore rule must name both roots "
-                      "(.agents/skills/ and .zcode/skills/) on one line")
-    if "<навыковый корень>" not in text:
-        errors.append("body: the skill-bundle root placeholder is missing")
+    # The channel line is a placeholder rule; both channel roots are named in
+    # the prose around it, so a plugin-installed init writes its own root.
+    placeholder_lines = [ln for ln in text.splitlines()
+                         if ln.strip() == "<навыковый корень>/"]
+    if len(placeholder_lines) != 1:
+        errors.append("body: the gitignore block must carry exactly one "
+                      "<навыковый корень>/ placeholder rule")
+    for root in (".agents/skills/", ".zcode/skills/"):
+        if root not in text:
+            errors.append(f"body: the channel root {root!r} is missing")
+
+    # The substitution rule: without it init writes the placeholder verbatim.
+    # Whitespace is flattened: the prose wraps at 80 columns.
+    flattened = re.sub(r"\s+", " ", text)
+    for phrase in ("подставь корень канала установки",
+                   "при сравнении и при записи"):
+        if phrase not in flattened:
+            errors.append(f"body: missing substitution rule {phrase!r}")
 
     return errors
 
@@ -307,15 +317,15 @@ def test_block_is_verbatim_and_has_one_marker_pair():
     assert text.count(BEGIN) == text.count(END) == 3
 
 
-def test_gitignore_lines_are_the_five_the_kb_requires():
-    """spec: docs/plans/harness-agnostic.md#готово — `.gitmark/`, `*-map.html`,
-    `.scratch/`, строка навыкового корня канала и `.zcode/agents/`."""
+def test_gitignore_lines_are_the_six_the_kb_requires():
+    """spec: docs/plans/harness-agnostic.md#готово (с припиской 2026-11-02) —
+    `.gitmark/`, `*-map.html`, `.scratch/`, плейсхолдер навыкового корня,
+    `.zcode/agents/` и `.zcode/workflows/`."""
     text = SKILL.read_text("utf-8")
     lines = _standalone_lines(text)
     assert lines == list(GITIGNORE_LINES)
-    channel = [ln for ln in text.splitlines()
-               if ln.strip().startswith(".agents/skills/")]
-    assert len(channel) == 1 and ".zcode/skills/" in channel[0]
+    assert "<навыковый корень>/" in lines or any(
+        ln.strip() == "<навыковый корень>/" for ln in text.splitlines())
 
 
 def test_contract_can_fail():
@@ -356,6 +366,11 @@ def test_contract_can_fail():
     edited_block = text.replace("## База знаний (OntoShip)",
                                 "## База знаний (изменено)", 1)
     assert any("verbatim" in error for error in _contract_errors(edited_block))
+
+    no_substitution = text.replace("подставь корень канала установки", "корень канала")
+    assert no_substitution != text
+    assert any("substitution rule" in error
+               for error in _contract_errors(no_substitution))
 
 
 def test_init_owns_the_role_registry_as_a_third_file():
@@ -587,3 +602,20 @@ def test_role_count_contract_can_fail():
     # роли», «опять роль» had redden a word-boundary-less regex).
     for innocent in ("смотри роли", "опять роль", "внутри роли"):
         assert COUNTED_ROLE.search(innocent) is None, innocent
+
+
+def test_repo_managed_block_matches_the_installer_substitution():
+    """invariant: docs/plans/harness-agnostic.md#готово (п. 6, с припиской
+    2026-11-02) — собственный блок репозитория равен шаблону init после
+    подстановки корня установщика; прогон init из другой копии бандла
+    перепишет блок — ожидаемое поведение, не дефект."""
+    import re as _re
+
+    agents = (REPO / "AGENTS.md").read_text("utf-8")
+    match = _re.search(
+        rf"{_re.escape(BEGIN)}\n(.*?){_re.escape(END)}", agents, _re.DOTALL)
+    assert match, "the managed block is missing from AGENTS.md"
+    expected = BLOCK.replace("<навыковый корень>", ".agents/skills")
+    inner = match.group(1)
+    assert inner.strip("\n") == expected.replace(f"{BEGIN}\n", "").replace(
+        f"\n{END}", "").strip("\n")

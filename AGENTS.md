@@ -26,6 +26,8 @@ vendor/        база движка ontoship-zcode (MIT); тикет 01 уре�
 skills/        скиллы-бандлы установщика; индекс — skills/README.md
 scripts/       project-local канал установки (link/copy/check)
 tests/         тесты движка, контрактов скиллов и установки
+deploy.json    стратегия поставки плагина маркета (канал .zcode/skills)
+.zcode-plugin/ манифест ZCode-плагина
 ```
 
 ## Принцип
@@ -84,7 +86,8 @@ python3 skills/kb-search/gitmark.py map -o docs-map.html
 - Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
   есть индекс `README.md`.
 - Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
-  `.agents/skills/kb-search/gitmark.py` для прямого запуска.
+  `.agents/skills/kb-search/gitmark.py`; корень — `.agents/skills` или
+  `.zcode/skills`, по каналу установки.
 - Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
   не дублируй.
 - Сопровождение после правки документов:

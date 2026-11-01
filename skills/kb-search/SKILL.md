@@ -33,7 +33,7 @@ python3 skills/kb-search/gitmark.py <command>
 `.zcode/skills/kb-search/gitmark.py` (плагин маркета):
 
 ```sh
-python3 <навыковый-корень>/kb-search/gitmark.py <command>
+python3 <навыковый корень>/kb-search/gitmark.py <command>
 ```
 
 Скилл находит движок рядом со своим `SKILL.md`: если бандл загружен из другого корня,

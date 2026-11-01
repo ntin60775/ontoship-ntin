@@ -161,15 +161,30 @@ def _parity_errors(root: Path) -> list[str]:
         except ValueError as exc:
             errors.append(f"parity: plugin packaging is not valid JSON ({exc})")
         else:
-            mappings = [str(m.get("from", "")) for m in manifest.get("mappings", [])]
+            pairs = [(str(m.get("from", "")), str(m.get("to", "")))
+                     for m in manifest.get("mappings", [])]
+            mappings = [m_from for m_from, _ in pairs]
             mapped = sorted(m for m in mappings if m.startswith("skills/"))
             expected = sorted(f"skills/{name}" for name in bundles)
             if mapped != expected:
                 errors.append(f"parity: deploy.json skill mappings {mapped} drift "
                               f"from the installer array {expected}")
+            for name in bundles:
+                if (f"skills/{name}", f".zcode/skills/{name}") not in pairs:
+                    errors.append(f"parity: deploy.json maps skills/{name} to "
+                                  f"something other than .zcode/skills/{name}")
+            for m_from, m_to in pairs:
+                if m_to and not m_to.startswith(".zcode/"):
+                    errors.append(f"parity: deploy.json target {m_to!r} escapes "
+                                  f".zcode/")
+                if m_from and not (root / m_from).exists():
+                    errors.append(f"parity: deploy.json source {m_from!r} does "
+                                  f"not exist")
             if ".zcode/workflows/onto-doc.dwf.ts" not in mappings:
                 errors.append("parity: deploy.json does not carry the onto-doc "
                               "workflow file")
+            if plugin.get("skills") != "./skills" or not (root / "skills").is_dir():
+                errors.append("parity: plugin.json must point skills at ./skills")
             if not plugin.get("name") or not plugin.get("version"):
                 errors.append("parity: .zcode-plugin/plugin.json needs name and version")
 
@@ -334,13 +349,42 @@ def test_parity_can_fail(tmp_path: Path) -> None:
     errors = _parity_errors(packaged(index_source, cut_workflow))
     assert any("does not carry the onto-doc" in error for error in errors), errors
 
+    # A skill mapping aimed outside the plugin channel root.
+    to_drift = deploy_source.replace(
+        '{ "from": "skills/kb-search", "to": ".zcode/skills/kb-search" }',
+        '{ "from": "skills/kb-search", "to": ".agents/skills/kb-search" }')
+    assert to_drift != deploy_source
+    errors = _parity_errors(packaged(index_source, to_drift))
+    assert any("other than .zcode/skills/kb-search" in error
+               for error in errors), errors
+
+    # A mapping source that does not exist in the source tree.
+    phantom_from = deploy_source.replace(
+        '{ "from": "skills/testing", "to": ".zcode/skills/testing" }',
+        '{ "from": "skills/extra-skill", "to": ".zcode/skills/extra-skill" }')
+    assert phantom_from != deploy_source
+    errors = _parity_errors(packaged(index_source, phantom_from))
+    assert any("skills/extra-skill" in error and "does not exist" in error
+               for error in errors), errors
+
+    # plugin.json pointing the skills component at a missing directory.
+    root = packaged(index_source)
+    (root / ".zcode-plugin" / "plugin.json").write_text(
+        plugin_source.replace('"skills": "./skills"', '"skills": "./nope"'), "utf-8")
+    errors = _parity_errors(root)
+    assert any("must point skills at ./skills" in error for error in errors), errors
+
 
 def test_harnesses_carries_no_bundle_count() -> None:
-    """spec: docs/plans/review-loose-ends.md#готово — harnesses.md names no
-    count before «скилл»/«бандл»; the composition lives in skills/README.md."""
+    """spec: docs/plans/review-loose-ends.md#готово — harnesses.md and
+    skills/README.md name no count before «скилл»/«бандл» (the second file
+    added with the marketplace-plugin channel, panel mp-01)."""
+    for rel in ("docs/reference/harnesses.md", "skills/README.md"):
+        text = (REPO / rel).read_text("utf-8")
+        match = COUNTED_NOUN.search(text)
+        assert match is None, \
+            f"{rel}: a count snapshot before a counted noun: {match.group(0)!r}"
     text = (REPO / "docs" / "reference" / "harnesses.md").read_text("utf-8")
-    match = COUNTED_NOUN.search(text)
-    assert match is None, f"a count snapshot before a counted noun: {match.group(0)!r}"
     # «Готово» 3: the enumeration is replaced by a pointer, so the pointer must be there.
     assert "skills/README.md" in text, "harnesses.md must point at the skills index"
     # The guard catches oblique-case counts too (panel probe: «восьми бандлов»).

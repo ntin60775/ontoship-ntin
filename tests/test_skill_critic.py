@@ -128,6 +128,7 @@ def _contract_errors(text: str) -> list[str]:
     for item in CHECKLIST:
         if item not in lowered:
             errors.append(f"checklist: missing {item!r}")
+    # .zcode stays banned here: this skill names no channel roots.
     for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")

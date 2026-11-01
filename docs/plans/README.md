@@ -17,9 +17,9 @@ links:
 
 - [core-kb.md](core-kb.md) — первый юнит: устанавливаемое ядро KB (утверждён;
   завершён, тикеты 01–06).
-- [harness-agnostic.md](harness-agnostic.md) — один project-local корень
-  `.agents/skills` для zcode, DSH и Qoder (утверждён 2026-10-21; завершён,
-  тикеты 01–04).
+- [harness-agnostic.md](harness-agnostic.md) — project-local корни каналов:
+  `.agents/skills` и `.zcode/skills`, для zcode, DSH и Qoder (утверждён
+  2026-10-21; завершён, тикеты 01–04; каналы — по приписке 2026-11-02).
 - [workflow-skills.md](workflow-skills.md) — фазы метода как скиллы: `grilling`,
   `to-tickets`, `ship`, `testing` (утверждена 2026-10-21; завершена 2026-10-22,
   тикеты 01–06).

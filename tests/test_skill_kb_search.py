@@ -120,6 +120,8 @@ def test_skill_names_the_kb_search_commands_and_json_contract():
     assert "search \"canon\" --json" in body
     assert ".gitmark/" in body
     assert ".agents/skills" in body
+    # Both channel roots are named: installer and marketplace plugin.
+    assert ".zcode/skills" in body
 
 
 @pytest.mark.parametrize("root", (".dsh", ".qoder"))

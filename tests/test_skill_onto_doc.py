@@ -203,6 +203,11 @@ def _contract_errors(text: str) -> list[str]:
     for root in FORBIDDEN_ROOTS:
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
+    # Both channel roots of the engine are named (marketplace-plugin channel).
+    for root in (".agents/skills/kb-search/gitmark.py",
+                 ".zcode/skills/kb-search/gitmark.py"):
+        if root not in text:
+            errors.append(f"body: missing engine path for a channel: {root!r}")
     return errors
 
 

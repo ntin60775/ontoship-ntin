@@ -74,7 +74,8 @@ def _contract_errors(text: str) -> list[str]:
         if not re.search(rf"^## {operation}\b", body, re.MULTILINE):
             errors.append(f"body: missing operation {operation}")
     for needle in ("docs/ontology.md", "node_type", "README.md",
-                   "gitmark.py index", "gitmark.py lint --strict", ".agents/skills"):
+                   "gitmark.py index", "gitmark.py lint --strict", ".agents/skills",
+                    ".zcode/skills"):
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
     flat = re.sub(r"\s+", " ", body)
@@ -84,6 +85,8 @@ def _contract_errors(text: str) -> list[str]:
     for term in ("provenance", "reel", "acceptance chord"):
         if re.search(rf"\b{re.escape(term)}\b", lowered):
             errors.append(f"forbidden entity {term!r}")
+    # .zcode left the ban list with the marketplace-plugin channel;
+    # the skill names both channel roots of the engine.
     for root in (".dsh", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
