@@ -101,6 +101,19 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 |---|---|---|
 | 01 | [реестр ролей и якорный паритет](role-registry/01-registry-and-parity.md) | — |
 
+Открытый юнит [`entry-and-continuity`](../docs/plans/entry-and-continuity.md):
+спека утверждена на план-гейте 2026-11-02 (решения 1–6 — ask-раунды
+оператора, все по рекомендациям, коммит `940bf64`); нарезка — пять
+срезов, приняты со сверкой понимания 2026-11-02.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [правило входа в блоке init](entry-and-continuity/01-entry-rule-in-block.md) | — |
+| 02 | [скелет continue.md](entry-and-continuity/02-continue-skeleton.md) | — |
+| 03 | [полигон consumer-registry](entry-and-continuity/03-polygon-consumer-registry.md) | 01, 02 |
+| 04 | [условный SessionStart-хук](entry-and-continuity/04-conditional-session-start-hook.md) | 03 (условие: красный полигон) |
+| 05 | [документация и релиз v0.3.0](entry-and-continuity/05-docs-release-market.md) | 03, 04 |
+
 Закрытый мини-юнит [`review-loose-ends`](../docs/plans/review-loose-ends.md):
 спека утверждена на план-гейте 2026-11-01 (решения 1–3 — ask-раунд
 оператора); нарезка — один тикет, принят со сверкой понимания тем же днём.
