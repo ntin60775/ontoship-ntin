@@ -7,7 +7,7 @@ updated: 2026-11-02
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
-  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, review-roles.md, ../ops/continue.md]
+  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, ../plans/entry-and-continuity.md, review-roles.md, ../ops/continue.md]
 ---
 
 # Совместимость харнессов
@@ -128,6 +128,21 @@ workflow. Контракт прогона общий, способы запус�
 
 Способ запуска кураторов онто-дока в DSH и Qoder живой сессией не подтверждён
 — как у ревью-панели выше; харнессы вне плана, возврат — словом оператора.
+
+## Вход в метод по харнессам
+
+Спека — [entry-and-continuity.md](../plans/entry-and-continuity.md): вход в
+метод после установки в чужой проект несёт секция «Вход в работу» в
+управляемом блоке `AGENTS.md` — её пишет `init`; состояние между сессиями —
+`docs/ops/continue.md`. Правило входа нейтрально к харнессу: запрос плана
+открывает draft-спеку через `grilling`, режим плана харнесса (в ZCode —
+план-мод) не используется; запрос изменения уходит в ship-ран —
+формулировка решения 5 спеки дословно. Блок `AGENTS.md` читают все три
+харнесса (матрица выше), поэтому
+носитель правила один. Механику прохода без план-мода доказал полигон
+`consumer-registry` (тикеты 01–03 юнита); живую пробу маршрутизации
+естественных запросов несёт самохост маркета (тикет 05 юнита), исход
+фиксирует тикет.
 
 ## Что это значит для проекта
 

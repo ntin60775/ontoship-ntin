@@ -3,7 +3,7 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-02
 links:
   part_of: [../README.md]
   relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, ../decisions/ontoship-core.md, ../ops/continue.md]
@@ -54,19 +54,20 @@ links:
   якорный паритетный тест (утверждён 2026-11-01, решения 1–4; завершён
   2026-11-02: тикет 01 влит и принят, срез `03b2e12`, панель
   `dwfrun-c90a3f20`, 383 passed).
-- [entry-and-continuity.md](entry-and-continuity.md) — юнит: вход в метод
-  после установки в чужой проект — секция «Вход в работу» в управляемом
-  блоке init, скелет `continue.md`, условный SessionStart-хук, живой полигон
-  `consumer-registry` (спека утверждена 2026-11-02, решения 1–6; тикет 01
-  влит и принят).
+- [entry-and-continuity.md](entry-and-continuity.md) — вход в метод после
+  установки в чужой проект: секция «Вход в работу» в управляемом блоке init,
+  скелет `continue.md`, живой полигон `consumer-registry`, условный
+  SessionStart-хук, приписка харнессов и релиз v0.3.0 (утверждена
+  2026-11-02, решения 1–6; завершён 2026-11-02: тикеты 01–03 влиты
+  и приняты, тикет 04 не активировался — условие не наступило, тикет 05
+  влит — релиз v0.3.0).
 
-Одиннадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
+Двенадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
-игрушечный `install-dry-run` (2026-10-23) и мини-юниты `ship-isolation`,
+игрушечный `install-dry-run` (2026-10-23), мини-юниты `ship-isolation`,
 `understanding-check`, `review-loose-ends`, `role-registry` (тикет 01
 влит и принят у каждого; панели — `dwfrun-c609052e`, `dwfrun-a26587f5`,
-`dwfrun-c90a3f20`). Юнит `onto-doc` закрыт 2026-11-01: нарезка — тикеты
-01–05, все влиты и приняты (живое доказательство — прогон
-`dwfrun-5efcd1d0`). Открыт юнит `entry-and-continuity` (спека на
-план-гейте 2026-11-02). Открытая работа и пробелы харнессов записаны
-в [continue.md](../ops/continue.md).
+`dwfrun-c90a3f20`) и юнит `entry-and-continuity` (2026-11-02). Юнит
+`onto-doc` закрыт 2026-11-01: нарезка — тикеты 01–05, все влиты и приняты
+(живое доказательство — прогон `dwfrun-5efcd1d0`). Открытая работа
+и пробелы харнессов записаны в [continue.md](../ops/continue.md).
