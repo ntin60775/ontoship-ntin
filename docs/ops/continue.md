@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-02
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
-  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../reference/harnesses.md, ../../tickets/README.md]
+  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../reference/harnesses.md, ../../tickets/README.md]
 ---
 
 # Продолжение разработки из этого репозитория
@@ -18,7 +18,10 @@ links:
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
 самодостаточен: база движка вендорена, тикеты отслеживаются, одиннадцать
-юнитов и мини-юнитов завершены.
+юнитов и мини-юнитов завершены. Открыт юнит `entry-and-continuity`: спека
+утверждена на план-гейте 2026-11-02
+([entry-and-continuity.md](../plans/entry-and-continuity.md), решения 1–6);
+следующий шаг — нарезка на тикеты, код — только после неё.
 Каталог переименован из `ontoship-dsh`; исторические логи в `.scratch/ticket-06/`
 сохраняют старое имя.
 
