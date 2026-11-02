@@ -57,7 +57,8 @@ links:
 - [entry-and-continuity.md](entry-and-continuity.md) — юнит: вход в метод
   после установки в чужой проект — секция «Вход в работу» в управляемом
   блоке init, скелет `continue.md`, условный SessionStart-хук, живой полигон
-  `consumer-registry` (спека на план-гейте 2026-11-02, решения 1–6).
+  `consumer-registry` (спека утверждена 2026-11-02, решения 1–6; тикет 01
+  влит и принят).
 
 Одиннадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
