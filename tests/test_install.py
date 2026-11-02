@@ -170,13 +170,14 @@ def _parity_errors(root: Path) -> list[str]:
                 errors.append(f"parity: deploy.json skill mappings {mapped} drift "
                               f"from the installer array {expected}")
             for name in bundles:
-                if (f"skills/{name}", f".zcode/skills/{name}") not in pairs:
+                if (f"skills/{name}", f".agents/skills/{name}") not in pairs:
                     errors.append(f"parity: deploy.json maps skills/{name} to "
-                                  f"something other than .zcode/skills/{name}")
+                                  f"something other than .agents/skills/{name}")
             for m_from, m_to in pairs:
-                if m_to and not m_to.startswith(".zcode/"):
+                if m_to and not (m_to.startswith(".zcode/")
+                                 or m_to.startswith(".agents/skills/")):
                     errors.append(f"parity: deploy.json target {m_to!r} escapes "
-                                  f".zcode/")
+                                  f"the allowed roots (.zcode/, .agents/skills/)")
                 if m_from and not (root / m_from).exists():
                     errors.append(f"parity: deploy.json source {m_from!r} does "
                                   f"not exist")
@@ -336,7 +337,7 @@ def test_parity_can_fail(tmp_path: Path) -> None:
             workflow_source, "utf-8")
         return root
 
-    curate_row = '    { "from": "skills/kb-curate", "to": ".zcode/skills/kb-curate" },\n'
+    curate_row = '    { "from": "skills/kb-curate", "to": ".agents/skills/kb-curate" },\n'
     assert curate_row in deploy_source
     errors = _parity_errors(packaged(index_source, deploy_source.replace(curate_row, "")))
     assert any("drift from the installer array" in error for error in errors), errors
@@ -349,19 +350,20 @@ def test_parity_can_fail(tmp_path: Path) -> None:
     errors = _parity_errors(packaged(index_source, cut_workflow))
     assert any("does not carry the onto-doc" in error for error in errors), errors
 
-    # A skill mapping aimed outside the plugin channel root.
+    # A skill mapping aimed outside the skill root (contract v2: skills live
+    # in .agents/skills; .zcode/skills is the legacy v0.1.0 layout).
     to_drift = deploy_source.replace(
-        '{ "from": "skills/kb-search", "to": ".zcode/skills/kb-search" }',
-        '{ "from": "skills/kb-search", "to": ".agents/skills/kb-search" }')
+        '{ "from": "skills/kb-search", "to": ".agents/skills/kb-search" }',
+        '{ "from": "skills/kb-search", "to": ".zcode/skills/kb-search" }')
     assert to_drift != deploy_source
     errors = _parity_errors(packaged(index_source, to_drift))
-    assert any("other than .zcode/skills/kb-search" in error
+    assert any("other than .agents/skills/kb-search" in error
                for error in errors), errors
 
     # A mapping source that does not exist in the source tree.
     phantom_from = deploy_source.replace(
-        '{ "from": "skills/testing", "to": ".zcode/skills/testing" }',
-        '{ "from": "skills/extra-skill", "to": ".zcode/skills/extra-skill" }')
+        '{ "from": "skills/testing", "to": ".agents/skills/testing" }',
+        '{ "from": "skills/extra-skill", "to": ".agents/skills/extra-skill" }')
     assert phantom_from != deploy_source
     errors = _parity_errors(packaged(index_source, phantom_from))
     assert any("skills/extra-skill" in error and "does not exist" in error

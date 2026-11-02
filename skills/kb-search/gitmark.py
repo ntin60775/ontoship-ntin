@@ -62,8 +62,8 @@ def repo_root(start: Path) -> Path:
 
 # Корень пакета — от расположения самого движка (<пакет>/skills/kb-search/gitmark.py).
 # В этом репо <пакет> = корень репо; в установленном проекте
-# <проект>/.agents/skills/kb-search/... = .agents (installer) или
-# <проект>/.zcode/skills/kb-search/... = .zcode (marketplace plugin).
+# <проект>/.agents/skills/kb-search/... — навыковый корень (installer
+# и плагин маркета с v0.2.0; деплой v0.1.0 держал его в .zcode/skills).
 # Путь не хардкодится и манифесты не читаются.
 PKG_ROOT = Path(__file__).resolve().parents[2]
 

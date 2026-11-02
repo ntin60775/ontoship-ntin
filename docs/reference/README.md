@@ -16,8 +16,8 @@ links:
 - [testing.md](testing.md) — spec-, инвариантные и target-тесты; артефакт
   доказательства и разбор расхождений; доказательство ESEM 2026, планка
   качества и агентный цикл.
-- [harnesses.md](harnesses.md) — корни каналов `.agents/skills` и
-  `.zcode/skills` для zcode, DSH и Qoder: матрица, ранги, `AGENTS.md`,
+- [harnesses.md](harnesses.md) — канонический корень `.agents/skills`
+  (оба канала ntin с v0.2.0; `.zcode/skills` — legacy v0.1.0) для zcode, DSH и Qoder: матрица, ранги, `AGENTS.md`,
   доказательства из исходников и прогон онто-дока по харнессам.
 - [review-roles.md](review-roles.md) — контракты ревью-ролей базового набора,
   вход и выход роли, регламент паков контуров.
