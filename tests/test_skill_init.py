@@ -38,8 +38,17 @@ CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb",
 # (.agents/skills for the installer, .zcode/skills for the marketplace plugin).
 GENERATOR_LINE = "python3 <навыковый корень>/init/gen_agents.py <корень проекта>"
 CURATOR_DEFAULT = "account:zai-individual-coding-plan/GLM-5.3-Flash"
+# The ownership contract (entry-and-continuity «Готово» 2): the four files,
+# the count phrase and the docs/ prohibition narrowed to the skeleton
+# exclusion. Single source: the needles, the list check and the mutations
+# all read these constants (panel dwfrun-dee2378e).
+OWNED_FILES = ("AGENTS.md", ".gitignore", ".agents/config.toml",
+               "docs/ops/continue.md")
+OWNERSHIP_COUNT = "Четыре файла, ничего больше"
+DOCS_EXCLUSION = ("не пишет ничего в `docs/`, кроме скелета "
+                  "`docs/ops/continue.md` при отсутствии файла")
 BOOTSTRAP_NEEDLES = (
-    "Четыре файла, ничего больше",
+    OWNERSHIP_COUNT,
     ".agents/config.toml",
     "назови пробел и остановись",
     "активные модели",
@@ -150,9 +159,11 @@ ENTRY_RULES = (
     "«исполняй тикет N» — ship",
 )
 
-# The continue.md skeleton from the spec (docs/plans/entry-and-continuity.md,
-# «Готово» 2), pinned independently of the skill text: the expected value is
-# this literal, not a re-extraction of the implementation.
+# The continue.md skeleton shipped by init (docs/plans/entry-and-continuity.md,
+# «Готово» 2). The five section headings and the three-transition checklist are
+# the spec's requirement; the frontmatter, the intro line and the section
+# bodies are the template's own prose, pinned verbatim here independently of
+# the skill text — the expected value is this literal, not a re-extraction.
 CONTINUE_SKELETON = """\
 ---
 node_type: runbook
@@ -191,6 +202,12 @@ updated: <дата>
 """
 
 CONTINUE_FENCE = re.compile(r"^```markdown\n(.*?)^```$", re.MULTILINE | re.DOTALL)
+# Blind spots of the fence (panel dwfrun-dee2378e): the tag must be
+# ```markdown at column zero and the fence must be the only one in the file.
+# A ```md tag, an indent or a trailing space after the tag reads as "no
+# fence"; a second ```markdown block anywhere in the skill (for example a
+# skeleton example in the prose) reads as "two fences". _continue_skeleton
+# names each case; the regex itself cannot tell them apart.
 
 CONTINUE_SECTIONS = ("Состояние", "Открытая работа", "Порядок тикетов",
                      "Что осталось", "Стартовый промпт")
@@ -201,7 +218,7 @@ CONTINUE_SECTIONS = ("Состояние", "Открытая работа", "П�
 # whitespace-flattened text, so an 80-column wrap cannot hide a clause.
 CONTINUE_RULES = (
     "Файла нет — создай каталог `docs/ops` и запиши в него файл `continue.md`",
-    "сегодняшняя дата вместо `<дата>` в поле `updated`",
+    "сегодняшняя дата в формате YYYY-MM-DD вместо `<дата>` в поле `updated`",
     "отчёт называет `created`",
     "Файл существует — не правь его ни байта",
     "отчёт называет `unchanged`",
@@ -215,12 +232,6 @@ TRANSITION_CHECKLIST = (
     "критик после нарезки — скилл `to-tickets`",
     "ревью-панель перед merge — скилл `ship`",
 )
-
-# The ownership contract (entry-and-continuity «Готово» 2): the four-file
-# count and the docs/ prohibition narrowed to the skeleton exclusion.
-OWNERSHIP_COUNT = "Четыре файла, ничего больше"
-DOCS_EXCLUSION = ("не пишет ничего в `docs/`, кроме скелета "
-                  "`docs/ops/continue.md` при отсутствии файла")
 
 BLOCK_FENCE = re.compile(
     r"^````[^\n]*\n(<!-- BEGIN ontoship -->\n.*?^<!-- END ontoship -->\n)^````$",
@@ -295,9 +306,12 @@ def _declared_core_roles(text: str) -> tuple[list[str], bool]:
 def _continue_skeleton(text: str) -> str:
     """The fenced ```markdown skeleton of docs/ops/continue.md, or a failure."""
     matches = CONTINUE_FENCE.findall(text)
-    if len(matches) != 1:
-        raise ValueError(
-            f"expected exactly one fenced continue skeleton, got {len(matches)}")
+    if not matches:
+        raise ValueError("no ```markdown fence at column zero: the skeleton "
+                         "fence tag or its indentation changed")
+    if len(matches) > 1:
+        raise ValueError(f"expected one ```markdown fence, found {len(matches)}: "
+                         "a second skeleton block appeared in the skill")
     return matches[0]
 
 
@@ -321,8 +335,7 @@ def _contract_errors(text: str) -> list[str]:
     if ": " in description and not (raw_description.startswith('"')
                                     and raw_description.endswith('"')):
         errors.append("frontmatter: description contains ': ' and must be quoted")
-    for owned in ("AGENTS.md", ".gitignore", ".agents/config.toml",
-                  "docs/ops/continue.md"):
+    for owned in OWNED_FILES:
         if owned not in description:
             errors.append(f"frontmatter: description misses {owned!r}")
 
@@ -437,6 +450,19 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("ownership: the docs/ prohibition is not narrowed to "
                       "the continue skeleton exclusion")
 
+    # The ownership list itself: all four files as bullets between the section
+    # anchor and the prohibition paragraph (panel dwfrun-dee2378e: dropping
+    # the skeleton bullet must redden, not just the count phrase).
+    own_start = body.find("**Чем владеет init.**")
+    own_end = body.find("Init пишет эти четыре файла")
+    if own_start == -1 or own_end == -1 or own_start >= own_end:
+        errors.append("ownership: the ownership section anchors are missing")
+    else:
+        list_part = body[own_start:own_end]
+        for owned in OWNED_FILES:
+            if f"- `{owned}`" not in list_part:
+                errors.append(f"ownership: the list misses the {owned} file bullet")
+
     return errors
 
 
@@ -491,24 +517,22 @@ def test_entry_section_rules_are_pinned_and_mutation_reddens():
     assert _contract_errors(swapped), "step-order swap did not redden"
 
 
-def test_continue_skeleton_contract_three_cases():
-    """spec: docs/plans/entry-and-continuity.md#готово (2) — контракт трёх
-    случаев: создание при отсутствии (пять разделов и чек-лист трёх переходов
-    дословно), не-перезапись существующего файла, идемпотентность; отчёт
-    называет created или unchanged."""
+def test_continue_skeleton_clauses_are_pinned():
+    """spec: docs/plans/entry-and-continuity.md#готово (2) — три случая
+    контракта (создание при отсутствии, не-перезапись, идемпотентность)
+    запинены как клаузы прозы скилла, вместе с пятью разделами и чек-листом
+    трёх переходов; поведение доказывает живой прогон — демонстрация тикета
+    и полигон юнита, не этот тест (панель dwfrun-dee2378e об имени)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
     assert _continue_skeleton(text) == CONTINUE_SKELETON
-    for section in CONTINUE_SECTIONS:
-        assert f"## {section}" in CONTINUE_SKELETON, f"section missing: {section}"
     flat = re.sub(r"\s+", " ", text)
     for rule in CONTINUE_RULES:
         assert rule in flat, f"continue rule missing: {rule!r}"
     for item in TRANSITION_CHECKLIST:
         assert item in flat, f"checklist item missing: {item!r}"
     description = _unquote(_parse_skill(text)[0]["description"])
-    for owned in ("AGENTS.md", ".gitignore", ".agents/config.toml",
-                  "docs/ops/continue.md"):
+    for owned in OWNED_FILES:
         assert owned in description, f"description misses {owned}"
 
 
@@ -516,7 +540,9 @@ def test_continue_skeleton_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     continue contract rejects a lost or edited skeleton, a lost section, a
     lost checklist item, a flipped create condition, a flipped non-overwrite
-    negation, a lost report word and a re-widened docs/ prohibition."""
+    negation, lost report words, the lost date format, the lost idempotency
+    clause, a description missing an owned file, a dropped ownership-list
+    bullet and a re-widened docs/ prohibition."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -547,7 +573,7 @@ def test_continue_skeleton_contract_can_fail():
     assert any("не правь его ни байта" in error
                for error in _contract_errors(flipped_negation))
 
-    lost_created = text.replace("отчёт называет `created`", "файл создан", 1)
+    lost_created = text.replace("отчёт называет\n`created`", "файл создан", 1)
     assert lost_created != text
     assert any("отчёт называет `created`" in error
                for error in _contract_errors(lost_created))
@@ -558,11 +584,40 @@ def test_continue_skeleton_contract_can_fail():
     assert any("docs/ prohibition" in error
                for error in _contract_errors(rewidened))
 
-    three_files = text.replace("Четыре файла, ничего больше",
-                               "Три файла, ничего больше", 1)
+    three_files = text.replace(OWNERSHIP_COUNT, "Три файла, ничего больше", 1)
     assert three_files != text
     assert any("four-file count" in error
                for error in _contract_errors(three_files))
+
+    lost_date_format = text.replace("в формате YYYY-MM-DD", "", 1)
+    assert lost_date_format != text
+    assert any("сегодняшняя дата в формате YYYY-MM-DD" in error
+               for error in _contract_errors(lost_date_format))
+
+    lost_idempotency = text.replace("не читают и не меняют", "", 1)
+    assert lost_idempotency != text
+    assert any("последующие запуски init его не читают и не меняют" in error
+               for error in _contract_errors(lost_idempotency))
+
+    lost_unchanged = text.replace("отчёт называет `unchanged`", "", 1)
+    assert lost_unchanged != text
+    assert any("отчёт называет `unchanged`" in error
+               for error in _contract_errors(lost_unchanged))
+
+    lost_description = text.replace(
+        " и скелет docs/ops/continue.md, когда файла нет", "", 1)
+    lost_description = lost_description.replace(
+        " и docs/ops/continue.md, а в AGENTS.md", ", а в AGENTS.md", 1)
+    assert lost_description != text
+    assert any("description misses 'docs/ops/continue.md'" in error
+               for error in _contract_errors(lost_description))
+
+    lost_bullet = text.replace(
+        "- `docs/ops/continue.md` — скелет состояния работы: init создаёт его, только\n"
+        "  когда файла нет; существующий файл init не открывает и не правит.\n", "", 1)
+    assert lost_bullet != text
+    assert any("the list misses the docs/ops/continue.md file bullet" in error
+               for error in _contract_errors(lost_bullet))
 
 
 def test_gitignore_lines_are_the_six_the_kb_requires():
@@ -627,7 +682,7 @@ def test_init_owns_exactly_four_files():
     .agents/config.toml), затем до четырёх: скелет docs/ops/continue.md;
     запрет docs/ сужен до исключения скелета при отсутствии файла."""
     text = SKILL.read_text("utf-8")
-    assert "Четыре файла, ничего больше" in text
+    assert OWNERSHIP_COUNT in text
     assert ".agents/config.toml" in text
     assert "docs/ops/continue.md" in text
     flat = re.sub(r"\s+", " ", text)
