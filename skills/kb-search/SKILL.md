@@ -28,9 +28,9 @@ git; движок ищет по детерминированному индек�
 python3 skills/kb-search/gitmark.py <command>
 ```
 
-После project-local установки тот же файл лежит в навыковом корне канала —
-`.agents/skills/kb-search/gitmark.py` (установка `scripts/install.sh`) или
-`.zcode/skills/kb-search/gitmark.py` (плагин маркета):
+После project-local установки тот же файл лежит в навыковом корне —
+`.agents/skills/kb-search/gitmark.py` (установщик `scripts/install.sh`
+и плагин маркета v0.2.0+; деплой v0.1.0 держал его в `.zcode/skills/`):
 
 ```sh
 python3 <навыковый корень>/kb-search/gitmark.py <command>

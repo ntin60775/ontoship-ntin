@@ -26,7 +26,7 @@ vendor/        база движка ontoship-zcode (MIT); тикет 01 уре�
 skills/        скиллы-бандлы установщика; индекс — skills/README.md
 scripts/       project-local канал установки (link/copy/check)
 tests/         тесты движка, контрактов скиллов и установки
-deploy.json    стратегия поставки плагина маркета (канал .zcode/skills)
+deploy.json    стратегия поставки плагина маркета (канал .agents/skills, workflow — .zcode/workflows/)
 .zcode-plugin/ манифест ZCode-плагина
 ```
 

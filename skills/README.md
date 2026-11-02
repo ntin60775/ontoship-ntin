@@ -12,11 +12,11 @@ links:
 
 # Скиллы
 
-Состав скиллов ведут два машинных носителя под взаимным паритетом:
-массив `SKILLS` установщика `scripts/install.sh` — канал
-`<project>/.agents/skills` — и маппинги `deploy.json` плагина маркета
-(рядом лежит манифест `.zcode-plugin/plugin.json`) — канал
-`<project>/.zcode/skills`. Ядро KB — `kb-search`,
+Состав скиллов ведут два машинных носителя под взаимным паритетом —
+массив `SKILLS` установщика `scripts/install.sh` и маппинги `deploy.json`
+плагина маркета (рядом лежит манифест `.zcode-plugin/plugin.json`); канал
+у обоих один — `<project>/.agents/skills` (до v0.2.0 плагин маркета ставил
+в `<project>/.zcode/skills`). Ядро KB — `kb-search`,
 `kb-curate`, `init`; фазы метода — `grilling`, `to-tickets`, `ship`;
 правило качества — `testing`; ревью плана — `critic`; док-часть — `onto-doc`.
 

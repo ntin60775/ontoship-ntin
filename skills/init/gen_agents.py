@@ -5,7 +5,7 @@ usage: skills/init/gen_agents.py <project>
 
 The generator travels inside the init skill bundle, so an installed project
 runs it from the skill-bundle root: .agents/skills/init/gen_agents.py
-(installer) or .zcode/skills/init/gen_agents.py (marketplace plugin). The registry is
+(installer and marketplace plugin since v0.2.0). The registry is
 <project>/.agents/config.toml: one `[agents.<name>]` section
 per role with the required key `model` and the optional key `level`. The
 generator keeps exactly one
