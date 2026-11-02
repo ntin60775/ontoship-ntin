@@ -119,8 +119,28 @@ BLOCK = """\
 
 - KB — это markdown + git: `.gitmark/`, `*-map.html` и `.scratch/` производные или
   эфемерные — никогда не коммитятся.
+
+## Вход в работу (OntoShip)
+
+- Изменения этого проекта идут через ship-флоу: скилл `ship`, один тикет за
+  запуск; свободные правки в обход тикета не делаются.
+- Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
+  харнесса (в ZCode — план-мод) не используется.
+- Состояние и порядок работы — `docs/ops/continue.md`: сессия продолжается
+  оттуда и берёт следующий тикет оттуда же.
+- Команды: «стартуй юнит» — открыть draft-спеку; «исполняй тикет N» — ship
+  тикета N.
 <!-- END ontoship -->
 """
+
+# Rule anchors of the entry section (docs/plans/entry-and-continuity.md,
+# «Готово» 1, 3): one per rule, so a dropped rule reddens with its own name.
+ENTRY_RULES = (
+    "идут через ship-флоу: скилл `ship`, один тикет за",
+    "харнесса (в ZCode — план-мод) не используется",
+    "Состояние и порядок работы — `docs/ops/continue.md`",
+    "«исполняй тикет N» — ship",
+)
 
 BLOCK_FENCE = re.compile(
     r"^````[^\n]*\n(<!-- BEGIN ontoship -->\n.*?^<!-- END ontoship -->\n)^````$",
@@ -315,6 +335,35 @@ def test_block_is_verbatim_and_has_one_marker_pair():
     assert _block(text) == BLOCK
     # The prose marker, the template and the verification grep each name the pair once.
     assert text.count(BEGIN) == text.count(END) == 3
+
+
+def test_entry_section_rules_are_pinned_and_mutation_reddens():
+    """spec: docs/plans/entry-and-continuity.md#готово (1, 3) — секция «Вход в
+    работу»: каждое из четырёх правил под якорной и мутационной пробой."""
+    text = SKILL.read_text("utf-8")
+    for rule in ENTRY_RULES:
+        assert rule in text, f"entry rule missing: {rule!r}"
+
+    # Removal probe per rule: the verbatim contract must redden.
+    for rule in ENTRY_RULES:
+        mutated = text.replace(rule, "")
+        assert mutated != text, rule
+        assert _contract_errors(mutated), f"removal of {rule!r} did not redden"
+
+    # Negation flip: the plan-mode prohibition is the load-bearing rule.
+    flipped = text.replace("не используется", "используется", 1)
+    assert flipped != text
+    assert _contract_errors(flipped), "negation flip did not redden"
+
+    # Step order: the state rule and the command vocabulary swap places.
+    state = ("- Состояние и порядок работы — `docs/ops/continue.md`: сессия продолжается\n"
+             "  оттуда и берёт следующий тикет оттуда же.\n")
+    commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; «исполняй тикет N» — ship\n"
+                "  тикета N.\n")
+    assert state in text and commands in text
+    swapped = text.replace(state + commands, commands + state)
+    assert swapped != text
+    assert _contract_errors(swapped), "step-order swap did not redden"
 
 
 def test_gitignore_lines_are_the_six_the_kb_requires():
