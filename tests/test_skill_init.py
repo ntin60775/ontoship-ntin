@@ -1,13 +1,17 @@
 """Contract for the init skill and the managed block it writes.
 
 The skill is prose: its "code" is the text an agent follows. These checks pin the
-shipped artifact — the DSH frontmatter, the three files init owns (AGENTS.md,
-.gitignore and the role registry .agents/config.toml), the marker cases, the
-verbatim block and the bootstrap contract — and prove the check can fail
-(mutation probe).
+shipped artifact — the DSH frontmatter, the four files init owns (AGENTS.md,
+.gitignore, the role registry .agents/config.toml and the docs/ops/continue.md
+skeleton), the marker cases, the verbatim block, the continue skeleton and the
+bootstrap contract — and prove the check can fail (mutation probe).
 
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed block,
       .gitignore (four lines), harness-neutral prose
+spec: docs/plans/entry-and-continuity.md#готово — init создаёт скелет
+      docs/ops/continue.md при отсутствии: пять разделов и чек-лист трёх
+      переходов дословно; существующий файл не перезаписывается, отчёт
+      называет created или unchanged; контракт владения — четыре файла
 spec: docs/plans/review-config.md#готово — init спрашивает модели ролей ядра
       ask-ом, пишет .agents/config.toml и запускает генератор из бандла
 spec: docs/plans/onto-doc.md#готово — init спрашивает куратора шестым вопросом:
@@ -35,7 +39,7 @@ CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb",
 GENERATOR_LINE = "python3 <навыковый корень>/init/gen_agents.py <корень проекта>"
 CURATOR_DEFAULT = "account:zai-individual-coding-plan/GLM-5.3-Flash"
 BOOTSTRAP_NEEDLES = (
-    "Три файла, ничего больше",
+    "Четыре файла, ничего больше",
     ".agents/config.toml",
     "назови пробел и остановись",
     "активные модели",
@@ -146,6 +150,78 @@ ENTRY_RULES = (
     "«исполняй тикет N» — ship",
 )
 
+# The continue.md skeleton from the spec (docs/plans/entry-and-continuity.md,
+# «Готово» 2), pinned independently of the skill text: the expected value is
+# this literal, not a re-extraction of the implementation.
+CONTINUE_SKELETON = """\
+---
+node_type: runbook
+title: Продолжение работы над проектом
+service: _platform
+status: active
+updated: <дата>
+---
+
+# Продолжение работы над проектом
+
+Это канонический старт каждой сессии. Источник истины — этот файл и тикеты,
+не память сессии.
+
+## Состояние
+
+Где проект: закрытые юниты и тикеты, открытый юнит, последний merge.
+
+## Открытая работа
+
+Что исполняется: юнит, тикет, на чём остановились, что дальше.
+
+## Порядок тикетов
+
+Юниты и тикеты в порядке исполнения; блокировки отмечены.
+
+## Что осталось
+
+Отложенная работа: пункт с условием возврата.
+
+## Стартовый промпт
+
+Текст, с которого открывается сессия. Чек-лист фазовых переходов:
+вычитка спеки перед план-гейтом — скилл `grilling`; критик после нарезки —
+скилл `to-tickets`; ревью-панель перед merge — скилл `ship`.
+"""
+
+CONTINUE_FENCE = re.compile(r"^```markdown\n(.*?)^```$", re.MULTILINE | re.DOTALL)
+
+CONTINUE_SECTIONS = ("Состояние", "Открытая работа", "Порядок тикетов",
+                     "Что осталось", "Стартовый промпт")
+
+# Rule clauses of the continue step (entry-and-continuity «Готово» 2): the
+# create-if-absent condition and action, the single substitution, both report
+# words, the non-overwrite negation and the idempotency sentence. Checked on
+# whitespace-flattened text, so an 80-column wrap cannot hide a clause.
+CONTINUE_RULES = (
+    "Файла нет — создай каталог `docs/ops` и запиши в него файл `continue.md`",
+    "сегодняшняя дата вместо `<дата>` в поле `updated`",
+    "отчёт называет `created`",
+    "Файл существует — не правь его ни байта",
+    "отчёт называет `unchanged`",
+    "последующие запуски init его не читают и не меняют",
+)
+
+# The phase-transition checklist carried by the skeleton's «Стартовый промпт»
+# section: one anchor per transition.
+TRANSITION_CHECKLIST = (
+    "вычитка спеки перед план-гейтом — скилл `grilling`",
+    "критик после нарезки — скилл `to-tickets`",
+    "ревью-панель перед merge — скилл `ship`",
+)
+
+# The ownership contract (entry-and-continuity «Готово» 2): the four-file
+# count and the docs/ prohibition narrowed to the skeleton exclusion.
+OWNERSHIP_COUNT = "Четыре файла, ничего больше"
+DOCS_EXCLUSION = ("не пишет ничего в `docs/`, кроме скелета "
+                  "`docs/ops/continue.md` при отсутствии файла")
+
 BLOCK_FENCE = re.compile(
     r"^````[^\n]*\n(<!-- BEGIN ontoship -->\n.*?^<!-- END ontoship -->\n)^````$",
     re.MULTILINE | re.DOTALL,
@@ -216,6 +292,15 @@ def _declared_core_roles(text: str) -> tuple[list[str], bool]:
     return roles, len(roles) == len(tokens)
 
 
+def _continue_skeleton(text: str) -> str:
+    """The fenced ```markdown skeleton of docs/ops/continue.md, or a failure."""
+    matches = CONTINUE_FENCE.findall(text)
+    if len(matches) != 1:
+        raise ValueError(
+            f"expected exactly one fenced continue skeleton, got {len(matches)}")
+    return matches[0]
+
+
 def _contract_errors(text: str) -> list[str]:
     """Every violated init contract; empty means the skill is sound."""
     try:
@@ -236,6 +321,10 @@ def _contract_errors(text: str) -> list[str]:
     if ": " in description and not (raw_description.startswith('"')
                                     and raw_description.endswith('"')):
         errors.append("frontmatter: description contains ': ' and must be quoted")
+    for owned in ("AGENTS.md", ".gitignore", ".agents/config.toml",
+                  "docs/ops/continue.md"):
+        if owned not in description:
+            errors.append(f"frontmatter: description misses {owned!r}")
 
     for needle in ("AGENTS.md", ".gitignore", BEGIN, END, "docs/README.md",
                    "kb-search", "kb-curate", "gitmark.py index",
@@ -320,6 +409,34 @@ def _contract_errors(text: str) -> list[str]:
         if phrase not in flattened:
             errors.append(f"body: missing substitution rule {phrase!r}")
 
+    # The continue skeleton: exactly one ```markdown fence carrying the
+    # verbatim template with the five sections (entry-and-continuity).
+    try:
+        skeleton = _continue_skeleton(text)
+    except ValueError as exc:
+        errors.append(str(exc))
+    else:
+        if skeleton != CONTINUE_SKELETON:
+            errors.append("continue: the fenced skeleton is not the verbatim template")
+        for section in CONTINUE_SECTIONS:
+            if f"## {section}" not in skeleton:
+                errors.append(f"continue: the skeleton misses the {section} section")
+        flat_skeleton = re.sub(r"\s+", " ", skeleton)
+        for item in TRANSITION_CHECKLIST:
+            if item not in flat_skeleton:
+                errors.append(f"continue: the skeleton misses checklist item {item!r}")
+
+    # The continue rules and the ownership contract, whitespace-flattened:
+    # the prose wraps at 80 columns.
+    for rule in CONTINUE_RULES:
+        if rule not in flattened:
+            errors.append(f"continue: missing rule {rule!r}")
+    if OWNERSHIP_COUNT not in flattened:
+        errors.append("ownership: missing the four-file count")
+    if DOCS_EXCLUSION not in flattened:
+        errors.append("ownership: the docs/ prohibition is not narrowed to "
+                      "the continue skeleton exclusion")
+
     return errors
 
 
@@ -372,6 +489,80 @@ def test_entry_section_rules_are_pinned_and_mutation_reddens():
     swapped = text.replace(state + commands, commands + state)
     assert swapped != text
     assert _contract_errors(swapped), "step-order swap did not redden"
+
+
+def test_continue_skeleton_contract_three_cases():
+    """spec: docs/plans/entry-and-continuity.md#готово (2) — контракт трёх
+    случаев: создание при отсутствии (пять разделов и чек-лист трёх переходов
+    дословно), не-перезапись существующего файла, идемпотентность; отчёт
+    называет created или unchanged."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
+    assert _continue_skeleton(text) == CONTINUE_SKELETON
+    for section in CONTINUE_SECTIONS:
+        assert f"## {section}" in CONTINUE_SKELETON, f"section missing: {section}"
+    flat = re.sub(r"\s+", " ", text)
+    for rule in CONTINUE_RULES:
+        assert rule in flat, f"continue rule missing: {rule!r}"
+    for item in TRANSITION_CHECKLIST:
+        assert item in flat, f"checklist item missing: {item!r}"
+    description = _unquote(_parse_skill(text)[0]["description"])
+    for owned in ("AGENTS.md", ".gitignore", ".agents/config.toml",
+                  "docs/ops/continue.md"):
+        assert owned in description, f"description misses {owned}"
+
+
+def test_continue_skeleton_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    continue contract rejects a lost or edited skeleton, a lost section, a
+    lost checklist item, a flipped create condition, a flipped non-overwrite
+    negation, a lost report word and a re-widened docs/ prohibition."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    dropped = text.replace(CONTINUE_SKELETON, "", 1)
+    assert dropped != text
+    assert any("verbatim template" in error
+               for error in _contract_errors(dropped))
+
+    renamed_section = text.replace("## Что осталось", "## Остатки", 1)
+    assert renamed_section != text
+    assert any("Что осталось" in error
+               for error in _contract_errors(renamed_section))
+
+    lost_item = text.replace("критик после нарезки —\nскилл `to-tickets`;", "", 1)
+    assert lost_item != text
+    assert any("checklist item" in error
+               for error in _contract_errors(lost_item))
+
+    flipped_condition = text.replace("Файла нет — создай каталог",
+                                     "Файл есть — создай каталог", 1)
+    assert flipped_condition != text
+    assert any("missing rule" in error
+               for error in _contract_errors(flipped_condition))
+
+    flipped_negation = text.replace("Файл существует — не правь его ни байта",
+                                    "Файл существует — правь его по шаблону", 1)
+    assert flipped_negation != text
+    assert any("не правь его ни байта" in error
+               for error in _contract_errors(flipped_negation))
+
+    lost_created = text.replace("отчёт называет `created`", "файл создан", 1)
+    assert lost_created != text
+    assert any("отчёт называет `created`" in error
+               for error in _contract_errors(lost_created))
+
+    rewidened = text.replace("кроме скелета\n`docs/ops/continue.md` при отсутствии файла",
+                             "", 1)
+    assert rewidened != text
+    assert any("docs/ prohibition" in error
+               for error in _contract_errors(rewidened))
+
+    three_files = text.replace("Четыре файла, ничего больше",
+                               "Три файла, ничего больше", 1)
+    assert three_files != text
+    assert any("four-file count" in error
+               for error in _contract_errors(three_files))
 
 
 def test_gitignore_lines_are_the_six_the_kb_requires():
@@ -430,12 +621,17 @@ def test_contract_can_fail():
                for error in _contract_errors(no_substitution))
 
 
-def test_init_owns_the_role_registry_as_a_third_file():
-    """spec: docs/plans/review-config.md#готово — контракт «два файла» расширен до трёх:
-    AGENTS.md, .gitignore, .agents/config.toml."""
+def test_init_owns_exactly_four_files():
+    """spec: docs/plans/review-config.md#готово, docs/plans/entry-and-continuity.md#готово —
+    контракт «два файла» расширен до трёх (AGENTS.md, .gitignore,
+    .agents/config.toml), затем до четырёх: скелет docs/ops/continue.md;
+    запрет docs/ сужен до исключения скелета при отсутствии файла."""
     text = SKILL.read_text("utf-8")
-    assert "Три файла, ничего больше" in text
+    assert "Четыре файла, ничего больше" in text
     assert ".agents/config.toml" in text
+    assert "docs/ops/continue.md" in text
+    flat = re.sub(r"\s+", " ", text)
+    assert DOCS_EXCLUSION in flat
 
 
 def test_bootstrap_asks_core_role_models_from_active_host_models():
@@ -566,8 +762,8 @@ def test_registry_wording_contract_can_fail():
     assert any("реестр ролей ревью" in error
                for error in _contract_errors(reverted_body))
 
-    reverted_heading = text.replace("## 4. Бутстрап ролей\n",
-                                    "## 4. Бутстрап ролей ревью\n")
+    reverted_heading = text.replace("## 5. Бутстрап ролей\n",
+                                    "## 5. Бутстрап ролей ревью\n")
     assert reverted_heading != text
     assert any("бутстрап ролей ревью" in error
                for error in _contract_errors(reverted_heading))
