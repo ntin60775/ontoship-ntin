@@ -122,23 +122,27 @@ BLOCK = """\
 
 ## Вход в работу (OntoShip)
 
-- Изменения этого проекта идут через ship-флоу: скилл `ship`, один тикет за
-  запуск; свободные правки в обход тикета не делаются.
+- Изменения этого проекта идут через ship-флоу: скилл `ship` по команде
+  оператора, один тикет за запуск; свободные правки в обход тикета не
+  делаются — прямые решения оператора выше этого правила.
 - Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
   харнесса (в ZCode — план-мод) не используется.
-- Состояние и порядок работы — `docs/ops/continue.md`: сессия продолжается
-  оттуда и берёт следующий тикет оттуда же.
+- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
+  сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; «исполняй тикет N» — ship
   тикета N.
 <!-- END ontoship -->
 """
 
-# Rule anchors of the entry section (docs/plans/entry-and-continuity.md,
-# «Готово» 1, 3): one per rule, so a dropped rule reddens with its own name.
+# Rule clauses of the entry section (docs/plans/entry-and-continuity.md,
+# «Готово» 1, 3): one anchor per clause, so a dropped clause reddens with its
+# own name; removal probes delete case-insensitively.
 ENTRY_RULES = (
-    "идут через ship-флоу: скилл `ship`, один тикет за",
+    "идут через ship-флоу: скилл `ship` по команде",
+    "свободные правки в обход тикета не",
+    "Запрос плана открывает draft-спеку через скилл `grilling`",
     "харнесса (в ZCode — план-мод) не используется",
-    "Состояние и порядок работы — `docs/ops/continue.md`",
+    "Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):",
     "«исполняй тикет N» — ship",
 )
 
@@ -238,6 +242,7 @@ def _contract_errors(text: str) -> list[str]:
                    "gitmark.py lint --strict", "gitmark.py map -o docs-map.html",
                    ".agents/skills/", "идемпотент", "вне маркеров", "одну пустую строку",
                    "уже актуален", "замени только внутренний текст",
+                   "создай его, содержащим ровно блок ниже",
                    "[WARN]", "[FAIL]"):
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
@@ -339,25 +344,28 @@ def test_block_is_verbatim_and_has_one_marker_pair():
 
 def test_entry_section_rules_are_pinned_and_mutation_reddens():
     """spec: docs/plans/entry-and-continuity.md#готово (1, 3) — секция «Вход в
-    работу»: каждое из четырёх правил под якорной и мутационной пробой."""
+    работу»: каждое правило под якорной и мутационной пробой, удаление фразы —
+    без учёта регистра."""
     text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
     for rule in ENTRY_RULES:
         assert rule in text, f"entry rule missing: {rule!r}"
 
-    # Removal probe per rule: the verbatim contract must redden.
+    # Removal probe per clause: the case-insensitive deletion must redden.
     for rule in ENTRY_RULES:
-        mutated = text.replace(rule, "")
-        assert mutated != text, rule
+        mutated = re.sub(re.escape(rule), "", text, flags=re.IGNORECASE)
+        assert mutated != text, f"removal of {rule!r} changed nothing"
         assert _contract_errors(mutated), f"removal of {rule!r} did not redden"
 
-    # Negation flip: the plan-mode prohibition is the load-bearing rule.
-    flipped = text.replace("не используется", "используется", 1)
+    # Negation flip: bound to the block clause, not the first match in the file.
+    flipped = text.replace("харнесса (в ZCode — план-мод) не используется",
+                           "харнесса (в ZCode — план-мод) используется")
     assert flipped != text
     assert _contract_errors(flipped), "negation flip did not redden"
 
     # Step order: the state rule and the command vocabulary swap places.
-    state = ("- Состояние и порядок работы — `docs/ops/continue.md`: сессия продолжается\n"
-             "  оттуда и берёт следующий тикет оттуда же.\n")
+    state = ("- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):\n"
+             "  сессия продолжается оттуда и берёт следующий тикет оттуда же.\n")
     commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; «исполняй тикет N» — ship\n"
                 "  тикета N.\n")
     assert state in text and commands in text
