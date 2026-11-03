@@ -3,10 +3,10 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-02
+updated: 2026-11-03
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
-  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../reference/harnesses.md, ../../tickets/README.md]
+  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../reference/harnesses.md, ../../tickets/README.md]
 ---
 
 # Продолжение разработки из этого репозитория
@@ -42,6 +42,24 @@ success); selfhost-миграция — первый живой update-путь 
 артефактами, критерий 4 словом).
 Каталог переименован из `ontoship-dsh`; исторические логи в `.scratch/ticket-06/`
 сохраняют старое имя.
+
+Открыт юнит `bundle-references` (2026-11-03): справочники метода в бандлах —
+`references/` в ship, onto-doc, testing, guard-фраза перекрытия проектом,
+паритет носителей, каналы установки, фраза-граница в канон. Спека
+утверждена на план-гейте 2026-11-03
+([bundle-references.md](../plans/bundle-references.md), четыре решения
+одним проходом, `status: active`); критик `dwfrun-f9578d66` (deepseek max)
+дал 16 находок — спека и тикеты правлены решением оператора; тикеты
+01–04 опубликованы в `tickets/bundle-references/`. Тикет 01
+(метод-секции) исполнен в worktree: `5634f5b` (реализация), `86fb51d`
+(доказательства), `21bf522` (индекс планов), `24d7b1d` (правки панели
+`dwfrun-f83cd168` — 4 P2 / 15 P3 после дедупликации, внесены одним
+проходом); полный набор 404 passed, `lint --strict` чист, красная проба
+на `1910ff3` — 6 failed, демо-путь `install.sh --copy` чист. Приёмка
+оператора и merge — следующий шаг; тикеты 02–04 ждут: паритет и каналы
+и канон → релиз v0.4.0 → приёмка живым прогоном в erp-demo. Реестр
+потребителей consumer-registry v0.2.0 заведён с backfill (коммит
+`1910ff3`, реестр вне git).
 
 | коммит | что |
 |---|---|
