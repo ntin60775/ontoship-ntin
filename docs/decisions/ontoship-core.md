@@ -3,7 +3,7 @@ node_type: decision
 title: OntoShip core — канон
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-03
 tags: [canon, method, kb, grilling, tickets, ship, testing]
 links:
   relates_to: [../README.md, ../reference/sources.md]
@@ -48,6 +48,10 @@ links:
 - **ticket** — эфемерный срез спеки: `.scratch/<slug>/issues/NN-*.md` или реальный
   трекер. Tracer-bullet, блокирующие рёбра, демо-путь, критерии приёмки. Пишется
   `to-tickets` вручную.
+
+Методное знание скиллов возится в их бандлах (`references/`); KB проекта —
+проектное знание. Файл бандла — первоисточник методной секции; проект
+переопределяет его документом `docs/reference/<имя файла бандла>`.
 
 **Durable ≠ эфемерное.** Спека живёт в KB; тикет — нет. Тикет ссылается на спеку;
 спека не ведёт журнал тикетов. Тикеты в KB — опция для многодневных эпиков, а не

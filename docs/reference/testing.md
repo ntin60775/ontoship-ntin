@@ -3,7 +3,7 @@ node_type: reference
 title: Тестирование — спека, инварианты, target-тесты
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-03
 tags: [testing, target-tests, tdd, evidence, agents, esem2026]
 links:
   part_of: [README.md]
@@ -27,6 +27,10 @@ links:
 
 Ожидаемое значение берётся из независимого источника — спеки, литерала или
 разобранного примера — и никогда не пересчитывается тем же способом, что код.
+
+Носитель методной секции в бандле:
+[skills/testing/references/quality-rule.md](../../skills/testing/references/quality-rule.md)
+(файл бандла — первоисточник; этот док — полный носитель в KB).
 
 ## Почему target-тесты — отдельный класс
 

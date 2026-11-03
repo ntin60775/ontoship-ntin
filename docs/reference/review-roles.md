@@ -3,7 +3,7 @@ node_type: reference
 title: Ревью-роли — базовый набор и регламент паков
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-03
 tags: [review, roles, panel, packs, ship]
 links:
   part_of: [README.md]
@@ -26,6 +26,10 @@ links:
 
 Шкала приоритетов находок: **P1** — блокирует merge; **P2** — правка
 до merge; **P3** — зацепка на потом.
+
+Носитель методной секции в бандле:
+[skills/ship/references/review-panel.md](../../skills/ship/references/review-panel.md)
+(файл бандла — первоисточник; этот справочник — полный носитель в KB).
 
 ## Базовый набор
 

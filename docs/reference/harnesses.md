@@ -3,7 +3,7 @@ node_type: reference
 title: Совместимость харнессов — project-local скиллы и AGENTS.md
 service: _platform
 status: active
-updated: 2026-11-02
+updated: 2026-11-03
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
 links:
   part_of: [README.md]
@@ -69,6 +69,9 @@ links:
 Спека — [review-config.md](../plans/review-config.md): панель запускает
 ревью-роли на моделях из `.agents/config.toml`; контракт общий, способы
 различаются по харнессам. Контракты ролей — [review-roles.md](review-roles.md).
+Носитель методной секции в бандле:
+[skills/ship/references/review-panel.md](../../skills/ship/references/review-panel.md)
+(файл бандла — первоисточник; эта страница — полный носитель в KB).
 
 ### zcode — рабочий способ
 
@@ -111,6 +114,9 @@ zcode — единственный рабочий адаптер панели.
 `[agents.curator]` в `.agents/config.toml`; сверку модели и уровня с каталогом
 моделей несёт скилл `skills/onto-doc/SKILL.md`, сам прогон — сохранённый
 workflow. Контракт прогона общий, способы запуска различаются по харнессам.
+Носитель методной секции в бандле:
+[skills/onto-doc/references/ontodoc-run.md](../../skills/onto-doc/references/ontodoc-run.md)
+(файл бандла — первоисточник; эта страница — полный носитель в KB).
 
 ### zcode — прогон онто-дока
 

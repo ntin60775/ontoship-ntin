@@ -31,6 +31,13 @@ REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
 SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc")
 
+# Method-section files shipped inside three bundles (bundle-references 01).
+REFERENCES = (
+    ("ship", "references/review-panel.md"),
+    ("onto-doc", "references/ontodoc-run.md"),
+    ("testing", "references/quality-rule.md"),
+)
+
 
 def run(project: Path, *flags: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -789,6 +796,34 @@ def test_usage_names_dry_run(tmp_path: Path) -> None:
 
     header = INSTALL.read_text(encoding="utf-8").splitlines()[:12]
     assert any("--dry-run" in line for line in header), "the script header must document --dry-run"
+
+
+def test_install_carries_bundle_references(tmp_path: Path) -> None:
+    """spec: docs/plans/bundle-references.md#готово — both install forms
+    deliver the bundles' references/: links resolve into the repo bundles,
+    a detached copy carries the files, and --check names a copy that lost
+    one (spec «Готово» 4; the runner channel is proved by ticket 03)."""
+    linked = tmp_path / "linked"
+    linked.mkdir()
+    install = run(linked)
+    assert install.returncode == 0, output(install)
+    for name, ref in REFERENCES:
+        assert (linked / ".agents" / "skills" / name / ref).is_file(), ref
+
+    copied = tmp_path / "copied"
+    copied.mkdir()
+    copy = run(copied, "--copy")
+    assert copy.returncode == 0, output(copy)
+    for name, ref in REFERENCES:
+        assert (copied / ".agents" / "skills" / name / ref).is_file(), ref
+
+    # Mutation probe: references/ lost from a copy drifts --check by name.
+    (copied / ".agents" / "skills" / "ship" / "references"
+     / "review-panel.md").unlink()
+    drifted = run(copied, "--check")
+    assert drifted.returncode == 1
+    assert any(line.startswith("drift: ship:")
+               for line in output(drifted).splitlines())
 
 
 def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
