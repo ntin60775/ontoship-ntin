@@ -2,7 +2,7 @@
 node_type: plan
 title: Справочники метода в бандлах
 service: _platform
-status: draft
+status: active
 updated: 2026-11-03
 tags: [skills, references, delivery, consumer-sufficiency]
 links:

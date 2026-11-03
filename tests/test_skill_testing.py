@@ -272,8 +272,10 @@ def test_deprecation_removes_tests_in_the_same_change():
 
 def test_skill_anchors_to_the_canon():
     """spec: docs/decisions/ontoship-core.md#одно правило качества — the skill
-    cites the canon section it carries; spec: docs/plans/bundle-references.md
-    #готово — the deep sections live in the bundle's references/quality-rule.md."""
+    cites the canon section it carries.
+    spec: docs/plans/bundle-references.md#готово — the deep sections live in
+    the bundle's references/quality-rule.md.
+    """
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "docs/decisions/ontoship-core.md" in lowered
@@ -348,6 +350,16 @@ def test_contract_check_can_fail():
     assert any("name" in error for error in _contract_errors(missing_name))
 
 
+def _body_mutated(text: str, old: str, new: str) -> str:
+    """Replace in a whitespace-normalized body, frontmatter intact: a probe
+    that survives any reflow of the carrier."""
+    body = _parse(text)[1]
+    flat = re.sub(r"\s+", " ", body)
+    mutated = flat.replace(old, new, 1)
+    assert mutated != flat, "the mutation must change the body"
+    return text.replace(body, mutated, 1)
+
+
 def test_reference_guard_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the contract rejects a lost bundle reference, a lost guard phrase, a
@@ -361,26 +373,22 @@ def test_reference_guard_can_fail():
     assert any("references/quality-rule.md" in error
                for error in _contract_errors(no_reference))
 
-    no_guard = text.replace("написал свой, бери его", "проект решает сам", 1)
-    assert no_guard != text
+    no_guard = _body_mutated(text, "написал свой, бери его", "проект решает сам")
     assert any("написал свой, бери его" in error
                for error in _contract_errors(no_guard))
 
-    inverted = text.replace("Файл бандла — первоисточник",
-                            "Файл проекта — первоисточник", 1)
-    assert inverted != text
+    inverted = _body_mutated(text, "Файл бандла — первоисточник",
+                             "Файл проекта — первоисточник")
     assert any("файл проекта — первоисточник" in error
                for error in _contract_errors(inverted))
 
-    only_source = text.replace("Файл бандла — первоисточник",
-                               "Файл бандла — единственный источник", 1)
-    assert only_source != text
+    only_source = _body_mutated(text, "Файл бандла — первоисточник",
+                                "Файл бандла — единственный источник")
     assert any("единственный источник" in error
                for error in _contract_errors(only_source))
 
-    renamed = text.replace("docs/reference/quality-rule.md",
-                           "docs/reference/testing.md", 1)
-    assert renamed != text
+    renamed = _body_mutated(text, "docs/reference/quality-rule.md",
+                            "docs/reference/testing.md")
     assert any("проект переопределяет его документом "
                "`docs/reference/quality-rule.md`" in error
                for error in _contract_errors(renamed))

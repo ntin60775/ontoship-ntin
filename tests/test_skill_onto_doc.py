@@ -272,8 +272,10 @@ def test_six_steps_of_the_original_in_the_original_order():
 
 
 def _drop_phrase(text: str, phrase: str) -> str:
-    """Remove every occurrence of a phrase regardless of line wrapping."""
-    return re.sub(re.escape(phrase) + r"\s*", "", text, flags=re.IGNORECASE)
+    """Remove every occurrence of a phrase regardless of case and internal
+    line wrapping (runs of whitespace inside the phrase match any run)."""
+    pattern = re.escape(phrase).replace("\\ ", r"\s+")
+    return re.sub(pattern, "", text, flags=re.IGNORECASE)
 
 
 def test_adaptations_are_limited_to_decision_two():
@@ -369,15 +371,20 @@ def test_launch_contract_can_fail():
     assert any("пишет только внутри" in error
                for error in _contract_errors(no_bound))
 
-    inverted = text.replace("Файл бандла — первоисточник",
-                            "Файл проекта — первоисточник", 1)
-    assert inverted != text
+    body = _parse(text)[1]
+    flat = re.sub(r"\s+", " ", body)
+
+    inverted_flat = flat.replace("Файл бандла — первоисточник",
+                                 "Файл проекта — первоисточник", 1)
+    assert inverted_flat != flat
+    inverted = text.replace(body, inverted_flat, 1)
     assert any("файл проекта — первоисточник" in error
                for error in _contract_errors(inverted))
 
-    only_source = text.replace("Файл бандла — первоисточник",
-                               "Файл бандла — единственный источник", 1)
-    assert only_source != text
+    only_flat = flat.replace("Файл бандла — первоисточник",
+                             "Файл бандла — единственный источник", 1)
+    assert only_flat != flat
+    only_source = text.replace(body, only_flat, 1)
     assert any("единственный источник" in error
                for error in _contract_errors(only_source))
 
@@ -435,6 +442,8 @@ def test_principle_is_word_for_word():
         "../testing/references/quality-rule.md",
         "файл бандла — первоисточник",
         "написал свой, бери его",
+        "проект переопределяет его документом `docs/reference/ontodoc-run.md`",
+        "проект переопределяет его документом `docs/reference/quality-rule.md`",
     ],
 )
 def test_every_short_marker_has_a_failing_probe(needle: str) -> None:

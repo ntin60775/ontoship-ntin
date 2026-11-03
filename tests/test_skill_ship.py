@@ -438,7 +438,8 @@ def test_panel_role_input_output_and_independence():
 def test_panel_checks_definitions_before_launch():
     """spec: docs/plans/review-config.md#готово — до запуска ролей сверка
     модели определения с конфигом, расхождение — перегенерация (решение 9);
-    способы запуска живут в матрице харнессов, не в тексте скилла.
+    процедура запуска живёт в references/review-panel.md бандла, скилл
+    ведёт в неё и требует брать процедуру оттуда.
     spec: docs/plans/onto-doc.md#готово — сверка расширена с модели до
     модели и уровня (решение 4)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
@@ -543,41 +544,48 @@ def test_panel_references_come_from_the_bundle():
     assert "docs/reference/harnesses.md" not in lowered
 
 
+def _body_mutated(text: str, old: str, new: str) -> str:
+    """Replace in a whitespace-normalized body, frontmatter intact: a probe
+    that survives any reflow of the carrier."""
+    body = _parse(text)[1]
+    flat = re.sub(r"\s+", " ", body)
+    mutated = flat.replace(old, new, 1)
+    assert mutated != flat, "the mutation must change the body"
+    return text.replace(body, mutated, 1)
+
+
 def test_reference_guard_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the contract rejects a lost guard phrase, a priority inversion, an
     only-source claim and a renamed override doc (replace probes on the
-    exact носитель fragments, case and wrapping included)."""
+    exact carrier fragments, case and wrapping included)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_guard = text.replace("написал свой, бери его", "берёт проект", 1)
-    assert no_guard != text
+    no_guard = _body_mutated(text, "написал свой, бери его", "берёт проект")
     assert any("написал свой, бери его" in error
                for error in _contract_errors(no_guard))
 
-    inverted = text.replace("Файл бандла — первоисточник",
-                            "Файл проекта — первоисточник", 1)
-    assert inverted != text
+    inverted = _body_mutated(text, "Файл бандла — первоисточник",
+                             "Файл проекта — первоисточник")
     assert any("файл проекта — первоисточник" in error
                for error in _contract_errors(inverted))
 
-    only_source = text.replace("Файл бандла — первоисточник",
-                               "Файл бандла — единственный источник", 1)
-    assert only_source != text
+    only_source = _body_mutated(text, "Файл бандла — первоисточник",
+                                "Файл бандла — единственный источник")
     assert any("единственный источник" in error
                for error in _contract_errors(only_source))
 
-    renamed = text.replace("docs/reference/review-panel.md",
-                           "docs/reference/review-roles.md", 1)
-    assert renamed != text
+    renamed = _body_mutated(text, "docs/reference/review-panel.md",
+                            "docs/reference/review-roles.md")
     assert any("проект переопределяет его документом "
                "`docs/reference/review-panel.md`" in error
                for error in _contract_errors(renamed))
 
-    unwrapped = text.replace(
-        "справочник `references/review-panel.md`\nэтого бандла",
-        "справочник матрицы проекта", 1)
-    assert unwrapped != text
+    unwrapped = _body_mutated(text,
+                              "справочник `references/review-panel.md` "
+                              "этого бандла",
+                              "справочник матрицы проекта")
     errors = _contract_errors(unwrapped)
-    assert any("references/review-panel.md" in error for error in errors)
+    assert any("справочник `references/review-panel.md`" in error
+               for error in errors)
