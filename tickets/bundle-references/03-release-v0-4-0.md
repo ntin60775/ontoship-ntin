@@ -56,5 +56,27 @@
   «юнит завершён» — за приёмкой тикета 04. Решение оператора при
   приёмке может переиграть.
 
-(тег, пин каталога и чистая установка по пину — после merge,
-дописываются ниже)
+- **Тег** — merge ff в main `3760fb0`, push main и тега; артефакт
+  `git ls-remote --tags origin "v0.4.0*"` →
+  `3760fb00020ca7fafb972160d868a47d67186323	refs/tags/v0.4.0`
+  (спека, «Готово» 6).
+- **Пин каталога** — `marketplace.json` маркета: `ref: v0.4.0`,
+  `version: 0.4.0`; коммит `130a4a0`, пуш; `validate` —
+  «ontoship-ntin: version ↔ пин v0.4.0 — согласована», `validate
+  --fetch` зелёный (schema-чек пропущен: нет jsonschema — названное
+  ограничение среды), CI validate — success (41 с, прогон 41717452920).
+- **Чистая установка** — `deploy/deploy-plugin.py install
+  ontoship-ntin /tmp/brf03-probe` (канал раннера, каталог пуст до
+  установки): вывод «деплой ontoship-ntin (v0.4.0, манифест: plugin)» —
+  гейт пин↔version пройден (0.4.0 = 0.4.0), 10 маппингов, post-шаг say
+  запустил init-скилл; `references/` на месте:
+  `.agents/skills/ship/references/review-panel.md`,
+  `.agents/skills/onto-doc/references/ontodoc-run.md`,
+  `.agents/skills/testing/references/quality-rule.md`;
+  `.zcode/deployed.json` — `ref: v0.4.0`; шесть ссылок v0.3.0 заменены
+  (to-tickets:35 → `../testing/references/quality-rule.md`, ship:55,58
+  → бандл-файлы), висячих ссылок на три KB-дока нет; остаточные
+  упоминания `docs/decisions/…` в скиллах — названный пробел
+  канон-ссылок (спека, «Рамки», п. 7 «Что осталось»).
+- **Расхождения ожидание/факт** — не было сверх находок панели
+  (разбор выше). Полигон erp-demo (update + живой прогон) — тикет 04.
