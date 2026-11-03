@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-02
+updated: 2026-11-03
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -61,6 +61,11 @@ links:
   2026-11-02: тикеты 01–03 влиты и приняты, тикет 04 не активировался —
   условие не наступило, тикет 05 влит и принят — релиз v0.3.0, тег
   на origin, пин каталога, selfhost-миграция).
+- [bundle-references.md](bundle-references.md) — справочники метода в бандлах:
+  `references/` в ship, onto-doc, testing, guard-фраза перекрытия проектом,
+  паритет носителей, каналы установки, фраза-граница в канон (утверждён
+  2026-11-03, четыре решения одним проходом; критик dwfrun-f9578d66 —
+  правки внесены; открыт, тикеты 01–04, тикет 01 в исполнении).
 
 Двенадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
