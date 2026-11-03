@@ -35,4 +35,42 @@
 
 ## Доказательства
 
-(дописываются при исполнении)
+Исполнение — worktree `ship/bundle-references-01` от базового коммита
+`1910ff3`; реализация — коммит `5634f5b`.
+
+- Критерий 1 (тест существования ссылок): `tests/test_bundle_references.py`.
+  Красная проба — прогон файла на базовом коммите (отдельный worktree от
+  `1910ff3`, в него перенесён только тест): **6 failed / 6 passed**, первая
+  ошибка «ship: step '**Сборка панели.' lost the bundle reference
+  'references/review-panel.md'». После тикета файл зелёный.
+- Критерий 2 (guard-фразы): якорные тесты в четырёх контрактах скиллов —
+  `tests/test_skill_ship.py` (`PANEL_PHRASES`, `test_reference_guard_can_fail`),
+  `tests/test_skill_testing.py` (REQUIRED + `test_reference_guard_can_fail`),
+  `tests/test_skill_onto_doc.py` (REQUIRED + параметрический
+  `test_every_short_marker_has_a_failing_probe` по новым маркерам),
+  `tests/test_skill_to_tickets.py`
+  (`test_artifact_rule_comes_from_the_testing_bundle`,
+  `test_reference_guard_can_fail`). Мутационные классы: удаление фразы
+  (case-insensitive), инверсия приоритета «файл проекта — первоисточник»
+  (запрещённая формулировка в FORBIDDEN всех четырёх), «единственный
+  источник» (запрещённая), переименование перекрытия, вынос guard из шага
+  (`test_bundle_references.py`, проба relocated). Пробы красят: проверены
+  в can-fail тестах на дереве тикета.
+- Критерий 3 (ссылки внутрь бандлов): `tests/test_bundle_references.py` —
+  шесть точек (`POINTS`), все относительные ссылки `references/` резолвятся,
+  `docs/plans/` и `skills/` внутри бандловых файлов запрещены, старые
+  носители `docs/reference/review-roles.md`, `harnesses.md`, `testing.md`
+  убраны из четырёх скиллов (`test_old_kb_carriers_left_the_skill_bodies`).
+  Полный набор после тикета: **407 passed**.
+- Демо-путь: `scripts/install.sh --copy` в чистый каталог
+  `/tmp/ontoship-install-probe.c5X4` — `references/` доезжают (три файла),
+  все пять проверок модуля на установленном дереве чисто (ссылки точек,
+  guard-фразы, старые носители, относительные ссылки, repo-пути).
+- Разбор расхождений ожидание/факт: (1) replace-пробы против собственных
+  переносов строк — перенос носителя порвал точные фрагменты «назови её
+  пропуск в отчёте» (ship) и «написал свой, бери его» (to-tickets); носители
+  переписаны неразрывными (урок тикета 02 onto-doc в действии); (2) дисковая
+  ветка теста резолвит ожидаемый путь из `POINTS`, текстовая мутация её не
+  красит — проба переписана на копию дерева (copytree + unlink); (3) проба
+  `dead` на первом вхождении оставляла второе упоминание в том же блоке —
+  замена всех вхождений. Остальных расхождений не было.
