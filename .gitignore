@@ -10,3 +10,6 @@ __pycache__/
 .agents/skills/
 # generated agent definitions (derived from .agents/config.toml, account-bound)
 .zcode/agents/
+.zcode/.backup/
+# consumer-registry: машино-локальный реестр потребителей, вне git
+.zcode/registry.local.json
