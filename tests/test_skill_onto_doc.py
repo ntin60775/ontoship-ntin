@@ -97,12 +97,23 @@ REQUIRED_PHRASES = (
     "сверь карточку с фактом",
     "git diff --name-only",
     "пустой `files` при непустом diff — расхождение",
+    # bundle references carry the harness procedures (bundle-references
+    # ticket 01): the run procedure from the owner bundle, the divergence
+    # rule from the testing bundle, each with the guard phrase
+    "references/ontodoc-run.md",
+    "../testing/references/quality-rule.md",
+    "файл бандла — первоисточник",
+    "проект переопределяет его документом `docs/reference/ontodoc-run.md`",
+    "проект переопределяет его документом `docs/reference/quality-rule.md`",
+    "написал свой, бери его",
 )
 FORBIDDEN_PHRASES = (
     "$arguments",
     "${claude_plugin_root}",
     "(task)",
     "surveyor",
+    "файл проекта — первоисточник",
+    "единственный источник",
 )
 # .zcode left the ban list with the marketplace-plugin channel:
 # .zcode/skills is a legitimate skill-bundle root now.
@@ -310,8 +321,8 @@ def test_adaptations_are_limited_to_decision_two():
 def test_launch_procedure_verifies_model_and_level():
     """spec: docs/plans/onto-doc.md#готово — сверка model+level с каталогом
     моделей: расхождение — стоп, каталога нет — названный пробел и стоп;
-    запуск — тремя аргументами root/plan/model, путь — раздел прогона
-    онто-дока в матрице харнессов; чтение отчёта и lint+index+map в сессии
+    запуск — тремя аргументами root/plan/model, путь — справочник прогона
+    в бандле onto-doc; чтение отчёта и lint+index+map в сессии
     (решения 4 и 8)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
@@ -358,6 +369,24 @@ def test_launch_contract_can_fail():
     assert any("пишет только внутри" in error
                for error in _contract_errors(no_bound))
 
+    inverted = text.replace("Файл бандла — первоисточник",
+                            "Файл проекта — первоисточник", 1)
+    assert inverted != text
+    assert any("файл проекта — первоисточник" in error
+               for error in _contract_errors(inverted))
+
+    only_source = text.replace("Файл бандла — первоисточник",
+                               "Файл бандла — единственный источник", 1)
+    assert only_source != text
+    assert any("единственный источник" in error
+               for error in _contract_errors(only_source))
+
+    no_rule = text.replace("../testing/references/quality-rule.md",
+                           "../testing/references/absent-rule.md")
+    assert no_rule != text
+    assert any("../testing/references/quality-rule.md" in error
+               for error in _contract_errors(no_rule))
+
 
 def test_principle_is_word_for_word():
     """spec: docs/plans/onto-doc.md#ограничения — принцип оригинала сохраняется
@@ -402,6 +431,10 @@ def test_principle_is_word_for_word():
         "сверь карточку с фактом",
         "git diff --name-only",
         "пустой `files` при непустом diff — расхождение",
+        "references/ontodoc-run.md",
+        "../testing/references/quality-rule.md",
+        "файл бандла — первоисточник",
+        "написал свой, бери его",
     ],
 )
 def test_every_short_marker_has_a_failing_probe(needle: str) -> None:

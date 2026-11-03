@@ -81,6 +81,8 @@ FORBIDDEN_PHRASES = (
     "до нуля находок",
     "создай pull request",
     "или ветку",
+    "файл проекта — первоисточник",
+    "единственный источник",
 )
 PANEL_PHRASES = (
     "ревью-панель",
@@ -105,8 +107,13 @@ PANEL_PHRASES = (
     "критик-гейт",
     "до первого ship юнита",
     "запись прогона",
-    "docs/reference/review-roles.md",
-    "docs/reference/harnesses.md",
+    "references/review-panel.md",
+    "справочник `references/review-panel.md`",
+    "процедура в том же `references/review-panel.md`",
+    "файл бандла — первоисточник",
+    "проект переопределяет его документом `docs/reference/review-panel.md`",
+    "написал свой, бери его",
+    "процедуру запуска бери оттуда",
 )
 
 
@@ -411,7 +418,7 @@ def test_panel_runs_roles_from_config_in_one_pass():
     assert "параллельно в одном прогоне" in lowered
     assert "один отчёт" in lowered
     assert "дедуплицируй" in lowered
-    assert "docs/reference/review-roles.md" in lowered
+    assert "references/review-panel.md" in lowered
 
 
 def test_panel_role_input_output_and_independence():
@@ -438,7 +445,8 @@ def test_panel_checks_definitions_before_launch():
     lowered = _normalized_lower(body)
     assert "модель и уровень определения" in lowered
     assert "перегенерируй" in lowered
-    assert "docs/reference/harnesses.md" in lowered
+    assert "references/review-panel.md" in lowered
+    assert "процедуру запуска бери оттуда" in lowered
 
 
 def test_panel_fallback_is_marked_and_failure_stops():
@@ -515,3 +523,61 @@ def test_panel_check_can_fail():
     no_gate = text.replace("Критик-гейт", "Проверка критика", 1)
     assert no_gate != text
     assert any("критик-гейт" in error for error in _contract_errors(no_gate))
+
+
+def test_panel_references_come_from_the_bundle():
+    """spec: docs/plans/bundle-references.md#готово — контракты и процедуру
+    запуска панели скилл берёт из references/review-panel.md своего бандла;
+    guard-фраза в шаге: файл бандла — первоисточник, проект переопределяет
+    его документом docs/reference/review-panel.md — написал свой, бери его.
+    Проектные носители v0.3.0 из шага убраны."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "справочник `references/review-panel.md`" in lowered
+    assert "процедура в том же `references/review-panel.md`" in lowered
+    assert "файл бандла — первоисточник" in lowered
+    assert "проект переопределяет его документом " \
+           "`docs/reference/review-panel.md`" in lowered
+    assert "написал свой, бери его" in lowered
+    assert "docs/reference/review-roles.md" not in lowered
+    assert "docs/reference/harnesses.md" not in lowered
+
+
+def test_reference_guard_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the contract rejects a lost guard phrase, a priority inversion, an
+    only-source claim and a renamed override doc (replace probes on the
+    exact носитель fragments, case and wrapping included)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_guard = text.replace("написал свой, бери его", "берёт проект", 1)
+    assert no_guard != text
+    assert any("написал свой, бери его" in error
+               for error in _contract_errors(no_guard))
+
+    inverted = text.replace("Файл бандла — первоисточник",
+                            "Файл проекта — первоисточник", 1)
+    assert inverted != text
+    assert any("файл проекта — первоисточник" in error
+               for error in _contract_errors(inverted))
+
+    only_source = text.replace("Файл бандла — первоисточник",
+                               "Файл бандла — единственный источник", 1)
+    assert only_source != text
+    assert any("единственный источник" in error
+               for error in _contract_errors(only_source))
+
+    renamed = text.replace("docs/reference/review-panel.md",
+                           "docs/reference/review-roles.md", 1)
+    assert renamed != text
+    assert any("проект переопределяет его документом "
+               "`docs/reference/review-panel.md`" in error
+               for error in _contract_errors(renamed))
+
+    unwrapped = text.replace(
+        "справочник `references/review-panel.md`\nэтого бандла",
+        "справочник матрицы проекта", 1)
+    assert unwrapped != text
+    errors = _contract_errors(unwrapped)
+    assert any("references/review-panel.md" in error for error in errors)

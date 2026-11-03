@@ -66,11 +66,16 @@ REQUIRED_PHRASES = (
     "лог прогона",
     "docs/decisions/ontoship-core.md",
     "одно правило качества",
-    "docs/reference/testing.md",
+    "references/quality-rule.md",
+    "файл бандла — первоисточник",
+    "проект переопределяет его документом `docs/reference/quality-rule.md`",
+    "написал свой, бери его",
 ) + TRACE_MARKERS + CHANNELS + TARGET_BAR + CYCLE_STEPS
 FORBIDDEN_PHRASES = (
     "покрытие строк",
     "число тестов",
+    "файл проекта — первоисточник",
+    "единственный источник",
 )
 
 
@@ -267,12 +272,14 @@ def test_deprecation_removes_tests_in_the_same_change():
 
 def test_skill_anchors_to_the_canon():
     """spec: docs/decisions/ontoship-core.md#одно правило качества — the skill
-    cites the canon section it carries."""
+    cites the canon section it carries; spec: docs/plans/bundle-references.md
+    #готово — the deep sections live in the bundle's references/quality-rule.md."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "docs/decisions/ontoship-core.md" in lowered
     assert "одно правило качества" in lowered
-    assert "docs/reference/testing.md" in lowered
+    assert "references/quality-rule.md" in lowered
+    assert "docs/reference/testing.md" not in lowered
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
@@ -339,3 +346,41 @@ def test_contract_check_can_fail():
                              if not line.startswith("name:"))
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
+
+
+def test_reference_guard_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the contract rejects a lost bundle reference, a lost guard phrase, a
+    priority inversion, an only-source claim and a renamed override doc."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_reference = text.replace("references/quality-rule.md",
+                                "references/absent-rule.md")
+    assert no_reference != text
+    assert any("references/quality-rule.md" in error
+               for error in _contract_errors(no_reference))
+
+    no_guard = text.replace("написал свой, бери его", "проект решает сам", 1)
+    assert no_guard != text
+    assert any("написал свой, бери его" in error
+               for error in _contract_errors(no_guard))
+
+    inverted = text.replace("Файл бандла — первоисточник",
+                            "Файл проекта — первоисточник", 1)
+    assert inverted != text
+    assert any("файл проекта — первоисточник" in error
+               for error in _contract_errors(inverted))
+
+    only_source = text.replace("Файл бандла — первоисточник",
+                               "Файл бандла — единственный источник", 1)
+    assert only_source != text
+    assert any("единственный источник" in error
+               for error in _contract_errors(only_source))
+
+    renamed = text.replace("docs/reference/quality-rule.md",
+                           "docs/reference/testing.md", 1)
+    assert renamed != text
+    assert any("проект переопределяет его документом "
+               "`docs/reference/quality-rule.md`" in error
+               for error in _contract_errors(renamed))

@@ -47,6 +47,11 @@ REQUIRED_PHRASES = (
     "один вопрос на тикет",
     "принять как предложено",
     "два-три предложения, не отчёт",
+    # bundle reference with the guard phrase (bundle-references ticket 01)
+    "../testing/references/quality-rule.md",
+    "файл бандла — первоисточник",
+    "проект переопределяет его документом `docs/reference/quality-rule.md`",
+    "написал свой, бери его",
     "вызывает пользователь",
     "сигнал к чтению артефакта, не доказательство",
 )
@@ -74,6 +79,8 @@ CHECK_FORBIDDEN_PHRASES = (
 FORBIDDEN_PHRASES = (
     "нарезка — решение оператора",
     "проверяем на дереве",
+    "файл проекта — первоисточник",
+    "единственный источник",
 )
 
 
@@ -462,3 +469,57 @@ def test_contract_check_can_fail():
     assert unbounded != text
     assert any("два-три предложения, не отчёт" in error
                for error in _contract_errors(unbounded))
+
+
+def test_artifact_rule_comes_from_the_testing_bundle():
+    """spec: docs/plans/bundle-references.md#готово — «Артефакт и ожидание»
+    ведёт в references/ бандла testing (../testing/references/quality-rule.md)
+    с guard-фразой: файл бандла — первоисточник, проект переопределяет его
+    документом docs/reference/quality-rule.md — написал свой, бери его.
+    Проектный носитель v0.3.0 из среза убран."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = re.sub(r"\s+", " ", body.lower())
+    assert "../testing/references/quality-rule.md" in lowered
+    assert "файл бандла — первоисточник" in lowered
+    assert "проект переопределяет его документом " \
+           "`docs/reference/quality-rule.md`" in lowered
+    assert "написал свой, бери его" in lowered
+    assert "docs/reference/testing.md" not in lowered
+
+
+def test_reference_guard_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the contract rejects a lost bundle reference, a lost guard phrase, a
+    priority inversion, an only-source claim and a renamed override doc."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_ref = text.replace("../testing/references/quality-rule.md",
+                          "../testing/references/absent-rule.md")
+    assert no_ref != text
+    assert any("../testing/references/quality-rule.md" in error
+               for error in _contract_errors(no_ref))
+
+    no_guard = text.replace("написал свой, бери его", "проект решает сам", 1)
+    assert no_guard != text
+    assert any("написал свой, бери его" in error
+               for error in _contract_errors(no_guard))
+
+    inverted = text.replace("Файл бандла — первоисточник",
+                            "Файл проекта — первоисточник", 1)
+    assert inverted != text
+    assert any("файл проекта — первоисточник" in error
+               for error in _contract_errors(inverted))
+
+    only_source = text.replace("Файл бандла — первоисточник",
+                               "Файл бандла — единственный источник", 1)
+    assert only_source != text
+    assert any("единственный источник" in error
+               for error in _contract_errors(only_source))
+
+    renamed = text.replace("docs/reference/quality-rule.md",
+                           "docs/reference/review-panel.md", 1)
+    assert renamed != text
+    assert any("проект переопределяет его документом "
+               "`docs/reference/quality-rule.md`" in error
+               for error in _contract_errors(renamed))
