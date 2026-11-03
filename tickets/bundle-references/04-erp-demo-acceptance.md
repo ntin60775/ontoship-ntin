@@ -30,4 +30,87 @@
 
 ## Доказательства
 
-(дописываются при исполнении)
+Прогон 2026-11-04, сессия ntin (worktree `ontoship-ntin-wt-br04`, ветка
+`br-04-erp-demo-acceptance` от `3277c1c`). Спека утверждена, критик
+`dwfrun-f9578d66` закрыт решением оператора. Блокер «готовый к
+ревью-панели тикет erp-demo» не снят: их тикет 05
+bus-mapping-module не начат (README юнита erp-demo 2026-11-03 15:14,
+«тикет 05, не начат»; worktree один, работа по сопоставлению в ветках
+нет). ask-развилка оператору («update сейчас — прогон позже» /
+«стоп до их тикета» / «панель на артефактах тикета 04») осталась без
+ответа; исполнена только часть, санкционированная утверждённой спекой,
+— прогон и merge ждут явного решения оператора.
+
+### Критерий 1 — update: закрыт
+
+- `check` до update: «расхождений с v0.3.0 — 7» (SKILL.md ×4 — ship,
+  onto-doc, testing, to-tickets; отсутствующие `references/` ×3),
+  exit 1.
+- `update ontoship-ntin /home/prog7/home/dev/work/erp-demo`, exit 0:
+  «обновление ontoship-ntin: v0.3.0 → v0.4.0», бэкап
+  `.zcode/.backup/ontoship-ntin/20261103T221238092463Z`, десять
+  маппингов перезаписаны.
+- Артефакт `.zcode/deployed.json` erp-demo: `ref = v0.4.0`,
+  `deployed_at = 2026-11-04T00:12:38+0200`.
+- `references/` на месте: `ship/references/review-panel.md`,
+  `onto-doc/references/ontodoc-run.md`,
+  `testing/references/quality-rule.md`.
+- `check` после update: «ontoship-ntin: совпадает с v0.4.0», exit 0.
+- Чужая незакоммиченная работа erp-demo (update-bundle контура 0.4.87)
+  не тронута; ontoship-запись обновлена поверх её состояния.
+
+### Критерий 3 — ссылки: закрыт
+
+Проба путей — скрипт `.scratch/probe-skill-links.py` (эфемерен,
+`python3 -I … <корень проекта>`; категоризует ссылки: императивные,
+канон, guard-перекрытие; ложные срабатывания первой версии — подстрока
+`references/…` внутри `../testing/references/…` и guard-упоминания пути
+— перепроверены семантической версией по точным строкам SKILL.md).
+Вывод на erp-demo:
+
+```
+== IMPERATIVE dangling (must be empty) ==
+  none
+== IMPERATIVE ok: 9 links resolve ==
+== CANON mentions (named gap, out of scope): 5 ==
+  critic / grilling / ship / testing / to-tickets:
+  docs/decisions/ontoship-core.md
+== OVERRIDE guard mentions (present only if project wrote one): 5 ==
+  onto-doc ×2, ship, testing, to-tickets: docs/reference/<имя файла бандла>
+```
+
+- Висящих императивных ссылок на справочники — ноль; девять
+  императивных ссылок (шесть замен юнита: `ship` ×2, `onto-doc` ×2,
+  `testing`, `to-tickets`, плюс три внутрибандловых) резолвятся на
+  диске.
+- Канон — пять упоминаний: названный пробел поставки, вне рамок юнита
+  (спека «Рамки», п. 7 «Что осталось» ntin с условием возврата).
+- Guard-пути `docs/reference/<имя файла бандла>` — пять упоминаний в
+  условной фразе «написал свой, бери его»: файла у потребителя по
+  замыслу нет, пока проект не написал перекрытие; берётся бандл.
+- Контрольный прогон той же пробы на ntin (main, `3277c1c`) — тот же
+  профиль: 9 ok, канон 5, guard 5 — состав поставки консистентен.
+
+### Критерий 4 — реестр потребителей: закрыт
+
+Запись в `.zcode/registry.local.json` ntin (вне git), валидатор
+`registry_check.py` — `OK: … (consumer-registry/1)`:
+
+- `deploy_log` append: `2026-11-04T00:12:38+02:00`, actor «раннер
+  маркета, ship-проход bundle-references тикет 04 ntin», update
+  v0.3.0 → v0.4.0, consumer `erp-demo`, result ok; followup
+  `done: false` — живой панельный прогон в erp-demo, блокирован
+  готовностью их тикета 05.
+- `consumers[].erp-demo`: version → `v0.4.0`, note называет update,
+  справочники трёх бандлов и чистую пробу путей.
+
+### Критерий 2 — живой панельный прогон: открыт
+
+Демо-путь «панель стартует по процедуре из бандла» в состоянии v0.4.0
+выполним: процедура — `ship/references/review-panel.md`, конфиг ролей
+erp-demo готов (`deepseek-v4.1-flash-1017 max` ×4,
+`.zcode/agents/` сгенерированы). Прогон не имитируется: панель ревьюит
+срез тикета, готовых срезов в erp-demo нет (05–07 не начаты). Ожидает
+готовности их тикета 05 bus-mapping-module; развилка («прогон позже»
+или «панель на артефактах тикета 04» с правкой формулировки спеки) —
+решение оператора. Merge и запись в continue.md — после прогона.
