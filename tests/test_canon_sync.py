@@ -1,23 +1,40 @@
 """Guard for method sections across KB docs and bundle carriers.
 
-Two carrier sets share the anchor mechanics. The quality rule lives in full
-in the canon (docs/decisions/ontoship-core.md), the testing skill
-(skills/testing/SKILL.md), the KB page (docs/reference/testing.md) and its
-bundle carrier (skills/testing/references/quality-rule.md). The panel rules
-live in the ship skill (skills/ship/SKILL.md) and its bundle carrier
-(skills/ship/references/review-panel.md). Carriers retell the rules on
-purpose — bundles install into foreign projects without docs/ — but the
-anchor wordings must stay identical in every carrier of a set: a rephrase
-in one file without the others is a silent divergence. Every KB page of a
-method section names its bundle carrier file (bundle-references, «Готово» 3).
-Short mentions elsewhere (AGENTS.md, .agents/redpolitika.md, to-tickets)
-are digests and are covered by review, not by anchors.
+Named carrier sets share the anchor mechanics:
+
+- ``quality`` — the quality rule in full: the canon, the testing skill, the
+  KB page (docs/reference/testing.md) and the bundle carrier
+  (skills/testing/references/quality-rule.md);
+- ``panel-rules`` — the panel rules (a base-set role without a config section
+  is not launched, the fallback for an unavailable model): the ship skill and
+  its bundle carrier (skills/ship/references/review-panel.md);
+- ``panel-run`` — the launch ways of the panel: the KB page
+  (docs/reference/harnesses.md) and the bundle carrier;
+- ``panel-intro`` — the panel's contract preamble and finding scale:
+  the KB page (docs/reference/review-roles.md) and the bundle carrier;
+- ``ontodoc-run`` — the onto-doc run ways: the KB page
+  (docs/reference/harnesses.md) and the bundle carrier
+  (skills/onto-doc/references/ontodoc-run.md);
+- ``guard`` — the boundary rule (a bundle file is the primary source, the
+  project overrides it): the canon and the four referencing skills.
+
+Carriers retell the rules on purpose — bundles install into foreign projects
+without docs/ — but the anchor wordings must stay identical in every carrier
+of a set: a rephrase in one file without the others is a silent divergence.
+Every KB page of a method section names its bundle carrier file with the
+phrase «Носитель методной секции в бандле» (bundle-references, «Готово» 3).
+Short mentions elsewhere (AGENTS.md, .agents/redpolitika.md) are digests and
+are covered by review, not by anchors.
+
+The can-fail probe guards the shared helpers (the comparator and the naming
+predicate) on seeded files; the parametrized tests guard the real carriers.
 
 invariant: docs/decisions/ontoship-core.md#одно правило качества — якорные
 формулировки правила трёх классов теста и его планки совпадают в каноне,
-скилле testing, справочнике testing.md и бандле quality-rule.md; якорные
-формулировки правил панели совпадают в скилле ship и его бандле
-review-panel.md
+скилле testing, справочнике testing.md и бандле quality-rule.md
+spec: docs/plans/bundle-references.md#готово — якорные наборы методных
+секций: правила панели, запуск панели, контракты панели, прогон онто-дока,
+guard-фраза; KB-страница каждой секции называет файл бандла носителем
 """
 from __future__ import annotations
 
@@ -53,13 +70,59 @@ PANEL_ANCHORS = (
     "«ревью провёл исполнитель» законным исходом не является",
 )
 
-SETS = (
-    ("quality", QUALITY_CARRIERS, QUALITY_ANCHORS),
-    ("panel", PANEL_CARRIERS, PANEL_ANCHORS),
+PANEL_RUN_CARRIERS = (
+    REPO / "docs/reference/harnesses.md",
+    REPO / "skills/ship/references/review-panel.md",
+)
+PANEL_RUN_ANCHORS = (
+    "Модель субагента задаётся типом агента",
+    "Фолбэк недоступной модели роли",
+    "модель сессии с пометкой в отчёте",
 )
 
-# The KB page of each method section names its bundle carrier file
-# (spec: docs/plans/bundle-references.md#готово — «Готово» 3).
+PANEL_INTRO_CARRIERS = (
+    REPO / "docs/reference/review-roles.md",
+    REPO / "skills/ship/references/review-panel.md",
+)
+PANEL_INTRO_ANCHORS = (
+    "Роли и их модели назначает",
+    "Шкала приоритетов находок",
+    "приоритет, место и зацепка",
+)
+
+ONTODOC_CARRIERS = (
+    REPO / "docs/reference/harnesses.md",
+    REPO / "skills/onto-doc/references/ontodoc-run.md",
+)
+ONTODOC_ANCHORS = (
+    "прогон — сохранённый workflow",
+    "Модель и уровень едут в `subagent_model`",
+    "ListModels",
+)
+
+GUARD_CARRIERS = (
+    REPO / "docs/decisions/ontoship-core.md",
+    REPO / "skills/ship/SKILL.md",
+    REPO / "skills/onto-doc/SKILL.md",
+    REPO / "skills/testing/SKILL.md",
+    REPO / "skills/to-tickets/SKILL.md",
+)
+GUARD_ANCHORS = (
+    "файл бандла — первоисточник",
+    "проект переопределяет его документом",
+)
+
+SETS = (
+    ("quality", QUALITY_CARRIERS, QUALITY_ANCHORS),
+    ("panel-rules", PANEL_CARRIERS, PANEL_ANCHORS),
+    ("panel-run", PANEL_RUN_CARRIERS, PANEL_RUN_ANCHORS),
+    ("panel-intro", PANEL_INTRO_CARRIERS, PANEL_INTRO_ANCHORS),
+    ("ontodoc-run", ONTODOC_CARRIERS, ONTODOC_ANCHORS),
+    ("guard", GUARD_CARRIERS, GUARD_ANCHORS),
+)
+
+# The KB page of each method section names its bundle carrier file with the
+# phrase (spec: docs/plans/bundle-references.md#готово — «Готово» 3).
 KB_NAMED_CARRIERS = (
     (REPO / "docs/reference/testing.md",
      "skills/testing/references/quality-rule.md"),
@@ -70,14 +133,7 @@ KB_NAMED_CARRIERS = (
     (REPO / "docs/reference/review-roles.md",
      "skills/ship/references/review-panel.md"),
 )
-
-ALL_CARRIERS = tuple(carrier for _name, carriers, _anchors in SETS
-                     for carrier in carriers)
-
-ANCHOR_CASES = tuple((anchor, carriers)
-                     for _name, carriers, anchors in SETS
-                     for anchor in anchors)
-ANCHOR_IDS = [anchor[:24] for anchor, _carriers in ANCHOR_CASES]
+NAMING_PHRASE = "Носитель методной секции в бандле"
 
 
 def _flat(text: str) -> str:
@@ -94,11 +150,26 @@ def _carrier_name(carrier: Path) -> str:
         return carrier.as_posix()
 
 
+ALL_CARRIERS = tuple(sorted({carrier for _name, carriers, _anchors in SETS
+                             for carrier in carriers}, key=_carrier_name))
+
+ANCHOR_CASES = tuple((name, anchor, carriers)
+                     for name, carriers, anchors in SETS
+                     for anchor in anchors)
+ANCHOR_IDS = [f"{name}:{anchor[:20]}" for name, anchor, _ in ANCHOR_CASES]
+
+
 def _missing_carriers(anchor: str, carriers: tuple[Path, ...]) -> list[str]:
     """Names of the carriers the anchor wording is absent from."""
     needle = _flat(anchor)
     return [_carrier_name(carrier) for carrier in carriers
             if needle not in _flat(carrier.read_text(encoding="utf-8"))]
+
+
+def _page_names_carrier(page: Path, carrier: str) -> bool:
+    """The KB page names the bundle carrier file with the naming phrase."""
+    text = _flat(page.read_text(encoding="utf-8"))
+    return NAMING_PHRASE.lower() in text and carrier in text
 
 
 @pytest.mark.parametrize("carrier", ALL_CARRIERS,
@@ -107,18 +178,22 @@ def test_carrier_exists(carrier: Path) -> None:
     assert carrier.is_file(), f"carrier missing: {_carrier_name(carrier)}"
 
 
-@pytest.mark.parametrize("anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
-def test_anchor_in_every_carrier(anchor: str,
+@pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+def test_anchor_in_every_carrier(set_name: str, anchor: str,
                                  carriers: tuple[Path, ...]) -> None:
     missing = _missing_carriers(anchor, carriers)
     if len(missing) == len(carriers):
         raise AssertionError(
-            f"anchor «{anchor}» missing from every carrier — if the rule was "
-            "deliberately reworded, update ANCHORS in this test to match"
+            f"anchor «{anchor}» of the {set_name} set is missing from every "
+            "carrier — if the rule was deliberately reworded, update the "
+            "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+            "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / GUARD_ANCHORS) "
+            "in this test"
         )
     assert not missing, (
-        f"anchor «{anchor}» missing from: {', '.join(missing)} — "
-        "reword one carrier without the others; edit all carriers or none"
+        f"anchor «{anchor}» of the {set_name} set missing from: "
+        f"{', '.join(missing)} — reword one carrier without the others; "
+        "edit all carriers or none"
     )
 
 
@@ -127,19 +202,20 @@ def test_anchor_in_every_carrier(anchor: str,
                               for page, carrier in KB_NAMED_CARRIERS])
 def test_kb_page_names_its_bundle_carrier(page: Path, carrier: str) -> None:
     """spec: docs/plans/bundle-references.md#готово — the KB page of a method
-    section names its bundle carrier file."""
-    assert carrier in page.read_text(encoding="utf-8"), (
-        f"{_carrier_name(page)} must name the bundle carrier {carrier}"
+    section names its bundle carrier file with the naming phrase."""
+    assert _page_names_carrier(page, carrier), (
+        f"{_carrier_name(page)} must name the bundle carrier {carrier} "
+        f"with the phrase «{NAMING_PHRASE}»"
     )
 
 
 def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the comparator reddens one carrier without the others: the KB page
-    without the bundle, the bundle without the KB page, and both directions
-    of the panel pair; a dropped carrier mention reddens the naming check.
-    Probes run on seeded carrier files, so a real divergence reddens only
-    the parity tests, not this probe."""
+    the shared helpers redden: the comparator names one carrier without the
+    others (the KB page without the bundle, the bundle without the KB page,
+    both directions of the panel pair), and the naming predicate drops a page
+    that loses the mention or the phrase. Probes run on seeded carrier files,
+    so a real divergence reddens only the parity tests, not this probe."""
     def seed(name: str, text: str) -> Path:
         path = tmp_path / name
         path.write_text(text, "utf-8")
@@ -172,7 +248,7 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     missing = _missing_carriers("red→green", (kb, bundle))
     assert missing == [bundle.as_posix()], missing
 
-    # The ship skill reworded without its bundle carrier (panel pair).
+    # The ship skill reworded without its bundle carrier (panel-rules pair).
     panel_rule = ("Роль без секции в конфиге не запускается —\nмолчаливая "
                   "подмена не делается.")
     ship = seed("ship.md", panel_rule)
@@ -186,8 +262,8 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
                                 (ship, panel))
     assert missing == [ship.as_posix()], missing
 
-    # The bundle carrier reworded without the ship skill (panel pair): the
-    # фолбэк anchor arrives wrapped, the flat comparator still holds it
+    # The bundle carrier reworded without the ship skill (panel-rules pair):
+    # the фолбэк anchor arrives wrapped, the flat comparator still holds it
     # until the exact wrapped fragment is reworded.
     ship = seed("ship2.md",
                 "Недоступная модель роли — фолбэк на модель\nсессии "
@@ -205,11 +281,16 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
                                 (ship, panel))
     assert missing == [panel.as_posix()], missing
 
-    # A KB page that drops the carrier mention reddens the naming check.
+    # The naming predicate: a page that drops the carrier mention or the
+    # phrase stops naming its bundle carrier — the same predicate the
+    # parametrized test asserts.
     page = seed("page.md",
-                "Носитель методной секции в бандле: "
-                "skills/testing/references/quality-rule.md.")
+                f"{NAMING_PHRASE}: skills/testing/references/quality-rule.md.")
+    assert _page_names_carrier(page, "skills/testing/references/quality-rule.md")
     page.write_text(page.read_text("utf-8").replace(
         "skills/testing/references/quality-rule.md", ""), "utf-8")
-    assert "skills/testing/references/quality-rule.md" \
-        not in page.read_text("utf-8")
+    assert not _page_names_carrier(
+        page, "skills/testing/references/quality-rule.md")
+    page = seed("page2.md", "skills/testing/references/quality-rule.md.")
+    assert not _page_names_carrier(
+        page, "skills/testing/references/quality-rule.md")

@@ -31,11 +31,11 @@ REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
 SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc")
 
-# Method-section files shipped inside three bundles (bundle-references 01).
-REFERENCES = (
-    ("ship", "references/review-panel.md"),
-    ("onto-doc", "references/ontodoc-run.md"),
-    ("testing", "references/quality-rule.md"),
+# Method-section files shipped inside the bundles (bundle-references 01);
+# listed from disk, so a new references/ file joins this check by itself.
+REFERENCES = sorted(
+    (path.parent.parent.name, f"references/{path.name}")
+    for path in REPO.glob("skills/*/references/*.md")
 )
 
 
@@ -808,16 +808,21 @@ def test_install_carries_bundle_references(tmp_path: Path) -> None:
     install = run(linked)
     assert install.returncode == 0, output(install)
     for name, ref in REFERENCES:
-        assert (linked / ".agents" / "skills" / name / ref).is_file(), ref
+        assert (linked / ".agents" / "skills" / name / ref).is_file(), \
+            f"{name}/{ref} missing after link install"
 
     copied = tmp_path / "copied"
     copied.mkdir()
     copy = run(copied, "--copy")
     assert copy.returncode == 0, output(copy)
     for name, ref in REFERENCES:
-        assert (copied / ".agents" / "skills" / name / ref).is_file(), ref
+        assert (copied / ".agents" / "skills" / name / ref).is_file(), \
+            f"{name}/{ref} missing after copy install"
 
     # Mutation probe: references/ lost from a copy drifts --check by name.
+    # The green --check before the mutation pins the drift on this file.
+    before = run(copied, "--check")
+    assert before.returncode == 0, output(before)
     (copied / ".agents" / "skills" / "ship" / "references"
      / "review-panel.md").unlink()
     drifted = run(copied, "--check")
