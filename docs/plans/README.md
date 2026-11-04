@@ -83,19 +83,18 @@ links:
   тикет 01 влит и принят 2026-11-04, merge `351a1a5`, панель
   `dwfrun-023d5b6f`, 446 passed; тикет 02 — релиз v0.5.0: merge
   `09a4b94`, панель `dwfrun-7b09b760`, тег на origin, пин каталога
-  `7d07080`, чистая установка по пину, update erp-demo — влит, ждёт
-  приёмки; юнит закрывается словом оператора, перечень релизных
-  артефактов — в тикете и continue.md).
+  `7d07080`, чистая установка по пину, update erp-demo (проба путей
+  чистая) — влит и принят 2026-11-04 — юнит закрыт).
 
-Тринадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
+Четырнадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
 игрушечный `install-dry-run` (2026-10-23), мини-юниты `ship-isolation`,
 `understanding-check`, `review-loose-ends`, `role-registry` (тикет 01
 влит и принят у каждого; панели — `dwfrun-752d8bbe`, `dwfrun-c609052e`,
 `dwfrun-a26587f5`, `dwfrun-c90a3f20`) и юниты `entry-and-continuity`
-(2026-11-02, релиз v0.3.0) и `bundle-references` (2026-11-04, релиз
-v0.4.0). Юнит `onto-doc` закрыт 2026-11-01: нарезка — тикеты 01–05, все
+(2026-11-02, релиз v0.3.0), `bundle-references` (2026-11-04, релиз
+v0.4.0) и `canon-section-in-bundles` (2026-11-04, релиз v0.5.0).
+Юнит `onto-doc` закрыт 2026-11-01: нарезка — тикеты 01–05, все
 влиты и приняты (живое доказательство — прогон `dwfrun-5efcd1d0`).
-Четырнадцатый юнит `canon-section-in-bundles` — ждёт приёмки тикета 02.
 Открытая работа и пробелы харнессов записаны
 в [continue.md](../ops/continue.md).
