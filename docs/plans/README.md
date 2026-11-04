@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-03
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -75,6 +75,11 @@ links:
   rollout в реестре, живой прогон — панель их сессии
   `dwfrun-8cdf4fa8` на срезе их тикета 05, карточка сверена с
   фактом) — юнит закрыт.
+- [canon-section-in-bundles.md](canon-section-in-bundles.md) — секция канона
+  «Три фазы» в бандлах: `method-phases.md` в ship, перепись шести
+  носителей-упоминаний канона в пяти скиллах, guard-фраза, якорный
+  паритет, релиз v0.5.0, приёмка update erp-demo (на план-гейте,
+  draft).
 
 Двенадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
