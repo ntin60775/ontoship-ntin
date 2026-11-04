@@ -78,8 +78,8 @@ links:
 - [canon-section-in-bundles.md](canon-section-in-bundles.md) — секция канона
   «Три фазы» в бандлах: `method-phases.md` в ship, перепись шести
   носителей-упоминаний канона в пяти скиллах, guard-фраза, якорный
-  паритет, релиз v0.5.0, приёмка update erp-demo (на план-гейте,
-  draft).
+  паритет, релиз v0.5.0, приёмка update erp-demo (утверждена на
+  план-гейте 2026-11-04).
 
 Двенадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),

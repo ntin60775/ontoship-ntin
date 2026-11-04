@@ -2,7 +2,7 @@
 node_type: plan
 title: Секция канона «Три фазы» в бандлах
 service: _platform
-status: draft
+status: active
 updated: 2026-11-04
 tags: [skills, canon, references, delivery, consumer-sufficiency]
 links:

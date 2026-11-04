@@ -114,7 +114,7 @@ bus-mapping-module, workflow `dwfrun-8cdf4fa8` (7 мин 30 с, 28,3 млн
 вечный паритет копии, отмена прецедента 2026-11-03); владелец —
 ship; объём — с релизом и приёмкой (ask 2026-11-04). Спека
 [canon-section-in-bundles.md](../plans/canon-section-in-bundles.md)
-— draft на план-гейте.
+**утверждена на план-гейте 2026-11-04** (`status: active`).
 
 | коммит | что |
 |---|---|
