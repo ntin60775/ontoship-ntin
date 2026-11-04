@@ -3,7 +3,7 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-03
+updated: 2026-11-04
 links:
   part_of: [../README.md]
   relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
@@ -81,18 +81,19 @@ links:
   паритет, релиз v0.5.0, приёмка update erp-demo (утверждена на
   план-гейте 2026-11-04; критик dwfrun-2bc9db7a закрыт «править всё»;
   тикет 01 влит и принят 2026-11-04, merge `351a1a5`, панель
-  `dwfrun-023d5b6f`, 446 passed; тикет 02 — релиз v0.5.0: срез
-  в worktree, релизные артефакты — merge, тег, пин каталога, чистая
-  установка по пину, update erp-demo, проба путей, rollout в реестре —
-  дописываются после merge; ждёт приёмки, юнит закрывается её словом).
+  `dwfrun-023d5b6f`, 446 passed; срез тикета 02 — релиз v0.5.0 —
+  исполнен в worktree, ждёт приёмки; юнит закрывается словом
+  оператора, перечень релизных артефактов — в тикете и continue.md).
 
-Двенадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
+Тринадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
 игрушечный `install-dry-run` (2026-10-23), мини-юниты `ship-isolation`,
 `understanding-check`, `review-loose-ends`, `role-registry` (тикет 01
 влит и принят у каждого; панели — `dwfrun-752d8bbe`, `dwfrun-c609052e`,
-`dwfrun-a26587f5`, `dwfrun-c90a3f20`) и юнит `entry-and-continuity`
-(2026-11-02, релиз v0.3.0). Юнит `onto-doc` закрыт 2026-11-01: нарезка —
-тикеты 01–05, все влиты и приняты (живое доказательство — прогон
-`dwfrun-5efcd1d0`). Открытая работа и пробелы харнессов записаны
+`dwfrun-a26587f5`, `dwfrun-c90a3f20`) и юниты `entry-and-continuity`
+(2026-11-02, релиз v0.3.0) и `bundle-references` (2026-11-04, релиз
+v0.4.0). Юнит `onto-doc` закрыт 2026-11-01: нарезка — тикеты 01–05, все
+влиты и приняты (живое доказательство — прогон `dwfrun-5efcd1d0`).
+Четырнадцатый юнит `canon-section-in-bundles` — ждёт приёмки тикета 02.
+Открытая работа и пробелы харнессов записаны
 в [continue.md](../ops/continue.md).
