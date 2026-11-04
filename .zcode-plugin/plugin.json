@@ -1,6 +1,6 @@
 {
   "name": "ontoship-ntin",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "OntoShip ntin: метод и project-local пакет — KB на markdown+git с детерминированным поиском (GitMark), grilling, to-tickets, ship с ревью-панелью и критик-гейтом, онто-док с кураторами на моделях из конфига. Скиллы метода и движок GitMark; вендор-база — ontoship-zcode (MIT)",
   "skills": "./skills"
 }
