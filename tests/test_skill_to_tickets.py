@@ -487,12 +487,13 @@ def test_artifact_rule_comes_from_the_testing_bundle():
     assert "docs/reference/testing.md" not in lowered
 
 
-def _body_mutated(text: str, old: str, new: str) -> str:
+def _body_mutated(text: str, old: str, new: str, count: int = 1) -> str:
     """Replace in a whitespace-normalized body, frontmatter intact: a probe
-    that survives any reflow of the carrier."""
+    that survives any reflow of the carrier. count=-1 hits every occurrence —
+    a phrase the carrier repeats (the guard now lives in two blocks)."""
     body = _parse(text)[1]
     flat = re.sub(r"\s+", " ", body)
-    mutated = flat.replace(old, new, 1)
+    mutated = flat.replace(old, new, count)
     assert mutated != flat, "the mutation must change the body"
     return text.replace(body, mutated, 1)
 
@@ -510,7 +511,8 @@ def test_reference_guard_can_fail():
     assert any("../testing/references/quality-rule.md" in error
                for error in _contract_errors(no_ref))
 
-    no_guard = _body_mutated(text, "написал свой, бери его", "проект решает сам")
+    no_guard = _body_mutated(text, "написал свой, бери его", "проект решает сам",
+                             count=-1)
     assert any("написал свой, бери его" in error
                for error in _contract_errors(no_guard))
 

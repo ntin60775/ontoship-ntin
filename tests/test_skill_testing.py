@@ -13,6 +13,8 @@ classes, independent expected value, target bar, seven-step cycle, metrics
 spec: docs/decisions/ontoship-core.md#одно правило качества — three goals,
 traceability markers, independent expected value, channels as tools,
 coverage in spec items
+spec: docs/plans/canon-section-in-bundles.md#готово — шапка testing называет
+свой бандл-носитель quality-rule.md; путь канона уходит из тела
 invariant: docs/plans/workflow-skills.md#ограничения — the skill stays
 model-invocable; only to-tickets and ship are model-inaccessible
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -64,7 +66,6 @@ REQUIRED_PHRASES = (
     "назначь бюджет",
     "доступен модели",
     "лог прогона",
-    "docs/decisions/ontoship-core.md",
     "одно правило качества",
     "references/quality-rule.md",
     "файл бандла — первоисточник",
@@ -270,17 +271,17 @@ def test_deprecation_removes_tests_in_the_same_change():
     assert "тем же изменением" in lowered
 
 
-def test_skill_anchors_to_the_canon():
-    """spec: docs/decisions/ontoship-core.md#одно правило качества — the skill
-    cites the canon section it carries.
+def test_skill_anchors_to_the_bundle_section():
+    """spec: docs/plans/canon-section-in-bundles.md#готово — the skill cites
+    its own bundle carrier; the canon path leaves the body.
     spec: docs/plans/bundle-references.md#готово — the deep sections live in
     the bundle's references/quality-rule.md.
     """
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "docs/decisions/ontoship-core.md" in lowered
     assert "одно правило качества" in lowered
     assert "references/quality-rule.md" in lowered
+    assert "docs/decisions/ontoship-core.md" not in lowered
     assert "docs/reference/testing.md" not in lowered
 
 

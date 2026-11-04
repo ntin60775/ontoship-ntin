@@ -35,6 +35,8 @@ spec: docs/plans/review-config.md#ограничения — панель оди
 пропущенная роль названа, критик-гейт перед первым ship юнита
 spec: docs/plans/ship-isolation.md#готово — шаг 1 безусловный изолированный
 worktree, «или ветку» запрещена во всём тексте скилла
+spec: docs/plans/canon-section-in-bundles.md#готово — шапка ship называет
+методную секцию своего бандла, не путь канона
 invariant: docs/decisions/ontoship-core.md#три фазы — one review pass, no convergence loop
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -72,7 +74,7 @@ REQUIRED_PHRASES = (
     "отчёт фактами стоит в чате перед вызовом",
     "в поле вопроса — одно предложение",
     "docs/plans/<slug>.md",
-    "docs/decisions/ontoship-core.md",
+    "references/method-phases.md",
     "три фазы",
     "вызывает пользователь",
 )
@@ -312,12 +314,14 @@ def test_acceptance_ask_carries_the_decision_not_the_report():
     assert "следствия выбора, не доказательства" in lowered
 
 
-def test_skill_anchors_to_the_canon():
-    """spec: docs/decisions/ontoship-core.md#три фазы — the skill cites its phase."""
+def test_skill_anchors_to_the_bundle_section():
+    """spec: docs/plans/canon-section-in-bundles.md#готово — the skill cites
+    its own bundle section; the canon path leaves the body."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "docs/decisions/ontoship-core.md" in lowered
+    assert "references/method-phases.md" in lowered
     assert "три фазы" in lowered
+    assert "docs/decisions/ontoship-core.md" not in lowered
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
@@ -544,12 +548,13 @@ def test_panel_references_come_from_the_bundle():
     assert "docs/reference/harnesses.md" not in lowered
 
 
-def _body_mutated(text: str, old: str, new: str) -> str:
+def _body_mutated(text: str, old: str, new: str, count: int = 1) -> str:
     """Replace in a whitespace-normalized body, frontmatter intact: a probe
-    that survives any reflow of the carrier."""
+    that survives any reflow of the carrier. count=-1 hits every occurrence —
+    a phrase the carrier repeats (the guard now lives in two blocks)."""
     body = _parse(text)[1]
     flat = re.sub(r"\s+", " ", body)
-    mutated = flat.replace(old, new, 1)
+    mutated = flat.replace(old, new, count)
     assert mutated != flat, "the mutation must change the body"
     return text.replace(body, mutated, 1)
 
@@ -562,7 +567,8 @@ def test_reference_guard_can_fail():
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_guard = _body_mutated(text, "написал свой, бери его", "берёт проект")
+    no_guard = _body_mutated(text, "написал свой, бери его", "берёт проект",
+                             count=-1)
     assert any("написал свой, бери его" in error
                for error in _contract_errors(no_guard))
 

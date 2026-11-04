@@ -15,6 +15,8 @@ Named carrier sets share the anchor mechanics:
 - ``ontodoc-run`` — the onto-doc run ways: the KB page
   (docs/reference/harnesses.md) and the bundle carrier
   (skills/onto-doc/references/ontodoc-run.md);
+- ``method-phases`` — the canon's three-phase section: the canon and the
+  bundle carrier (skills/ship/references/method-phases.md);
 - ``guard`` — the boundary rule (a bundle file is the primary source, the
   project overrides it): the canon and the four referencing skills.
 
@@ -100,6 +102,17 @@ ONTODOC_ANCHORS = (
     "ListModels",
 )
 
+METHOD_CARRIERS = (
+    REPO / "docs/decisions/ontoship-core.md",
+    REPO / "skills/ship/references/method-phases.md",
+)
+METHOD_ANCHORS = (
+    "Факты — работа агента; решения — работа оператора",
+    "Никаких якорей `file:line` — они гниют",
+    "Переходы ручные, кроме grill → spec",
+    "один прогон ревью (панель специалистов параллельно, один отчёт)",
+)
+
 GUARD_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
     REPO / "skills/ship/SKILL.md",
@@ -118,6 +131,7 @@ SETS = (
     ("panel-run", PANEL_RUN_CARRIERS, PANEL_RUN_ANCHORS),
     ("panel-intro", PANEL_INTRO_CARRIERS, PANEL_INTRO_ANCHORS),
     ("ontodoc-run", ONTODOC_CARRIERS, ONTODOC_ANCHORS),
+    ("method-phases", METHOD_CARRIERS, METHOD_ANCHORS),
     ("guard", GUARD_CARRIERS, GUARD_ANCHORS),
 )
 
@@ -187,7 +201,8 @@ def test_anchor_in_every_carrier(set_name: str, anchor: str,
             f"anchor «{anchor}» of the {set_name} set is missing from every "
             "carrier — if the rule was deliberately reworded, update the "
             "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
-            "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / GUARD_ANCHORS) "
+            "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+            "ANCHORS / GUARD_ANCHORS) "
             "in this test"
         )
     assert not missing, (
@@ -280,6 +295,20 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     missing = _missing_carriers("модель сессии с пометкой в отчёте",
                                 (ship, panel))
     assert missing == [panel.as_posix()], missing
+
+    # The method-phases pair: an anchor dropped from the bundle section
+    # alone reddens while the canon still holds it; the flat comparator
+    # normalizes the arrow spacing on both sides.
+    canon = seed("canon-phases.md", "Переходы ручные, кроме grill → spec.")
+    section = seed("method-phases.md", "Переходы ручные, кроме grill → spec.")
+    mutated_text = section.read_text("utf-8").replace(
+        "кроме grill → spec", "кроме spec → grill")
+    assert mutated_text != section.read_text("utf-8"), \
+        "the mutation must remove the anchor"
+    section.write_text(mutated_text, "utf-8")
+    missing = _missing_carriers("Переходы ручные, кроме grill → spec",
+                                (canon, section))
+    assert missing == [section.as_posix()], missing
 
     # The naming predicate: a page that drops the carrier mention or the
     # phrase stops naming its bundle carrier — the same predicate the

@@ -19,6 +19,8 @@ spec: docs/plans/evidence-verification.md#готово — критик спра
       дорогую верификацию и сверяет носители по строкам новых спек
 spec: docs/decisions/ontoship-core.md#три фазы — критик плана: находки
       оператору до ship, решения план-гейта не перепрашиваются
+spec: docs/plans/canon-section-in-bundles.md#готово — шапка критика
+      ссылается на методную секцию бандла, не на путь канона
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
@@ -54,7 +56,7 @@ REQUIRED_PHRASES = (
     "решения план-гейта не перепрашиваются",
     "находки оператору до первого ship",
     "docs/plans/<slug>.md",
-    "docs/decisions/ontoship-core.md",
+    "../ship/references/method-phases.md",
     "приоритет",
     "зацепка",
 )
@@ -323,3 +325,20 @@ def test_no_forbidden_harness_root():
         assert root not in text
         leaked = text + f"\nInstall into {root}/skills instead.\n"
         assert any(root in error for error in _contract_errors(leaked))
+
+
+def test_critic_anchors_to_the_bundle_section():
+    """spec: docs/plans/canon-section-in-bundles.md#готово — шапка критика
+    называет методную секцию бандла; путь канона уходит из тела."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "../ship/references/method-phases.md" in lowered
+    assert "docs/decisions/ontoship-core.md" not in lowered
+
+    # invariant: the contract check reddens on a relink to the canon path.
+    text = SKILL.read_text("utf-8")
+    relinked = text.replace("../ship/references/method-phases.md",
+                            "docs/decisions/ontoship-core.md")
+    assert relinked != text
+    assert any("../ship/references/method-phases.md" in error
+               for error in _contract_errors(relinked))

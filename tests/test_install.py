@@ -13,6 +13,9 @@ spec: docs/plans/review-loose-ends.md#готово — the installer array is th
       machine source: the bundle index, the usage listing, this file's tuple
       and the AGENTS.md layout row agree with it, both ways; harnesses.md
       carries no count before «скилл»/«бандл»
+spec: docs/plans/canon-section-in-bundles.md#готово — link и copy ставят
+      method-phases.md, ссылки скиллов на секции резолвятся в дереве
+      установки
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -829,6 +832,56 @@ def test_install_carries_bundle_references(tmp_path: Path) -> None:
     assert drifted.returncode == 1
     assert any(line.startswith("drift: ship:")
                for line in output(drifted).splitlines())
+
+
+# Method-section references inside shipped skill bodies: a bundle-relative
+# path to method-phases.md or quality-rule.md must resolve inside the
+# installed tree (canon-section-in-bundles 01).
+SECTION_REF = re.compile(
+    r"((?:\.\./[a-z0-9-]+/)?references/(?:method-phases|quality-rule)\.md)")
+
+
+def _section_refs_resolve(project: Path) -> list[str]:
+    errors: list[str] = []
+    dest = project / ".agents" / "skills"
+    for name in SKILLS:
+        text = (dest / name / "SKILL.md").read_text("utf-8")
+        for ref in SECTION_REF.findall(text):
+            if not (dest / name / ref).is_file():
+                errors.append(f"{name}: {ref} does not resolve after install")
+    return errors
+
+
+def test_method_section_references_resolve_after_install(tmp_path: Path) -> None:
+    """spec: docs/plans/canon-section-in-bundles.md#готово — link и copy
+    ставят method-phases.md; каждая ссылка скилла на секцию (и на
+    quality-rule.md) резолвится в дереве установки."""
+    linked = tmp_path / "linked"
+    linked.mkdir()
+    install = run(linked)
+    assert install.returncode == 0, output(install)
+    assert (linked / ".agents" / "skills" / "ship" / "references"
+            / "method-phases.md").is_file()
+    assert _section_refs_resolve(linked) == []
+
+    copied = tmp_path / "copied"
+    copied.mkdir()
+    copy = run(copied, "--copy")
+    assert copy.returncode == 0, output(copy)
+    assert (copied / ".agents" / "skills" / "ship" / "references"
+            / "method-phases.md").is_file()
+    assert _section_refs_resolve(copied) == []
+
+    # Mutation probe: a dangling section reference in a copy reddens with
+    # the skill's name. The wrong target still matches the section-reference
+    # shape, so the failure is the missing file, not the regex.
+    critic_body = (copied / ".agents" / "skills" / "critic" / "SKILL.md")
+    critic_body.write_text(
+        critic_body.read_text("utf-8")
+        .replace("../ship/references/method-phases.md",
+                 "../grilling/references/method-phases.md"), "utf-8")
+    errors = _section_refs_resolve(copied)
+    assert any(error.startswith("critic:") for error in errors), errors
 
 
 def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
