@@ -2,12 +2,15 @@
 
 **Спека:** [docs/plans/canon-section-in-bundles.md](../../docs/plans/canon-section-in-bundles.md)
 
-**Что построить:** релиз v0.5.0 — bump версии плагина в
-`.zcode-plugin/plugin.json`, тег на origin, перепин каталога маркета;
-install по пину в чистый каталог — `method-phases.md` на месте; update
-erp-demo раннером v0.4.0 → v0.5.0; проба путей по всем скиллам
-установленного erp-demo — канон-упоминаний ноль, висящих ноль; запись
-rollout в consumer-registry.
+**Что построить:** после merge тикетов юнита в main — релиз v0.5.0:
+bump версии плагина в `.zcode-plugin/plugin.json`, тег на
+merge-коммите main, перепин каталога маркета; install по пину в
+чистый каталог — `method-phases.md` на месте; update erp-demo раннером
+v0.4.0 → v0.5.0; проба путей по всем скиллам установленного erp-demo —
+канон-упоминаний ноль, висящих ноль; запись rollout в
+consumer-registry; закрытие юнита — правки continue.md (п. 7 «Что
+осталось») и строки юнита в docs/plans/README.md (прецедент — тикет
+03 bundle-references).
 
 **Блокируется:** 01.
 
@@ -17,7 +20,8 @@ rollout в consumer-registry.
 **Критерии приёмки**:
 
 - [ ] bump и тег — артефакт: `.zcode-plugin/plugin.json` и `ls-remote`;
-      ожидание: версия 0.5.0, тег `v0.5.0` на origin (спека, «Готово» 4)
+      ожидание: версия 0.5.0, тег `v0.5.0` на origin указывает на
+      merge-коммит main (спека, «Готово» 4; находка P3 критика)
 - [ ] пин каталога — артефакт: `marketplace.json` маркета и `validate`;
       ожидание: пин ↔ version v0.5.0 согласована (спека, «Готово» 4)
 - [ ] install по пину — артефакт: чистый temp-каталог;
@@ -32,6 +36,11 @@ rollout в consumer-registry.
 - [ ] реестр потребителей — артефакт: запись consumer-registry;
       ожидание: rollout `v0.4.0 → v0.5.0` в erp-demo назван с датой
       (спека, «Готово» 5)
+- [ ] закрытие юнита — артефакт: `docs/ops/continue.md` (п. 7 «Что
+      осталось») и `docs/plans/README.md`; ожидание: п. 7 закрыт
+      записью о юните `canon-section-in-bundles`, строка юнита в
+      индексе планов — завершённый статус (спека, «Цель»; находка
+      P2-2 критика)
 
 ## Доказательства
 
