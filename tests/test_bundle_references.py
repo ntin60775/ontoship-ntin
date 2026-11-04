@@ -34,8 +34,10 @@ import pytest
 REPO = Path(__file__).resolve().parent.parent
 SKILLS = REPO / "skills"
 
-# The six v0.3.0 reference points: (skill, step marker, bundle reference,
-# project override doc, reference phrase of this point). The marker slices
+# The reference points: (skill, step marker, bundle reference, project
+# override doc, reference phrase of this point). The six v0.3.0 switched
+# points come first; canon-section-in-bundles 01 added the four header
+# points. The marker slices
 # the step's enclosing block; the phrase distinguishes two points sharing
 # one block (ship names the bundle file twice in «Сборка панели»).
 POINTS = (
@@ -72,23 +74,22 @@ POINTS = (
      "../ship/references/method-phases.md"),
 )
 
-# Every shipped skill body: the canon path must be gone from all of them,
-# not only from the referencing skills (canon-section-in-bundles «Готово» 2).
-SHIPPED_SKILLS = ("kb-search", "kb-curate", "init", "critic", "grilling",
-                  "ship", "onto-doc", "testing", "to-tickets")
+# Every shipped bundle, taken from disk at import: a new bundle joins the
+# sweeps by itself, and the tuple cannot drift from the installer array.
+SHIPPED_SKILLS = tuple(sorted(path.parent.name
+                              for path in SKILLS.glob("*/SKILL.md")))
 
-# The three v0.3.0 project KB carriers; they must not survive as skill
-# references. The guard's override docs (docs/reference/<bundle file>) are
-# different names and stay.
+# Project carriers retired from the shipped skill bodies: the three v0.3.0
+# KB pages, and — with canon-section-in-bundles — the canon path itself,
+# so «расширение OLD_CARRIERS» stays the single named artifact. The guard's
+# override docs (docs/reference/<bundle file>) are different names and stay.
+CANON_FILE = "docs/decisions/ontoship-core.md"
 OLD_CARRIERS = (
     "docs/reference/review-roles.md",
     "docs/reference/harnesses.md",
     "docs/reference/testing.md",
+    CANON_FILE,
 )
-
-# The canon path leaves the shipped skill bodies with canon-section-in-bundles:
-# consumers read the method sections from the bundles.
-CANON_PATH = "docs/decisions/ontoship-core.md"
 
 # The «Порядок» step of to-tickets names the bundle section, not the canon.
 ORDER_MARKER = "Критик замыкает нарезку"
@@ -184,7 +185,8 @@ def _guard_errors(texts: dict[str, str]) -> list[str]:
 
 
 def _old_carrier_errors(texts: dict[str, str]) -> list[str]:
-    """The v0.3.0 project KB carriers must be gone from the four skills."""
+    """Every retired carrier of OLD_CARRIERS must be gone from the shipped
+    skill bodies."""
     errors: list[str] = []
     for skill, text in texts.items():
         lowered = _normalized_lower(text)
@@ -207,14 +209,21 @@ def _crosslink_errors(texts: dict[str, str]) -> list[str]:
     try:
         block = _normalized_lower(_enclosing_block(texts["to-tickets"],
                                                    ORDER_MARKER))
-    except KeyError:
-        return ["to-tickets: skill body is missing"]
     except ValueError:
         return [f"to-tickets: step marker {ORDER_MARKER!r} is missing"]
     if CROSSLINK not in block:
         return [f"to-tickets: step {ORDER_MARKER!r} lost the cross-link "
                 f"{CROSSLINK!r}"]
     return []
+
+
+def _canon_in_references_errors(root: Path = SKILLS) -> list[str]:
+    """No shipped references/ file names the ntin canon path: a consumer
+    follows bundle files only."""
+    return [f"{path.relative_to(root)}: canon path {CANON_FILE!r} still "
+            f"referenced"
+            for path in reference_files(root)
+            if CANON_FILE in path.read_text("utf-8")]
 
 
 def reference_files(root: Path = SKILLS) -> list[Path]:
@@ -267,16 +276,19 @@ def test_every_referencing_step_carries_the_guard():
 
 def test_old_kb_carriers_left_the_skill_bodies():
     """spec: docs/plans/bundle-references.md#готово — none of the six
-    switched references names a project docs/reference/ carrier anymore."""
+    switched references names a project docs/reference/ carrier anymore.
+    spec: docs/plans/canon-section-in-bundles.md#готово — no shipped skill
+    body names the ntin canon path (OLD_CARRIERS carries it since this
+    unit's rewrite)."""
     errors = _old_carrier_errors(_skill_texts())
     assert errors == [], "\n".join(errors)
 
 
-def test_canon_path_left_the_shipped_skill_bodies():
-    """spec: docs/plans/canon-section-in-bundles.md#готово — no shipped skill
-    body names the ntin canon path; consumers read the method sections from
-    the bundle files."""
-    errors = _canon_path_errors(_skill_texts())
+def test_canon_path_left_the_reference_files():
+    """spec: docs/plans/canon-section-in-bundles.md#готово — no bundle
+    reference file names the ntin canon path; consumers read the method
+    sections from the bundle files."""
+    errors = _canon_in_references_errors()
     assert errors == [], "\n".join(errors)
 
 
@@ -322,11 +334,14 @@ def test_reference_checks_can_fail(tmp_path: Path):
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the checks redden on a lost reference phrase, a missing reference file,
     a lost guard phrase, a priority inversion, a stray project carrier, a
-    renamed override doc, a dangling reference-file link and a repo path."""
+    renamed override doc, a lost cross-link, a leaked canon carrier (in a
+    body or in a references/ file), a dangling reference-file link and a
+    repo path."""
     texts = _skill_texts()
     assert _reference_errors(texts) == []
     assert _guard_errors(texts) == []
     assert _old_carrier_errors(texts) == []
+    assert _canon_in_references_errors() == []
     assert _link_errors() == []
     assert _repo_path_errors() == []
 
@@ -394,12 +409,14 @@ def test_reference_checks_can_fail(tmp_path: Path):
     assert any("docs/reference/review-panel.md" in error
                for error in _guard_errors({**texts, "ship": renamed}))
 
-    # The «Порядок» step loses its cross-link: every occurrence of the
-    # section path must leave the body for the probe to redden (the header
-    # and the step both name it).
-    no_crosslink = texts["to-tickets"].replace(
-        "../ship/references/method-phases.md", "канон")
+    # The «Порядок» step loses its cross-link while the header keeps its
+    # own mention: the check is block-scoped, so only the step's occurrence
+    # (the last in the body) must go for the probe to redden.
+    no_crosslink = "канон".join(
+        texts["to-tickets"].rsplit("../ship/references/method-phases.md", 1))
     assert no_crosslink != texts["to-tickets"]
+    assert "../ship/references/method-phases.md" in no_crosslink, \
+        "the header mention must survive: the check is block-scoped"
     assert any("lost the cross-link" in error
                for error in _crosslink_errors({**texts,
                                                "to-tickets": no_crosslink}))
@@ -414,8 +431,14 @@ def test_reference_checks_can_fail(tmp_path: Path):
     (island_skills / "kb-search" / "SKILL.md").write_text(
         kb_search_body + "\nКанон — `docs/decisions/ontoship-core.md`.\n",
         "utf-8")
-    errors = _canon_path_errors(_skill_texts(island_skills))
+    errors = _old_carrier_errors(_skill_texts(island_skills))
     assert any("kb-search" in error for error in errors), errors
+
+    # The references sweep: a canon-citing file under references/ reddens.
+    (island_skills / "ship" / "references" / "canon-note.md").write_text(
+        "Смотри канон: `docs/decisions/ontoship-core.md`.\n", "utf-8")
+    assert any("canon-note.md" in error
+               for error in _canon_in_references_errors(island_skills))
 
     # The link and hygiene checks on an isolated fabricated tree, so the
     # probes above cannot pre-redden them.

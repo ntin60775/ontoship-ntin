@@ -37,6 +37,8 @@ invariant: docs/decisions/ontoship-core.md#одно правило качест�
 spec: docs/plans/bundle-references.md#готово — якорные наборы методных
 секций: правила панели, запуск панели, контракты панели, прогон онто-дока,
 guard-фраза; KB-страница каждой секции называет файл бандла носителем
+spec: docs/plans/canon-section-in-bundles.md#готово — набор method-phases:
+канон ↔ секция бандла ship, четыре якоря тикета
 """
 from __future__ import annotations
 
