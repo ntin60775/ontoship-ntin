@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-04
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -85,6 +85,11 @@ links:
   `09a4b94`, панель `dwfrun-7b09b760`, тег на origin, пин каталога
   `7d07080`, чистая установка по пину, update erp-demo (проба путей
   чистая) — влит и принят 2026-11-04 — юнит закрыт).
+- [plan-gate-ask.md](plan-gate-ask.md) — план-гейт ask-проходом и ограда
+  молчания: форма гейта и запрет автономии без ответа в скилле grilling
+  (утверждён на план-гейте 2026-11-05 ask-проходом — первая живая проба
+  формы юнита; критик dwfrun-82b9d971 — `ready_after_fixes`, 6 находок
+  закрыты «править всё»; тикет 01 принят, в работе).
 
 Четырнадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
