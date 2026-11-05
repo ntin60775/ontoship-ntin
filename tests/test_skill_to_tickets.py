@@ -2,12 +2,14 @@
 
 The bundle must be discoverable as ``<root>/to-tickets/SKILL.md``, carry the
 phase-2 slicing mechanism (tracer-bullet vertical slices, demo path, base-commit
-criteria, blocking edges, comprehension check) and stay user-invoked: the
-frontmatter pins ``disable-model-invocation: true``.
+criteria, blocking edges, comprehension check) and stay agent-invoked: invoked
+right after the plan gate; the frontmatter carries no ``disable-model-invocation``.
 
 spec: docs/plans/workflow-skills.md#готово — skills/to-tickets/SKILL.md
 spec: docs/decisions/ontoship-core.md#три фазы — one ask question per ticket,
 criteria fall on the base commit, no file:line anchors
+spec: docs/plans/to-tickets-agent.md#готово — agent invocation: the frontmatter
+carries no ``disable-model-invocation``; «Скилл вызывает агент» in the body
 spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
 names an observable artifact and a spec-sourced expectation in both "Срезы"
 and "Порядок"; a green test is a signal to read the artifact, not proof;
@@ -19,7 +21,6 @@ slice («Задумка тикета N, как я её понял: … Верн�
 a mismatch sends the slice back for rewording before publication; the
 retired quiz wording stays out of the skill and the runbook, and inside
 this test lives only in mutation probes and the contract ban (решения 1–5)
-invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill
 invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -52,7 +53,7 @@ REQUIRED_PHRASES = (
     "файл бандла — первоисточник",
     "проект переопределяет его документом `docs/reference/quality-rule.md`",
     "написал свой, бери его",
-    "вызывает пользователь",
+    "вызывает агент",
     "сигнал к чтению артефакта, не доказательство",
 )
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
@@ -149,9 +150,9 @@ def _contract_errors(text: str) -> list[str]:
     elif len(description) > DESCRIPTION_MAX:
         errors.append(f"frontmatter: description is {len(description)} chars "
                       f"(catalog cap {DESCRIPTION_MAX})")
-    if fields.get("disable-model-invocation", "").lower() != "true":
-        errors.append("frontmatter: disable-model-invocation must be true "
-                      "(the model never invokes this skill)")
+    if "disable-model-invocation" in fields:
+        errors.append("frontmatter: disable-model-invocation must be absent — "
+                      "the slicing follows the plan gate and is agent-invoked")
 
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in REQUIRED_PHRASES:
@@ -209,13 +210,16 @@ def test_skill_is_a_discoverable_directory_bundle():
     assert _contract_errors(SKILL.read_text("utf-8")) == []
 
 
-def test_skill_is_user_invoked_only():
-    """invariant: docs/plans/workflow-skills.md#ограничения — the model never invokes this skill; the skill calls no user skill."""
+def test_skill_is_agent_invoked():
+    """spec: docs/plans/to-tickets-agent.md#готово — скилл вызывает агент:
+    frontmatter без disable-model-invocation, тело несёт «Скилл вызывает
+    агент»; инвариант user-invoked выведен из эксплуатации, и его тест
+    уходит тем же изменением (canon: docs/decisions/ontoship-core.md#одно
+    правило качества)."""
     fields, body = _parse(SKILL.read_text("utf-8"))
-    assert fields.get("disable-model-invocation", "").lower() == "true"
+    assert "disable-model-invocation" not in fields
     lowered = re.sub(r"\s+", " ", body.lower())
-    assert "может звать модельные скиллы" in lowered
-    assert "не вызывает других пользовательских скиллов" not in lowered
+    assert "скилл вызывает агент" in lowered
 
 
 def test_skill_carries_the_slicing_mechanism():
@@ -433,15 +437,20 @@ def test_skill_names_no_harness_root(root: str):
 
 
 def test_contract_check_can_fail():
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the contract check rejects a missing flag, an anchor, and regressions."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    contract check rejects a planted ``disable-model-invocation`` flag, a lost
+    agent-invocation anchor, an anchor, and regressions."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    missing_flag = "\n".join(line for line in text.splitlines()
-                             if not line.startswith("disable-model-invocation:"))
-    assert missing_flag != text
-    assert any("disable-model-invocation" in error
-               for error in _contract_errors(missing_flag))
+    planted = text.replace("---\n", "---\ndisable-model-invocation: true\n", 1)
+    assert planted != text
+    assert any("disable-model-invocation must be absent" in error
+               for error in _contract_errors(planted))
+
+    no_agent = _body_mutated(text, "вызывает агент", "", count=-1)
+    assert any("вызывает агент" in error
+               for error in _contract_errors(no_agent))
 
     anchored = text.replace("## Срезы", "## Срезы\n\nСмотри `skills/kb-search/gitmark.py:42`.", 1)
     assert anchored != text

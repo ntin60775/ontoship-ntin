@@ -117,3 +117,74 @@ frontmatter скилла краснит, откат возвращает зел�
 `grep to-tickets-agent` находит записи в `docs/plans/README.md`
 и `tickets/README.md` (плановый коммит `2fa59e0`, вывод снят при
 публикации; спека, «Готово» 6).
+
+## Доказательства
+
+Срез: worktree `ontoship-ntin-wt-tta01`, ветка `tta01-invocation` от
+базового коммита `e693025`. Красная проба снята в отдельном worktree
+`ontoship-ntin-wt-tta01-red` (та же база, только тестовый файл
+`tests/test_skill_to_tickets.py` в финальном состоянии), реализация —
+в worktree шипа.
+
+**Красная проба на базовом коммите** (носители старые, тест перевёрнут):
+**7 failed / 12 passed**. Состав падений:
+
+- `test_skill_is_agent_invoked` — переписанный тест снятого инварианта:
+  `disable-model-invocation` присутствует на базе;
+- `test_skill_is_a_discoverable_directory_bundle` — контракт на старом
+  носителе: флаг в frontmatter, якорной фразы «вызывает агент» в теле нет
+  (2 ошибки контракта);
+- `test_contract_check_can_fail` — перевёрнутая мутация удаления якоря:
+  на базе фразы «вызывает агент» нет, проба падает
+  («the mutation must change the body»);
+- `test_comprehension_check_can_fail`,
+  `test_evidence_contract_can_fail`,
+  `test_critic_trigger_contract_can_fail`,
+  `test_reference_guard_can_fail` — предусловие
+  `assert _contract_errors(text) == []` на старом носителе красное
+  (флаг + отсутствие якоря).
+
+Остальные 12 — проверки механизма нарезки вне зоны переворота (сверка
+понимания, артефакт и ожидание, критик-триггер, guard-набор) — зелёные
+и на базе. Разбор расхождений ожидание/факт: не было.
+
+**Реализация.** Пять файлов рамок:
+
+- `docs/decisions/ontoship-core.md` — три места дословно: абзац
+  «Переходы» («`to-tickets` **вызывает агент**»), оговорка после
+  «Пишется `to-tickets` вручную», фаза 2 («вручную, то есть без
+  автоматических цепочек:»);
+- `skills/ship/references/method-phases.md` — та же замена абзаца
+  «Переходы» и та же оговорка в фазе 2;
+- `skills/to-tickets/SKILL.md` — строка флага удалена, description
+  «Скилл вызывает агент.», тело «Скилл вызывает агент: нарезка идёт
+  ask-проходом сразу после план-гейта.», правило «Вызванный
+  пользователем скилл…» снято, bullet «Не запускай самостоятельно»
+  удалён, триггер агента в «Когда использовать»;
+- `tests/test_skill_to_tickets.py` — якорь «вызывает агент»
+  в REQUIRED_PHRASES, проверка флага инвертирована
+  («disable-model-invocation must be absent»), мутации перевёрнуты
+  (вставка флага краснит, case-insensitive удаление всех вхождений
+  якоря краснит), `test_skill_is_user_invoked_only` переписан в
+  `test_skill_is_agent_invoked` тем же срезом, docstring и строки
+  инвариантов — про агентный вызов;
+- `tests/test_skill_testing.py` — только формулировки: докстринг и
+  сообщение об ошибке называют единственным недоступным модели
+  скиллом ship («ship is model-inaccessible»).
+
+**Проверки:**
+
+- grep по канону: «вызывает пользователь» — 0, «вызывает агент» — 2;
+  по зеркалу: «вызывает пользователь» — 0, «вызывает агент» — 1
+  (фраза есть в обоих носителях); скилл: `disable-model-invocation` — 0,
+  «вызывает агент» — 2 (description и тело); `grep to-tickets` по
+  докстрингу и сообщению об ошибке `tests/test_skill_testing.py` — 0
+  (критерии 1–3, 7).
+- Полный набор `python3 -m pytest tests/ -q` — **446 passed**
+  (наборы canon_sync и bundle_references не рваны — критерий 5).
+- `lint --strict` чист (96 файлов); индекс пересобран
+  (96 файлов · 441 чанк · 240 ссылок).
+- Демо-путь: временная вставка `disable-model-invocation: true`
+  в frontmatter скилла — контрактный файл красный (**7 failed /
+  12 passed**); откат строки — **19 passed**; `git status` после
+  отката — ровно пять файлов среза (критерий 4, падаемость).

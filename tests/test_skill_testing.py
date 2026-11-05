@@ -16,7 +16,7 @@ coverage in spec items
 spec: docs/plans/canon-section-in-bundles.md#готово — шапка testing называет
 свой бандл-носитель quality-rule.md; путь канона уходит из тела
 invariant: docs/plans/workflow-skills.md#ограничения — the skill stays
-model-invocable; only to-tickets and ship are model-inaccessible
+model-invocable; ship is model-inaccessible
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
@@ -136,8 +136,8 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("frontmatter: description contains ': ' and must be quoted")
     if fields.get("disable-model-invocation", "").lower() == "true":
         errors.append("frontmatter: disable-model-invocation must not be true "
-                      "(the model applies the quality rule; only to-tickets "
-                      "and ship are model-inaccessible)")
+                      "(the model applies the quality rule; ship is "
+                      "model-inaccessible)")
 
     lowered = _normalized_lower(body)
     for phrase in REQUIRED_PHRASES:
