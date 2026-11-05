@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-04
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -90,6 +90,12 @@ links:
   (утверждён на план-гейте 2026-11-05 ask-проходом — первая живая проба
   формы юнита; критик dwfrun-82b9d971 — `ready_after_fixes`, 6 находок
   закрыты «править всё»; тикет 01 принят, в работе).
+- [to-tickets-agent.md](to-tickets-agent.md) — to-tickets вызывает агент:
+  фраза канона и зеркала, снятие флага disable-model-invocation со
+  скилла, переворот контрактного теста (утверждён на план-гейте
+  2026-11-05 ask-проходом; решения оператора: формулировка «вызывает
+  агент», флаг убрать; нарезка — один тикет принят ask-ом в том же
+  прогоне; в работе).
 
 Четырнадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),
