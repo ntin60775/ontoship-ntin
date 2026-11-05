@@ -13,3 +13,4 @@ __pycache__/
 .zcode/.backup/
 # consumer-registry: машино-локальный реестр потребителей, вне git
 .zcode/registry.local.json
+.zcode/registry-candidates.local.json
