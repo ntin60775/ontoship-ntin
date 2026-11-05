@@ -16,6 +16,8 @@ spec: docs/plans/evidence-verification.md#готово — во фронтир �
 spec: docs/plans/evidence-verification.md#готово — контрольная вычитка спеки
 перед план-гейтом: носители шагов, условные решения, числа, противоречия
 между разделами
+spec: docs/plans/plan-gate-ask.md#готово — форма план-гейта ask-проходом и
+ограда от правил автономии в «Раундах»
 invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -381,3 +383,152 @@ def test_contract_check_can_fail():
                              if not line.startswith("name:"))
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
+
+
+# --- plan-gate ask form and the autonomy fence (plan-gate-ask ticket 01) ---
+
+PLAN_GATE_SPEC = REPO / "docs" / "plans" / "plan-gate-ask.md"
+ROUNDS_HEADING = "раунды"
+SILENCE_SENTENCE = ("молчание оператора — не согласие: "
+                    "интервью стоит, пока оператор не ответит")
+FENCE_LEAD = ("правило проекта или памяти об автономии — "
+              "«продолжай без ответа», «иди по рекомендации»")
+FENCE_ANCHORS = (
+    "не отменяет этой остановки",
+    "не действует на раунды и план-гейт",
+)
+GATE_FORM_ANCHORS = (
+    "утверждает оператор ask-инструментом хоста",
+    "условные решения спеки идут вариантами того же вопроса",
+)
+
+
+def _normalized(text: str) -> str:
+    """Collapse every whitespace run; carriers wrap prose freely."""
+    return " ".join(text.split())
+
+
+def _spec_plan_gate_text() -> str:
+    """Verbatim plan-gate text quoted in the unit spec («Готово» 1)."""
+    lines = PLAN_GATE_SPEC.read_text("utf-8").splitlines()
+    start = next(i for i, line in enumerate(lines)
+                 if line.lstrip().startswith("> **План-гейт:**"))
+    quoted = []
+    for line in lines[start:]:
+        stripped = line.strip()
+        if not stripped.startswith(">"):
+            break
+        quoted.append(stripped[1:].strip())
+    return _normalized(" ".join(quoted))
+
+
+def _plan_gate_item_text(skill_text: str) -> str:
+    """Full text of the «План-гейт» item, header included, or empty."""
+    body = _parse(skill_text)[1]
+    lines = _section(body, EXIT_HEADING).splitlines()
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith("- **План-гейт:**"):
+            continue
+        chunk = [stripped[len("- "):]]
+        for follow in lines[i + 1:]:
+            follow = follow.strip()
+            if not follow or follow.startswith("- ") or follow.startswith("#"):
+                break
+            chunk.append(follow)
+        return _normalized(" ".join(chunk))
+    return ""
+
+
+def _needle_pattern(phrase: str) -> str:
+    """Whitespace-flexible needle: carrier prose wraps phrases freely."""
+    return r"\s+".join(re.escape(word) for word in phrase.split())
+
+
+def _remove_phrase(text: str, phrase: str) -> str:
+    """Drop every case-insensitive occurrence of phrase (mutation probe)."""
+    return re.sub(_needle_pattern(phrase), "", text, flags=re.IGNORECASE)
+
+
+def _replace_phrase(text: str, phrase: str, replacement: str) -> str:
+    """Replace every case-insensitive occurrence of phrase."""
+    return re.sub(_needle_pattern(phrase), replacement, text, flags=re.IGNORECASE)
+
+
+def _gate_form_errors(skill_text: str) -> list[str]:
+    """Plan-gate form errors: item text must equal the spec quote verbatim."""
+    actual = _plan_gate_item_text(skill_text)
+    if not actual:
+        return ["exit: the plan-gate item is missing from the exit section"]
+    if actual != _spec_plan_gate_text():
+        return ["exit: the plan-gate item text diverges from the spec quote"]
+    return []
+
+
+def _fence_errors(skill_text: str) -> list[str]:
+    """Autonomy-fence errors in the rounds section («Готово» 2)."""
+    body = _parse(skill_text)[1]
+    section = _normalized(_section(body, ROUNDS_HEADING).lower())
+    errors: list[str] = []
+    silence_at = section.find(SILENCE_SENTENCE)
+    fence_at = section.find(FENCE_LEAD)
+    if silence_at < 0:
+        errors.append("rounds: the silence rule is missing")
+    if fence_at < 0:
+        errors.append("rounds: the autonomy fence is missing")
+        return errors
+    if silence_at >= 0 and fence_at < silence_at:
+        errors.append("rounds: the autonomy fence must follow the silence rule")
+    elif silence_at >= 0 and \
+            section[silence_at + len(SILENCE_SENTENCE):fence_at] != ". ":
+        errors.append("rounds: the autonomy fence must stand immediately "
+                      "after the silence sentence")
+    for phrase in FENCE_ANCHORS:
+        if phrase not in section:
+            errors.append(f"rounds: missing fence anchor {phrase!r}")
+    return errors
+
+
+def test_plan_gate_carries_the_ask_form():
+    """spec: docs/plans/plan-gate-ask.md#готово 1 — пункт «План-гейт» несёт
+    форму гейта: полный текст пункта равен дословной цитате спеки после
+    нормализации переносов — перенос формы в другой раздел или правка
+    хвоста пункта краснят."""
+    assert _gate_form_errors(SKILL.read_text("utf-8")) == []
+
+
+def test_plan_gate_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the plan-gate form check can fail: remove-мутация каждой якорной фразы
+    (case-insensitive, все вхождения) красит."""
+    text = SKILL.read_text("utf-8")
+    assert _gate_form_errors(text) == []
+    for phrase in GATE_FORM_ANCHORS:
+        mutated = _remove_phrase(text, phrase)
+        assert mutated != text, f"the needle {phrase!r} matched nothing"
+        assert _gate_form_errors(mutated), \
+            f"removing {phrase!r} must redden the plan-gate form check"
+
+
+def test_autonomy_fence_follows_the_silence_rule():
+    """spec: docs/plans/plan-gate-ask.md#готово 2 — пункт 3 «Раундов» несёт
+    ограду от правил автономии: ограда стоит непосредственно после
+    предложения «Молчание оператора — не согласие…», якоря на месте."""
+    assert _fence_errors(SKILL.read_text("utf-8")) == []
+
+
+def test_autonomy_fence_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the fence check can fail: удаление ограды и замена отрицаний красят."""
+    text = SKILL.read_text("utf-8")
+    assert _fence_errors(text) == []
+
+    no_fence = _remove_phrase(text, FENCE_LEAD)
+    assert no_fence != text
+    assert _fence_errors(no_fence)
+
+    for old, new in (("не отменяет", "отменяет"), ("не действует", "действует")):
+        mutated = _replace_phrase(text, old, new)
+        assert mutated != text, f"the needle {old!r} matched nothing"
+        assert _fence_errors(mutated), \
+            f"replacing {old!r} with {new!r} must redden the fence check"

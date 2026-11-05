@@ -69,3 +69,13 @@
 - [ ] индексы — артефакт: `docs/plans/README.md`, `tickets/README.md`;
       ожидание: строка спеки и секция юнита на месте,
       `grep plan-gate-ask` находит запись в обоих («Готово» 5)
+
+## Доказательства
+
+- Красная проба на базовом коммите `e693025` (носитель без правок, в наборе
+  только новые тесты): `python3 -m pytest tests/test_skill_grilling.py -q`
+  → **4 failed, 18 passed** — `test_plan_gate_carries_the_ask_form`,
+  `test_plan_gate_contract_can_fail`,
+  `test_autonomy_fence_follows_the_silence_rule`,
+  `test_autonomy_fence_can_fail`; существующие пробы контракта зелёные.
+  Записано до реализации («Готово» 4).
