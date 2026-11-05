@@ -3,7 +3,7 @@ node_type: decision
 title: OntoShip core — канон
 service: _platform
 status: active
-updated: 2026-11-03
+updated: 2026-11-05
 tags: [canon, method, kb, grilling, tickets, ship, testing]
 links:
   relates_to: [../README.md, ../reference/sources.md]

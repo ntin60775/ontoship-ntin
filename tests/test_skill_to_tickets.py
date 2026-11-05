@@ -21,7 +21,6 @@ slice («Задумка тикета N, как я её понял: … Верн�
 a mismatch sends the slice back for rewording before publication; the
 retired quiz wording stays out of the skill and the runbook, and inside
 this test lives only in mutation probes and the contract ban (решения 1–5)
-invariant: docs/decisions/ontoship-core.md#три фазы — a user-invoked skill never calls another user-invoked skill
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
@@ -82,6 +81,11 @@ FORBIDDEN_PHRASES = (
     "проверяем на дереве",
     "файл проекта — первоисточник",
     "единственный источник",
+    # retired user-invocation wording (to-tickets-agent): the skill is
+    # agent-invoked right after the plan gate
+    "вызывает пользователь",
+    "вызванный пользователем скилл",
+    "не запускай самостоятельно",
 )
 
 
@@ -153,6 +157,9 @@ def _contract_errors(text: str) -> list[str]:
     if "disable-model-invocation" in fields:
         errors.append("frontmatter: disable-model-invocation must be absent — "
                       "the slicing follows the plan gate and is agent-invoked")
+    if "вызывает пользователь" in description.lower():
+        errors.append("frontmatter: description must call the agent "
+                      "(«Скилл вызывает агент.»), not the user")
 
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in REQUIRED_PHRASES:
@@ -212,14 +219,19 @@ def test_skill_is_a_discoverable_directory_bundle():
 
 def test_skill_is_agent_invoked():
     """spec: docs/plans/to-tickets-agent.md#готово — скилл вызывает агент:
-    frontmatter без disable-model-invocation, тело несёт «Скилл вызывает
-    агент»; инвариант user-invoked выведен из эксплуатации, и его тест
-    уходит тем же изменением (canon: docs/decisions/ontoship-core.md#одно
-    правило качества)."""
+    frontmatter без disable-model-invocation, description зовёт агента, тело
+    несёт «Скилл вызывает агент» без снятых пользовательских формулировок;
+    инвариант user-invoked выведен из эксплуатации, и его тест уходит тем же
+    изменением (canon: docs/decisions/ontoship-core.md#одно правило
+    качества)."""
     fields, body = _parse(SKILL.read_text("utf-8"))
     assert "disable-model-invocation" not in fields
+    assert "вызывает агент" in _unquote(fields.get("description", ""))
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "скилл вызывает агент" in lowered
+    assert "вызывает пользователь" not in lowered
+    assert "вызванный пользователем скилл" not in lowered
+    assert "не запускай самостоятельно" not in lowered
 
 
 def test_skill_carries_the_slicing_mechanism():
@@ -439,7 +451,8 @@ def test_skill_names_no_harness_root(root: str):
 def test_contract_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     contract check rejects a planted ``disable-model-invocation`` flag, a lost
-    agent-invocation anchor, an anchor, and regressions."""
+    agent-invocation anchor, a retired user-invocation wording, an anchor,
+    and regressions."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -448,9 +461,30 @@ def test_contract_check_can_fail():
     assert any("disable-model-invocation must be absent" in error
                for error in _contract_errors(planted))
 
-    no_agent = _body_mutated(text, "вызывает агент", "", count=-1)
+    # Case-insensitive, every occurrence: the spec's «Ограничения» — the
+    # probe must not survive a register change in the carrier.
+    no_agent = _body_mutated_ci(text, "вызывает агент")
     assert any("вызывает агент" in error
                for error in _contract_errors(no_agent))
+
+    user_back = _body_mutated(
+        text,
+        "Скилл вызывает агент: нарезка идёт ask-проходом сразу после "
+        "план-гейта.",
+        "Скилл вызывает пользователь; модель его не вызывает.")
+    errors = _contract_errors(user_back)
+    assert any("forbidden phrase 'вызывает пользователь'" in error
+               for error in errors)
+    assert any("missing required phrase 'вызывает агент'" in error
+               for error in errors)
+
+    bullet_back = text.replace(
+        "## Когда использовать",
+        "## Когда использовать\n\n"
+        "- Не запускай самостоятельно: frontmatter несёт флаг.", 1)
+    assert bullet_back != text
+    assert any("forbidden phrase 'не запускай самостоятельно'" in error
+               for error in _contract_errors(bullet_back))
 
     anchored = text.replace("## Срезы", "## Срезы\n\nСмотри `skills/kb-search/gitmark.py:42`.", 1)
     assert anchored != text
@@ -503,6 +537,16 @@ def _body_mutated(text: str, old: str, new: str, count: int = 1) -> str:
     body = _parse(text)[1]
     flat = re.sub(r"\s+", " ", body)
     mutated = flat.replace(old, new, count)
+    assert mutated != flat, "the mutation must change the body"
+    return text.replace(body, mutated, 1)
+
+
+def _body_mutated_ci(text: str, old: str) -> str:
+    """Remove every case variant of a phrase from the whitespace-normalized
+    body (frontmatter intact): the spec's «case-insensitive, все вхождения»."""
+    body = _parse(text)[1]
+    flat = re.sub(r"\s+", " ", body)
+    mutated = re.sub(re.escape(old), "", flat, flags=re.IGNORECASE)
     assert mutated != flat, "the mutation must change the body"
     return text.replace(body, mutated, 1)
 

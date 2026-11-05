@@ -16,7 +16,9 @@ coverage in spec items
 spec: docs/plans/canon-section-in-bundles.md#готово — шапка testing называет
 свой бандл-носитель quality-rule.md; путь канона уходит из тела
 invariant: docs/plans/workflow-skills.md#ограничения — the skill stays
-model-invocable; ship is model-inaccessible
+model-invocable; ship is model-inaccessible (источник решения — историческая
+спека; живые носители флагов — скиллы, to-tickets выбыл из класса,
+to-tickets-agent)
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
