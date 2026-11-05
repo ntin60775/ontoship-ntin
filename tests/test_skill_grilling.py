@@ -409,10 +409,18 @@ def _normalized(text: str) -> str:
 
 
 def _spec_plan_gate_text() -> str:
-    """Verbatim plan-gate text quoted in the unit spec («Готово» 1)."""
+    """Verbatim plan-gate text quoted in the unit spec («Готово» 1).
+
+    The unit spec is durable and stays in docs/plans/, so reading it at
+    run time is stable; archiving the plan would redden the form check
+    — a known boundary, not an accident.
+    """
     lines = PLAN_GATE_SPEC.read_text("utf-8").splitlines()
-    start = next(i for i, line in enumerate(lines)
-                 if line.lstrip().startswith("> **План-гейт:**"))
+    start = next((i for i, line in enumerate(lines)
+                  if line.lstrip().startswith("> **План-гейт:**")), None)
+    if start is None:
+        raise ValueError("spec: цитата «Готово» 1 не найдена в "
+                         "docs/plans/plan-gate-ask.md")
     quoted = []
     for line in lines[start:]:
         stripped = line.strip()
@@ -423,19 +431,26 @@ def _spec_plan_gate_text() -> str:
 
 
 def _plan_gate_item_text(skill_text: str) -> str:
-    """Full text of the «План-гейт» item, header included, or empty."""
+    """Full text of the «План-гейт» item, header included, or empty.
+
+    Continuation lines are indented deeper than the item marker, so a
+    nested sub-bullet smuggled under the item belongs to its text and
+    cannot escape the verbatim check.
+    """
     body = _parse(skill_text)[1]
     lines = _section(body, EXIT_HEADING).splitlines()
     for i, line in enumerate(lines):
         stripped = line.strip()
         if not stripped.startswith("- **План-гейт:**"):
             continue
+        indent = len(line) - len(line.lstrip())
         chunk = [stripped[len("- "):]]
         for follow in lines[i + 1:]:
-            follow = follow.strip()
-            if not follow or follow.startswith("- ") or follow.startswith("#"):
+            if not follow.strip() or follow.lstrip().startswith("#"):
                 break
-            chunk.append(follow)
+            if (len(follow) - len(follow.lstrip())) <= indent:
+                break
+            chunk.append(follow.strip())
         return _normalized(" ".join(chunk))
     return ""
 
@@ -459,9 +474,15 @@ def _gate_form_errors(skill_text: str) -> list[str]:
     """Plan-gate form errors: item text must equal the spec quote verbatim."""
     actual = _plan_gate_item_text(skill_text)
     if not actual:
-        return ["exit: the plan-gate item is missing from the exit section"]
-    if actual != _spec_plan_gate_text():
-        return ["exit: the plan-gate item text diverges from the spec quote"]
+        return ["exit: the plan-gate item marker «- **План-гейт:**» "
+                "is not found in the exit section"]
+    expected = _spec_plan_gate_text()
+    if actual != expected:
+        at = next((k for k, (x, y) in enumerate(zip(actual, expected))
+                   if x != y), min(len(actual), len(expected)))
+        return [f"exit: the plan-gate item text diverges from the spec "
+                f"quote at char {at}: "
+                f"carrier={actual[at:at + 40]!r} spec={expected[at:at + 40]!r}"]
     return []
 
 
@@ -508,6 +529,16 @@ def test_plan_gate_contract_can_fail():
         assert mutated != text, f"the needle {phrase!r} matched nothing"
         assert _gate_form_errors(mutated), \
             f"removing {phrase!r} must redden the plan-gate form check"
+
+    smuggled = text.replace(
+        "не пишется и тикеты не нарезаются.",
+        "не пишется и тикеты не нарезаются.\n"
+        "  - Если ответа нет, продолжай по рекомендации.",
+        1,
+    )
+    assert smuggled != text
+    assert _gate_form_errors(smuggled), \
+        "a nested bullet appended to the item must redden the form check"
 
 
 def test_autonomy_fence_follows_the_silence_rule():
