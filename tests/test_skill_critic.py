@@ -64,6 +64,29 @@ REQUIRED_PHRASES = (
     "зацепка",
 )
 
+# DSH model check and launch (dsh-adaptation ticket 04): the subsection is
+# scoped so a phrase surviving in the neutral `## Модель` bullets does not
+# satisfy the DSH contract.
+DSH_HEADING = "### dsh — модель и запуск"
+DSH_PHRASES = (
+    "`<provider>/<model>`",
+    "`reasoning_effort`",
+    "`list_subagent_models`",
+    "runtime-контекста",
+    "`powered by <model>`",
+    "спроси оператора",
+    "подтверди модель",
+    "пометь его в отчёте",
+    "модель сессии",
+    "рекомендация, не запрет",
+    "фолбэка у критика нет",
+    "остановка и названный пробел",
+    "`subagent` (spawn, не `subagent_fork`)",
+    "`provider`, `model` и `reasoning_effort`",
+    "один прогон на юнит",
+    "вердикт и находки",
+)
+
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
     """Parse the simple single-line YAML frontmatter this skill uses."""
@@ -94,6 +117,126 @@ def _unquote(value: str) -> str:
 
 def _normalized_lower(text: str) -> str:
     return re.sub(r"\s+", " ", text.lower())
+
+
+def _drop_phrase(text: str, phrase: str) -> str:
+    """Remove every occurrence of a phrase regardless of case and internal
+    line wrapping (runs of whitespace inside the phrase match any run)."""
+    pattern = re.escape(phrase).replace("\\ ", r"\s+")
+    return re.sub(pattern, "", text, flags=re.IGNORECASE)
+
+
+def _dsh_section(text: str) -> str:
+    """Slice the DSH model-and-launch subsection; empty when it is absent.
+
+    The slice ends at the next `##` heading, so a phrase that survives only
+    in the neutral `## Модель` bullets does not satisfy the DSH contract.
+    """
+    lowered = _normalized_lower(text)
+    start = lowered.find(DSH_HEADING)
+    if start == -1:
+        return ""
+    end = lowered.find(" ## ", start + 1)
+    return lowered[start:end if end != -1 else len(lowered)]
+
+
+def _dsh_errors(text: str) -> list[str]:
+    """Return every violated DSH critic contract; empty means it is sound.
+
+    spec: docs/plans/dsh-adaptation.md#готово — DSH-ветка критика: маршрут
+    и уровень из `.agents/config.toml` сверяются с живым
+    `list_subagent_models`; модель сессии — из runtime-контекста с
+    подтверждением оператора при неоднозначности и остановкой без
+    источника; совпадение моделей помечается в отчёте, отличие —
+    рекомендация; фолбэка нет; запуск через `subagent` (spawn, не
+    `subagent_fork`) с явными `provider`, `model` и `reasoning_effort`.
+    """
+    lowered = _normalized_lower(text)
+    errors: list[str] = []
+    section = _dsh_section(text)
+    if not section:
+        errors.append(f"dsh-critic: missing section {DSH_HEADING!r}")
+    else:
+        for phrase in DSH_PHRASES:
+            if phrase not in section:
+                errors.append(f"dsh-critic: DSH section lost {phrase!r}")
+    # The neutral model rules stay in force for every harness (ZCode branch
+    # preserved): no fallback and the recommendation wording live outside
+    # the DSH subsection and must not be rewritten away.
+    for phrase in ("нет фолбэка на модель сессии",
+                   "рекомендация, не запрет",
+                   "совпадение допустимо"):
+        if phrase not in lowered:
+            errors.append(f"dsh-critic: neutral model rule lost {phrase!r}")
+    return errors
+
+
+def test_dsh_model_check_and_launch_are_named():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 4: DSH-подраздел
+    критика несёт сверку через `list_subagent_models`, модель сессии из
+    runtime-контекста, подтверждение оператора, пометку совпадения,
+    остановку без источника, отсутствие фолбэка и запуск через `subagent`;
+    нейтральные правила модели сохранены."""
+    assert _dsh_errors(SKILL.read_text("utf-8")) == []
+
+
+def test_dsh_critic_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH critic contract rejects a missing section, a lost route check, a
+    lost runtime-context source, a lost operator confirmation, a lost match
+    mark, a lost stop rule, a restored fallback, a lost spawn relation, a
+    lost one-run bound and a lost neutral rule."""
+    text = SKILL.read_text("utf-8")
+    assert _dsh_errors(text) == []
+
+    no_heading = text.replace(DSH_HEADING, "### dsh — вне плана", 1)
+    assert no_heading != text
+    assert any("missing section" in error for error in _dsh_errors(no_heading))
+
+    no_routes = _drop_phrase(text, "`list_subagent_models`")
+    assert no_routes != text
+    assert any("`list_subagent_models`" in error for error in _dsh_errors(no_routes))
+
+    no_context = _drop_phrase(text, "runtime-контекста")
+    assert no_context != text
+    assert any("runtime-контекста" in error for error in _dsh_errors(no_context))
+
+    no_powered = _drop_phrase(text, "`powered by <model>`")
+    assert no_powered != text
+    assert any("`powered by <model>`" in error
+               for error in _dsh_errors(no_powered))
+
+    no_confirm = _drop_phrase(text, "спроси оператора")
+    assert no_confirm != text
+    assert any("спроси оператора" in error for error in _dsh_errors(no_confirm))
+
+    no_mark = _drop_phrase(text, "пометь его в отчёте")
+    assert no_mark != text
+    assert any("пометь его в отчёте" in error for error in _dsh_errors(no_mark))
+
+    no_stop = _drop_phrase(text, "остановка и названный пробел")
+    assert no_stop != text
+    assert any("остановка и названный пробел" in error
+               for error in _dsh_errors(no_stop))
+
+    fallback = _drop_phrase(text, "фолбэка у критика нет")
+    assert fallback != text
+    assert any("фолбэка у критика нет" in error for error in _dsh_errors(fallback))
+
+    no_spawn = _drop_phrase(text, "`subagent` (spawn, не `subagent_fork`)")
+    assert no_spawn != text
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _dsh_errors(no_spawn))
+
+    no_run = _drop_phrase(text, "один прогон на юнит")
+    assert no_run != text
+    assert any("один прогон на юнит" in error for error in _dsh_errors(no_run))
+
+    neutral = text.replace("нет фолбэка на модель сессии",
+                           "фолбэк на модель сессии", 1)
+    assert neutral != text
+    assert any("нет фолбэка на модель сессии" in error
+               for error in _dsh_errors(neutral))
 
 
 def _contract_errors(text: str) -> list[str]:
