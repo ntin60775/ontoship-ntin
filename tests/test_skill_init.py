@@ -1,13 +1,17 @@
-"""Contract for the init skill and the managed block it writes.
+"""Contract for the init skill and the managed blocks it writes.
 
 The skill is prose: its "code" is the text an agent follows. These checks pin the
 shipped artifact — the DSH frontmatter, the four files init owns (AGENTS.md,
 .gitignore, the role registry .agents/config.toml and the docs/ops/continue.md
-skeleton), the marker cases, the verbatim block, the continue skeleton and the
-bootstrap contract — and prove the check can fail (mutation probe).
+skeleton), the marker cases, the verbatim DSH and ZCode blocks, the continue
+skeleton and the bootstrap contract — and prove the check can fail (mutation
+probe).
 
-spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed block,
+spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed blocks,
       .gitignore (four lines), harness-neutral prose
+spec: docs/plans/dsh-adaptation.md#готово — «Готово» 2: харнесс по инструменту,
+      блок DSH с `/ship`, четыре строки в DSH и шесть в ZCode, конфиг из
+      `list_subagent_models` без генератора, ZCode-ветка сохранена
 spec: docs/plans/entry-and-continuity.md#готово — init создаёт скелет
       docs/ops/continue.md при отсутствии: пять разделов и чек-лист трёх
       переходов дословно; существующий файл не перезаписывается, отчёт
@@ -82,10 +86,14 @@ BOOTSTRAP_NEEDLES = (
 # the bundled generator.
 HARNESS_NEEDLES = (
     "определяется доступным инструментом",
+    "не путём и не файлом проекта",
     "`list_subagent_models`",
+    "`subagent`",
     "`ListModels`",
     "Ни одного или оба",
     "задай вопрос оператору и остановись",
+    "DSH-ветка пишет блок DSH с командой `/ship`",
+    "ZCode-ветка — блок ZCode",
 )
 DSH_BRANCH_NEEDLES = (
     "`list_subagent_models`",
@@ -145,8 +153,9 @@ ORDINAL_QUESTION = re.compile(
     re.IGNORECASE,
 )
 
-# The block from the spec, pinned independently of the skill text: the expected value
-# is this literal, not a re-extraction of the implementation.
+# The two managed blocks, pinned independently of the skill text: the expected
+# values are these literals, not re-extractions. DSH carries `/ship` and the
+# `.agents/skills` root; ZCode stays as it was and keeps both roots.
 BLOCK_DSH = """\
 <!-- BEGIN ontoship -->
 ## База знаний (OntoShip)
@@ -154,8 +163,7 @@ BLOCK_DSH = """\
 - Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
   есть индекс `README.md`.
 - Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
-  `<навыковый корень>/kb-search/gitmark.py`; корень — `.agents/skills` или
-  `.zcode/skills`, по каналу установки.
+  `<навыковый корень>/kb-search/gitmark.py`; корень — `.agents/skills`.
 - Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
   не дублируй.
 - Сопровождение после правки документов:
@@ -436,13 +444,14 @@ def _contract_errors(text: str) -> list[str]:
                    "gitmark.py lint --strict", "gitmark.py map -o docs-map.html",
                    ".agents/skills/", "идемпотент", "вне маркеров", "одну пустую строку",
                    "уже актуален", "замени только внутренний текст",
-                   "создай его, содержащим ровно блок ниже",
+                   "создай его, содержащим ровно блок выбранной ветки ниже",
                    "[WARN]", "[FAIL]"):
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
 
+    flat_body = re.sub(r"\s+", " ", body)
     for needle in HARNESS_NEEDLES:
-        if needle not in body:
+        if needle not in flat_body:
             errors.append(f"harness: missing {needle!r}")
 
     for needle in BOOTSTRAP_NEEDLES:
@@ -759,7 +768,22 @@ def test_harness_is_chosen_by_the_host_tool():
     flat = re.sub(r"\s+", " ", text)
     for phrase in HARNESS_NEEDLES:
         assert phrase in flat, f"harness rule missing: {phrase!r}"
-    assert "ни путём" in flat or "не путём" in flat
+    assert "не путём и не файлом проекта" in flat
+
+    no_subagent = text.replace("`list_subagent_models` и `subagent`",
+                               "`list_subagent_models`", 1)
+    assert no_subagent != text
+    assert any("harness: missing" in error for error in _contract_errors(no_subagent))
+
+    by_path = re.sub(r"не путём и не файлом\s+проекта", "по пути проекта",
+                     text, count=1)
+    assert by_path != text
+    assert any("harness: missing" in error for error in _contract_errors(by_path))
+
+    no_block_choice = text.replace(
+        "DSH-ветка пишет блок DSH с командой `/ship`", "", 1)
+    assert no_block_choice != text
+    assert any("harness: missing" in error for error in _contract_errors(no_block_choice))
 
 
 def test_dsh_branch_writes_four_lines_and_skips_the_generator():
@@ -773,7 +797,8 @@ def test_dsh_branch_writes_four_lines_and_skips_the_generator():
         assert needle in dsh, f"DSH branch lost {needle!r}"
     assert GENERATOR_LINE not in dsh
     assert "четыре строки" in text
-    assert "`/ship`" in _blocks(text)[0]
+    assert "/ship" in _blocks(text)[0]
+    assert ".zcode/skills" not in _blocks(text)[0]
 
 
 def test_zcode_branch_keeps_listmodels_and_generator():
@@ -1108,9 +1133,10 @@ def test_role_count_contract_can_fail():
 
 def test_repo_managed_block_matches_the_installer_substitution():
     """invariant: docs/plans/harness-agnostic.md#готово (п. 6, с припиской
-    2026-11-02) — собственный блок репозитория равен шаблону init после
-    подстановки корня установщика; прогон init из другой копии бандла
-    перепишет блок — ожидаемое поведение, не дефект."""
+    2026-11-02), docs/plans/dsh-adaptation.md#готово (2) — собственный блок
+    репозитория равен DSH-шаблону init после подстановки `.agents/skills`;
+    прогон init из другой копии бандла перепишет блок — ожидаемое поведение,
+    не дефект."""
     import re as _re
 
     agents = (REPO / "AGENTS.md").read_text("utf-8")

@@ -88,8 +88,7 @@ python3 skills/kb-search/gitmark.py map -o docs-map.html
 - Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
   есть индекс `README.md`.
 - Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
-  `.agents/skills/kb-search/gitmark.py`; корень — `.agents/skills` или
-  `.zcode/skills`, по каналу установки.
+  `.agents/skills/kb-search/gitmark.py`; корень — `.agents/skills`.
 - Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
   не дублируй.
 - Сопровождение после правки документов:
