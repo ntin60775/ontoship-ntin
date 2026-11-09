@@ -72,8 +72,27 @@ ZCODE_WAY = (
     "определени",
     "gen_agents.py",
     "полный перезапуск",
-    "subagent_model",
+    "`subagent_model`",
     "[current]",
+)
+# DSH first class (dsh-adaptation ticket 05): the review row names the native
+# panel way instead of a gap; Qoder keeps its named gap.
+DSH_WAY = (
+    "subagent",
+    "provider",
+    "reasoning_effort",
+    "list_subagent_models",
+)
+RETIRED_DSH_PHRASES = (
+    "dsh — пробел окружения",
+    "dsh и qoder — вне плана",
+    "dsh вне плана",
+)
+GENERATOR_DSH_RULE = "dsh-ветка генератор не зовёт"
+GAP_CARRIERS = (
+    HARNESSES,
+    REPO / "skills" / "ship" / "references" / "review-panel.md",
+    REPO / "skills" / "onto-doc" / "references" / "ontodoc-run.md",
 )
 REVIEWER_TESTS_EVIDENCE = (
     "что и где смотреть",
@@ -247,16 +266,40 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
         if token not in whole:
             errors.append(f"zcode review way is missing {token!r}")
     blocks = _h3_blocks(section)
-    for harness in ("dsh", "qoder"):
-        named_gap = any(harness in heading and "пробел" in block
-                        for heading, block in blocks.items())
-        if not named_gap:
-            errors.append(f"{harness} review way is not named a gap")
+    dsh_blocks = [block for heading, block in blocks.items() if "dsh" in heading]
+    if not dsh_blocks:
+        errors.append("dsh review way has no section")
+    else:
+        dsh_block = dsh_blocks[0]
+        for token in DSH_WAY:
+            if token not in dsh_block:
+                errors.append(f"dsh review way is missing {token!r}")
+        for phrase in ("пробел", "вне плана"):
+            if phrase in dsh_block:
+                errors.append(f"dsh review way is still named {phrase!r}")
+    qoder_gap = any("qoder" in heading and "пробел" in block
+                    for heading, block in blocks.items())
+    if not qoder_gap:
+        errors.append("qoder review way is not named a gap")
+    if "безусловно" in whole:
+        errors.append("the unconditional generator line is back")
+    if GENERATOR_DSH_RULE not in whole:
+        errors.append("the DSH generator rule is missing")
     if "фолбэк" not in whole:
         errors.append("the role-model fallback (decision 14) is not mentioned")
 
     if "review-roles.md" not in index:
         errors.append("docs/reference/README.md does not link review-roles.md")
+    return errors
+
+
+def _carrier_errors(text: str) -> list[str]:
+    """Retired DSH-gap phrases and the lost Qoder gap in one procedure carrier."""
+    lowered = _normalized_lower(text)
+    errors = [f"retired DSH gap phrase {phrase!r} is back"
+              for phrase in RETIRED_DSH_PHRASES if phrase in lowered]
+    if "qoder" not in lowered:
+        errors.append("the Qoder gap is not named")
     return errors
 
 
@@ -330,6 +373,66 @@ def test_harnesses_describe_the_review_way_and_name_the_gaps():
     assert errors == []
 
 
+def test_dsh_way_is_named_and_qoder_gap_remains():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 1: строка DSH в
+    матрице описывает рабочий способ панели через `subagent` и живой каталог,
+    а Qoder остаётся названным пробелом."""
+    errors = _harness_errors(HARNESSES.read_text("utf-8"),
+                             INDEX.read_text("utf-8"))
+    assert errors == [], "\n".join(errors)
+
+
+def test_retired_dsh_gap_phrases_left_the_carriers():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 1: фраз «DSH —
+    пробел окружения» и «DSH и Qoder — вне плана» нет в матрице, справочнике
+    панели и прогоне онто-дока; Qoder назван во всех трёх."""
+    for path in GAP_CARRIERS:
+        errors = _carrier_errors(path.read_text("utf-8"))
+        assert errors == [], f"{path}: {errors}"
+
+
+def test_dsh_first_class_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH-first-class contract rejects a lost DSH way token, a resurrected
+    DSH gap row, a lost Qoder gap, the unconditional generator line and a
+    retired phrase in any carrier."""
+    harnesses = HARNESSES.read_text("utf-8")
+    index = INDEX.read_text("utf-8")
+    assert _harness_errors(harnesses, index) == []
+
+    no_route = harnesses.replace("list_subagent_models", "каталог моделей", 1)
+    assert no_route != harnesses
+    assert any("list_subagent_models" in error
+               for error in _harness_errors(no_route, index))
+
+    regressed = harnesses.replace("### DSH — рабочий способ",
+                                  "### DSH — пробел окружения", 1)
+    assert regressed != harnesses
+    assert any("still named 'пробел'" in error
+               for error in _harness_errors(regressed, index))
+
+    unconditional = re.sub(r"DSH-ветка\s+генератор не зовёт",
+                           "генератор зовётся безусловно", harnesses, count=1)
+    assert unconditional != harnesses
+    errors = _harness_errors(unconditional, index)
+    assert any("unconditional generator" in error for error in errors)
+    assert any("DSH generator rule" in error for error in errors)
+
+    no_qoder = harnesses.replace("пробел", "реализовано")
+    assert no_qoder != harnesses
+    assert any("qoder review way is not named a gap" in error
+               for error in _harness_errors(no_qoder, index))
+
+    carrier = GAP_CARRIERS[1].read_text("utf-8")
+    assert _carrier_errors(carrier) == []
+    assert any("dsh и qoder — вне плана" in error
+               for error in _carrier_errors(
+                   carrier + "\n### DSH и Qoder — вне плана\n"))
+    renamed = carrier.replace("Qoder", "другой харнесс")
+    assert any("Qoder gap is not named" in error
+               for error in _carrier_errors(renamed))
+
+
 def test_reference_is_linked_from_the_folder_index():
     """spec: docs/plans/review-config.md#готово — справочник связан из индекса
     папки."""
@@ -384,13 +487,14 @@ def test_reference_check_can_fail():
     # leave the section without its gap rows — both harnesses go missing.
     # The fuller «### DSH» of the «Доказательства» section is a different row;
     # the gap heading alone carries « — пробел».
-    deheaded = harnesses.replace("### DSH — пробел", "## DSH — пробел", 1)
+    deheaded = harnesses.replace("### DSH — рабочий способ",
+                                "## DSH — рабочий способ", 1)
     assert deheaded != harnesses
     errors = _harness_errors(deheaded, index)
     assert any("dsh" in error for error in errors)
     assert any("qoder" in error for error in errors)
 
-    no_fallback = harnesses.replace("subagent_model", "agent tool", 1)
+    no_fallback = harnesses.replace("`subagent_model`", "`agent tool`", 1)
     assert no_fallback != harnesses
     assert any("subagent_model" in error
                for error in _harness_errors(no_fallback, index))
