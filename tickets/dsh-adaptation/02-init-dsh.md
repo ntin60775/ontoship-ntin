@@ -53,5 +53,81 @@ ZCode-конфиге, без живого ZCode-прогона (харнесс �
 
 ## Доказательства
 
-Заполняются при ship: красная проба, вывод init до/после, `git diff`,
-`install.sh --check`, полный набор, lint.
+Срез: worktree `ontoship-ntin-wt-dsh02`, ветка `dsh02-init` от базового
+коммита `37057f4`. Тесты первыми: `24c8a9d` — красная проба, `372f53a` —
+реализация. `create_worktree` снова упал («node» нет в PATH), worktree
+создан `git worktree` (спека, следствие 6).
+
+**Красная проба на базовом коммите** (полный набор, финальный тест-сет;
+`git worktree add --detach /tmp/dsh02-base-probe 37057f4` и копия
+`tests/test_skill_init.py`): **17 failed / 445 passed**. Все падения — в
+`test_skill_init.py`: контракт скилла (два блока, выбор харнесса,
+DSH-бутстрап), два набора `.gitignore`, равенство блока репозитория,
+ZCode legacy и can-fail предусловия. Остальные 445 зелены.
+
+**Разбор расхождений ожидание/факт:**
+
+- ожидание — `create_worktree` создаёт worktree; факт — инструмент падает
+  на `node` в PATH, использован `git worktree` (разрешено спекой);
+- ожидание — init спрашивает модель каждой роли ask-инструментом; факт —
+  в живом демо ответ оператора (решение 5) передан заранее, ask не
+  задавался; контракт сторожит текст ask, живая ветка ask не проживалась —
+  названный пробел демо, не дефект среза;
+- остальных расхождений не было.
+
+**Реализация.**
+
+- `skills/init/SKILL.md`: шаг 0 — харнесс по инструменту хоста
+  (`list_subagent_models`/`subagent` — DSH, `ListModels` — ZCode; ни
+  одного или оба — вопрос и остановка); два управляемых блока (DSH с
+  `/ship`, ZCode сохранён); `.gitignore` — четыре строки в DSH и шесть
+  в ZCode; бутстрап разведён: DSH берёт маршруты из
+  `list_subagent_models`, пишет `<provider>/<model>` и максимум уровня,
+  модель сессии — из runtime-контекста, генератор не запускает; ZCode
+  сохраняет `ListModels`, `[current]`, генератор и перезапуск.
+- `AGENTS.md`: блок репозитория равен DSH-шаблону после подстановки
+  `.agents/skills`.
+- `tests/test_skill_init.py`: два блока, выбор харнесса, два набора
+  `.gitignore`, DSH/ZCode-бутстрап и can-fail пробы.
+
+**Живой init DSH.** Временный git-проект `/tmp/dsh02-live-init` (`git
+init`, коммитов нет), ядро установлено из среза:
+`scripts/install.sh --copy /tmp/dsh02-live-init` — `check: ok`, девять
+бандлов. Исполнение — отдельный DSH-агент `init-demo` с cwd temp по
+скиллу; харнесс определён инструментами `list_subagent_models` и
+`subagent`; корень — `.agents/skills`. Первый проход — `created`:
+`AGENTS.md` (ровно блок DSH, `<навыковый корень>` → `.agents/skills`),
+`.gitignore` (четыре строки), `.agents/config.toml` (шесть секций, все
+`deepseek-account/deepseek-flash`, `level = "max"`),
+`docs/ops/continue.md` (скелет, `updated: 2026-11-09`). Каталога
+`.zcode` нет. `git status --short` — четыре untracked записи; `git diff`
+пуст (коммитов нет); маркеры 1/1.
+
+Второй проход — `unchanged` по всем четырём файлам; sha256 до/после
+идентичны, `git status` посимвольно тот же. Сверка с шаблонами
+самостоятельная: `AGENTS.md` == блок DSH с подстановкой, `.gitignore` ==
+набор DSH, `continue.md` == скелет с датой. `install.sh --check
+/tmp/dsh02-live-init` — `check: ok` (0). sha256:
+
+```text
+97d792018cbb877438b598e8fde265301d9df84cefcc704449fe22780a77f92f  AGENTS.md
+4c7b0a8d6cd6370f6b6c53402763b3bcdbd771aa613aa26d85f447d8a09bedc5  .gitignore
+35e5fe300fd51ee7eb745aa830fe3f73737838a3773e281c72539ae663172cbc  .agents/config.toml
+8cd542a0a06f68b1eaab935b18455f0ffa146ffad71cc42ec1a530b0b9f7bd15  docs/ops/continue.md
+```
+
+Расхождение демо: ask моделей не задавался, ответ оператора передан
+заранее — названный пробел.
+
+**ZCode legacy.** Временный ZCode-конфиг `/tmp/dsh02-zcode-legacy`
+(шесть ролей на Qwen/ZCode-маршрутах, `xhigh` у critic):
+`python3 skills/init/gen_agents.py /tmp/dsh02-zcode-legacy` — `6 role(s)
+in sync`, шесть определений `.zcode/agents/*.md` с `model:` и
+`thoughtLevel:`. ZCode-ветка скилла держит `ListModels`, `[current]`,
+шесть строк и генератор (контракт); живой ZCode-прогон не заявлен —
+харнесс legacy.
+
+**Зелёный счёт.** `python3 -m pytest tests/ -q` — **462 passed = 458 + 4**
+(два контракта блоков и харнесса, две can-fail пробы; часть старых
+проверок переписана без смены счёта). `python3 skills/kb-search/gitmark.py
+lint --strict` — «чисто (102 файлов)».
