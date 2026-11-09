@@ -47,6 +47,8 @@ from pathlib import Path
 
 import pytest
 
+import test_canon_sync  # reuse: the ZCode panel-run anchors, not duplicated
+
 REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "ship" / "SKILL.md"
 PANEL_FILE = REPO / "skills" / "ship" / "references" / "review-panel.md"
@@ -118,43 +120,33 @@ PANEL_PHRASES = (
     "написал свой, бери его",
     "процедуру запуска бери оттуда",
 )
-# The DSH branch (dsh-adaptation ticket 01): spawn with explicit route and
+# The DSH branch (dsh-adaptation ticket 01): spawn with an explicit route and
 # effort in one message; routes are checked against the live host listing,
 # generated role definitions are a ZCode-only step; the operator command is
 # `/ship`; the worktree tool falls back to plain git.
-DSH_SKILL_PHRASES = (
-    "`/ship`",
-    "`create_worktree`",
-    "`git worktree`",
-    "`list_subagent_models`",
-    "сгенерированные определения ролей не нужны",
+DSH_COMMON_PHRASES = (
     "`subagent`",
-    "`subagent_fork`",
-    "`provider`",
-    "`reasoning_effort`",
-    "в одном сообщении",
-    "маршрут сессии",
-)
-DSH_PANEL_PHRASES = (
-    "`subagent`",
-    "spawn",
-    "`subagent_fork`",
+    "spawn, не `subagent_fork`",
     "`provider`",
     "`model`",
     "`reasoning_effort`",
     "`list_subagent_models`",
     "в одном сообщении",
-    "фолбэк на маршрут сессии",
-    "пометкой",
-    "Qoder",
 )
-# The ZCode section stays as it was: these anchors already live in the
-# canon-sync panel-run set and must not be lost to the DSH edit.
-PANEL_ZCODE_ANCHORS = (
-    "Модель субагента задаётся типом агента",
-    "Фолбэк недоступной модели роли",
-    "модель сессии с пометкой в отчёте",
+DSH_SKILL_PHRASES = DSH_COMMON_PHRASES + (
+    "`/ship`",
+    "`create_worktree`",
+    "`git worktree`",
+    "сгенерированные определения ролей не нужны",
+    "маршрут сессии",
 )
+DSH_PANEL_PHRASES = DSH_COMMON_PHRASES + (
+    "`.agents/config.toml`",
+    "дедуплицируется",
+    "фолбэк на маршрут сессии с пометкой",
+    "одна повторная проба, затем остановка прохода",
+)
+DSH_PANEL_HEADING = "### dsh — рабочий способ"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -638,26 +630,49 @@ def test_reference_guard_can_fail():
                for error in errors)
 
 
+def _panel_dsh_section(text: str) -> str:
+    """Slice the DSH launch section; empty when its heading is absent.
+
+    The slice is delimited by the DSH heading and the next `###` heading, so a
+    phrase that survives only in the ZCode or Qoder section does not satisfy
+    the DSH contract. The text is whitespace-normalized, like the rest of the
+    contract checks.
+    """
+    lowered = _normalized_lower(text)
+    start = lowered.find(DSH_PANEL_HEADING)
+    if start == -1:
+        return ""
+    end = lowered.find(" ### ", start + 1)
+    if end == -1:
+        end = len(lowered)
+    return lowered[start:end]
+
+
 def _panel_errors(text: str) -> list[str]:
     """Return every violated DSH panel contract; empty means the file is sound.
 
     spec: docs/plans/dsh-adaptation.md#готово — DSH-раздел панели: роль идёт
     через `subagent` (spawn, не `subagent_fork`) с `provider`, `model` и
     `reasoning_effort` из конфига, все роли в одном сообщении, отчёт один и
-    дедуплицирован, недоступная модель — фолбэк на маршрут сессии с пометкой;
-    ZCode-раздел сохранён, старая строка «DSH и Qoder — вне плана» заменена
-    Qoder-пробелом.
+    дедуплицирован, недоступная модель — фолбэк на маршрут сессии с пометкой,
+    провал — повторная проба и остановка; ZCode-раздел сохранён, старая строка
+    «DSH и Qoder — вне плана» заменена Qoder-пробелом. DSH-фразы ищутся только
+    в DSH-секции, ZCode-якоря — по всему файлу (набор panel-run).
     """
     lowered = _normalized_lower(text)
     errors: list[str] = []
-    for phrase in DSH_PANEL_PHRASES:
-        if phrase.lower() not in lowered:
-            errors.append(f"dsh-panel: missing required phrase {phrase!r}")
+    section = _panel_dsh_section(text)
+    if not section:
+        errors.append(f"dsh-panel: missing section {DSH_PANEL_HEADING!r}")
+    else:
+        for phrase in DSH_PANEL_PHRASES:
+            if phrase.lower() not in section:
+                errors.append(f"dsh-panel: DSH section lost {phrase!r}")
     if "dsh и qoder — вне плана" in lowered:
         errors.append("dsh-panel: the retired «DSH и Qoder — вне плана» line is back")
     if "qoder" not in lowered:
         errors.append("dsh-panel: the Qoder gap is not named")
-    for phrase in PANEL_ZCODE_ANCHORS:
+    for phrase in test_canon_sync.PANEL_RUN_ANCHORS:
         if phrase.lower() not in lowered:
             errors.append(f"dsh-panel: lost ZCode anchor {phrase!r}")
     return errors
@@ -683,24 +698,42 @@ def test_dsh_ship_branch_is_named():
 
 def test_dsh_panel_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the DSH panel contract rejects a lost spawn, a lost live route check,
-    a lost fallback mark, a lost Qoder gap, a resurrected «DSH и Qoder —
-    вне плана» line and a rewritten ZCode section."""
+    the DSH panel contract rejects a lost spawn (guarded as one relation, not
+    two tokens), a lost live route check, a lost fallback mark, a lost
+    deduplication, a lost config source, a lost section heading, a lost Qoder
+    gap, a resurrected «DSH и Qoder — вне плана» line and a lost ZCode
+    anchor."""
     text = PANEL_FILE.read_text("utf-8")
     assert _panel_errors(text) == []
 
-    no_spawn = text.replace("`subagent`", "`agent`", 1)
+    no_spawn = re.sub(r"spawn, не\s+`subagent_fork`", "spawn и `subagent_fork`",
+                      text, count=1)
     assert no_spawn != text
-    assert any("`subagent`" in error for error in _panel_errors(no_spawn))
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _panel_errors(no_spawn))
 
     no_routes = text.replace("`list_subagent_models`", "`models`", 1)
     assert no_routes != text
     assert any("`list_subagent_models`" in error for error in _panel_errors(no_routes))
 
-    no_fallback = text.replace("фолбэк на маршрут сессии", "фолбэк", 1)
+    no_fallback = text.replace("фолбэк на маршрут сессии с пометкой",
+                               "фолбэк на маршрут сессии", 1)
     assert no_fallback != text
-    assert any("фолбэк на маршрут сессии" in error
+    assert any("фолбэк на маршрут сессии с пометкой" in error
                for error in _panel_errors(no_fallback))
+
+    no_dedup = text.replace("дедуплицируется", "собирается", 1)
+    assert no_dedup != text
+    assert any("дедуплицируется" in error for error in _panel_errors(no_dedup))
+
+    no_config = text.replace("берётся из `.agents/config.toml`",
+                             "берётся из конфига", 1)
+    assert no_config != text
+    assert any("`.agents/config.toml`" in error for error in _panel_errors(no_config))
+
+    no_heading = text.replace(f"{DSH_PANEL_HEADING}\n\n", "", 1)
+    assert no_heading != text
+    assert any("missing section" in error for error in _panel_errors(no_heading))
 
     no_qoder = text.replace("Qoder", "другой харнесс")
     assert no_qoder != text
@@ -711,7 +744,7 @@ def test_dsh_panel_contract_can_fail():
     assert resurrected != text
     assert any("DSH и Qoder" in error for error in _panel_errors(resurrected))
 
-    rewritten = text.replace("Модель субагента задаётся типом агента",
+    rewritten = text.replace(test_canon_sync.PANEL_RUN_ANCHORS[0],
                              "Определение роли задаётся конфигом", 1)
     assert rewritten != text
     assert any("ZCode anchor" in error for error in _panel_errors(rewritten))
@@ -743,6 +776,8 @@ def test_dsh_ship_contract_can_fail():
     assert any("сгенерированные определения ролей не нужны" in error
                for error in _contract_errors(generator))
 
-    no_fork = text.replace("`subagent_fork`", "`fork`", 1)
+    no_fork = text.replace("spawn, не `subagent_fork`",
+                           "spawn и `subagent_fork`", 1)
     assert no_fork != text
-    assert any("`subagent_fork`" in error for error in _contract_errors(no_fork))
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _contract_errors(no_fork))
