@@ -3,10 +3,10 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-05
+updated: 2026-11-09
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
-  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../reference/harnesses.md, ../../tickets/README.md]
+  relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
 ---
 
 # Продолжение разработки из этого репозитория
@@ -217,6 +217,22 @@ passed; полный набор **452 passed**, `lint --strict` чист; дем
 2026-11-05, вариант «принять» — **юнит `to-tickets-agent` закрыт:
 один тикет сделан, влит и принят.** Шестнадцать юнитов и мини-юнитов
 завершены; следующий юнит называет оператор.
+
+**Семнадцатый юнит `dsh-adaptation` открыт 2026-11-06** — DSH первым
+классом: скиллы, `init`/конфиг ролей, ревью-панель, критик и онто-док на
+нативных инструментах DSH; ZCode — legacy; плагин не входит. Спека
+[dsh-adaptation.md](../plans/dsh-adaptation.md) утверждена на план-гейте
+2026-11-06 ask-проходом (решения 1–4 оператора: без плагина, DSH первый
+класс, второй маршрут, доказательство — каталог/панель/онто-док). Живой
+каталог DSH 2026-11-06: восемь модельных скиллов, `ship` — user-invocable;
+`install.sh --check` — 0, 452 passed. Предпосылка — второй маршрут в
+профиле DSH; без него критик-гейт стоит. Нарезка — пять тикетов
+опубликованы 2026-11-06, приняты со сверкой понимания. Второй маршрут
+DSH в профиле появился (`qwen-token-plan/qwen3.8-flash`); критик прогнан
+2026-11-09 на `qwen-token-plan/qwen3.8-flash` с `xhigh` — модель
+отличается от сессионной, без фолбэка: вердикт «готов после правок»,
+2 P1 / 8 P2 / 7 P3. Решением оператора «править всё» правки спеки и
+тикетов внесены тем же прогоном. Первый ship ждёт команды `/ship`.
 
 | коммит | что |
 |---|---|
@@ -1106,6 +1122,13 @@ selfhost-миграция `7368a43` — первый живой update-путь 
 **Юнит `entry-and-continuity` закрыт: тикеты 01–05 исполнены, 04 не
 активировался — все пять учтены.**
 
+`dsh-adaptation`: **01 панель ревью и `/ship` → 02 init и конфиг →
+03 онто-док ∥ 04 критик → 05 документы и legacy.** Рёбра: 02←01;
+03←01; 04←01 и второй маршрут DSH; 05←01–04. Спека утверждена
+2026-11-06; критик прогнан 2026-11-09, находки закрыты решением
+оператора «править всё»; первый ship — по команде `/ship` по тикету 01,
+один тикет за проход.
+
 ## Факты окружения
 
 - DSH запускается из `/home/prog7/home/dev/contrib/forks/deepseek-harness` под Node
@@ -1165,11 +1188,10 @@ selfhost-миграция `7368a43` — первый живой update-путь 
 ```text
 Мы продолжаем работу в /home/prog7/home/dev/contrib/forks/ontoship-ntin — OntoShip-core.
 Состояние юнитов, наборы тестов и факты окружения — в этом файле:
-«Где мы» (текущее), «Что осталось», «Факты окружения». На 2026-11-05
-шестнадцать юнитов и мини-юнитов закрыты; последний — to-tickets-agent
-(тикет 01 принят оператором). Критики юнитов прогнаны до первого ship;
-один прогон на юнит — повторно
-не запускать. Набор — 452 passed.
+«Где мы» (текущее), «Что осталось», «Факты окружения». На 2026-11-09
+открыт семнадцатый юнит `dsh-adaptation`; шестнадцать закрыты, последний —
+`to-tickets-agent`. Критик `dsh-adaptation` прогнан 2026-11-09 на втором
+маршруте; один прогон на юнит — повторно не запускать. Набор — 452 passed.
 
 Чек-лист фазовых переходов (решение 7 спеки evidence-verification, живёт
 здесь постоянно): перед план-гейтом — контрольная вычитка спеки (носители

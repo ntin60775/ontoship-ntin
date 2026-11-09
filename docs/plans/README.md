@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-05
+updated: 2026-11-09
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -96,6 +96,13 @@ links:
   2026-11-05 ask-проходом; решения оператора: формулировка «вызывает
   агент», флаг убрать; нарезка — один тикет принят ask-ом в том же
   прогоне; в работе).
+- [dsh-adaptation.md](dsh-adaptation.md) — DSH первым классом: скиллы,
+  `init` и конфиг ролей, ревью-панель, критик и онто-док на нативных
+  инструментах DSH; ZCode — legacy; плагин не входит; живая проба —
+  каталог, панель, онто-док (утверждена на план-гейте 2026-11-06
+  ask-проходом, решения 1–4; нарезка — пять тикетов опубликованы
+  2026-11-06; критик прогнан 2026-11-09, находки закрыты решением
+  оператора «править всё»).
 
 Четырнадцать юнитов закрыты: шесть основных (`core-kb`, `harness-agnostic`,
 `workflow-skills`, `review-config`, `evidence-verification`, `onto-doc`),

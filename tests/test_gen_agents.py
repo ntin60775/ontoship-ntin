@@ -456,7 +456,10 @@ def test_empty_level_guard_is_load_bearing(project: Path) -> None:
 def test_repo_registry_carries_six_sections_with_levels() -> None:
     """spec: docs/plans/onto-doc.md#готово — реестр несёт шесть секций:
     `[agents.curator]` с дефолтом решения 3, `level` во всех секциях
-    (решение 4)."""
+    (решение 4).
+    spec: docs/plans/dsh-adaptation.md#решения — роль `critic` несёт
+    DSH-маршрут Qwen 3.8 Flash и уровень `xhigh` (решение оператора
+    2026-11-08)."""
     import tomllib
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
@@ -466,8 +469,10 @@ def test_repo_registry_carries_six_sections_with_levels() -> None:
         roles["curator"]["model"]
         == "account:zai-individual-coding-plan/GLM-5.3-Flash"
     )
-    for section in roles.values():
-        assert section.get("level") == "max"
+    assert roles["critic"]["model"] == "qwen-token-plan/qwen3.8-flash"
+    assert roles["critic"]["level"] == "xhigh"
+    for name, section in roles.items():
+        assert section.get("level"), f"[agents.{name}] has no level"
 
 
 def test_repo_gitignores_agent_definitions() -> None:

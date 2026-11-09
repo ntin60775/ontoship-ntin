@@ -23,8 +23,8 @@ model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
 level = "max"
 
 [agents.critic]
-model = "qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017"
-level = "max"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
 
 [agents.curator]
 model = "account:zai-individual-coding-plan/GLM-5.3-Flash"
