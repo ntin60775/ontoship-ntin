@@ -3,7 +3,7 @@ node_type: index
 title: Решения
 service: _platform
 status: active
-updated: 2026-10-19
+updated: 2026-11-09
 links:
   part_of: [../README.md]
   relates_to: [ontoship-core.md, ../reference/sources.md]

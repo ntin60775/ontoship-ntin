@@ -3,7 +3,7 @@ node_type: reference
 title: Тестирование — спека, инварианты, target-тесты
 service: _platform
 status: active
-updated: 2026-11-03
+updated: 2026-11-09
 tags: [testing, target-tests, tdd, evidence, agents, esem2026]
 links:
   part_of: [README.md]
