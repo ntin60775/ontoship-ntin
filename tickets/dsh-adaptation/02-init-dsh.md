@@ -90,10 +90,11 @@ ZCode legacy и can-fail предусловия. Остальные 445 зеле
 - `tests/test_skill_init.py`: два блока, выбор харнесса, два набора
   `.gitignore`, DSH/ZCode-бутстрап и can-fail пробы.
 
-**Живой init DSH.** Временный git-проект `/tmp/dsh02-live-init` (`git
+**Живой init DSH.** Временный git-проект `/tmp/dsh02-live-init-final` (`git
 init`, коммитов нет), ядро установлено из среза:
-`scripts/install.sh --copy /tmp/dsh02-live-init` — `check: ok`, девять
-бандлов. Исполнение — отдельный DSH-агент `init-demo` с cwd temp по
+`scripts/install.sh --copy /tmp/dsh02-live-init-final` — девять бандлов
+(`copied …`); `scripts/install.sh --check /tmp/dsh02-live-init-final` —
+`check: ok` (0). Исполнение — отдельный DSH-агент `init-demo-02` с cwd temp по
 скиллу; харнесс определён инструментами `list_subagent_models` и
 `subagent`; корень — `.agents/skills`. Первый проход — `created`:
 `AGENTS.md` (ровно блок DSH, `<навыковый корень>` → `.agents/skills`),
@@ -106,21 +107,22 @@ init`, коммитов нет), ядро установлено из среза
 Второй проход — `unchanged` по всем четырём файлам; sha256 до/после
 идентичны, `git status` посимвольно тот же. Сверка с шаблонами
 самостоятельная: `AGENTS.md` == блок DSH с подстановкой, `.gitignore` ==
-набор DSH, `continue.md` == скелет с датой. `install.sh --check
-/tmp/dsh02-live-init` — `check: ok` (0). sha256:
+набор DSH, `continue.md` == скелет с датой. sha256:
 
 ```text
-97d792018cbb877438b598e8fde265301d9df84cefcc704449fe22780a77f92f  AGENTS.md
+ac01b2fbeec9f1a0e50f44a1995e5e29186fd1fa21971fce2bcaf48a32cbadda  AGENTS.md
 4c7b0a8d6cd6370f6b6c53402763b3bcdbd771aa613aa26d85f447d8a09bedc5  .gitignore
-35e5fe300fd51ee7eb745aa830fe3f73737838a3773e281c72539ae663172cbc  .agents/config.toml
+4750e5d0122794036f9ee798c4de1427d3e9b77bac8d446a189bd88533eda629  .agents/config.toml
 8cd542a0a06f68b1eaab935b18455f0ffa146ffad71cc42ec1a530b0b9f7bd15  docs/ops/continue.md
 ```
 
 Расхождение демо: ask моделей не задавался, ответ оператора передан
 заранее — названный пробел.
 
-**ZCode legacy.** Временный ZCode-конфиг `/tmp/dsh02-zcode-legacy`
-(шесть ролей на Qwen/ZCode-маршрутах, `xhigh` у critic):
+**ZCode legacy.** Временный ZCode-конфиг `/tmp/dsh02-zcode-legacy`:
+четыре ревьюера — `qwen-alibaba-model-studio-intl/deepseek-v4.1-flash-1017`,
+`critic` — `qwen-token-plan/qwen3.8-flash` с `xhigh`, `curator` —
+`account:zai-individual-coding-plan/GLM-5.3-Flash`.
 `python3 skills/init/gen_agents.py /tmp/dsh02-zcode-legacy` — `6 role(s)
 in sync`, шесть определений `.zcode/agents/*.md` с `model:` и
 `thoughtLevel:`. ZCode-ветка скилла держит `ListModels`, `[current]`,
@@ -128,6 +130,20 @@ in sync`, шесть определений `.zcode/agents/*.md` с `model:` и
 харнесс legacy.
 
 **Зелёный счёт.** `python3 -m pytest tests/ -q` — **462 passed = 458 + 4**
-(два контракта блоков и харнесса, две can-fail пробы; часть старых
-проверок переписана без смены счёта). `python3 skills/kb-search/gitmark.py
+(контракт выбора харнесса, контракты DSH- и ZCode-веток, одна can-fail
+проба `test_dsh_branch_contract_can_fail`; часть старых проверок
+переписана без смены счёта). `python3 skills/kb-search/gitmark.py
 lint --strict` — «чисто (102 файлов)».
+
+**Панель (живой прогон, 2026-11-09).** Четыре роли одним сообщением через
+`subagent` с `provider`, `model` и `reasoning_effort` из конфига
+(`deepseek-account`, `deepseek-flash`, `max`); фолбэков нет. Все четыре
+вердикта — «принять с находками»: reviewer-spec — 1 P2 / 3 P3,
+reviewer-tests — 1 P2 / 2 P3, reviewer-code — 2 P2 / 4 P3,
+reviewer-kb — 2 P2 / 5 P3; сырых 20 (6 P2 / 14 P3), после дедупликации
+16 (5 P2 / 11 P3). Правки `e670778` закрыли 13 (5 P2 и 8 P3); девятая
+P3 — состояние runbook — обновляется отдельным docs-коммитом после merge.
+Оставлены две P3, обе — носители тикета 05: описание `init` в
+`skills/README.md` не называет двух харнессов; «Факты окружения» runbook
+хранят старые записи о DSH (`MISSING_CREDENTIAL`, «каталог не проверен»)
+и получат «снято» тикетом 05. Повторного прогона нет.
