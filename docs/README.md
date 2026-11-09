@@ -3,7 +3,7 @@ node_type: index
 title: Документация — главный индекс
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-09
 links:
   relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, ops/README.md, reference/README.md]
 ---
@@ -33,7 +33,7 @@ links:
   [review-loose-ends.md](plans/review-loose-ends.md) — сторож паритета
   бандлов и нейтральные формулировки реестра ролей (завершён 2026-11-01,
   тикет 01 влит и принят).
-  [dsh-adaptation.md](plans/dsh-adaptation.md) — DSH первым классом: скиллы,
+- [dsh-adaptation.md](plans/dsh-adaptation.md) — DSH первым классом: скиллы,
   `init`, панель, критик и онто-док на нативных инструментах (утверждена
   2026-11-06; тикеты 01–04 приняты 2026-11-09, тикет 05 в работе).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с

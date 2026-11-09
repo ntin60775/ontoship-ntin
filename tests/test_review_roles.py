@@ -8,10 +8,11 @@ packs carry prompts and checklists only, role names follow
 core. ``docs/reference/harnesses.md`` must describe how each harness
 organizes the review panel: the working zcode way (role definitions from the
 config, the full-restart cost of a model change, the ``subagent_model``
-fallback path, the ``[current]`` marker for the session-model check) and DSH
-and Qoder each named a gap inside their own subsection of the review
-section, never implemented silently. The reference is linked from the folder
-index. The ``reviewer-tests`` checklist additionally carries the two
+fallback path, the ``[current]`` marker for the session-model check), the
+working DSH way (``subagent`` with ``provider``, ``model`` and
+``reasoning_effort``, a live ``list_subagent_models``) and Qoder named a gap
+inside its own subsection of the review section, never implemented
+silently. The reference is linked from the folder index. The ``reviewer-tests`` checklist additionally carries the two
 evidence items: every acceptance criterion must show what and where to look
 (command output, log line, file, live probe) plus a spec-sourced expectation
 — «тест прошёл» with no place to look is a finding — and the ticket must
@@ -20,8 +21,8 @@ linking the «Артефакт доказательства» section of docs/re
 (evidence-verification ticket 02).
 
 spec: docs/plans/review-config.md#готово — справочник ролей и регламент паков
-spec: docs/plans/review-config.md#готово — матрица harnesses.md дополнена:
-ревью DSH и Qoder описаны и названы пробелом
+spec: docs/plans/dsh-adaptation.md#готово — DSH первый класс в матрице:
+рабочий способ панели и онто-дока, Qoder — названный пробел
 spec: docs/plans/review-config.md#решения план-гейта — 9, 11, 12
 spec: docs/plans/evidence-verification.md#готово — reviewer-tests проверяет
 артефакт: оба пункта чек-листа, «тест прошёл» без места осмотра — находка
@@ -364,22 +365,14 @@ def test_reviewer_tests_checks_artifact_expectation_and_discrepancies():
     assert _reviewer_tests_evidence_errors(text) == []
 
 
-def test_harnesses_describe_the_review_way_and_name_the_gaps():
-    """spec: docs/plans/review-config.md#готово — матрица описывает способ
-    ревью: zcode рабочий (определения, полный перезапуск, subagent_model),
-    DSH и Qoder — названные пробелы в своих подразделах раздела ревью."""
+def test_harnesses_describe_the_review_way_and_keep_the_qoder_gap():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 1: матрица
+    описывает способ ревью: zcode рабочий (определения, полный перезапуск,
+    subagent_model), DSH — рабочий способ через `subagent` и живой каталог,
+    Qoder — названный пробел в своём подразделе."""
     errors = _harness_errors(HARNESSES.read_text("utf-8"),
                              INDEX.read_text("utf-8"))
     assert errors == []
-
-
-def test_dsh_way_is_named_and_qoder_gap_remains():
-    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 1: строка DSH в
-    матрице описывает рабочий способ панели через `subagent` и живой каталог,
-    а Qoder остаётся названным пробелом."""
-    errors = _harness_errors(HARNESSES.read_text("utf-8"),
-                             INDEX.read_text("utf-8"))
-    assert errors == [], "\n".join(errors)
 
 
 def test_retired_dsh_gap_phrases_left_the_carriers():
@@ -443,8 +436,8 @@ def test_reference_is_linked_from_the_folder_index():
 def test_reference_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     contract rejects a lost checklist, a renamed role, a lost pack rule, a
-    lost DSH/Qoder gap row (word, block and section level), a lost zcode way
-    and a broken index link."""
+    lost DSH way token, a lost Qoder gap, the unconditional generator line,
+    a lost zcode way and a broken index link."""
     text = REFERENCE.read_text("utf-8")
     assert _reference_errors(text) == []
 
@@ -476,15 +469,15 @@ def test_reference_check_can_fail():
     index = INDEX.read_text("utf-8")
     assert _harness_errors(harnesses, index) == []
 
-    # A gap must be named inside its own subsection: every «пробел» leaving
-    # the DSH block, or the block leaving the review section, must fail.
+    # The Qoder gap must be named inside its own subsection: every «пробел»
+    # leaving the block, or the block leaving the review section, must fail.
     unimplemented = harnesses.replace("пробел", "реализовано")
     assert unimplemented != harnesses
     errors = _harness_errors(unimplemented, index)
     assert any("is not named a gap" in error for error in errors)
 
-    # Promoting the DSH gap row out of the review section (### → ##) must
-    # leave the section without its gap rows — both harnesses go missing.
+    # Promoting the DSH row out of the review section (### → ##) must leave
+    # the section without both rows — the DSH way and the Qoder gap.
     # The fuller «### DSH» of the «Доказательства» section is a different row;
     # the gap heading alone carries « — пробел».
     deheaded = harnesses.replace("### DSH — рабочий способ",

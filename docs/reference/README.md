@@ -3,7 +3,7 @@ node_type: index
 title: Справочники
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-09
 links:
   part_of: [../README.md]
   relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, ../decisions/ontoship-core.md]

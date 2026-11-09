@@ -3,7 +3,7 @@ node_type: index
 title: Скиллы — бандлы метода
 service: _platform
 status: active
-updated: 2026-11-02
+updated: 2026-11-09
 tags: [index, skills, bundles]
 links:
   part_of: [../README.md]

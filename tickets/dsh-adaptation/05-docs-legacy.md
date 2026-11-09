@@ -82,12 +82,12 @@
 $ git worktree add --detach /tmp/dsh05-red2 505ec86
 $ cp tests/test_review_roles.py /tmp/dsh05-red2/tests/
 $ cd /tmp/dsh05-red2 && python3 -m pytest tests/ -q
-5 failed, 484 passed in 5.51s
+4 failed, 484 passed in 5.77s
 ```
 
-Падения — контракты среза: старая DSH-строка «пробел окружения» в матрице,
-отсутствие DSH-способа, старая общая строка «DSH и Qoder — вне плана»,
-безусловный генератор и две can-fail пробы. Проба-worktree снят.
+Падения — контракты среза: старый DSH-пробел в матрице, безусловный
+генератор, снятые фразы в носителях и две can-fail пробы. Проба-worktree
+снят.
 
 **Разбор расхождений ожидание/факт:** ожидание — `create_worktree` создаёт
 worktree; факт — падает на `node` в PATH, использован `git worktree`
@@ -105,7 +105,7 @@ worktree; факт — падает на `node` в PATH, использован 
   `docs/plans/onto-doc.md` — приписка: DSH-прогон через `subagent`, файл
   `.dwf.ts` остаётся ZCode.
 - `docs/ops/continue.md`: запись «Живые пробы `dsh-adaptation`» (каталог,
-  `/ship`, `install.sh --check`, 452→489 passed, маршруты, артефакты);
+  `/ship`, `install.sh --check`, 452→488 passed, маршруты, артефакты);
   старые записи о DSH помечены «снято» (каталог, `MISSING_CREDENTIAL`,
   «вне плана»); «Факты окружения» обновлены.
 - `README.md`, `skills/README.md`, `docs/README.md`,
@@ -164,5 +164,5 @@ OntoShip нет. Маршрут, добавленный оператором в 
 находит `docs/reference/README.md`, `README.md`, `docs/README.md`,
 `docs/plans/dsh-adaptation.md`; `lint --strict` — «чисто (102 файлов)».
 
-**Зелёный счёт.** `python3 -m pytest tests/ -q` — **489 passed = 486 + 3**
-(контракт DSH-способа, запрет снятых фраз, can-fail проба).
+**Зелёный счёт.** `python3 -m pytest tests/ -q` — **488 passed = 486 + 2**
+(контракт DSH-способа с запретом снятых фраз и can-fail проба).

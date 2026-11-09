@@ -148,7 +148,8 @@ workflow. Контракт прогона общий, способы запус�
 `refusal`, родитель сверяет объединение `files` с
 `git diff --cached --name-only` после `git add -A`; прогон пишет только
 внутри `root`. Проверки плана и полная процедура — в
-[skills/onto-doc/references/ontodoc-run.md](../../skills/onto-doc/references/ontodoc-run.md).
+[ontodoc-run.md](../../skills/onto-doc/references/ontodoc-run.md) бандла
+`onto-doc`.
 ### Qoder — прогон онто-дока — пробел окружения
 
 Способ запуска кураторов онто-дока в Qoder живой сессией не подтверждён —
