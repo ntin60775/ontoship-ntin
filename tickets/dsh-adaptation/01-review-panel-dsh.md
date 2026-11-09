@@ -69,9 +69,56 @@ worktree от текущего main; перевод ролей конфига и
 
 ## Доказательства
 
-Заполняются при ship: красная проба на базовом коммите (перечень
-упавших), пин конфига в `tests/test_gen_agents.py`, живой отчёт панели,
-полный набор, lint. На публикации тикета доказательств нет.
+Срез: worktree `ontoship-ntin-wt-dsh01`, ветка `dsh01-review-panel` от
+базового коммита `a5f0847` (текущий main на старте). Тесты написаны первыми:
+`8d42d9a` — красная проба, `70253cf` — реализация. `create_worktree` в
+DSH-сессии упал («command "node" was not found on PATH»), worktree создан
+запасным путём — `git worktree` (спека, следствие 6: «`create_worktree`,
+когда инструмент есть, иначе `git worktree`»).
+
+**Красная проба на базовом коммите** (полный набор, финальный тест-сет):
+**9 failed / 449 passed**. Состав: `test_gen_agents.py` — 1 (пин шести
+ролей: конфиг ещё на ZCode-маршрутах); `test_skill_ship.py` — 8 (два
+новых контракта DSH-панели и ветки ship, два их can-fail предусловия и
+четыре существующих теста — bundle-контракт и три can-fail, чьё
+предусловие «контракт скилла чист» краснеет, пока DSH-фразы не внесены).
+Все упавшие — в изменённых файлах; остальные 449 зелены.
+
+**Живые маршруты (2026-11-09).** `list_subagent_models`: провайдеры —
+`deepseek-account`, `qwen-token-plan`; маршрут
+`deepseek-account/deepseek-flash` — DeepSeek-V4.1-Flash; уровни — `off`,
+`low`, `high` (default), `max`. Каждая пара решения 5 —
+`deepseek-account/deepseek-flash` — принята этим выводом; `max` и `low` —
+допустимые `reasoning_effort` модели.
+
+**Реализация.**
+
+- `skills/ship/references/review-panel.md` — раздел «dsh — рабочий
+  способ»: роль идёт через `subagent` (spawn, не `subagent_fork`),
+  `provider` и `model` делятся из строки конфига по первому `/`,
+  `reasoning_effort` — из `level`; все роли панели стартуют в одном
+  сообщении, отчёт из completion notices дедуплицируется; сгенерированные
+  определения ролей не нужны, маршрут и уровень сверяются живым
+  `list_subagent_models`; недоступная модель — фолбэк на маршрут сессии
+  с пометкой, провал — повторная проба и остановка. ZCode-раздел сохранён
+  дословно, «DSH и Qoder — вне плана» заменена Qoder-пробелом.
+- `skills/ship/SKILL.md` — `/ship`, worktree `create_worktree` или
+  `git worktree`; DSH-роль через `subagent` с явными маршрутом и
+  уровнем; DSH-сверка без сгенерированных определений ролей, ZCode-ветка
+  перегенерации сохранена.
+- `.agents/config.toml` — все шесть ролей на
+  `deepseek-account/deepseek-flash`: ревьюеры и `critic` — `max`,
+  `curator` — `low` (решение 5).
+- `tests/test_gen_agents.py` — пин переписан: модель и уровень каждой из
+  шести ролей, формат `<provider>/<model>`, уровень — из живой четвёрки
+  `off/low/high/max`.
+- `tests/test_skill_ship.py` — два контракта DSH (панель и ship) и две
+  can-fail пробы; проверка ZCode-якорей панели сохранена.
+
+**Зелёный счёт.** `python3 -m pytest tests/ -q` — **458 passed = 454 + 4**
+(два новых контракта и две can-fail пробы; пин переписан без смены счёта).
+`python3 skills/kb-search/gitmark.py lint --strict` — «чисто (102 файлов)».
+
 
 Ограничения доказательства: ветка фолбэка на маршрут сессии не
 проживается — маршрут один, сессионный; отчёт панели доказывает процедуру
