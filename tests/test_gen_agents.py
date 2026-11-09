@@ -457,9 +457,9 @@ def test_repo_registry_carries_six_sections_with_levels() -> None:
     """spec: docs/plans/onto-doc.md#готово — реестр несёт шесть секций:
     `[agents.curator]` с дефолтом решения 3, `level` во всех секциях
     (решение 4).
-    spec: docs/plans/dsh-adaptation.md#решения — роль `critic` несёт
-    DSH-маршрут Qwen 3.8 Flash и уровень `xhigh` (решение оператора
-    2026-11-08)."""
+    spec: docs/plans/dsh-adaptation.md#решения — реестр до среза тикета 01:
+    роль `critic` несёт Qwen-маршрут и `xhigh`; перевод всех шести ролей
+    на решение 5 (2026-11-09) и обновление пина — тикет 01."""
     import tomllib
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
