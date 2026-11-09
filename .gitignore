@@ -14,3 +14,7 @@ __pycache__/
 # consumer-registry: машино-локальный реестр потребителей, вне git
 .zcode/registry.local.json
 .zcode/registry-candidates.local.json
+# деплой раннера маркета: цель поставки и артефакты плагина, машино-локально
+.zcode/skills/
+.zcode/registry/
+.zcode/deployed.json
