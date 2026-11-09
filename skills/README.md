@@ -23,8 +23,9 @@ links:
 - [kb-search/](kb-search/SKILL.md) — движок GitMark и поиск по KB.
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
   REINDEX; модель онтологии.
-- [init/](init/SKILL.md) — управляемый блок, `.gitignore`, конфиг ролей,
-  машинный источник перечня ролей `roles.py`, генератор `gen_agents.py`.
+- [init/](init/SKILL.md) — управляемый блок, `.gitignore`, конфиг ролей;
+  харнесс определяется инструментом хоста (DSH — без генератора, ZCode — с
+  `gen_agents.py`), машинный источник перечня ролей `roles.py`.
 - [grilling/](grilling/SKILL.md) — интервью по фронтиру, выход в спеку
   на план-гейт.
 - [to-tickets/](to-tickets/SKILL.md) — нарезка спеки на tracer-bullet

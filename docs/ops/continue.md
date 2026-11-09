@@ -296,6 +296,23 @@ worktree `ontoship-ntin-wt-dsh04` снесён): подраздел
 8 P3), после дедупликации 10, закрыты все. Остался тикет 05; блокеры
 01–04 сняты.
 
+**Живые пробы `dsh-adaptation` (2026-11-06…09).** DSH 0.2.2-rc.1, рабочая
+сессия в этом репозитории: каталог — `kb-search`, `kb-curate`, `init`,
+`grilling`, `to-tickets`, `testing`, `critic`, `onto-doc` (восемь
+модельных), `ship` — user-invocable командой `/ship`; `AGENTS.md` загружен с
+блоком `/ship`. `bash scripts/install.sh --check .` — `check: ok`; базовая
+цифра набора 452 passed (2026-11-06), текущая — 489 passed (после тикета
+05). Маршруты ролей (2026-11-09): ревьюеры — `qwen-token-plan/qwen3.8-flash`
+с `xhigh`, критик — `deepseek-account/deepseek-flash` с `max`, куратор —
+`deepseek-account/deepseek-flash` с `low`; живой каталог уровней:
+`qwen3.8-flash` — low/medium/xhigh, `deepseek-flash` — off/low/high/max.
+Артефакты проб: панель — тикет 01
+(`tickets/dsh-adaptation/01-review-panel-dsh.md`), init — тикет 02
+(`/tmp/dsh02-live-init-final`), онто-док — тикет 03
+(`/tmp/dsh03-live-kb2`), критик — тикет 04
+(`/tmp/dsh04-critic-demo/report.md`). ZCode — legacy: `.dwf.ts` и
+`gen_agents.py` не переписаны; Qoder — названный пробел.
+
 **Вне тикетного потока, 2026-11-09 — решение оператора «закоммит и
 почисти от устаревших записей».** Публикация юнита (спека, пять тикетов,
 индексы, эта секция, маршрут `critic` и его пин) закоммичена в main
@@ -447,9 +464,10 @@ Dogfood провёл игрушечный юнит `install-dry-run` через 
 Живой каталог подтверждают две сессии: Qoder 2026-10-21 (все три скилла видны,
 `kb-search` и `kb-curate` загружены, поиск вернул канон) и zcode 2026-10-24 (все
 семь скиллов видны из `.agents/skills`, `kb-search` загружен инструментом `Skill`,
-`search "canon"` вернул канон). DSH `headless` падает с `MISSING_CREDENTIAL` —
-его живой каталог остаётся единственным пробелом; детали в разделе
-[Факты окружения](#факты-окружения).
+`search "canon"` вернул канон). DSH `headless` падал с `MISSING_CREDENTIAL`,
+и живой каталог тогда оставался единственным пробелом (снято 2026-11-09:
+сессия DSH 2026-11-06 показала каталог, см. «Живые пробы `dsh-adaptation`»);
+детали в разделе [Факты окружения](#факты-окружения).
 
 ## Что осталось (по проекту)
 
@@ -742,7 +760,9 @@ deploy install/check/remove зелёный. Зацепка: абсолютные
 **Вне плана — DSH и Qoder (решение оператора 2026-11-02).** Эксплуатация —
 только zcode: ревью-панель и онто-док адаптируются под него одного; способы
 DSH и Qoder не определяются. Возврат — только командой оператора в живой
-сессии соответствующего харнесса. Selfhost маркет-репо в тот же день
+сессии соответствующего харнесса. Для DSH снято 2026-11-09: юнит
+`dsh-adaptation` сделал DSH первым классом метода; Qoder остаётся вне плана.
+Selfhost маркет-репо в тот же день
 переведён на плагин `ontoship-ntin v0.1.0` (миграция — параллельная сессия,
 возврат SessionStart-хука и hygiene.sh собственными файлами репо — `7d8ab86`
 маркета).
@@ -816,7 +836,8 @@ ask-вопрос на тикет, все пять приняты (`75806a0`). Т
 разделы «Ревью-панель» и «Критик-гейт» в `skills/ship/SKILL.md`, справочник
 `docs/reference/review-roles.md` (четыре контракта с чек-листами, шкала
 P1/P2/P3, регламент паков), строки ревью в матрице `harnesses.md`
-(zcode-способ рабочий, DSH/Qoder — пробелы); набор **281 passed**. Ревью-шаг
+(zcode-способ рабочий, DSH/Qoder — пробелы; для DSH снято 2026-11-09);
+набор **281 passed**. Ревью-шаг
 этого ship-прохода — первая живая панель: четыре роли параллельно в одном
 прогоне workflow `dwfrun-d5e2916d` запасным путём `subagent_model` (типы
 ролей не зарегистрированы без перезапуска), модели из конфига, вердикты —
@@ -902,7 +923,8 @@ GitHub, старое имя на remote удалено) — PR-путь и push/
    правило прошло юнит целиком: тикеты 01–05 приняты оператором
    2026-10-28…29 (05 — 2026-10-29, юнит закрыт).
 4. **DSH не показал живой каталог скиллов.** Пробел окружения, не проекта: `dsh
-   headless` падает с `MISSING_CREDENTIAL`; подробности в
+   headless` падал с `MISSING_CREDENTIAL` (снято 2026-11-09: сессия
+   2026-11-06 показала восемь модельных скиллов и `/ship`); подробности в
    [Фактах окружения](#факты-окружения).
 5. **Qoder-адаптер отложен** решением оператора 2026-10-29. В рамках спеки
    `review-config` он был кандидатом в следующий юнит после живой сессии
@@ -936,8 +958,9 @@ GitHub, старое имя на remote удалено) — PR-путь и push/
 (2026-10-21: инструмент `Skill` загрузил `kb-search`, поиск вернул
 `docs/decisions/ontoship-core.md`) и zcode 3.16.2 (2026-10-24: все семь скиллов
 видны из `.agents/skills`, `Skill` загрузил `kb-search`, `search "canon"` вернул
-канон). DSH живой каталог не показал; пробел зафиксирован и не подменяется
-файловой раскладкой. В сессии dogfood 2026-10-22 хост видел `grilling`, `ship` и
+канон). DSH живой каталог не показал; пробел зафиксирован и не подменялся
+файловой раскладкой (снято 2026-11-09: каталог подтверждён — восемь
+модельных скиллов и `/ship`). В сессии dogfood 2026-10-22 хост видел `grilling`, `ship` и
 `testing` как доступные скиллы, а `to-tickets` скрыл маркером
 `disable-model-invocation: true` — как задумано.
 
@@ -952,8 +975,10 @@ GitHub, старое имя на remote удалено) — PR-путь и push/
   агентный цикл.
 - `docs/reference/sources.md` — OntoShip (vakovalskii), Pocock, ESEM 2026;
   поправка про 53 %.
-- `docs/reference/harnesses.md` — матрица zcode 3.16.2, DSH и Qoder 0.4.8: корни
-  `.agents/skills`, ранги, `AGENTS.md`, источники и запасные варианты.
+- `docs/reference/harnesses.md` — матрица zcode 3.16.2, DSH 0.2.2-rc.1 и Qoder
+  0.4.8: корни `.agents/skills`, ранги, `AGENTS.md`, источники и запасные
+  варианты; DSH — первый класс панели и онто-дока, ZCode — legacy, Qoder —
+  названный пробел.
 - `docs/plans/core-kb.md` — утверждённая, завершённая спека первого юнита
   (тикеты 01–06).
 - `docs/plans/harness-agnostic.md` — утверждённая, завершённая спека второго юнита
@@ -1264,13 +1289,14 @@ selfhost-миграция `7368a43` — первый живой update-путь 
 
 ## Факты окружения
 
-- DSH запускается из `/home/prog7/home/dev/contrib/forks/deepseek-harness` под Node
-  `/home/prog7/.local/share/node-lts/bin/node`. На 2026-10-21 веб-сервер не запущен:
-  PID в `/run/user/1000/dsh-web.pid` устарел, порт не слушается, лог
-  `/run/user/1000/dsh-web.log` оканчивается сетевыми ошибками. `dsh headless`
-  завершается до сессии с `MISSING_CREDENTIAL: llm-deepseek: no API key`;
-  `DEEPSEEK_API_KEY` не выставлен. **Живой каталог DSH не проверен** — это пробел
-  окружения, а не проекта.
+- DSH 0.2.2-rc.1 запускается из
+  `/home/prog7/home/dev/contrib/forks/deepseek-harness`; Web GUI —
+  `http://127.0.0.1:3080`. Рабочая сессия (2026-11-06…09) видит
+  project-local `.agents/skills` (ранг 200) и `AGENTS.md` с блоком `/ship`;
+  каталог — восемь модельных скиллов (`kb-search`, `kb-curate`, `init`,
+  `grilling`, `to-tickets`, `testing`, `critic`, `onto-doc`) и `ship` как
+  user-invocable `/ship`. Прежние записи «`dsh headless` падает с
+  `MISSING_CREDENTIAL`» и «живой каталог не проверен» сняты 2026-11-09.
 - Корни скиллов DSH: `<project>/.dsh/skills` (ранг 100),
   `<project>/.agents/skills` (200), `~/.dsh/skills` (400). Скилл — это
   `<name>/SKILL.md` или плоский `<name>.md`; вложенный `**/SKILL.md` не
@@ -1309,10 +1335,10 @@ selfhost-миграция `7368a43` — первый живой update-путь 
 - **Playwright MCP:** настроен в `~/.dsh/profiles/web/cordis.patch.yml` (резервная
   копия `cordis.patch.yml.bak-20261019`): `@deepseek-ai/dsh-browser-use` +
   `@deepseek-ai/dsh-experimental-browser-use-playwright-mcp` (`mode: launch`,
-  `headless: true`, `executablePath: /usr/bin/chromium`). Пока DSH не запущен, патч не
-  действует. Если запускать — (`~/.local/bin/dsh-web`), новые сессии получат
-  `mcp__playwright-mcp__*`. Тикетам 01–04 браузер не понадобился; если его нет, не
-  подделывай E2E.
+  `headless: true`, `executablePath: /usr/bin/chromium`). DSH запущен (Web GUI
+  `http://127.0.0.1:3080`), патч действует: новые сессии получают
+  `mcp__playwright-mcp__*`. Тикетам 01–04 браузер не понадобился; если его
+  нет, не подделывай E2E.
 - Python 3.13, для движка только stdlib; `pytest` доступен. `node/npm/npx` нет в
   PATH; движок не должен требовать Node.
 

@@ -33,14 +33,17 @@ links:
   [review-loose-ends.md](plans/review-loose-ends.md) — сторож паритета
   бандлов и нейтральные формулировки реестра ролей (завершён 2026-11-01,
   тикет 01 влит и принят).
+  [dsh-adaptation.md](plans/dsh-adaptation.md) — DSH первым классом: скиллы,
+  `init`, панель, критик и онто-док на нативных инструментах (утверждена
+  2026-11-06; тикеты 01–04 приняты 2026-11-09, тикет 05 в работе).
 - [ops/](ops/README.md) — операционные runbook'и. Начни с
   [continue.md](ops/continue.md), канонического старта: состояние, открытая работа и
   факты окружения.
 - [reference/](reference/README.md) — сквозные справочники.
   [sources.md](reference/sources.md) — три источника и что из каждого взято;
   [testing.md](reference/testing.md) — spec-, инвариантные и target-тесты;
-  [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder,
-  прогон ревью-панели и онто-дока;
+  [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder;
+  DSH первый класс для ревью-панели и онто-дока, ZCode — legacy;
   [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков;
   [text-style.md](reference/text-style.md) — канон текстов: скиллы, правила,
   справочники, сообщения гейтов.
