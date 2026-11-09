@@ -22,7 +22,7 @@ tracer-bullet тикетами и гейтированным ship-потоком
 ```
 docs/          KB: канон, тестирование, источники, планы, ops
 tickets/       локальный трекер исполнения (не KB; закрытые тикеты хранят доказательства)
-vendor/        база движка ontoship-zcode (MIT); тикет 01 урезает её
+vendor/        база движка ontoship-zcode (MIT); копия — skills/kb-search/
 skills/        скиллы-бандлы установщика; индекс — skills/README.md
 scripts/       project-local канал установки (link/copy/check)
 tests/         тесты движка, контрактов скиллов и установки
@@ -71,8 +71,8 @@ Markdown + git — источник истины. Всё производное 
 
 ## Сопровождение
 
-База движка — `vendor/ontoship-zcode/gitmark.py`; тикет 01 создаёт
-`skills/kb-search/gitmark.py`. Когда он существует:
+Движок KB — `skills/kb-search/gitmark.py`, урезанная копия вендорной базы
+`vendor/ontoship-zcode/gitmark.py`:
 
 ```bash
 python3 skills/kb-search/gitmark.py index    # пересобрать индекс после правки документов

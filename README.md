@@ -24,16 +24,9 @@ tracer-bullet тикеты и гейтированный ship-поток по о
 Источники и что из каждого взято: [docs/reference/sources.md](docs/reference/sources.md).
 
 **Начни здесь:** [docs/ops/continue.md](docs/ops/continue.md) — состояние, порядок
-тикетов, открытая работа и стартовый промпт. Завершены юниты
-[core-kb](docs/plans/core-kb.md), [harness-agnostic](docs/plans/harness-agnostic.md),
-[workflow-skills](docs/plans/workflow-skills.md), игрушечный
-[`install-dry-run`](docs/plans/install-dry-run.md),
-[review-config](docs/plans/review-config.md),
-[evidence-verification](docs/plans/evidence-verification.md) и мини-юниты
-[ship-isolation](docs/plans/ship-isolation.md),
-[understanding-check](docs/plans/understanding-check.md); записи тикетов лежат
-в [tickets/](tickets/README.md). Завершён и юнит [onto-doc](docs/plans/onto-doc.md):
-живое доказательство — тикет 05 — влит и принят 2026-11-01.
+тикетов, открытая работа и стартовый промпт. Юниты и даты приёмки — в
+[индексе планов](docs/plans/README.md), записи тикетов и доказательства — в
+[tickets/](tickets/README.md).
 
 ## Состояние
 
