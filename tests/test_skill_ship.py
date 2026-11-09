@@ -728,7 +728,7 @@ def test_dsh_ship_contract_can_fail():
     assert no_command != text
     assert any("`/ship`" in error for error in _contract_errors(no_command))
 
-    no_create = text.replace("`create_worktree`", "`git worktree`", 1)
+    no_create = text.replace("`create_worktree`", "`git worktree`")
     assert no_create != text
     assert any("`create_worktree`" in error for error in _contract_errors(no_create))
 
