@@ -119,6 +119,46 @@ FORBIDDEN_PHRASES = (
 # .zcode/skills is a legitimate skill-bundle root now.
 FORBIDDEN_ROOTS = (".dsh", ".qoder")
 
+# DSH run procedure (dsh-adaptation ticket 03): the branch in SKILL.md and
+# the section in the run reference, scoped separately so a phrase surviving
+# only in the ZCode section does not satisfy the DSH contract.
+RUN_REFERENCE = REPO / "skills" / "onto-doc" / "references" / "ontodoc-run.md"
+DSH_RUN_HEADING = "## dsh — прогон онто-дока"
+ZCODE_RUN_HEADING = "## zcode — прогон онто-дока"
+DSH_SKILL_PHRASES = (
+    "fan-out `subagent`",
+    "spawn, не `subagent_fork`",
+    "в одном сообщении",
+    "`provider`, `model` и `reasoning_effort` из",
+    "`workflow` не используется",
+    "только json-строку с полями `path`, `curator`, `files` и `refusal`",
+    "не по схеме",
+    "путь относительный, без `..`",
+    "области не повторяются",
+    "пустой план — стоп",
+    "прогон пишет только внутри `root`",
+)
+DSH_RUN_PHRASES = (
+    "`<provider>/<model>`",
+    "`reasoning_effort`",
+    "`subagent` (spawn, не `subagent_fork`)",
+    "в одном сообщении",
+    "`workflow` не используется",
+    "`list_subagent_models`",
+    "без `..`",
+    "не повторяются",
+    "пустой план — стоп",
+    "только внутри `root`",
+    "kb-curate",
+    "только json-строка",
+    "`path`",
+    "`curator`",
+    "`files`",
+    "`refusal`",
+    "не по схеме",
+    "git diff --name-only",
+)
+
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
     """Parse the simple single-line YAML frontmatter this skill uses."""
@@ -220,6 +260,194 @@ def _contract_errors(text: str) -> list[str]:
         if root not in text:
             errors.append(f"body: missing engine path for a channel: {root!r}")
     return errors
+
+
+def _dsh_run_section(text: str) -> str:
+    """Slice the DSH run section; empty when its heading is absent.
+
+    The slice ends at the next `##` heading, so a phrase that survives only in
+    the ZCode or Qoder section does not satisfy the DSH contract. The text is
+    whitespace-normalized, like the rest of the contract checks.
+    """
+    lowered = _normalized_lower(text)
+    start = lowered.find(DSH_RUN_HEADING)
+    if start == -1:
+        return ""
+    end = lowered.find(" ## ", start + 1)
+    return lowered[start:end if end != -1 else len(lowered)]
+
+
+def _dsh_run_errors(text: str) -> list[str]:
+    """Return every violated DSH run contract; empty means the file is sound.
+
+    spec: docs/plans/dsh-adaptation.md#готово — DSH-прогон онто-дока: fan-out
+    `subagent` (spawn, не `subagent_fork`) с маршрутом и уровнем куратора из
+    `[agents.curator]`, все кураторы в одном сообщении, JSON-строка на
+    область с четырьмя полями, проверки плана и корня, сверка с diff;
+    ZCode-раздел сохранён, старая строка «DSH и Qoder — вне плана» заменена
+    Qoder-пробелом.
+    """
+    lowered = _normalized_lower(text)
+    errors: list[str] = []
+    section = _dsh_run_section(text)
+    if not section:
+        errors.append(f"dsh-run: missing section {DSH_RUN_HEADING!r}")
+    else:
+        for phrase in DSH_RUN_PHRASES:
+            if phrase not in section:
+                errors.append(f"dsh-run: DSH section lost {phrase!r}")
+    if "dsh и qoder — вне плана" in lowered:
+        errors.append("dsh-run: the retired «DSH и Qoder — вне плана» line is back")
+    if "qoder" not in lowered:
+        errors.append("dsh-run: the Qoder gap is not named")
+    if ZCODE_RUN_HEADING not in lowered:
+        errors.append("dsh-run: the ZCode procedure section is gone")
+    return errors
+
+
+def _dsh_skill_errors(text: str) -> list[str]:
+    """Return every violated DSH branch of the skill body; empty is sound.
+
+    spec: docs/plans/dsh-adaptation.md#готово — DSH-ветка в SKILL.md: запуск
+    идёт через `subagent`, не через `workflow`; план и корень проверяет
+    родитель, ответ куратора — JSON-строка, ответ не по схеме — именованный
+    отказ.
+    """
+    errors: list[str] = []
+    lowered = _normalized_lower(_parse(text)[1])
+    for phrase in DSH_SKILL_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"dsh-skill: DSH branch lost {phrase!r}")
+    if "dsh и qoder — вне плана" in lowered:
+        errors.append("dsh-skill: the retired «DSH и Qoder — вне плана» line is back")
+    return errors
+
+
+def test_dsh_run_procedure_is_named():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: DSH-процедура
+    прогона в references/ontodoc-run.md; ZCode-раздел сохранён, старая строка
+    «DSH и Qoder — вне плана» заменена Qoder-пробелом (спека, техническое
+    следствие 5)."""
+    assert RUN_REFERENCE.is_file(), "the onto-doc run reference is missing"
+    assert _dsh_run_errors(RUN_REFERENCE.read_text("utf-8")) == []
+
+
+def test_dsh_skill_branch_is_named():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: DSH-ветка в
+    SKILL.md — fan-out `subagent`, маршрут и уровень из `[agents.curator]`,
+    JSON-строка на область, проверки плана и корня."""
+    assert _dsh_skill_errors(SKILL.read_text("utf-8")) == []
+
+
+def test_dsh_run_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH run contract rejects a lost section, a lost spawn, a lost plan
+    guard, a lost JSON row, a lost off-schema refusal, a lost diff check, a
+    resurrected «DSH и Qoder — вне плана» line and a lost ZCode section."""
+    text = RUN_REFERENCE.read_text("utf-8")
+    assert _dsh_run_errors(text) == []
+
+    no_heading = text.replace(DSH_RUN_HEADING, "## dsh — вне плана", 1)
+    assert no_heading != text
+    assert any("missing section" in error for error in _dsh_run_errors(no_heading))
+
+    no_spawn = text.replace("`subagent` (spawn, не `subagent_fork`)",
+                            "`subagent_fork`", 1)
+    assert no_spawn != text
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _dsh_run_errors(no_spawn))
+
+    no_plan = text.replace("без `..`", "как есть", 1)
+    assert no_plan != text
+    assert any("без `..`" in error for error in _dsh_run_errors(no_plan))
+
+    no_json = text.replace("только JSON-строка", "JSON", 1)
+    assert no_json != text
+    assert any("только json-строка" in error for error in _dsh_run_errors(no_json))
+
+    no_field = text.replace("`refusal` (причина отказа", "`reason` (причина отказа", 1)
+    assert no_field != text
+    assert any("`refusal`" in error for error in _dsh_run_errors(no_field))
+
+    no_schema = text.replace("не по схеме", "пустым списком", 1)
+    assert no_schema != text
+    assert any("не по схеме" in error for error in _dsh_run_errors(no_schema))
+
+    no_diff = text.replace("git diff --name-only", "git status", 1)
+    assert no_diff != text
+    assert any("git diff --name-only" in error for error in _dsh_run_errors(no_diff))
+
+    no_qoder = text.replace("Qoder", "другой харнесс")
+    assert no_qoder != text
+    assert any("Qoder" in error for error in _dsh_run_errors(no_qoder))
+
+    resurrected = text.replace("## Qoder — вне плана",
+                               "## DSH и Qoder — вне плана", 1)
+    assert resurrected != text
+    assert any("DSH и Qoder" in error for error in _dsh_run_errors(resurrected))
+
+    no_zcode = text.replace(ZCODE_RUN_HEADING, "## zcode — вне плана", 1)
+    assert no_zcode != text
+    assert any("ZCode procedure section" in error
+               for error in _dsh_run_errors(no_zcode))
+
+
+def test_dsh_skill_branch_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH branch rejects a lost spawn, a lost single message, a lost route
+    source, a lost workflow reason, a lost JSON row, a lost off-schema
+    refusal, a lost plan guard, a lost root bound and a resurrected
+    «DSH и Qoder — вне плана» line."""
+    text = SKILL.read_text("utf-8")
+    assert _dsh_skill_errors(text) == []
+
+    no_fanout = _drop_phrase(text, "fan-out `subagent`")
+    assert no_fanout != text
+    assert any("fan-out `subagent`" in error
+               for error in _dsh_skill_errors(no_fanout))
+
+    no_spawn = _drop_phrase(text, "spawn, не `subagent_fork`")
+    assert no_spawn != text
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _dsh_skill_errors(no_spawn))
+
+    no_single = _drop_phrase(text, "в одном сообщении")
+    assert no_single != text
+    assert any("в одном сообщении" in error for error in _dsh_skill_errors(no_single))
+
+    no_route = _drop_phrase(text, "`reasoning_effort` из")
+    assert no_route != text
+    assert any("`reasoning_effort` из" in error
+               for error in _dsh_skill_errors(no_route))
+
+    no_reason = _drop_phrase(text, "`workflow` не используется")
+    assert no_reason != text
+    assert any("`workflow` не используется" in error
+               for error in _dsh_skill_errors(no_reason))
+
+    no_json = _drop_phrase(text, "только json-строку с полями")
+    assert no_json != text
+    assert any("только json-строку с полями" in error
+               for error in _dsh_skill_errors(no_json))
+
+    no_schema = _drop_phrase(text, "не по схеме")
+    assert no_schema != text
+    assert any("не по схеме" in error for error in _dsh_skill_errors(no_schema))
+
+    no_plan = _drop_phrase(text, "путь относительный, без `..`")
+    assert no_plan != text
+    assert any("путь относительный, без `..`" in error
+               for error in _dsh_skill_errors(no_plan))
+
+    no_root = _drop_phrase(text, "прогон пишет только внутри `root`")
+    assert no_root != text
+    assert any("прогон пишет только внутри `root`" in error
+               for error in _dsh_skill_errors(no_root))
+
+    resurrected = text.replace("## Запуск прогона",
+                               "## Запуск прогона: DSH и Qoder — вне плана", 1)
+    assert resurrected != text
+    assert any("DSH и Qoder" in error for error in _dsh_skill_errors(resurrected))
 
 
 def test_skill_is_a_discoverable_directory_bundle():

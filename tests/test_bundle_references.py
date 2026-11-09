@@ -98,6 +98,11 @@ CROSSLINK = "../ship/references/method-phases.md"
 GUARD_HEAD = "файл бандла — первоисточник"
 GUARD_TAIL = "написал свой, бери его"
 
+# The run reference carries one section per harness (dsh-adaptation ticket
+# 03): the DSH fan-out procedure lives beside the ZCode workflow procedure.
+DSH_RUN_HEADING = "## dsh — прогон онто-дока"
+ZCODE_RUN_HEADING = "## zcode — прогон онто-дока"
+
 # Blocks end at a blank line, the next bullet/numbered item or a heading.
 BLOCK_BREAK = re.compile(r"\n(?=\n|[-*] |\d+\. |#)")
 
@@ -328,6 +333,97 @@ def test_bundle_files_carry_no_repo_paths():
     assert reference_files(), "no bundle references/ directories exist"
     errors = _repo_path_errors()
     assert errors == [], "\n".join(errors)
+
+
+def _dsh_run_section_errors(root: Path = SKILLS) -> list[str]:
+    """The onto-doc run reference carries the DSH procedure section.
+
+    spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: процедура
+    DSH-прогона живёт в файле бандла онто-дока, рядом с ZCode-процедурой;
+    старая общая строка «DSH и Qoder — вне плана» заменена Qoder-пробелом.
+    """
+    path = root / "onto-doc" / "references" / "ontodoc-run.md"
+    if not path.is_file():
+        return [f"onto-doc: run reference is missing: {path}"]
+    text = _normalized_lower(path.read_text("utf-8"))
+    errors: list[str] = []
+    section = ""
+    if DSH_RUN_HEADING in text:
+        section = text.split(DSH_RUN_HEADING, 1)[1].split(" ## ", 1)[0]
+    else:
+        errors.append("onto-doc: run reference carries no DSH procedure section")
+    if section:
+        for phrase in ("`subagent` (spawn, не `subagent_fork`)",
+                       "в одном сообщении", "git diff --name-only"):
+            if phrase not in section:
+                errors.append(f"onto-doc: DSH procedure section lost "
+                              f"{phrase!r}")
+    if ZCODE_RUN_HEADING not in text:
+        errors.append("onto-doc: the ZCode procedure section is gone")
+    if "dsh и qoder — вне плана" in text:
+        errors.append("onto-doc: the retired «DSH и Qoder — вне плана» "
+                      "section is back")
+    return errors
+
+
+def test_run_reference_carries_the_dsh_procedure():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: DSH-процедура
+    онто-дока — раздел файла бандла рядом с ZCode-разделом; ZCode-раздел
+    сохранён, общая строка «DSH и Qoder — вне плана» снята."""
+    errors = _dsh_run_section_errors()
+    assert errors == [], "\n".join(errors)
+
+
+def test_run_reference_dsh_section_can_fail(tmp_path: Path):
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the run reference check rejects a missing DSH section, a DSH section
+    without the spawn, the single message or the diff check, a lost ZCode
+    section and a resurrected combined section."""
+    path = SKILLS / "onto-doc" / "references" / "ontodoc-run.md"
+    text = path.read_text("utf-8")
+    assert _dsh_run_section_errors() == []
+
+    no_section = text.replace(DSH_RUN_HEADING, "## dsh — вне плана", 1)
+    assert no_section != text
+    assert any("no DSH procedure section" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, no_section)))
+
+    no_spawn = text.replace("`subagent` (spawn, не `subagent_fork`)",
+                            "`subagent`", 1)
+    assert no_spawn != text
+    assert any("spawn, не `subagent_fork`" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, no_spawn)))
+
+    no_diff = text.replace("git diff --name-only", "git status", 1)
+    assert no_diff != text
+    assert any("git diff --name-only" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, no_diff)))
+
+    no_zcode = text.replace(ZCODE_RUN_HEADING, "## zcode — вне плана", 1)
+    assert no_zcode != text
+    assert any("ZCode procedure section is gone" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, no_zcode)))
+
+    resurrected = text.replace("## Qoder — вне плана",
+                               "## DSH и Qoder — вне плана", 1)
+    assert resurrected != text
+    assert any("DSH и Qoder" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, resurrected)))
+
+
+def _write_tree(tmp_path: Path, run_text: str) -> Path:
+    """A fabricated skills tree whose onto-doc run reference carries run_text."""
+    root = tmp_path / "skills"
+    shutil.copytree(SKILLS, root, dirs_exist_ok=True,
+                    ignore=shutil.ignore_patterns("__pycache__"))
+    (root / "onto-doc" / "references" / "ontodoc-run.md").write_text(
+        run_text, "utf-8")
+    return root
 
 
 def test_reference_checks_can_fail(tmp_path: Path):
