@@ -30,8 +30,12 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
-GITIGNORE_LINES = (".gitmark/", "*-map.html", ".scratch/", ".zcode/agents/",
-                   ".zcode/workflows/")
+# Two harness branches (dsh-adaptation, technical consequences 1 and 2): the
+# host tool picks the branch, and each branch writes its own managed block and
+# .gitignore set. DSH needs four lines; ZCode adds the generated definitions
+# and the vendored workflows.
+GITIGNORE_DSH = (".gitmark/", "*-map.html", ".scratch/", "<навыковый корень>/")
+GITIGNORE_ZCODE = GITIGNORE_DSH + (".zcode/agents/", ".zcode/workflows/")
 CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
               "curator")
 # Channel-neutral template: the skill-bundle root is substituted at run time
@@ -69,6 +73,37 @@ BOOTSTRAP_NEEDLES = (
     "тот же список активных моделей шага 1",
     "У модели без уровней ключ `level` опусти",
 ) + CORE_ROLES
+
+# Harness selection (dsh-adaptation, technical consequence 2): the tool the
+# host exposes picks the branch; neither or both stops with an operator
+# question. The DSH branch lists routes, keeps the session model from runtime
+# context, writes `<provider>/<model>` with the maximum effort and skips the
+# generator; the ZCode branch keeps `ListModels`, `[current]`, six lines and
+# the bundled generator.
+HARNESS_NEEDLES = (
+    "определяется доступным инструментом",
+    "`list_subagent_models`",
+    "`ListModels`",
+    "Ни одного или оба",
+    "задай вопрос оператору и остановись",
+)
+DSH_BRANCH_NEEDLES = (
+    "`list_subagent_models`",
+    "runtime-контекст",
+    "`<provider>/<model>`",
+    "спроси оператора",
+    "`gen_agents.py` не запускай",
+    "`.zcode/agents/`",
+    "`.zcode/workflows/`",
+    "не создавай",
+    "дефолт модели",
+)
+ZCODE_BRANCH_NEEDLES = (
+    "`ListModels`",
+    "[current]",
+    GENERATOR_LINE,
+    "перезапуск",
+)
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".qoder", "commands.md")
 # .zcode left the list with the marketplace-plugin channel: .zcode/skills is a
@@ -112,7 +147,43 @@ ORDINAL_QUESTION = re.compile(
 
 # The block from the spec, pinned independently of the skill text: the expected value
 # is this literal, not a re-extraction of the implementation.
-BLOCK = """\
+BLOCK_DSH = """\
+<!-- BEGIN ontoship -->
+## База знаний (OntoShip)
+
+- Точка входа: [`docs/README.md`](docs/README.md) — главный индекс KB; у каждой папки
+  есть индекс `README.md`.
+- Ищи до ответа или записи: загрузи скилл `kb-search`. Движок лежит в
+  `<навыковый корень>/kb-search/gitmark.py`; корень — `.agents/skills` или
+  `.zcode/skills`, по каналу установки.
+- Новые или обновлённые документы: загрузи скилл `kb-curate` — сначала поиск, никогда
+  не дублируй.
+- Сопровождение после правки документов:
+
+  ```sh
+  python3 <навыковый корень>/kb-search/gitmark.py index
+  python3 <навыковый корень>/kb-search/gitmark.py lint --strict
+  python3 <навыковый корень>/kb-search/gitmark.py map -o docs-map.html
+  ```
+
+- KB — это markdown + git: `.gitmark/`, `*-map.html` и `.scratch/` производные или
+  эфемерные — никогда не коммитятся.
+
+## Вход в работу (OntoShip)
+
+- Изменения этого проекта идут через ship-флоу: скилл `ship` вызывается
+  командой `/ship`, один тикет за запуск; свободные правки в обход тикета
+  не делаются — прямые решения оператора выше этого правила.
+- Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
+  харнесса (в ZCode — план-мод) не используется.
+- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
+  сессия продолжается оттуда и берёт следующий тикет оттуда же.
+- Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой
+  `/ship` или «исполняй тикет N».
+<!-- END ontoship -->
+"""
+
+BLOCK_ZCODE = """\
 <!-- BEGIN ontoship -->
 ## База знаний (OntoShip)
 
@@ -148,15 +219,25 @@ BLOCK = """\
 <!-- END ontoship -->
 """
 
+BLOCKS = (BLOCK_DSH, BLOCK_ZCODE)
+
 # Rule clauses of the entry section (docs/plans/entry-and-continuity.md,
 # «Готово» 1, 3): one anchor per clause, so a dropped clause reddens with its
-# own name; removal probes delete case-insensitively.
-ENTRY_RULES = (
-    "идут через ship-флоу: скилл `ship` по команде",
+# own name. The ship clause is the harness branch: DSH names `/ship`, ZCode
+# keeps the operator-command wording.
+ENTRY_RULES_COMMON = (
     "свободные правки в обход тикета не",
     "Запрос плана открывает draft-спеку через скилл `grilling`",
     "харнесса (в ZCode — план-мод) не используется",
     "Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):",
+)
+ENTRY_RULES_DSH = (
+    "скилл `ship` вызывается",
+    "командой `/ship`",
+    "`/ship` или «исполняй тикет N»",
+)
+ENTRY_RULES_ZCODE = (
+    "идут через ship-флоу: скилл `ship` по команде",
     "«исполняй тикет N» — ship",
 )
 
@@ -239,6 +320,11 @@ BLOCK_FENCE = re.compile(
     re.MULTILINE | re.DOTALL,
 )
 
+GITIGNORE_FENCE = re.compile(
+    r"^```text\n((?:\.gitmark/\n).*?)^```$",
+    re.MULTILINE | re.DOTALL,
+)
+
 
 def _parse_skill(text: str) -> tuple[dict[str, str], str]:
     """Parse the single-line YAML frontmatter the skill uses."""
@@ -266,17 +352,22 @@ def _unquote(value: str) -> str:
     return value
 
 
-def _block(text: str) -> str:
-    """The four-backtick fenced block carrying the two markers, or a failure."""
-    matches = BLOCK_FENCE.findall(text)
-    if len(matches) != 1:
-        raise ValueError(f"expected exactly one fenced ontoship block, got {len(matches)}")
-    return matches[0]
+def _blocks(text: str) -> list[str]:
+    """The four-backtick fenced ontoship blocks, in file order."""
+    return BLOCK_FENCE.findall(text)
 
 
-def _standalone_lines(text: str) -> list[str]:
-    """Lines that are exactly a .gitignore rule, not prose mentioning one."""
-    return [line for line in text.splitlines() if line in GITIGNORE_LINES]
+def _gitignore_sets(text: str) -> list[tuple[str, ...]]:
+    """The ```text gitignore sets, in file order, one line per rule."""
+    return [tuple(match.splitlines()) for match in GITIGNORE_FENCE.findall(text)]
+
+
+def _branch(text: str, heading: str, next_heading: str) -> str:
+    """Text between two section headings; empty when the pair is missing."""
+    match = re.search(
+        rf"^{re.escape(heading)}\n(.*?)(?=^{re.escape(next_heading)}\n|\Z)",
+        text, re.MULTILINE | re.DOTALL)
+    return match.group(1) if match else ""
 
 
 def _mentions(text: str, term: str) -> bool:
@@ -350,9 +441,28 @@ def _contract_errors(text: str) -> list[str]:
         if needle not in body:
             errors.append(f"body: missing {needle!r}")
 
+    for needle in HARNESS_NEEDLES:
+        if needle not in body:
+            errors.append(f"harness: missing {needle!r}")
+
     for needle in BOOTSTRAP_NEEDLES:
         if needle not in body:
             errors.append(f"bootstrap: missing {needle!r}")
+
+    dsh = _branch(body, "### DSH", "### ZCode")
+    zcode = _branch(body, "### ZCode", "## 6. Проверь")
+    if not dsh:
+        errors.append("branches: the DSH bootstrap section is missing")
+    else:
+        for needle in DSH_BRANCH_NEEDLES:
+            if needle not in dsh:
+                errors.append(f"dsh: missing {needle!r}")
+    if not zcode:
+        errors.append("branches: the ZCode bootstrap section is missing")
+    else:
+        for needle in ZCODE_BRANCH_NEEDLES:
+            if needle not in zcode:
+                errors.append(f"zcode: missing {needle!r}")
 
     for term in FORBIDDEN:
         if _mentions(text, term):
@@ -389,28 +499,26 @@ def _contract_errors(text: str) -> list[str]:
             errors.append("bootstrap: the check list is not a permutation of "
                           "the core roles (duplicate entry?)")
 
-    try:
-        block = _block(text)
-    except ValueError as exc:
-        errors.append(str(exc))
+    blocks = _blocks(text)
+    if len(blocks) != len(BLOCKS):
+        errors.append(f"block: expected {len(BLOCKS)} fenced ontoship blocks, "
+                      f"got {len(blocks)}")
     else:
-        if block != BLOCK:
-            errors.append("block: the fenced ontoship block is not the verbatim template")
-        for marker in (BEGIN, END):
-            if block.count(marker) != 1:
-                errors.append(f"block: expected exactly one {marker!r}")
+        for got, expected in zip(blocks, BLOCKS):
+            if got != expected:
+                errors.append("block: a fenced ontoship block is not its "
+                              "verbatim DSH/ZCode template")
+            for marker in (BEGIN, END):
+                if got.count(marker) != 1:
+                    errors.append(f"block: expected exactly one {marker!r}")
 
-    for line in GITIGNORE_LINES:
-        if _standalone_lines(text).count(line) != 1:
-            errors.append(f"body: expected exactly one standalone {line!r} rule")
+    gitignore_sets = _gitignore_sets(text)
+    if gitignore_sets != [GITIGNORE_DSH, GITIGNORE_ZCODE]:
+        errors.append("gitignore: the two fenced sets are not the verbatim "
+                      "DSH four-line and ZCode six-line sets")
 
     # The channel line is a placeholder rule; both channel roots are named in
     # the prose around it, so a plugin-installed init writes its own root.
-    placeholder_lines = [ln for ln in text.splitlines()
-                         if ln.strip() == "<навыковый корень>/"]
-    if len(placeholder_lines) != 1:
-        errors.append("body: the gitignore block must carry exactly one "
-                      "<навыковый корень>/ placeholder rule")
     for root in (".agents/skills/", ".zcode/skills/"):
         if root not in text:
             errors.append(f"body: the channel root {root!r} is missing")
@@ -478,40 +586,50 @@ def test_skill_is_a_discoverable_directory_bundle():
     assert _contract_errors(text) == []
 
 
-def test_block_is_verbatim_and_has_one_marker_pair():
-    """spec: docs/plans/harness-agnostic.md#готово — the managed block, `<!-- BEGIN ontoship -->` … `<!-- END … -->`."""
+def test_blocks_are_verbatim_and_each_has_one_marker_pair():
+    """spec: docs/plans/harness-agnostic.md#готово, docs/plans/dsh-adaptation.md#готово —
+    два управляемых блока (DSH с `/ship` и ZCode), каждый дословный, с одной
+    парой маркеров."""
     text = SKILL.read_text("utf-8")
-    assert _block(text) == BLOCK
-    # The prose marker, the template and the verification grep each name the pair once.
-    assert text.count(BEGIN) == text.count(END) == 3
+    assert _blocks(text) == list(BLOCKS)
+    # The prose marker, two templates and the verification grep each name the pair.
+    assert text.count(BEGIN) == text.count(END) == 4
 
 
 def test_entry_section_rules_are_pinned_and_mutation_reddens():
-    """spec: docs/plans/entry-and-continuity.md#готово (1, 3) — секция «Вход в
-    работу»: каждое правило под якорной и мутационной пробой, удаление фразы —
-    без учёта регистра."""
+    """spec: docs/plans/entry-and-continuity.md#готово (1, 3),
+    docs/plans/dsh-adaptation.md#готово (2) — секция «Вход в работу» в двух
+    ветках: общие правила и различие ship-команды (`/ship` только в DSH)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
-    for rule in ENTRY_RULES:
-        assert rule in text, f"entry rule missing: {rule!r}"
+    assert _blocks(text) == list(BLOCKS)
+    dsh, zcode = (re.sub(r"\s+", " ", block) for block in _blocks(text))
+    for rule in ENTRY_RULES_COMMON:
+        assert rule in dsh, f"common entry rule missing in DSH: {rule!r}"
+        assert rule in zcode, f"common entry rule missing in ZCode: {rule!r}"
+    for rule in ENTRY_RULES_DSH:
+        assert rule in dsh, f"DSH entry rule missing: {rule!r}"
+    for rule in ENTRY_RULES_ZCODE:
+        assert rule in zcode, f"ZCode entry rule missing: {rule!r}"
+    assert "/ship" not in zcode
 
-    # Removal probe per clause: the case-insensitive deletion must redden.
-    for rule in ENTRY_RULES:
-        mutated = re.sub(re.escape(rule), "", text, flags=re.IGNORECASE)
-        assert mutated != text, f"removal of {rule!r} changed nothing"
+    dsh_block = _blocks(text)[0]
+    for rule in ENTRY_RULES_DSH:
+        mutated_block = dsh_block.replace(rule, "", 1)
+        assert mutated_block != dsh_block, f"removal of {rule!r} changed nothing"
+        mutated = text.replace(dsh_block, mutated_block, 1)
         assert _contract_errors(mutated), f"removal of {rule!r} did not redden"
 
-    # Negation flip: bound to the block clause, not the first match in the file.
     flipped = text.replace("харнесса (в ZCode — план-мод) не используется",
                            "харнесса (в ZCode — план-мод) используется")
     assert flipped != text
     assert _contract_errors(flipped), "negation flip did not redden"
 
-    # Step order: the state rule and the command vocabulary swap places.
+    # Step order in the DSH block: the state rule and the command bullet swap.
     state = ("- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):\n"
              "  сессия продолжается оттуда и берёт следующий тикет оттуда же.\n")
-    commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; «исполняй тикет N» — ship\n"
-                "  тикета N.\n")
+    commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой\n"
+                "  `/ship` или «исполняй тикет N».\n")
     assert state in text and commands in text
     swapped = text.replace(state + commands, commands + state)
     assert swapped != text
@@ -621,15 +739,85 @@ def test_continue_skeleton_contract_can_fail():
                for error in _contract_errors(lost_bullet))
 
 
-def test_gitignore_lines_are_the_six_the_kb_requires():
-    """spec: docs/plans/harness-agnostic.md#готово (с припиской 2026-11-02) —
-    `.gitmark/`, `*-map.html`, `.scratch/`, плейсхолдер навыкового корня,
-    `.zcode/agents/` и `.zcode/workflows/`."""
+def test_gitignore_sets_are_four_for_dsh_and_six_for_zcode():
+    """spec: docs/plans/harness-agnostic.md#готово (с припиской 2026-11-02),
+    docs/plans/dsh-adaptation.md#решения (следствие 2) — DSH пишет четыре
+    строки (`.gitmark/`, `*-map.html`, `.scratch/`, корень), ZCode — те же
+    шесть: добавляются `.zcode/agents/` и `.zcode/workflows/`."""
     text = SKILL.read_text("utf-8")
-    lines = _standalone_lines(text)
-    assert lines == list(GITIGNORE_LINES)
-    assert "<навыковый корень>/" in lines or any(
-        ln.strip() == "<навыковый корень>/" for ln in text.splitlines())
+    assert _gitignore_sets(text) == [GITIGNORE_DSH, GITIGNORE_ZCODE]
+    assert len(GITIGNORE_DSH) == 4
+    assert len(GITIGNORE_ZCODE) == 6
+
+
+def test_harness_is_chosen_by_the_host_tool():
+    """spec: docs/plans/dsh-adaptation.md#решения (следствие 2) — харнесс
+    определяется доступным инструментом хоста, не путём: DSH — `subagent` и
+    `list_subagent_models`, ZCode — `ListModels`; ни одного или оба — вопрос
+    оператору и остановка."""
+    text = SKILL.read_text("utf-8")
+    flat = re.sub(r"\s+", " ", text)
+    for phrase in HARNESS_NEEDLES:
+        assert phrase in flat, f"harness rule missing: {phrase!r}"
+    assert "ни путём" in flat or "не путём" in flat
+
+
+def test_dsh_branch_writes_four_lines_and_skips_the_generator():
+    """spec: docs/plans/dsh-adaptation.md#готово (2), следствия 1–3 — DSH-ветка:
+    маршруты из `list_subagent_models`, `<provider>/<model>`, максимум уровня,
+    модель сессии из runtime-контекста, четыре строки и никакого генератора."""
+    text = SKILL.read_text("utf-8")
+    dsh = _branch(text, "### DSH", "### ZCode")
+    assert dsh, "the DSH bootstrap section is missing"
+    for needle in DSH_BRANCH_NEEDLES:
+        assert needle in dsh, f"DSH branch lost {needle!r}"
+    assert GENERATOR_LINE not in dsh
+    assert "четыре строки" in text
+    assert "`/ship`" in _blocks(text)[0]
+
+
+def test_zcode_branch_keeps_listmodels_and_generator():
+    """spec: docs/plans/dsh-adaptation.md#ограничения — ZCode legacy: шесть
+    строк, `ListModels` с `[current]`, генератор определений и перезапуск
+    хоста сохранены."""
+    text = SKILL.read_text("utf-8")
+    zcode = _branch(text, "### ZCode", "## 6. Проверь")
+    assert zcode, "the ZCode bootstrap section is missing"
+    for needle in ZCODE_BRANCH_NEEDLES:
+        assert needle in zcode, f"ZCode branch lost {needle!r}"
+    assert "шесть строк" in text
+
+
+def test_dsh_branch_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    DSH branch contract rejects a lost host-tool choice, a lost live route
+    listing, a lost runtime session model, a restored generator and a lost
+    four-line set."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_tool = text.replace("`list_subagent_models`", "`models`")
+    assert no_tool != text
+    assert any("harness: missing" in error for error in _contract_errors(no_tool))
+
+    no_listmodels = text.replace("`ListModels`", "`models`")
+    assert no_listmodels != text
+    assert any("harness: missing" in error for error in _contract_errors(no_listmodels))
+
+    no_runtime = text.replace("runtime-контекст", "описание сессии")
+    assert no_runtime != text
+    assert any("dsh: missing" in error for error in _contract_errors(no_runtime))
+
+    restored_generator = text.replace(
+        "`gen_agents.py` не запускай",
+        "запусти `gen_agents.py`")
+    assert restored_generator != text
+    assert any("dsh: missing" in error for error in _contract_errors(restored_generator))
+
+    lost_four = text.replace("\n".join(GITIGNORE_DSH) + "\n", "", 1)
+    assert lost_four != text
+    assert any("gitignore: the two fenced sets" in error
+               for error in _contract_errors(lost_four))
 
 
 def test_contract_can_fail():
@@ -644,7 +832,8 @@ def test_contract_can_fail():
 
     missing_rule = text.replace("\n*-map.html\n", "\n*-map.html.bak\n", 1)
     assert missing_rule != text
-    assert any("*-map.html" in error for error in _contract_errors(missing_rule))
+    assert any("gitignore: the two fenced sets" in error
+               for error in _contract_errors(missing_rule))
 
     leaked_entity = text + "\nCreate the docs/reference/commands.md registry.\n"
     assert any("registry" in error for error in _contract_errors(leaked_entity))
@@ -726,12 +915,13 @@ def test_no_model_source_stops_with_a_named_gap():
     assert "назови пробел и остановись" in text
 
 
-def test_bootstrap_runs_the_bundled_generator():
-    """spec: docs/plans/review-config.md#готово — генерация определений доступна
-    установленному проекту: бандл init несёт генератор (решение оператора
-    2026-10-29)."""
+def test_bootstrap_runs_the_bundled_generator_on_zcode_only():
+    """spec: docs/plans/review-config.md#готово, docs/plans/dsh-adaptation.md#решения —
+    генератор определений доступен установленному проекту в ZCode-ветке; в
+    DSH-ветке он не запускается (определений ролей там нет)."""
     text = SKILL.read_text("utf-8")
-    assert GENERATOR_LINE in text
+    assert GENERATOR_LINE in _branch(text, "### ZCode", "## 6. Проверь")
+    assert GENERATOR_LINE not in _branch(text, "### DSH", "### ZCode")
 
 
 def test_bootstrap_contract_can_fail():
@@ -927,7 +1117,7 @@ def test_repo_managed_block_matches_the_installer_substitution():
     match = _re.search(
         rf"{_re.escape(BEGIN)}\n(.*?){_re.escape(END)}", agents, _re.DOTALL)
     assert match, "the managed block is missing from AGENTS.md"
-    expected = BLOCK.replace("<навыковый корень>", ".agents/skills")
+    expected = BLOCK_DSH.replace("<навыковый корень>", ".agents/skills")
     inner = match.group(1)
     assert inner.strip("\n") == expected.replace(f"{BEGIN}\n", "").replace(
         f"\n{END}", "").strip("\n")
