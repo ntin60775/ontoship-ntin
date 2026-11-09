@@ -453,26 +453,34 @@ def test_empty_level_guard_is_load_bearing(project: Path) -> None:
     assert frontmatter_level(text) is None
 
 
-# Decision 5 of the dsh-adaptation plan (ask 2026-11-09): all six roles run
-# on the DSH route `deepseek-account/deepseek-flash`; reviewers and the critic
-# take `max`, the curator takes `low`. The live `list_subagent_models` of the
-# same day lists the efforts off, low, high, max for that model.
+# Decision 5 of the dsh-adaptation plan (ask 2026-11-09, amended the same
+# day): the four reviewers run on `qwen-token-plan/qwen3.8-flash` with
+# `xhigh`; the critic takes `max` and the curator `low` on
+# `deepseek-account/deepseek-flash`. The live `list_subagent_models` of the
+# same day lists off, low, high, max for `deepseek-flash` and low, medium,
+# xhigh for `qwen3.8-flash`.
 DSH_DECISION_FIVE_ROUTES = {
-    "reviewer-spec": ("deepseek-account/deepseek-flash", "max"),
-    "reviewer-tests": ("deepseek-account/deepseek-flash", "max"),
-    "reviewer-code": ("deepseek-account/deepseek-flash", "max"),
-    "reviewer-kb": ("deepseek-account/deepseek-flash", "max"),
+    "reviewer-spec": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
+    "reviewer-tests": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
+    "reviewer-code": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
+    "reviewer-kb": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
     "critic": ("deepseek-account/deepseek-flash", "max"),
     "curator": ("deepseek-account/deepseek-flash", "low"),
+}
+LIVE_EFFORTS = {
+    "deepseek-account/deepseek-flash": {"off", "low", "high", "max"},
+    "qwen-token-plan/qwen3.8-flash": {"low", "medium", "xhigh"},
 }
 
 
 def test_repo_registry_matches_decision_five_routes() -> None:
-    """spec: docs/plans/dsh-adaptation.md#решения — решение 5 (ask 2026-11-09):
-    все шесть ролей на `deepseek-account/deepseek-flash`, ревьюеры и `critic` —
-    `max`, `curator` — `low`; `level` — допустимый `reasoning_effort` модели
-    (живой `list_subagent_models` перечисляет off, low, high, max). Пин
-    переведён тикетом 01 после красной пробы на базовом коммите."""
+    """spec: docs/plans/dsh-adaptation.md#решения — решение 5 (ask 2026-11-09)
+    с припиской 2026-11-09: четыре ревьюера — `qwen-token-plan/qwen3.8-flash`
+    с `xhigh`, `critic` и `curator` — `deepseek-account/deepseek-flash`
+    (`max` и `low`); `level` — допустимый `reasoning_effort` своей модели
+    (живой `list_subagent_models`: deepseek-flash — off/low/high/max,
+    qwen3.8-flash — low/medium/xhigh). Пин переведён тикетом 01 после
+    красной пробы на базовом коммите."""
     import tomllib
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
@@ -487,7 +495,7 @@ def test_repo_registry_matches_decision_five_routes() -> None:
         provider, sep, bare_model = model.partition("/")
         assert sep == "/" and provider and bare_model, \
             f"[agents.{name}] model is not <provider>/<model>: {model!r}"
-        assert level in {"off", "low", "high", "max"}, \
+        assert level in LIVE_EFFORTS[model], \
             f"[agents.{name}] level {level!r} is not an effort of the route"
 
 

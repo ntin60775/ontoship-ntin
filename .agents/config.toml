@@ -1,9 +1,10 @@
 # OntoShip role registry.
 # One [agents.<name>] section per role; `model` is required.
 # Routes are this repository's DSH routes (dsh-adaptation decision 5,
-# 2026-11-09): all six roles run on deepseek-account/deepseek-flash;
-# reviewers and the critic take `max`, the curator `low`. A ZCode project
-# gets its own config from `init` (ListModels).
+# 2026-11-09, with the operator's amendment of the same day): the four
+# reviewers run on qwen-token-plan/qwen3.8-flash with `xhigh`; the critic
+# and the curator stay on deepseek-account/deepseek-flash (`max`, `low`).
+# A ZCode project gets its own config from `init` (ListModels).
 # The critic model is recommended to differ from the session model; a match
 # is allowed and marked in the report (decision 10, recommendation since
 # 2026-11-09).
@@ -17,20 +18,20 @@
 # the line.
 
 [agents.reviewer-spec]
-model = "deepseek-account/deepseek-flash"
-level = "max"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
 
 [agents.reviewer-tests]
-model = "deepseek-account/deepseek-flash"
-level = "max"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
 
 [agents.reviewer-code]
-model = "deepseek-account/deepseek-flash"
-level = "max"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
 
 [agents.reviewer-kb]
-model = "deepseek-account/deepseek-flash"
-level = "max"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
 
 [agents.critic]
 model = "deepseek-account/deepseek-flash"
