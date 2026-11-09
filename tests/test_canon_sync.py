@@ -58,6 +58,8 @@ QUALITY_CARRIERS = (
 QUALITY_ANCHORS = (
     "ровно три законные цели",
     "тест без ни одной из трёх целей — сирота",
+    "тест-сироту не хранят",
+    "вместе с прочитанным артефактом",
     "реальный путь сбоя",
     "red→green",
     "спеки, литерала или разобранного примера",
@@ -111,7 +113,7 @@ METHOD_CARRIERS = (
 METHOD_ANCHORS = (
     "Факты — работа агента; решения — работа оператора",
     "Никаких якорей `file:line` — они гниют",
-    "Переходы ручные, кроме grill → spec",
+    "Гейты ручные: план-гейт, вопрос нарезки и команда ship",
     "`to-tickets` **вызывает агент**",
     "вручную, то есть без автоматических цепочек",
     "один прогон ревью (панель специалистов параллельно, один отчёт)",
@@ -301,17 +303,19 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     assert missing == [panel.as_posix()], missing
 
     # The method-phases pair: an anchor dropped from the bundle section
-    # alone reddens while the canon still holds it; the flat comparator
-    # normalizes the arrow spacing on both sides.
-    canon = seed("canon-phases.md", "Переходы ручные, кроме grill → spec.")
-    section = seed("method-phases.md", "Переходы ручные, кроме grill → spec.")
+    # alone reddens while the canon still holds it.
+    canon = seed("canon-phases.md",
+                 "Гейты ручные: план-гейт, вопрос нарезки и команда ship.")
+    section = seed("method-phases.md",
+                   "Гейты ручные: план-гейт, вопрос нарезки и команда ship.")
     mutated_text = section.read_text("utf-8").replace(
-        "кроме grill → spec", "кроме spec → grill")
+        "команда ship", "команда merge")
     assert mutated_text != section.read_text("utf-8"), \
         "the mutation must remove the anchor"
     section.write_text(mutated_text, "utf-8")
-    missing = _missing_carriers("Переходы ручные, кроме grill → spec",
-                                (canon, section))
+    missing = _missing_carriers(
+        "Гейты ручные: план-гейт, вопрос нарезки и команда ship",
+        (canon, section))
     assert missing == [section.as_posix()], missing
 
     # The naming predicate: a page that drops the carrier mention or the
