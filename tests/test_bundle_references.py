@@ -347,17 +347,17 @@ def _dsh_run_section_errors(root: Path = SKILLS) -> list[str]:
         return [f"onto-doc: run reference is missing: {path}"]
     text = _normalized_lower(path.read_text("utf-8"))
     errors: list[str] = []
-    section = ""
-    if DSH_RUN_HEADING in text:
-        section = text.split(DSH_RUN_HEADING, 1)[1].split(" ## ", 1)[0]
-    else:
-        errors.append("onto-doc: run reference carries no DSH procedure section")
-    if section:
-        for phrase in ("`subagent` (spawn, не `subagent_fork`)",
-                       "в одном сообщении", "git diff --name-only"):
-            if phrase not in section:
-                errors.append(f"onto-doc: DSH procedure section lost "
-                              f"{phrase!r}")
+    if DSH_RUN_HEADING not in text:
+        return ["onto-doc: run reference carries no DSH procedure section"]
+    section = text.split(DSH_RUN_HEADING, 1)[1].split(" ## ", 1)[0]
+    if not section.strip():
+        errors.append("onto-doc: DSH procedure section is empty")
+    for phrase in ("`subagent` (spawn, не `subagent_fork`)",
+                   "в одном сообщении",
+                   "git diff --cached --name-only"):
+        if phrase not in section:
+            errors.append(f"onto-doc: DSH procedure section lost "
+                          f"{phrase!r}")
     if ZCODE_RUN_HEADING not in text:
         errors.append("onto-doc: the ZCode procedure section is gone")
     if "dsh и qoder — вне плана" in text:
@@ -376,9 +376,10 @@ def test_run_reference_carries_the_dsh_procedure():
 
 def test_run_reference_dsh_section_can_fail(tmp_path: Path):
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the run reference check rejects a missing DSH section, a DSH section
-    without the spawn, the single message or the diff check, a lost ZCode
-    section and a resurrected combined section."""
+    the run reference check rejects a missing DSH section, an empty DSH
+    section, a DSH section without the spawn, the single message or the
+    staged-diff check, a lost ZCode section and a resurrected combined
+    section."""
     path = SKILLS / "onto-doc" / "references" / "ontodoc-run.md"
     text = path.read_text("utf-8")
     assert _dsh_run_section_errors() == []
@@ -389,16 +390,29 @@ def test_run_reference_dsh_section_can_fail(tmp_path: Path):
                for error in _dsh_run_section_errors(
                    _write_tree(tmp_path, no_section)))
 
-    no_spawn = text.replace("`subagent` (spawn, не `subagent_fork`)",
-                            "`subagent`", 1)
+    head, _, rest = text.partition(DSH_RUN_HEADING)
+    _, _, tail = rest.partition("## Qoder")
+    empty = f"{head}{DSH_RUN_HEADING}\n\n## Qoder{tail}"
+    assert _dsh_run_section_errors(_write_tree(tmp_path, empty))
+    assert any("DSH procedure section is empty" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, empty)))
+
+    no_spawn = _drop_phrase(text, "`subagent` (spawn, не `subagent_fork`)")
     assert no_spawn != text
     assert any("spawn, не `subagent_fork`" in error
                for error in _dsh_run_section_errors(
                    _write_tree(tmp_path, no_spawn)))
 
-    no_diff = text.replace("git diff --name-only", "git status", 1)
+    no_single = _drop_phrase(text, "в одном сообщении")
+    assert no_single != text
+    assert any("в одном сообщении" in error
+               for error in _dsh_run_section_errors(
+                   _write_tree(tmp_path, no_single)))
+
+    no_diff = _drop_phrase(text, "git diff --cached --name-only")
     assert no_diff != text
-    assert any("git diff --name-only" in error
+    assert any("git diff --cached --name-only" in error
                for error in _dsh_run_section_errors(
                    _write_tree(tmp_path, no_diff)))
 

@@ -51,7 +51,7 @@ REQUIRED_PHRASES = (
     "docs/ops/",
     "docs/decisions/",
     # step 3 — Task → workflow transport (decision 2), curators follow kb-curate
-    "workflow-транспортом",
+    "транспортом харнесса",
     "kb-curate",
     "status: active",
     "documents:[src/…]",
@@ -95,8 +95,9 @@ REQUIRED_PHRASES = (
     # read-back of the run card against the worktree fact (live proof
     # dwfrun-5efcd1d0: an unverified card reported empty files)
     "сверь карточку с фактом",
-    "git diff --name-only",
+    "git diff --cached --name-only",
     "пустой `files` при непустом diff — расхождение",
+    "лишний `files` — тоже",
     # bundle references carry the harness procedures (bundle-references
     # ticket 01): the run procedure from the owner bundle, the divergence
     # rule from the testing bundle, each with the guard phrase
@@ -129,34 +130,39 @@ DSH_SKILL_PHRASES = (
     "fan-out `subagent`",
     "spawn, не `subagent_fork`",
     "в одном сообщении",
-    "`provider`, `model` и `reasoning_effort` из",
+    "`provider`, `model` и `reasoning_effort` из `[agents.curator]`",
     "`workflow` не используется",
     "только json-строку с полями `path`, `curator`, `files` и `refusal`",
     "не по схеме",
-    "путь относительный, без `..`",
+    "путь относительный, без `..` и без начального `/`",
     "области не повторяются",
     "пустой план — стоп",
     "прогон пишет только внутри `root`",
+    "лишний `files`",
 )
 DSH_RUN_PHRASES = (
-    "`<provider>/<model>`",
-    "`reasoning_effort`",
+    "`<provider>/<model>`, ключ `level` — `reasoning_effort`",
+    "с явными `provider`, `model` и `reasoning_effort`",
     "`subagent` (spawn, не `subagent_fork`)",
     "в одном сообщении",
     "`workflow` не используется",
     "`list_subagent_models`",
+    "`path` — относительный путь от корня kb",
+    "`cwd` субагента — чекаут сессии",
+    "запись мимо `root` сверяй по `git status`",
     "без `..`",
+    "без начального `/`",
     "не повторяются",
     "пустой план — стоп",
     "только внутри `root`",
     "kb-curate",
     "только json-строка",
-    "`path`",
-    "`curator`",
-    "`files`",
+    "с полями `path` (путь области)",
+    "`files` (созданные или обновлённые файлы от корня",
     "`refusal`",
     "не по схеме",
-    "git diff --name-only",
+    "git diff --cached --name-only",
+    "лишний `files`",
 )
 
 
@@ -341,8 +347,10 @@ def test_dsh_skill_branch_is_named():
 
 def test_dsh_run_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the DSH run contract rejects a lost section, a lost spawn, a lost plan
-    guard, a lost JSON row, a lost off-schema refusal, a lost diff check, a
+    the DSH run contract rejects a lost section, a lost spawn, a lost route
+    binding, a lost one-message dispatch, a lost plan guard (relative path,
+    no `..`, no leading `/`), a lost JSON schema field, a lost off-schema
+    refusal, a lost staged-diff check, a lost extra-files half, a
     resurrected «DSH и Qoder — вне плана» line and a lost ZCode section."""
     text = RUN_REFERENCE.read_text("utf-8")
     assert _dsh_run_errors(text) == []
@@ -351,31 +359,71 @@ def test_dsh_run_contract_can_fail():
     assert no_heading != text
     assert any("missing section" in error for error in _dsh_run_errors(no_heading))
 
-    no_spawn = text.replace("`subagent` (spawn, не `subagent_fork`)",
-                            "`subagent_fork`", 1)
+    no_spawn = _drop_phrase(text, "`subagent` (spawn, не `subagent_fork`)")
     assert no_spawn != text
     assert any("spawn, не `subagent_fork`" in error
                for error in _dsh_run_errors(no_spawn))
 
-    no_plan = text.replace("без `..`", "как есть", 1)
+    no_route = _drop_phrase(
+        text, "`<provider>/<model>`, ключ `level` — `reasoning_effort`")
+    assert no_route != text
+    assert any("`<provider>/<model>`, ключ `level`" in error
+               for error in _dsh_run_errors(no_route))
+
+    no_args = _drop_phrase(
+        text, "с явными `provider`, `model` и `reasoning_effort`")
+    assert no_args != text
+    assert any("с явными `provider`, `model` и `reasoning_effort`" in error
+               for error in _dsh_run_errors(no_args))
+
+    no_single = _drop_phrase(text, "в одном сообщении")
+    assert no_single != text
+    assert any("в одном сообщении" in error for error in _dsh_run_errors(no_single))
+
+    no_plan = _drop_phrase(text, "без `..`")
     assert no_plan != text
     assert any("без `..`" in error for error in _dsh_run_errors(no_plan))
 
-    no_json = text.replace("только JSON-строка", "JSON", 1)
+    no_slash = _drop_phrase(text, "без начального `/`")
+    assert no_slash != text
+    assert any("без начального `/`" in error for error in _dsh_run_errors(no_slash))
+
+    no_cwd = _drop_phrase(text, "`cwd` субагента — чекаут сессии")
+    assert no_cwd != text
+    assert any("`cwd` субагента — чекаут сессии" in error
+               for error in _dsh_run_errors(no_cwd))
+
+    no_json = _drop_phrase(text, "только JSON-строка")
     assert no_json != text
     assert any("только json-строка" in error for error in _dsh_run_errors(no_json))
+
+    no_path = _drop_phrase(text, "с полями `path` (путь области)")
+    assert no_path != text
+    assert any("с полями `path` (путь области)" in error
+               for error in _dsh_run_errors(no_path))
+
+    no_files = _drop_phrase(
+        text, "`files` (созданные или обновлённые файлы от корня")
+    assert no_files != text
+    assert any("`files` (созданные или обновлённые файлы" in error
+               for error in _dsh_run_errors(no_files))
 
     no_field = text.replace("`refusal` (причина отказа", "`reason` (причина отказа", 1)
     assert no_field != text
     assert any("`refusal`" in error for error in _dsh_run_errors(no_field))
 
-    no_schema = text.replace("не по схеме", "пустым списком", 1)
+    no_schema = _drop_phrase(text, "не по схеме")
     assert no_schema != text
     assert any("не по схеме" in error for error in _dsh_run_errors(no_schema))
 
-    no_diff = text.replace("git diff --name-only", "git status", 1)
+    no_diff = _drop_phrase(text, "git diff --cached --name-only")
     assert no_diff != text
-    assert any("git diff --name-only" in error for error in _dsh_run_errors(no_diff))
+    assert any("git diff --cached --name-only" in error
+               for error in _dsh_run_errors(no_diff))
+
+    no_extra = _drop_phrase(text, "лишний `files`")
+    assert no_extra != text
+    assert any("лишний `files`" in error for error in _dsh_run_errors(no_extra))
 
     no_qoder = text.replace("Qoder", "другой харнесс")
     assert no_qoder != text
@@ -395,8 +443,9 @@ def test_dsh_run_contract_can_fail():
 def test_dsh_skill_branch_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the DSH branch rejects a lost spawn, a lost single message, a lost route
-    source, a lost workflow reason, a lost JSON row, a lost off-schema
-    refusal, a lost plan guard, a lost root bound and a resurrected
+    source (`[agents.curator]` bound to `reasoning_effort`), a lost workflow
+    reason, a lost JSON row, a lost off-schema refusal, a lost plan guard, a
+    lost root bound, a lost extra-files half and a resurrected
     «DSH и Qoder — вне плана» line."""
     text = SKILL.read_text("utf-8")
     assert _dsh_skill_errors(text) == []
@@ -415,9 +464,9 @@ def test_dsh_skill_branch_can_fail():
     assert no_single != text
     assert any("в одном сообщении" in error for error in _dsh_skill_errors(no_single))
 
-    no_route = _drop_phrase(text, "`reasoning_effort` из")
+    no_route = _drop_phrase(text, "`reasoning_effort` из `[agents.curator]`")
     assert no_route != text
-    assert any("`reasoning_effort` из" in error
+    assert any("`reasoning_effort` из `[agents.curator]`" in error
                for error in _dsh_skill_errors(no_route))
 
     no_reason = _drop_phrase(text, "`workflow` не используется")
@@ -439,10 +488,19 @@ def test_dsh_skill_branch_can_fail():
     assert any("путь относительный, без `..`" in error
                for error in _dsh_skill_errors(no_plan))
 
+    no_slash = _drop_phrase(text, "без начального `/`")
+    assert no_slash != text
+    assert any("без начального `/`" in error
+               for error in _dsh_skill_errors(no_slash))
+
     no_root = _drop_phrase(text, "прогон пишет только внутри `root`")
     assert no_root != text
     assert any("прогон пишет только внутри `root`" in error
                for error in _dsh_skill_errors(no_root))
+
+    no_extra = _drop_phrase(text, "лишний `files`")
+    assert no_extra != text
+    assert any("лишний `files`" in error for error in _dsh_skill_errors(no_extra))
 
     resurrected = text.replace("## Запуск прогона",
                                "## Запуск прогона: DSH и Qoder — вне плана", 1)
@@ -508,15 +566,15 @@ def _drop_phrase(text: str, phrase: str) -> str:
 
 def test_adaptations_are_limited_to_decision_two():
     """spec: docs/plans/onto-doc.md#решения-план-гейта — адаптации только из
-    списка решения 2: движок по пути репозитория, Task → workflow-транспорт,
+    списка решения 2: движок по пути репозитория, Task → транспорт харнесса,
     запись точки входа — домен init; потеря пункта и возврат убранного
     `$ARGUMENTS` краснят."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_transport = text.replace("workflow-транспортом", "субагентом", 1)
+    no_transport = text.replace("транспортом харнесса", "субагентом", 1)
     assert no_transport != text
-    assert any("workflow-транспортом" in error
+    assert any("транспортом харнесса" in error
                for error in _contract_errors(no_transport))
 
     no_init_domain = text.replace("домен скилла", "задача исполнителя", 1)
@@ -646,7 +704,7 @@ def test_principle_is_word_for_word():
     "needle",
     [
         "python3 skills/kb-search/gitmark.py stat",
-        "workflow-транспортом",
+        "транспортом харнесса",
         "documents:[src/…]",
         "implemented_by",
         "запускай независимые области параллельно",
@@ -664,7 +722,7 @@ def test_principle_is_word_for_word():
         "печатает её в log",
         "строку на область — куратор, файлы, отказ",
         "сверь карточку с фактом",
-        "git diff --name-only",
+        "git diff --cached --name-only",
         "пустой `files` при непустом diff — расхождение",
         "references/ontodoc-run.md",
         "../testing/references/quality-rule.md",
