@@ -56,47 +56,71 @@
 $ git worktree add --detach /tmp/dsh04-red 58a498c
 $ cp tests/test_skill_critic.py /tmp/dsh04-red/tests/
 $ cd /tmp/dsh04-red && python3 -m pytest tests/ -q
-2 failed, 468 passed in 4.59s
+18 failed, 468 passed in 5.30s
 ```
 
-Оба падения — новые DSH-проверки: `test_dsh_model_check_and_launch_are_named`
-и его can-fail проба. Проба-worktree снят после прогона.
+Падения — новые DSH-проверки: `test_dsh_model_check_and_launch_are_named`,
+его can-fail проба и 16 параметризованных проб по фразам DSH-подраздела.
+Проба-worktree снят после прогона.
 
 **Разбор расхождений ожидание/факт:**
 
 - ожидание — `create_worktree` создаёт worktree; факт — падает на `node`
   в PATH, использован `git worktree` (разрешено спекой);
+- ожидание — отчёт прогона называет модель критика, модель сессии и
+  пометку совпадения; факт первой записи — `report.md` нёс только
+  закрывающее сообщение субагента, модели жили в пересказе тикета.
+  Разбор: запись неполна, не прогон; карточка прогона с моделями,
+  каталогом маршрутов и пометкой добавлена в
+  `/tmp/dsh04-critic-demo/report.md`, тикет ссылается на неё;
 - остальных расхождений не было.
 
 **Реализация.**
 
 - `skills/critic/SKILL.md`: нейтральные правила модели
-  (`.agents/config.toml`, отличие — рекомендация, фолбэка нет) сохранены;
+  (`.agents/config.toml`, отличие — рекомендация, совпадение допустимо,
+  фолбэка нет) сохранены и не переписаны — ZCode-ветка живёт ими;
   новый подраздел `### dsh — модель и запуск`: маршрут
   `<provider>/<model>` и `reasoning_effort` из конфига, сверка с живым
   `list_subagent_models` (расхождение — остановка и названный пробел),
-  модель сессии из runtime-контекста строкой `powered by <model>`,
-  неоднозначность провайдера или отсутствие строки — вопрос оператору и
-  подтверждение, остановка без источника, пометка совпадения в отчёте,
-  отличие — рекомендация, фолбэка нет, запуск `subagent` (spawn, не
-  `subagent_fork`) с явными `provider`, `model` и `reasoning_effort`,
-  один прогон на юнит; отчёт называет модель критика, модель сессии,
-  пометку совпадения, вердикт и находки.
+  отсутствие `level` — дефолт модели с пометкой в отчёте, модель сессии
+  из runtime-контекста строкой `powered by <model>`, неоднозначность
+  провайдера или отсутствие строки — вопрос оператору и подтверждение,
+  остановка без источника; совпадение помечается в отчёте, молчаливый
+  перевыбор не делается, фолбэка нет — недоступная модель останавливает
+  прогон; запуск `subagent` (spawn, не `subagent_fork`) с явными
+  `provider`, `model` и `reasoning_effort`; отчёт называет модель
+  критика, модель сессии, пометку совпадения, вердикт и находки.
 - `tests/test_skill_critic.py`: секционный контракт DSH-подраздела с
-  can-fail пробами (потеря секции, каталога, runtime-контекста,
-  подтверждения, пометки, остановки, фолбэк, spawn, один прогон,
-  нейтральные правила); существующие проверки ZCode-ветки не тронуты.
+  параметризованной can-fail пробой по каждой фразе (16 фраз), потеря
+  секции, восстановленный фолбэк и переписанное нейтральное правило
+  краснят отдельно; срез секции кончается и на `###`, нейтральная
+  проверка смотрит текст вне DSH-подраздела; существующие проверки
+  ZCode-ветки не тронуты.
 
 **Живой критик.** Игрушечная спека
 `/tmp/dsh04-critic-demo/docs/plans/demo.md` и тикеты `01.md`, `02.md`.
-Прогон — `subagent` (spawn, не `subagent_fork`), `provider`
-`deepseek-account`, `model` `deepseek-flash`, `reasoning_effort` `max` из
-`[agents.critic]`. Каталог маршрутов: `deepseek-account` —
-`deepseek-flash` с уровнями `off`, `low`, `high (default)`, `max`;
-`qwen-token-plan` — только `qwen3.8-flash` и `qwen3.8-max`, поэтому
-модель без провайдера из runtime-контекста (`powered by deepseek-flash`)
-выводится однозначно: `deepseek-account/deepseek-flash`. Пометка:
-**критик на модели сессии**; фолбэка нет и не потребовалось.
+Карточка прогона и закрывающее сообщение субагента —
+`/tmp/dsh04-critic-demo/report.md`; ожидание из спеки: карточка прогона,
+список маршрутов, отчёт («Готово» 4). Прогон — `subagent` (spawn, не
+`subagent_fork`), `provider` `deepseek-account`, `model`
+`deepseek-flash`, `reasoning_effort` `max` из `[agents.critic]`. Каталог
+маршрутов, снятый живым `list_subagent_models`:
+
+```text
+$ list_subagent_models
+deepseek-account — DeepSeek Account
+qwen-token-plan — qwen-token-plan
+$ list_subagent_models(provider=deepseek-account, model=deepseek-flash)
+deepseek-account/deepseek-flash — DeepSeek-V4.1-Flash
+Reasoning efforts: off, low, high (default), max
+$ list_subagent_models(provider=qwen-token-plan)
+qwen-token-plan/qwen3.8-flash, qwen-token-plan/qwen3.8-max
+```
+
+Модель без провайдера из runtime-контекста (`powered by deepseek-flash`)
+выводится однозначно: `deepseek-account/deepseek-flash`. Пометка в
+карточке: **критик на модели сессии**; фолбэка нет и не потребовалось.
 
 Вердикт: «план не готов к ship без правок»: P1 — «Готово» 2 не закрыто
 (носители `src/b.py`, `tests/test_b.py` не названы тикетами); P2 — у 02
@@ -106,8 +130,10 @@ $ cd /tmp/dsh04-red && python3 -m pytest tests/ -q
 
 **Предел доказательства.** Ветка «недоступная модель» и подтверждение
 модели сессии при неоднозначности в этой пробе не проживаются — текстовая
-проба контракта, названный пробел (как в тикете).
+проба контракта, названный пробел («Ограничения» спеки: ветки
+недоступности — текстовая проба).
 
-**Зелёный счёт.** `python3 -m pytest tests/ -q` — **470 passed = 468 + 2**
-(две новые проверки DSH-критика); `python3 skills/kb-search/gitmark.py
-lint --strict` — «чисто (102 файлов)».
+**Зелёный счёт.** `python3 -m pytest tests/ -q` — **486 passed = 468 + 18**
+(16 параметризованных проб по фразам DSH-подраздела, проверка секции и
+can-fail проба); `python3 skills/kb-search/gitmark.py lint --strict` —
+«чисто (102 файлов)».
