@@ -142,7 +142,7 @@ can-fail проба); `python3 skills/kb-search/gitmark.py lint --strict` —
 `provider` `deepseek-account`, `model` `deepseek-flash` и
 `reasoning_effort` `max` из конфига. Вердикты: reviewer-spec — «принять
 с находками» (2 P3), reviewer-tests — «принять с находками»
-(1 P1 / 2 P2 / 2 P3), reviewer-code — «принять с находками»
+(1 P1 / 2 P2 / 2 P3), reviewer-code — «принять с правками»
 (3 P2 / 3 P3), reviewer-kb — «принять с находками» (1 P1 / 2 P2 /
 1 P3). Сырых 17 (2 P1 / 7 P2 / 8 P3), после дедупликации 10
 (1 P1 / 4 P2 / 5 P3); правка `d5ac58d` закрыла все 10. P1 — карточка
