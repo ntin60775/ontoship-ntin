@@ -256,5 +256,5 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 | 01 | [панель ревью DSH и /ship](dsh-adaptation/01-review-panel-dsh.md) | — (ship: критик на втором маршруте) |
 | 02 | [init и конфиг DSH](dsh-adaptation/02-init-dsh.md) | 01 |
 | 03 | [онто-док DSH](dsh-adaptation/03-onto-doc-dsh.md) | 01 |
-| 04 | [критик DSH](dsh-adaptation/04-critic-dsh.md) | 01, второй маршрут DSH |
+| 04 | [критик DSH](dsh-adaptation/04-critic-dsh.md) | 01 |
 | 05 | [документы, матрица и legacy](dsh-adaptation/05-docs-legacy.md) | 01, 02, 03, 04 |

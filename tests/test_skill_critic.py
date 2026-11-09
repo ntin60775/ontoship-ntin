@@ -4,7 +4,8 @@ The bundle must be discoverable as ``<root>/critic/SKILL.md`` and carry the
 plan-critic contract: a model-invoked skill (no ``disable-model-invocation``)
 the agent launches right after the unit's last ticket is accepted, before
 the first ship — one run per unit, reading the spec and every ticket whole,
-on a model that differs from the session model with no fallback, reporting
+on the configured model (one differing from the session model is a
+recommendation, not a ban) with no fallback, reporting
 findings to the operator before the first ship and never re-asking plan-gate
 decisions. The checklist additionally carries the two evidence items of
 evidence-verification ticket 02: the price question — which «Готово» items
@@ -14,7 +15,8 @@ and the coverage check by carriers named in the «Готово» lines of new sp
 
 spec: docs/plans/review-config.md#готово — skills/critic/SKILL.md, модельный
       скилл критика: запуск сразу после приёмки последнего тикета, чек-лист,
-      один прогон на юнит, модель ≠ сессионная, без фолбэка
+      один прогон на юнит, модель из конфига, отличие от сессионной —
+      рекомендация, без фолбэка
 spec: docs/plans/evidence-verification.md#готово — критик спрашивает про
       дорогую верификацию и сверяет носители по строкам новых спек
 spec: docs/decisions/ontoship-core.md#три фазы — критик плана: находки
@@ -50,7 +52,8 @@ REQUIRED_PHRASES = (
     "тикеты юнита целиком",
     "артефакты",
     "не ход исполнения",
-    "отличаться от модели сессии",
+    "рекомендация, не запрет",
+    "совпадение допустимо",
     "нет фолбэка на модель сессии",
     ".agents/config.toml",
     "решения план-гейта не перепрашиваются",
@@ -159,14 +162,16 @@ def test_skill_is_model_invoked():
     assert "не командой оператора" in lowered
 
 
-def test_model_must_differ_from_the_session_model_with_no_fallback():
+def test_model_difference_from_the_session_model_is_a_recommendation():
     """spec: docs/plans/review-config.md#готово — модель критика из
-    .agents/config.toml, сверка при запуске: ≠ сессионная, иначе остановка;
-    фолбэка нет (решение 14)."""
+    .agents/config.toml; отличие от сессионной — рекомендация, совпадение
+    допустимо и помечается в отчёте; фолбэка нет (решение 14, поправка
+    2026-11-09)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert ".agents/config.toml" in lowered
-    assert "отличаться от модели сессии" in lowered
+    assert "рекомендация, не запрет" in lowered
+    assert "совпадение допустимо" in lowered
     assert "остановка и вопрос оператору" in lowered
     assert "нет фолбэка на модель сессии" in lowered
 

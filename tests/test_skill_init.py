@@ -53,7 +53,8 @@ BOOTSTRAP_NEEDLES = (
     "назови пробел и остановись",
     "активные модели",
     "модель сессии",
-    "отказ с объяснением",
+    "рекомендуется отличной от модели сессии",
+    "назови его в отчёте",
     "пропуск",
     "не дописывай",
     "не трогай",
@@ -699,12 +700,14 @@ def test_bootstrap_asks_core_role_models_from_active_host_models():
     assert "активные модели" in text
 
 
-def test_critic_model_must_differ_from_the_session_model():
-    """spec: docs/plans/review-config.md#готово — для critic совпадение выбранной
-    модели с сессионной — отказ с объяснением."""
+def test_critic_model_difference_is_a_recommendation():
+    """spec: docs/plans/review-config.md#готово — для critic отличие модели от
+    сессионной — рекомендация; совпадение допустимо и называется в отчёте
+    (поправка 2026-11-09)."""
     text = SKILL.read_text("utf-8")
-    assert "обязана отличаться от модели сессии" in text
-    assert "отказ с объяснением" in text
+    assert "рекомендуется отличной от модели сессии" in text
+    assert "назови его в отчёте" in text
+    assert "отказом оно не является" in re.sub(r"\s+", " ", text)
 
 
 def test_existing_config_is_untouched_and_a_new_role_is_a_named_gap():
@@ -733,8 +736,8 @@ def test_bootstrap_runs_the_bundled_generator():
 
 def test_bootstrap_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    bootstrap contract rejects a lost registry, a lost core role, a lost refusal,
-    a lost gap rule and a lost generator path."""
+    bootstrap contract rejects a lost registry, a lost core role, a lost
+    warning, a lost gap rule and a lost generator path."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -747,9 +750,10 @@ def test_bootstrap_contract_can_fail():
     assert no_critic != text
     assert any("critic" in error for error in _contract_errors(no_critic))
 
-    no_refusal = text.replace("отказ с объяснением и перевыбор", "перевыбор")
-    assert no_refusal != text
-    assert any("отказ с объяснением" in error for error in _contract_errors(no_refusal))
+    no_warning = text.replace("назови его в отчёте", "перевыбор")
+    assert no_warning != text
+    assert any("назови его в отчёте" in error
+               for error in _contract_errors(no_warning))
 
     no_gap = text.replace("назови пробел и остановись", "остановись")
     assert no_gap != text

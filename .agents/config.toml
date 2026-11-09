@@ -1,6 +1,7 @@
 # OntoShip role registry.
 # One [agents.<name>] section per role; `model` is required.
-# The critic model must differ from the session model (decision 10).
+# The critic model is recommended to differ from the session model
+# (decision 10; recommendation since 2026-11-09).
 # `level` is the role's reasoning level, written verbatim into the definition;
 # with the key absent the launch-time check falls back to the maximum
 # available (onto-doc decisions 3 and 4) — the generator only omits the line.
