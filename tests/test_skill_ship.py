@@ -49,6 +49,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "ship" / "SKILL.md"
+PANEL_FILE = REPO / "skills" / "ship" / "references" / "review-panel.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 ANCHOR_RE = re.compile(r"\b[\w-]+(?:\.[\w-]+)+:\d+")
@@ -116,6 +117,43 @@ PANEL_PHRASES = (
     "проект переопределяет его документом `docs/reference/review-panel.md`",
     "написал свой, бери его",
     "процедуру запуска бери оттуда",
+)
+# The DSH branch (dsh-adaptation ticket 01): spawn with explicit route and
+# effort in one message; routes are checked against the live host listing,
+# generated role definitions are a ZCode-only step; the operator command is
+# `/ship`; the worktree tool falls back to plain git.
+DSH_SKILL_PHRASES = (
+    "`/ship`",
+    "`create_worktree`",
+    "`git worktree`",
+    "`list_subagent_models`",
+    "сгенерированные определения ролей не нужны",
+    "`subagent`",
+    "`subagent_fork`",
+    "`provider`",
+    "`reasoning_effort`",
+    "в одном сообщении",
+    "маршрут сессии",
+)
+DSH_PANEL_PHRASES = (
+    "`subagent`",
+    "spawn",
+    "`subagent_fork`",
+    "`provider`",
+    "`model`",
+    "`reasoning_effort`",
+    "`list_subagent_models`",
+    "в одном сообщении",
+    "фолбэк на маршрут сессии",
+    "пометкой",
+    "Qoder",
+)
+# The ZCode section stays as it was: these anchors already live in the
+# canon-sync panel-run set and must not be lost to the DSH edit.
+PANEL_ZCODE_ANCHORS = (
+    "Модель субагента задаётся типом агента",
+    "Фолбэк недоступной модели роли",
+    "модель сессии с пометкой в отчёте",
 )
 
 
@@ -207,6 +245,9 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in PANEL_PHRASES:
         if phrase not in lowered:
             errors.append(f"panel: missing required phrase {phrase!r}")
+    for phrase in DSH_SKILL_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"dsh: missing required phrase {phrase!r}")
     full_text = _normalized_lower(text)
     for phrase in FORBIDDEN_PHRASES:
         if phrase in full_text:
@@ -595,3 +636,113 @@ def test_reference_guard_can_fail():
     errors = _contract_errors(unwrapped)
     assert any("справочник `references/review-panel.md`" in error
                for error in errors)
+
+
+def _panel_errors(text: str) -> list[str]:
+    """Return every violated DSH panel contract; empty means the file is sound.
+
+    spec: docs/plans/dsh-adaptation.md#готово — DSH-раздел панели: роль идёт
+    через `subagent` (spawn, не `subagent_fork`) с `provider`, `model` и
+    `reasoning_effort` из конфига, все роли в одном сообщении, отчёт один и
+    дедуплицирован, недоступная модель — фолбэк на маршрут сессии с пометкой;
+    ZCode-раздел сохранён, старая строка «DSH и Qoder — вне плана» заменена
+    Qoder-пробелом.
+    """
+    lowered = _normalized_lower(text)
+    errors: list[str] = []
+    for phrase in DSH_PANEL_PHRASES:
+        if phrase.lower() not in lowered:
+            errors.append(f"dsh-panel: missing required phrase {phrase!r}")
+    if "dsh и qoder — вне плана" in lowered:
+        errors.append("dsh-panel: the retired «DSH и Qoder — вне плана» line is back")
+    if "qoder" not in lowered:
+        errors.append("dsh-panel: the Qoder gap is not named")
+    for phrase in PANEL_ZCODE_ANCHORS:
+        if phrase.lower() not in lowered:
+            errors.append(f"dsh-panel: lost ZCode anchor {phrase!r}")
+    return errors
+
+
+def test_dsh_panel_procedure_is_named():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 3: DSH-раздел
+    панели в references/review-panel.md; ZCode-раздел сохранён, старая
+    строка «DSH и Qoder — вне плана» заменена Qoder-пробелом."""
+    assert _panel_errors(PANEL_FILE.read_text("utf-8")) == []
+
+
+def test_dsh_ship_branch_is_named():
+    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 3: сверка в ship
+    идёт по `list_subagent_models`, сгенерированные определения ролей не
+    нужны, ship вызывается как `/ship`, worktree — `create_worktree` или
+    `git worktree`."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    for phrase in DSH_SKILL_PHRASES:
+        assert phrase in lowered, f"DSH ship branch lost {phrase!r}"
+
+
+def test_dsh_panel_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH panel contract rejects a lost spawn, a lost live route check,
+    a lost fallback mark, a lost Qoder gap, a resurrected «DSH и Qoder —
+    вне плана» line and a rewritten ZCode section."""
+    text = PANEL_FILE.read_text("utf-8")
+    assert _panel_errors(text) == []
+
+    no_spawn = text.replace("`subagent`", "`agent`", 1)
+    assert no_spawn != text
+    assert any("`subagent`" in error for error in _panel_errors(no_spawn))
+
+    no_routes = text.replace("`list_subagent_models`", "`models`", 1)
+    assert no_routes != text
+    assert any("`list_subagent_models`" in error for error in _panel_errors(no_routes))
+
+    no_fallback = text.replace("фолбэк на маршрут сессии", "фолбэк", 1)
+    assert no_fallback != text
+    assert any("фолбэк на маршрут сессии" in error
+               for error in _panel_errors(no_fallback))
+
+    no_qoder = text.replace("Qoder", "другой харнесс")
+    assert no_qoder != text
+    assert any("Qoder" in error for error in _panel_errors(no_qoder))
+
+    resurrected = text.replace("### Qoder — вне плана",
+                               "### DSH и Qoder — вне плана", 1)
+    assert resurrected != text
+    assert any("DSH и Qoder" in error for error in _panel_errors(resurrected))
+
+    rewritten = text.replace("Модель субагента задаётся типом агента",
+                             "Определение роли задаётся конфигом", 1)
+    assert rewritten != text
+    assert any("ZCode anchor" in error for error in _panel_errors(rewritten))
+
+
+def test_dsh_ship_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the ship contract rejects a lost `/ship`, a lost create_worktree, a lost
+    live route check, a restored generator requirement and a lost spawn."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_command = text.replace("`/ship`", "`ship`", 1)
+    assert no_command != text
+    assert any("`/ship`" in error for error in _contract_errors(no_command))
+
+    no_create = text.replace("`create_worktree`", "`git worktree`", 1)
+    assert no_create != text
+    assert any("`create_worktree`" in error for error in _contract_errors(no_create))
+
+    no_live = text.replace("`list_subagent_models`", "`models`", 1)
+    assert no_live != text
+    assert any("`list_subagent_models`" in error
+               for error in _contract_errors(no_live))
+
+    generator = text.replace("сгенерированные определения ролей не нужны",
+                             "сгенерированные определения ролей обязательны", 1)
+    assert generator != text
+    assert any("сгенерированные определения ролей не нужны" in error
+               for error in _contract_errors(generator))
+
+    no_fork = text.replace("`subagent_fork`", "`fork`", 1)
+    assert no_fork != text
+    assert any("`subagent_fork`" in error for error in _contract_errors(no_fork))

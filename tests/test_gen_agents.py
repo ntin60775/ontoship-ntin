@@ -453,26 +453,42 @@ def test_empty_level_guard_is_load_bearing(project: Path) -> None:
     assert frontmatter_level(text) is None
 
 
-def test_repo_registry_carries_six_sections_with_levels() -> None:
-    """spec: docs/plans/onto-doc.md#готово — реестр несёт шесть секций:
-    `[agents.curator]` с дефолтом решения 3, `level` во всех секциях
-    (решение 4).
-    spec: docs/plans/dsh-adaptation.md#решения — реестр до среза тикета 01:
-    роль `critic` несёт Qwen-маршрут и `xhigh`; перевод всех шести ролей
-    на решение 5 (2026-11-09) и обновление пина — тикет 01."""
+# Decision 5 of the dsh-adaptation plan (ask 2026-11-09): all six roles run
+# on the DSH route `deepseek-account/deepseek-flash`; reviewers and the critic
+# take `max`, the curator takes `low`. The live `list_subagent_models` of the
+# same day lists the efforts off, low, high, max for that model.
+DSH_DECISION_FIVE_ROUTES = {
+    "reviewer-spec": ("deepseek-account/deepseek-flash", "max"),
+    "reviewer-tests": ("deepseek-account/deepseek-flash", "max"),
+    "reviewer-code": ("deepseek-account/deepseek-flash", "max"),
+    "reviewer-kb": ("deepseek-account/deepseek-flash", "max"),
+    "critic": ("deepseek-account/deepseek-flash", "max"),
+    "curator": ("deepseek-account/deepseek-flash", "low"),
+}
+
+
+def test_repo_registry_matches_decision_five_routes() -> None:
+    """spec: docs/plans/dsh-adaptation.md#решения — решение 5 (ask 2026-11-09):
+    все шесть ролей на `deepseek-account/deepseek-flash`, ревьюеры и `critic` —
+    `max`, `curator` — `low`; `level` — допустимый `reasoning_effort` модели
+    (живой `list_subagent_models` перечисляет off, low, high, max). Пин
+    переведён тикетом 01 после красной пробы на базовом коммите."""
     import tomllib
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
     roles = data["agents"]
     assert set(roles) == set(CORE_ROLES)
-    assert (
-        roles["curator"]["model"]
-        == "account:zai-individual-coding-plan/GLM-5.3-Flash"
-    )
-    assert roles["critic"]["model"] == "qwen-token-plan/qwen3.8-flash"
-    assert roles["critic"]["level"] == "xhigh"
-    for name, section in roles.items():
-        assert section.get("level"), f"[agents.{name}] has no level"
+    actual = {
+        name: (section.get("model"), section.get("level"))
+        for name, section in roles.items()
+    }
+    assert actual == DSH_DECISION_FIVE_ROUTES
+    for name, (model, level) in actual.items():
+        provider, sep, bare_model = model.partition("/")
+        assert sep == "/" and provider and bare_model, \
+            f"[agents.{name}] model is not <provider>/<model>: {model!r}"
+        assert level in {"off", "low", "high", "max"}, \
+            f"[agents.{name}] level {level!r} is not an effort of the route"
 
 
 def test_repo_gitignores_agent_definitions() -> None:
