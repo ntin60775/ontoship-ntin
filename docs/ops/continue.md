@@ -246,8 +246,9 @@ DSH в профиле появился (`qwen-token-plan/qwen3.8-flash`); кри
 маршруте из конфига — все «принять с находками», 13 находок
 (4 P2 / 9 P3), девять закрыто, одна P3 оставлена с причиной.
 
-**Тикет 02 `dsh-adaptation` «init и конфиг DSH» сделан, влит и ждёт
-приёмки** (merge ff `92693dd`; worktree `ontoship-ntin-wt-dsh02` снесён):
+**Тикет 02 `dsh-adaptation` «init и конфиг DSH» сделан, влит и принят
+оператором 2026-11-09** (ask, вариант «принять»; merge ff `92693dd`;
+worktree `ontoship-ntin-wt-dsh02` снесён):
 харнесс по инструменту хоста, DSH-блок с `/ship` и корнем `.agents/skills`,
 четыре строки `.gitignore`, конфиг из `list_subagent_models` без
 генератора; ZCode-ветка сохранила шесть строк, `ListModels`/`[current]`
