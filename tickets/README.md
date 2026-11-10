@@ -266,7 +266,7 @@ GitMark»: источник — [ишью #1](https://github.com/ntin60775/ontos
 со сверкой понимания 2026-11-10; критик прогнан 2026-11-10
 (`qwen-token-plan-max/qwen3.8-max`, `medium`), вердикт `ready_after_fixes`,
 10 находок закрыты правкой решением оператора «править все десять»; нарезка
-дополнена срезом 04 по решению оператора после ревью-панели тикета 01. Тикет
+дополнена срезом 03 по решению оператора после ревью-панели тикета 01. Тикет
 01 сделан, влит и принят 2026-11-11 (срез `575928d` + правки панели `6b96837`
 + сокращение прозы `c1de496`, merge ff в `0aa301b`; панель: `reviewer-spec`
 ready, `reviewer-tests` принять, `reviewer-code` принято, `reviewer-kb` принять
@@ -277,5 +277,5 @@ ready, `reviewer-tests` принять, `reviewer-code` принято, `reviewe
 |---|---|---|
 | 01 | [scope-ридер в iter_md и отказ](kb-scope/01-scope-corpus.md) | — |
 | 02 | [поле scope и две строки вывода](kb-scope/02-scope-output.md) | 01 |
-| 04 | [scope над глобальными проверками](kb-scope/04-scope-over-global-checks.md) | 01 |
-| 03 | [носители правила, догфуд, consumer-прогон](kb-scope/03-carriers-and-dogfood.md) | 01, 02, 04 |
+| 03 | [scope над глобальными проверками](kb-scope/03-scope-over-global-checks.md) | 01 |
+| 04 | [носители правила, догфуд, consumer-прогон](kb-scope/04-carriers-and-dogfood.md) | 01, 02, 03 |
