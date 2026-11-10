@@ -264,7 +264,7 @@ def iter_md_fallback(root: Path):
 
 
 def iter_md(root: Path):
-    """Markdown, которые git видит как файлы репозитория, минус `gitmark.scope.json`."""
+    """Markdown корпуса: то, что видит git, минус срезанное `gitmark.scope.json`."""
     yield from iter_corpus(root)[0]
 
 
@@ -280,7 +280,9 @@ def read_scope(root: Path) -> list:
     прогон не должен означать «scope не прочитан».
     """
     path = root / SCOPE_REL
-    if not path.exists():
+    # Висящий симлинк — не «файла нет»: иначе доктрина «тихий прогон = scope не
+    # прочитан» обходится одним `ln -s /nonexistent gitmark.scope.json`
+    if not (path.exists() or path.is_symlink()):
         return []
     try:
         raw = path.read_text("utf-8", errors="replace")
@@ -288,7 +290,9 @@ def read_scope(root: Path) -> list:
         raise ScopeError(f"{SCOPE_REL}: не читается — {e}")
     try:
         data = json.loads(raw)
-    except ValueError as e:
+    except (ValueError, RecursionError) as e:
+        # RecursionError — глубина вложенности JSON; без него внутренний traceback
+        # обошёл бы usage-контракт «отказ назван, stdout пуст»
         raise ScopeError(f"{SCOPE_REL}: не JSON — {e}")
     if not isinstance(data, dict):
         raise ScopeError(f"{SCOPE_REL}: ожидался объект, получен {type(data).__name__}")
@@ -1255,12 +1259,15 @@ def main(argv=None):
         ne, nw = len(r["errors"]), len(r["warnings"])
         summary = " · ".join(f"{c}×{n}" for c, n in sorted(codes.items())) or "—"
         mark = "\033[32m✓ чисто\033[0m" if ne == 0 and nw == 0 else f"\033[31m{ne} ERR\033[0m · \033[33m{nw} WARN\033[0m"
-        print(f"\n{mark}  ({r['checked']} файлов · {summary})")
         # Исключение из корпуса видно в каждом прогоне: ноль находок не должен
         # выглядеть чистотой там, где дерево просто срезано scope'ом проекта.
+        # Строка — перед итогом: итог остаётся последней строкой, и рецепт
+        # `lint | tail -1` не ломается.
+        print()
         if r["scope_prefixes"]:
             print(f"scope: {r['scope_excluded']} файлов исключено по "
                   f"{r['scope_prefixes']} префиксам")
+        print(f"{mark}  ({r['checked']} файлов · {summary})")
         if a.strict and ne:
             sys.exit(1)
     elif a.cmd == "version":
