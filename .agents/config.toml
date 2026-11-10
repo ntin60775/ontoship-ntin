@@ -1,10 +1,12 @@
 # OntoShip role registry.
 # One [agents.<name>] section per role; `model` is required.
-# Routes are this repository's DSH routes (dsh-adaptation decision 5,
-# 2026-11-09, with the operator's amendment of the same day): the four
-# reviewers run on qwen-token-plan/qwen3.8-flash with `xhigh`; the critic
-# and the curator stay on deepseek-account/deepseek-flash (`max`, `low`).
-# A ZCode project gets its own config from `init` (ListModels).
+# Routes are the standard layout of dsh-adaptation decision 5 (ask
+# 2026-11-09, amendments 2026-11-09 and 2026-11-10): all six roles run on
+# the `qwen-token-plan` provider — the four reviewers and the curator on
+# qwen3.8-flash with `xhigh`, the critic on qwen3.8-max with `medium`.
+# `init` delivers the same layout to a fresh project when every route and
+# level is live. A ZCode project gets its own config from `init`
+# (ListModels).
 # The critic model is recommended to differ from the session model; a match
 # is allowed and marked in the report (decision 10, recommendation since
 # 2026-11-09).
@@ -34,9 +36,9 @@ model = "qwen-token-plan/qwen3.8-flash"
 level = "xhigh"
 
 [agents.critic]
-model = "deepseek-account/deepseek-flash"
-level = "max"
+model = "qwen-token-plan/qwen3.8-max"
+level = "medium"
 
 [agents.curator]
-model = "deepseek-account/deepseek-flash"
-level = "low"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"

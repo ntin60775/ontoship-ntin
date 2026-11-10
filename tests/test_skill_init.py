@@ -105,6 +105,15 @@ DSH_BRANCH_NEEDLES = (
     "`.zcode/workflows/`",
     "не создавай",
     "дефолт модели",
+    # Standard delivery (2026-11-10): the six core roles ship one layout,
+    # written without an ask when every route and level is live.
+    "**Стандартная раскладка.**",
+    "`qwen-token-plan/qwen3.8-flash`",
+    "`qwen-token-plan/qwen3.8-max`",
+    "`xhigh`",
+    "`medium`",
+    "запиши её без ask",
+    "назови отклонение от стандарта",
 )
 ZCODE_BRANCH_NEEDLES = (
     "`ListModels`",
@@ -811,6 +820,57 @@ def test_zcode_branch_keeps_listmodels_and_generator():
     for needle in ZCODE_BRANCH_NEEDLES:
         assert needle in zcode, f"ZCode branch lost {needle!r}"
     assert "шесть строк" in text
+
+
+def test_dsh_branch_carries_the_standard_layout():
+    """spec: docs/plans/dsh-adaptation.md#решения — стандартная раскладка
+    шести ролей в DSH-ветке `init`: таблица с маршрутами и уровнями, запись
+    без ask, когда маршруты живы, и названное отклонение в остальных случаях.
+    """
+    dsh = _branch(SKILL.read_text("utf-8"), "### DSH", "### ZCode")
+    assert dsh
+    for needle in ("**Стандартная раскладка.**",
+                   "`qwen-token-plan/qwen3.8-flash`",
+                   "`qwen-token-plan/qwen3.8-max`",
+                   "`xhigh`", "`medium`",
+                   "запиши её без ask",
+                   "назови отклонение от стандарта"):
+        assert needle in dsh, f"DSH branch lost the standard needle {needle!r}"
+
+
+def test_standard_layout_branch_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the DSH branch contract rejects a lost standard table, a drifted level, a
+    lost without-ask rule and a lost deviation report."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_table = text.replace("**Стандартная раскладка.**", "Раскладка ролей:", 1)
+    assert no_table != text
+    assert any("**Стандартная раскладка.**" in error
+               for error in _contract_errors(no_table))
+
+    drifted = text.replace("`qwen-token-plan/qwen3.8-max`",
+                           "`qwen-token-plan/qwen3.8-flash`", 1)
+    assert drifted != text
+    assert any("`qwen-token-plan/qwen3.8-max`" in error
+               for error in _contract_errors(drifted))
+
+    no_medium = text.replace("`medium`", "`high`", 1)
+    assert no_medium != text
+    assert any("`medium`" in error for error in _contract_errors(no_medium))
+
+    no_askless = text.replace("запиши её без ask",
+                              "спроси модель каждой роли", 1)
+    assert no_askless != text
+    assert any("запиши её без ask" in error
+               for error in _contract_errors(no_askless))
+
+    no_deviation = text.replace("назови отклонение от стандарта",
+                                "назови выбор", 1)
+    assert no_deviation != text
+    assert any("назови отклонение от стандарта" in error
+               for error in _contract_errors(no_deviation))
 
 
 def test_dsh_branch_contract_can_fail():

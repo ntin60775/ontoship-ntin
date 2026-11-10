@@ -25,6 +25,7 @@ spec: docs/plans/review-config.md#рамки — определения роле
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 from pathlib import Path
@@ -453,34 +454,38 @@ def test_empty_level_guard_is_load_bearing(project: Path) -> None:
     assert frontmatter_level(text) is None
 
 
-# Decision 5 of the dsh-adaptation plan (ask 2026-11-09, amended the same
-# day): the four reviewers run on `qwen-token-plan/qwen3.8-flash` with
-# `xhigh`; the critic takes `max` and the curator `low` on
-# `deepseek-account/deepseek-flash`. The live `list_subagent_models` of the
-# same day lists off, low, high, max for `deepseek-flash` and low, medium,
-# xhigh for `qwen3.8-flash`.
-DSH_DECISION_FIVE_ROUTES = {
+# Decision 5 of the dsh-adaptation plan (ask 2026-11-09, amended 2026-11-09
+# and 2026-11-10): the six core roles ship one standard layout on the
+# `qwen-token-plan` provider — the four reviewers and the curator on
+# `qwen3.8-flash` with `xhigh`, the critic on `qwen3.8-max` with `medium`.
+# `init` writes this layout without an ask when every route and level is
+# live. The live `list_subagent_models` of 2026-11-09 lists low, medium and
+# xhigh for both models.
+DSH_STANDARD_ROUTES = {
     "reviewer-spec": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
     "reviewer-tests": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
     "reviewer-code": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
     "reviewer-kb": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
-    "critic": ("deepseek-account/deepseek-flash", "max"),
-    "curator": ("deepseek-account/deepseek-flash", "low"),
+    "critic": ("qwen-token-plan/qwen3.8-max", "medium"),
+    "curator": ("qwen-token-plan/qwen3.8-flash", "xhigh"),
 }
 LIVE_EFFORTS = {
     "deepseek-account/deepseek-flash": {"off", "low", "high", "max"},
     "qwen-token-plan/qwen3.8-flash": {"low", "medium", "xhigh"},
+    "qwen-token-plan/qwen3.8-max": {"low", "medium", "xhigh"},
 }
+INIT_SKILL = REPO / "skills" / "init" / "SKILL.md"
+STANDARD_MARKER = "**Стандартная раскладка.**"
 
 
 def test_repo_registry_matches_decision_five_routes() -> None:
     """spec: docs/plans/dsh-adaptation.md#решения — решение 5 (ask 2026-11-09)
-    с припиской 2026-11-09: четыре ревьюера — `qwen-token-plan/qwen3.8-flash`
-    с `xhigh`, `critic` и `curator` — `deepseek-account/deepseek-flash`
-    (`max` и `low`); `level` — допустимый `reasoning_effort` своей модели
-    (живой `list_subagent_models`: deepseek-flash — off/low/high/max,
-    qwen3.8-flash — low/medium/xhigh). Пин переведён тикетом 01 после
-    красной пробы на базовом коммите."""
+    с приписками 2026-11-09 и 2026-11-10: стандартная раскладка шести ролей —
+    ревьюеры и куратор на `qwen-token-plan/qwen3.8-flash` с `xhigh`, критик
+    на `qwen-token-plan/qwen3.8-max` с `medium`; `level` — допустимый
+    `reasoning_effort` своей модели (живой `list_subagent_models`:
+    qwen3.8-flash и qwen3.8-max — low/medium/xhigh). Пин переведён тикетом 01
+    после красной пробы на базовом коммите."""
     import tomllib
 
     data = tomllib.loads((REPO / ".agents" / "config.toml").read_text(encoding="utf-8"))
@@ -490,13 +495,87 @@ def test_repo_registry_matches_decision_five_routes() -> None:
         name: (section.get("model"), section.get("level"))
         for name, section in roles.items()
     }
-    assert actual == DSH_DECISION_FIVE_ROUTES
+    assert actual == DSH_STANDARD_ROUTES
     for name, (model, level) in actual.items():
         provider, sep, bare_model = model.partition("/")
         assert sep == "/" and provider and bare_model, \
             f"[agents.{name}] model is not <provider>/<model>: {model!r}"
         assert level in LIVE_EFFORTS[model], \
             f"[agents.{name}] level {level!r} is not an effort of the route"
+
+
+def _init_standard(text: str) -> dict[str, tuple[str, str]]:
+    """Parse the standard layout table of the init skill: role → (model, level)."""
+    lines = text.splitlines()
+    marker = next((i for i, line in enumerate(lines) if STANDARD_MARKER in line),
+                  None)
+    if marker is None:
+        return {}
+    rows: dict[str, tuple[str, str]] = {}
+    for line in lines[marker:]:
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if len(cells) != 3 or not cells[1].startswith("`"):
+            continue
+        roles = [role for role in re.findall(r"[a-z]+(?:-[a-z]+)*", cells[0])
+                 if role in CORE_ROLES]
+        model = cells[1].strip("`")
+        level = cells[2].strip("`")
+        for role in roles:
+            rows[role] = (model, level)
+    return rows
+
+
+def _standard_errors(text: str) -> list[str]:
+    """Every violated delivery contract of the standard layout; empty is sound.
+
+    spec: docs/plans/dsh-adaptation.md#решения — «приписка 2026-11-10»:
+    бутстрап `init` пишет стандартную раскладку без ask, когда все шесть
+    маршрутов и их уровни живы; таблица раскладки равна реестру этого
+    репозитория.
+    """
+    errors: list[str] = []
+    if "запиши её без ask" not in text:
+        errors.append("standard: the without-ask rule is missing")
+    standard = _init_standard(text)
+    if standard != DSH_STANDARD_ROUTES:
+        errors.append(f"standard: the init table drifts from the registry: "
+                      f"{standard!r}")
+    return errors
+
+
+def test_init_delivers_the_standard_layout() -> None:
+    """spec: docs/plans/dsh-adaptation.md#решения — стандартная раскладка
+    поставляется бутстрапом `init`: таблица DSH-ветки равна реестру этого
+    репозитория по всем шести ролям, поэтому поставка и живой проект не
+    расходятся."""
+    assert _standard_errors(INIT_SKILL.read_text(encoding="utf-8")) == []
+
+
+def test_standard_layout_can_fail() -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    a drifted init table, a lost critic row and a lost without-ask rule
+    redden the standard contract."""
+    text = INIT_SKILL.read_text(encoding="utf-8")
+    assert _standard_errors(text) == []
+
+    drifted = text.replace("qwen3.8-max", "qwen3.8-flash", 1)
+    assert drifted != text
+    assert any("drifts from the registry" in error
+               for error in _standard_errors(drifted))
+
+    no_critic = text.replace("| `critic` |", "| `reviewer-x` |", 1)
+    assert no_critic != text
+    assert "critic" not in _init_standard(no_critic)
+    assert any("drifts from the registry" in error
+               for error in _standard_errors(no_critic))
+
+    no_askless = text.replace("запиши её без ask", "спроси модель каждой роли")
+    assert no_askless != text
+    assert any("without-ask rule" in error
+               for error in _standard_errors(no_askless))
 
 
 def test_repo_gitignores_agent_definitions() -> None:

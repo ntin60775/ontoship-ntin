@@ -302,10 +302,11 @@ worktree `ontoship-ntin-wt-dsh04` снесён): подраздел
 модельных), `ship` — user-invocable командой `/ship`; `AGENTS.md` загружен с
 блоком `/ship`. `bash scripts/install.sh --check .` — `check: ok`; базовая
 цифра набора 452 passed (2026-11-06), текущая — 488 passed (после тикета
-05). Маршруты ролей (2026-11-09): ревьюеры — `qwen-token-plan/qwen3.8-flash`
-с `xhigh`, критик — `deepseek-account/deepseek-flash` с `max`, куратор —
-`deepseek-account/deepseek-flash` с `low`; живой каталог уровней:
-`qwen3.8-flash` — low/medium/xhigh, `deepseek-flash` — off/low/high/max.
+05). Маршруты ролей — стандартная раскладка (2026-11-10): ревьюеры и
+куратор — `qwen-token-plan/qwen3.8-flash` с `xhigh`, критик —
+`qwen-token-plan/qwen3.8-max` с `medium`; живой каталог уровней:
+`qwen3.8-flash` и `qwen3.8-max` — low/medium/xhigh. Ту же раскладку
+поставляет `init` в свежем DSH-проекте, когда все маршруты живы.
 Артефакты проб: панель — тикет 01
 (`tickets/dsh-adaptation/01-review-panel-dsh.md`), init — тикет 02
 (`/tmp/dsh02-live-init-final`), онто-док — тикет 03
@@ -325,6 +326,22 @@ DSH-ветка генератор не зовёт), приписки в `review-
 глобальной установки нет. Красная проба — 4 failed / 484 passed, набор
 **488 passed**, `lint --strict` чист. **Юнит `dsh-adaptation` закрыт:**
 все пять тикетов приняты, открытой работы по юниту нет.
+
+**Вне тикетного потока, 2026-11-10 — стандартная раскладка ролей
+(решение оператора).** Раскладка шести ролей стала стандартной поставкой:
+все роли на `qwen-token-plan` — ревьюеры и куратор на `qwen3.8-flash` с
+`xhigh`, критик на `qwen3.8-max` с `medium`. Правлены реестр
+`.agents/config.toml`, DSH-ветка `skills/init/SKILL.md` (таблица стандарта;
+все маршруты живы — запись без ask, иначе ask и названное отклонение),
+пины `tests/test_gen_agents.py` (реестр равен стандарту `init`) и
+`tests/test_skill_init.py`, приписка к решению 5 спеки. Набор **492
+passed**, `lint --strict` чист. Живая проба поставки: temp-проект
+`/tmp/roles-standard-init` с ядром из среза — `init` определил DSH, записал
+стандартную раскладку без ask (все шесть маршрутов живы), создал четыре
+файла, `.zcode` не появился, `install.sh --check` — `check: ok`. Оба
+маршрута стандарта запускают субагента этой сессии:
+`qwen-token-plan/qwen3.8-flash` с `xhigh` и `qwen-token-plan/qwen3.8-max`
+с `medium` (пробы `route-probe-1` и `route-probe-2`, ответ «ok»).
 
 **Вне тикетного потока, 2026-11-09 — решение оператора «закоммит и
 почисти от устаревших записей».** Публикация юнита (спека, пять тикетов,
