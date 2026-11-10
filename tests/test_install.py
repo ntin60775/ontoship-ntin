@@ -21,7 +21,6 @@ invariant: docs/plans/harness-agnostic.md#готово — writes only <project>
 from __future__ import annotations
 
 import hashlib
-import json
 import os
 import re
 import shutil
@@ -158,47 +157,6 @@ def _parity_errors(root: Path) -> list[str]:
             if declared != bundles:
                 errors.append("parity: the test tuple drifts from the installer array")
 
-    # The marketplace-plugin channel: deploy.json carries the same bundle set
-    # (plus non-skill mappings), plugin.json names the package.
-    deploy = root / "deploy.json"
-    plugin_json = root / ".zcode-plugin" / "plugin.json"
-    if not deploy.is_file() or not plugin_json.is_file():
-        errors.append("parity: deploy.json or .zcode-plugin/plugin.json is missing")
-    else:
-        try:
-            manifest = json.loads(deploy.read_text("utf-8"))
-            plugin = json.loads(plugin_json.read_text("utf-8"))
-        except ValueError as exc:
-            errors.append(f"parity: plugin packaging is not valid JSON ({exc})")
-        else:
-            pairs = [(str(m.get("from", "")), str(m.get("to", "")))
-                     for m in manifest.get("mappings", [])]
-            mappings = [m_from for m_from, _ in pairs]
-            mapped = sorted(m for m in mappings if m.startswith("skills/"))
-            expected = sorted(f"skills/{name}" for name in bundles)
-            if mapped != expected:
-                errors.append(f"parity: deploy.json skill mappings {mapped} drift "
-                              f"from the installer array {expected}")
-            for name in bundles:
-                if (f"skills/{name}", f".agents/skills/{name}") not in pairs:
-                    errors.append(f"parity: deploy.json maps skills/{name} to "
-                                  f"something other than .agents/skills/{name}")
-            for m_from, m_to in pairs:
-                if m_to and not (m_to.startswith(".zcode/")
-                                 or m_to.startswith(".agents/skills/")):
-                    errors.append(f"parity: deploy.json target {m_to!r} escapes "
-                                  f"the allowed roots (.zcode/, .agents/skills/)")
-                if m_from and not (root / m_from).exists():
-                    errors.append(f"parity: deploy.json source {m_from!r} does "
-                                  f"not exist")
-            if ".zcode/workflows/onto-doc.dwf.ts" not in mappings:
-                errors.append("parity: deploy.json does not carry the onto-doc "
-                              "workflow file")
-            if plugin.get("skills") != "./skills" or not (root / "skills").is_dir():
-                errors.append("parity: plugin.json must point skills at ./skills")
-            if not plugin.get("name") or not plugin.get("version"):
-                errors.append("parity: .zcode-plugin/plugin.json needs name and version")
-
     agents = root / "AGENTS.md"
     if not agents.is_file():
         errors.append("parity: AGENTS.md is missing")
@@ -329,63 +287,6 @@ def test_parity_can_fail(tmp_path: Path) -> None:
     # The index is gone.
     errors = _parity_errors(carriers(None))
     assert any("skills/README.md is missing" in error for error in errors), errors
-
-    # The marketplace-plugin channel: a deploy.json whose skill mappings lose
-    # a bundle drifts from the installer array; losing the onto-doc workflow
-    # mapping is named on its own.
-    deploy_source = (REPO / "deploy.json").read_text("utf-8")
-    plugin_source = (REPO / ".zcode-plugin" / "plugin.json").read_text("utf-8")
-    workflow_source = (REPO / ".zcode" / "workflows" / "onto-doc.dwf.ts").read_text("utf-8")
-
-    def packaged(readme: str | None, deploy_text: str = deploy_source) -> Path:
-        root = carriers(readme)
-        (root / ".zcode-plugin").mkdir()
-        (root / "deploy.json").write_text(deploy_text, "utf-8")
-        (root / ".zcode-plugin" / "plugin.json").write_text(plugin_source, "utf-8")
-        (root / ".zcode" / "workflows").mkdir(parents=True)
-        (root / ".zcode" / "workflows" / "onto-doc.dwf.ts").write_text(
-            workflow_source, "utf-8")
-        return root
-
-    curate_row = '    { "from": "skills/kb-curate", "to": ".agents/skills/kb-curate" },\n'
-    assert curate_row in deploy_source
-    errors = _parity_errors(packaged(index_source, deploy_source.replace(curate_row, "")))
-    assert any("drift from the installer array" in error for error in errors), errors
-
-    workflow_row = ('    { "from": ".zcode/workflows/onto-doc.dwf.ts", '
-                    '"to": ".zcode/workflows/onto-doc.dwf.ts" }\n')
-    assert workflow_row in deploy_source
-    cut_workflow = (deploy_source.replace(workflow_row, "")
-                    .replace("},\n  ],", "}\n  ],", 1))
-    errors = _parity_errors(packaged(index_source, cut_workflow))
-    assert any("does not carry the onto-doc" in error for error in errors), errors
-
-    # A skill mapping aimed outside the skill root (contract v2: skills live
-    # in .agents/skills; .zcode/skills is the legacy v0.1.0 layout).
-    to_drift = deploy_source.replace(
-        '{ "from": "skills/kb-search", "to": ".agents/skills/kb-search" }',
-        '{ "from": "skills/kb-search", "to": ".zcode/skills/kb-search" }')
-    assert to_drift != deploy_source
-    errors = _parity_errors(packaged(index_source, to_drift))
-    assert any("other than .agents/skills/kb-search" in error
-               for error in errors), errors
-
-    # A mapping source that does not exist in the source tree.
-    phantom_from = deploy_source.replace(
-        '{ "from": "skills/testing", "to": ".agents/skills/testing" }',
-        '{ "from": "skills/extra-skill", "to": ".agents/skills/extra-skill" }')
-    assert phantom_from != deploy_source
-    errors = _parity_errors(packaged(index_source, phantom_from))
-    assert any("skills/extra-skill" in error and "does not exist" in error
-               for error in errors), errors
-
-    # plugin.json pointing the skills component at a missing directory.
-    root = packaged(index_source)
-    (root / ".zcode-plugin" / "plugin.json").write_text(
-        plugin_source.replace('"skills": "./skills"', '"skills": "./nope"'), "utf-8")
-    errors = _parity_errors(root)
-    assert any("must point skills at ./skills" in error for error in errors), errors
-
 
 def test_harnesses_carries_no_bundle_count() -> None:
     """spec: docs/plans/review-loose-ends.md#готово — harnesses.md and
@@ -884,27 +785,13 @@ def test_method_section_references_resolve_after_install(tmp_path: Path) -> None
     assert any(error.startswith("critic:") for error in errors), errors
 
 
-def test_copy_install_carries_the_agent_generator(tmp_path: Path) -> None:
-    """spec: docs/plans/review-config.md#готово — the init bundle carries
-    gen_agents.py, so a detached copy install can run the generation.
-    spec: docs/plans/role-registry.md#готово-4 — the bundle is installed
-    whole, so roles.py rides along next to gen_agents.py."""
+def test_copy_install_carries_the_role_registry(tmp_path: Path) -> None:
+    """spec: docs/plans/role-registry.md#готово-4 — the bundle is installed
+    whole, so roles.py rides along into a detached copy install."""
     project = tmp_path / "copied"
     project.mkdir()
     result = run(project, "--copy")
     assert result.returncode == 0, output(result)
 
-    generator = project / ".agents" / "skills" / "init" / "gen_agents.py"
-    assert generator.is_file(), "the init bundle must carry gen_agents.py"
     registry = project / ".agents" / "skills" / "init" / "roles.py"
     assert registry.is_file(), "the init bundle must carry roles.py"
-
-    # The installed copy runs on its own: no config in the project — nothing to generate.
-    probe = subprocess.run(
-        ["python3", str(generator), str(project)],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert probe.returncode == 0, probe.stderr
-    assert "nothing to generate" in probe.stdout

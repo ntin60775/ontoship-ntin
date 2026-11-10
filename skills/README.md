@@ -3,7 +3,7 @@ node_type: index
 title: Скиллы — бандлы метода
 service: _platform
 status: active
-updated: 2026-11-09
+updated: 2026-11-10
 tags: [index, skills, bundles]
 links:
   part_of: [../README.md]
@@ -12,11 +12,8 @@ links:
 
 # Скиллы
 
-Состав скиллов ведут два машинных носителя под взаимным паритетом —
-массив `SKILLS` установщика `scripts/install.sh` и маппинги `deploy.json`
-плагина маркета (рядом лежит манифест `.zcode-plugin/plugin.json`); канал
-у обоих один — `<project>/.agents/skills` (до v0.2.0 плагин маркета ставил
-в `<project>/.zcode/skills`). Ядро KB — `kb-search`,
+Состав скиллов ведёт один машинный носитель — массив `SKILLS` установщика
+`scripts/install.sh`; канал один — `<project>/.agents/skills`. Ядро KB — `kb-search`,
 `kb-curate`, `init`; фазы метода — `grilling`, `to-tickets`, `ship`;
 правило качества — `testing`; ревью плана — `critic`; док-часть — `onto-doc`.
 
@@ -24,8 +21,7 @@ links:
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
   REINDEX; модель онтологии.
 - [init/](init/SKILL.md) — управляемый блок, `.gitignore`, конфиг ролей;
-  харнесс определяется инструментом хоста (DSH — без генератора, ZCode — с
-  `gen_agents.py`), машинный источник перечня ролей `roles.py`.
+  машинный источник перечня ролей `roles.py`.
 - [grilling/](grilling/SKILL.md) — интервью по фронтиру, выход в спеку
   на план-гейт.
 - [to-tickets/](to-tickets/SKILL.md) — нарезка спеки на tracer-bullet
@@ -37,7 +33,7 @@ links:
 - [onto-doc/](onto-doc/SKILL.md) — тяжёлая док-часть: fan-out кураторов
   по плану.
 
-Новый скилл появляется бандлом в `scripts/install.sh`, маппингом в
-`deploy.json` плагина маркета, строкой здесь и кортежем в
-`tests/test_install.py` — одним коммитом; паритет держит тот же тест.
+Новый скилл появляется бандлом в `scripts/install.sh`, строкой здесь и
+кортежем в `tests/test_install.py` — одним коммитом; паритет держит тот же
+тест.
 Строка «Раскладки» в `AGENTS.md` ведёт сюда.

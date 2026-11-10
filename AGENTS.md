@@ -27,8 +27,6 @@ vendor/        база движка ontoship-zcode (MIT); копия — skills
 skills/        скиллы-бандлы установщика; индекс — skills/README.md
 scripts/       project-local канал установки (link/copy/check)
 tests/         тесты движка, контрактов скиллов и установки
-deploy.json    стратегия поставки плагина маркета (канал .agents/skills, workflow — .zcode/workflows/)
-.zcode-plugin/ манифест ZCode-плагина
 ```
 
 ## Принцип
@@ -108,7 +106,7 @@ python3 skills/kb-search/gitmark.py map -o docs-map.html
   командой `/ship`, один тикет за запуск; свободные правки в обход тикета
   не делаются — прямые решения оператора выше этого правила.
 - Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
-  харнесса (в ZCode — план-мод) не используется.
+  харнесса не используется.
 - Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
   сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой

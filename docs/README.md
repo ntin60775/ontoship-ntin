@@ -3,7 +3,7 @@ node_type: index
 title: Документация — главный индекс
 service: _platform
 status: active
-updated: 2026-11-09
+updated: 2026-11-10
 links:
   relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, ops/README.md, reference/README.md]
 ---
@@ -19,7 +19,8 @@ links:
 - [plans/](plans/README.md) — durable-контракты планов. Завершены:
   [core-kb.md](plans/core-kb.md) — устанавливаемое ядро KB (тикеты 01–06);
   [harness-agnostic.md](plans/harness-agnostic.md) — project-local корни
-  каналов: `.agents/skills` и `.zcode/skills` (тикеты 01–04); [workflow-skills.md](plans/workflow-skills.md) —
+  каналов: `.agents/skills` и `.zcode/skills` (тикеты 01–04; ZCode-канал
+  снят, рельс один — `.agents/skills`); [workflow-skills.md](plans/workflow-skills.md) —
   фазы метода как скиллы (тикеты 01–06);
   [install-dry-run.md](plans/install-dry-run.md) — игрушечный юнит
   dogfood-прогона (тикеты 01–02); [review-config.md](plans/review-config.md) —
@@ -44,7 +45,7 @@ links:
   [sources.md](reference/sources.md) — три источника и что из каждого взято;
   [testing.md](reference/testing.md) — spec-, инвариантные и target-тесты;
   [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder;
-  DSH первый класс для ревью-панели и онто-дока, ZCode — legacy;
+  панель и онто-док на DSH-рельсах, ZCode-канал снят;
   [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков;
   [text-style.md](reference/text-style.md) — канон текстов: скиллы, правила,
   справочники, сообщения гейтов.

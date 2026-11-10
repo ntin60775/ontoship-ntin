@@ -5,19 +5,15 @@
 # the `qwen-token-plan` provider — the four reviewers and the curator on
 # qwen3.8-flash with `xhigh`, the critic on qwen3.8-max with `medium`.
 # `init` delivers the same layout to a fresh project when every route and
-# level is live. A ZCode project gets its own config from `init`
-# (ListModels).
+# level is live. DSH is the only rail: the ZCode branch and its generator
+# left the project (operator decision, continue.md).
 # The critic model is recommended to differ from the session model; a match
 # is allowed and marked in the report (decision 10, recommendation since
 # 2026-11-09).
 # A level value is a bare token: letters, digits, '.', '_', '-'.
-# DSH: `level` is the role's reasoning_effort, passed straight to `subagent`;
+# `level` is the role's reasoning_effort, passed straight to `subagent`;
 # with the key absent the model default applies and the report marks it, while
 # `init` in a fresh project writes the maximum available level.
-# ZCode: the generator writes `level` as `thoughtLevel:` into the role
-# definition; with the key absent the launch-time check falls back to the
-# maximum available (onto-doc decisions 3 and 4) — the generator only omits
-# the line.
 
 [agents.reviewer-spec]
 model = "qwen-token-plan/qwen3.8-flash"

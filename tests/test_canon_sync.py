@@ -81,9 +81,9 @@ PANEL_RUN_CARRIERS = (
     REPO / "skills/ship/references/review-panel.md",
 )
 PANEL_RUN_ANCHORS = (
-    "Модель субагента задаётся типом агента",
-    "Фолбэк недоступной модели роли",
-    "модель сессии с пометкой в отчёте",
+    "Недоступная модель роли — фолбэк на модель сессии с пометкой в отчёте",
+    "«ревью провёл исполнитель» законным исходом не является",
+    "одна повторная проба, затем остановка прохода",
 )
 
 PANEL_INTRO_CARRIERS = (
@@ -101,9 +101,9 @@ ONTODOC_CARRIERS = (
     REPO / "skills/onto-doc/references/ontodoc-run.md",
 )
 ONTODOC_ANCHORS = (
-    "прогон — сохранённый workflow",
-    "Модель и уровень едут в `subagent_model`",
-    "ListModels",
+    "fan-out `subagent` (spawn, не `subagent_fork`)",
+    "`git diff --cached --name-only`",
+    "`git add -A`",
 )
 
 METHOD_CARRIERS = (

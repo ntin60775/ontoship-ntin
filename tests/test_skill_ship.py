@@ -101,8 +101,7 @@ PANEL_PHRASES = (
     "артефакты",
     "не ход исполнения",
     ".agents/config.toml",
-    "модель и уровень определения",
-    "перегенерируй",
+    "маршрут и уровень каждой роли",
     "фолбэк на модель сессии",
     "пометкой в отчёте",
     "повторная проба",
@@ -114,11 +113,11 @@ PANEL_PHRASES = (
     "запись прогона",
     "references/review-panel.md",
     "справочник `references/review-panel.md`",
-    "процедура в том же `references/review-panel.md`",
+    "процедура запуска ролей — в том же `references/review-panel.md`",
     "файл бандла — первоисточник",
     "проект переопределяет его документом `docs/reference/review-panel.md`",
     "написал свой, бери его",
-    "процедуру запуска бери оттуда",
+    "бери её оттуда",
 )
 # The DSH branch (dsh-adaptation ticket 01): spawn with an explicit route and
 # effort in one message; routes are checked against the live host listing,
@@ -138,12 +137,12 @@ DSH_SKILL_PHRASES = DSH_COMMON_PHRASES + (
     "`create_worktree`",
     "`git worktree`",
     "сгенерированные определения ролей не нужны",
-    "маршрут сессии",
+    "какая роль и почему пошла на модели сессии",
 )
 DSH_PANEL_PHRASES = DSH_COMMON_PHRASES + (
     "`.agents/config.toml`",
     "дедуплицируется",
-    "фолбэк на маршрут сессии с пометкой",
+    "фолбэк на модель сессии с пометкой",
     "одна повторная проба, затем остановка прохода",
 )
 DSH_PANEL_HEADING = "### dsh — рабочий способ"
@@ -472,19 +471,19 @@ def test_panel_role_input_output_and_independence():
     assert "не ход исполнения" in lowered
 
 
-def test_panel_checks_definitions_before_launch():
+def test_panel_checks_routes_and_levels_before_launch():
     """spec: docs/plans/review-config.md#готово — до запуска ролей сверка
-    модели определения с конфигом, расхождение — перегенерация (решение 9);
-    процедура запуска живёт в references/review-panel.md бандла, скилл
-    ведёт в неё и требует брать процедуру оттуда.
+    (решение 9 в DSH-виде: генератора определений нет, расхождение —
+    фолбэк, не перегенерация); процедура запуска живёт в
+    references/review-panel.md бандла, скилл ведёт в неё и требует брать
+    процедуру оттуда.
     spec: docs/plans/onto-doc.md#готово — сверка расширена с модели до
     модели и уровня (решение 4)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "модель и уровень определения" in lowered
-    assert "перегенерируй" in lowered
+    assert "маршрут и уровень каждой роли" in lowered
     assert "references/review-panel.md" in lowered
-    assert "процедуру запуска бери оттуда" in lowered
+    assert "бери её оттуда" in lowered
 
 
 def test_panel_fallback_is_marked_and_failure_stops():
@@ -527,10 +526,10 @@ def test_panel_check_can_fail():
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_level = text.replace("модель и уровень определения",
-                            "модель определения", 1)
+    no_level = text.replace("маршрут и уровень каждой роли",
+                            "маршрут каждой роли", 1)
     assert no_level != text
-    assert any("модель и уровень определения" in error
+    assert any("маршрут и уровень каждой роли" in error
                for error in _contract_errors(no_level))
 
     no_dedup = text.replace("Дедуплицируй повторяющиеся находки — ",
@@ -553,10 +552,10 @@ def test_panel_check_can_fail():
     assert any("пропуск в отчёте" in error
                for error in _contract_errors(silent_skip))
 
-    no_regen = text.replace("перегенерируй", "перепиши", 1)
-    assert no_regen != text
-    assert any("перегенерируй" in error
-               for error in _contract_errors(no_regen))
+    no_take = text.replace("бери её оттуда", "бери из описания", 1)
+    assert no_take != text
+    assert any("бери её оттуда" in error
+               for error in _contract_errors(no_take))
 
     no_gate = text.replace("Критик-гейт", "Проверка критика", 1)
     assert no_gate != text
@@ -572,7 +571,7 @@ def test_panel_references_come_from_the_bundle():
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "справочник `references/review-panel.md`" in lowered
-    assert "процедура в том же `references/review-panel.md`" in lowered
+    assert "процедура запуска ролей — в том же `references/review-panel.md`" in lowered
     assert "файл бандла — первоисточник" in lowered
     assert "проект переопределяет его документом " \
            "`docs/reference/review-panel.md`" in lowered
@@ -654,10 +653,10 @@ def _panel_errors(text: str) -> list[str]:
     spec: docs/plans/dsh-adaptation.md#готово — DSH-раздел панели: роль идёт
     через `subagent` (spawn, не `subagent_fork`) с `provider`, `model` и
     `reasoning_effort` из конфига, все роли в одном сообщении, отчёт один и
-    дедуплицирован, недоступная модель — фолбэк на маршрут сессии с пометкой,
-    провал — повторная проба и остановка; ZCode-раздел сохранён, старая строка
-    «DSH и Qoder — вне плана» заменена Qoder-пробелом. DSH-фразы ищутся только
-    в DSH-секции, ZCode-якоря — по всему файлу (набор panel-run).
+    дедуплицирован, недоступная модель — фолбэк на модель сессии с пометкой,
+    провал — повторная проба и остановка; ZCode-раздел снят вместе с рельсами,
+    старая строка «DSH и Qoder — вне плана» заменена Qoder-пробелом.
+    DSH-фразы ищутся только в DSH-секции, якоря panel-run — по всему файлу.
     """
     lowered = _normalized_lower(text)
     errors: list[str] = []
@@ -674,14 +673,16 @@ def _panel_errors(text: str) -> list[str]:
         errors.append("dsh-panel: the Qoder gap is not named")
     for phrase in test_canon_sync.PANEL_RUN_ANCHORS:
         if phrase.lower() not in lowered:
-            errors.append(f"dsh-panel: lost ZCode anchor {phrase!r}")
+            errors.append(f"dsh-panel: lost panel-run anchor {phrase!r}")
+    if "zcode" in lowered:
+        errors.append("dsh-panel: a ZCode section is back")
     return errors
 
 
 def test_dsh_panel_procedure_is_named():
     """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 3: DSH-раздел
-    панели в references/review-panel.md; ZCode-раздел сохранён, старая
-    строка «DSH и Qoder — вне плана» заменена Qoder-пробелом."""
+    панели в references/review-panel.md; ZCode-раздел снят с рельсами,
+    старая строка «DSH и Qoder — вне плана» заменена Qoder-пробелом."""
     assert _panel_errors(PANEL_FILE.read_text("utf-8")) == []
 
 
@@ -716,11 +717,15 @@ def test_dsh_panel_contract_can_fail():
     assert no_routes != text
     assert any("`list_subagent_models`" in error for error in _panel_errors(no_routes))
 
-    no_fallback = text.replace("фолбэк на маршрут сессии с пометкой",
-                               "фолбэк на маршрут сессии", 1)
+    no_fallback = text.replace("фолбэк на модель сессии с пометкой",
+                               "фолбэк на модель сессии", 1)
     assert no_fallback != text
-    assert any("фолбэк на маршрут сессии с пометкой" in error
+    assert any("фолбэк на модель сессии с пометкой" in error
                for error in _panel_errors(no_fallback))
+
+    zcode_back = text + "\n### zcode — рабочий способ\n\nГенератор пишет определения.\n"
+    assert any("ZCode section is back" in error
+               for error in _panel_errors(zcode_back))
 
     no_dedup = text.replace("дедуплицируется", "собирается", 1)
     assert no_dedup != text
@@ -747,7 +752,8 @@ def test_dsh_panel_contract_can_fail():
     rewritten = text.replace(test_canon_sync.PANEL_RUN_ANCHORS[0],
                              "Определение роли задаётся конфигом", 1)
     assert rewritten != text
-    assert any("ZCode anchor" in error for error in _panel_errors(rewritten))
+    assert any("panel-run anchor" in error
+               for error in _panel_errors(rewritten))
 
 
 def test_dsh_ship_contract_can_fail():
@@ -770,8 +776,8 @@ def test_dsh_ship_contract_can_fail():
     assert any("`list_subagent_models`" in error
                for error in _contract_errors(no_live))
 
-    generator = text.replace("сгенерированные определения ролей не нужны",
-                             "сгенерированные определения ролей обязательны", 1)
+    generator = text.replace("Сгенерированные определения ролей не нужны",
+                             "Сгенерированные определения ролей обязательны", 1)
     assert generator != text
     assert any("сгенерированные определения ролей не нужны" in error
                for error in _contract_errors(generator))

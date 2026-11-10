@@ -358,6 +358,34 @@ origin (`ls-remote` — `33a4122`); каталог маркета перепин
 (`ddc0cfa`), создан публичный remote `git@github.com:ntin60775/1C-DSH.git`,
 `main` пушнут. Набор **492 passed**, `lint --strict` чист.
 
+**Вне тикетного потока, 2026-11-10 — снятие ZCode-рельсов и Claude-отсылок
+(решение оператора: проект живёт только на DSH-рельсах).** Снесено: `.zcode/`
+(сохранённый workflow `onto-doc.dwf.ts`, драфты, реестры),
+`.zcode-plugin/plugin.json` и `deploy.json` — канал маркета целиком,
+`skills/init/gen_agents.py`, `tests/test_gen_agents.py`,
+`tests/test_workflow_onto_doc.py`. `init` стал одно-рельсовым: единственный
+блок с literal-корнем `.agents/skills` (плейсхолдера и подстановки нет,
+занося — без скобки «в ZCode — план-мод»), четыре строки `.gitignore`,
+бутстрап стандартной раскладкой. ZCode-ветки сняты из бандлов `ship`,
+`onto-doc` и справочников `review-panel.md`/`ontodoc-run.md`; в
+`harnesses.md` разделы заменены статусом «zcode — снят», индексы и README
+говорят «канал снят». Сохранено по решению оператора: защитные литералы
+(`.zcode` в `EXCLUDE_DIRS` движка, в `LEGACY_ROOTS` установщика и в
+`.gitignore` этого репо), история (закрытые тикеты, спеки, канон про
+строгий профиль, `vendor/ontoship-zcode`, lineage README). Контрактные
+тесты переписаны под новые носители (init, role-registry, onto-doc, ship,
+review-roles, bundle-references, canon-sync, install — паритет маркета
+убран, copy-канал несёт `roles.py`), `.zcode` вернулся в списки запретов
+скиллов. Тем же решением сняты Claude-отсылки контура: шаг 4 `onto-doc`
+проверяет только `AGENTS.md`, `claude.md` внесён в запрещённые фразы его
+контракта (ранее — тот же класс, что `$ARGUMENTS`/`${CLAUDE_PLUGIN_ROOT}`
+решения 2 спеки). Цитаты внешнего исследования ESEM 2026 («Claude Code +
+GPT-5» в `testing.md`/`sources.md`) сохранены: адрес внешнего явления, не
+рельс. Набор **440 passed**. Рядом — поставка в проект `deepseek-harness`
+тем же днём: `install.sh` линкует девять бандлов на этот checkout, `init`
+записал четыре файла, GitMark-индекс — 2322 файла / 26434 чанка /
+8346 ссылок, поисковая проба чиста.
+
 **Вне тикетного потока, 2026-11-09 — решение оператора «закоммит и
 почисти от устаревших записей».** Публикация юнита (спека, пять тикетов,
 индексы, эта секция, маршрут `critic` и его пин) закоммичена в main
@@ -1164,10 +1192,6 @@ GitHub, старое имя на remote удалено) — PR-путь и push/
   восьмую (`critic`), тикет 02 `onto-doc` — девятую; `scripts/install.sh
   --check "$PWD"` выходит с кодом 0.
   `.dsh` удалён.
-- `deploy.json`, `.zcode-plugin/plugin.json` — упаковка плагина маркета
-  `ontoship-ntin`: второй канал поставки в `<project>/.zcode/skills`,
-  состав под машинным паритетом с массивом `SKILLS`
-  (`tests/test_install.py`).
 - `.scratch/handoff-current.md` — снимок предыдущей сессии (эфемерный).
 
 ## Порядок тикетов

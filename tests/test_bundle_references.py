@@ -44,10 +44,10 @@ POINTS = (
     ("ship", "**Сборка панели.", "references/review-panel.md",
      "docs/reference/review-panel.md",
      "справочник `references/review-panel.md`"),
-    ("ship", "процедура в том же", "references/review-panel.md",
+    ("ship", "Процедура запуска ролей — в том же", "references/review-panel.md",
      "docs/reference/review-panel.md",
-     "процедура в том же `references/review-panel.md`"),
-    ("onto-doc", "2. Запусти сохранённый workflow", "references/ontodoc-run.md",
+     "процедура запуска ролей — в том же `references/review-panel.md`"),
+    ("onto-doc", "2. Запусти fan-out `subagent`", "references/ontodoc-run.md",
      "docs/reference/ontodoc-run.md", "references/ontodoc-run.md"),
     ("onto-doc", "3. Прочитай отчёт прогона",
      "../testing/references/quality-rule.md", "docs/reference/quality-rule.md",
@@ -101,7 +101,6 @@ GUARD_TAIL = "написал свой, бери его"
 # The run reference carries one section per harness (dsh-adaptation ticket
 # 03): the DSH fan-out procedure lives beside the ZCode workflow procedure.
 DSH_RUN_HEADING = "## dsh — прогон онто-дока"
-ZCODE_RUN_HEADING = "## zcode — прогон онто-дока"
 
 # Blocks end at a blank line, the next bullet/numbered item or a heading.
 BLOCK_BREAK = re.compile(r"\n(?=\n|[-*] |\d+\. |#)")
@@ -339,8 +338,8 @@ def _dsh_run_section_errors(root: Path = SKILLS) -> list[str]:
     """The onto-doc run reference carries the DSH procedure section.
 
     spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: процедура
-    DSH-прогона живёт в файле бандла онто-дока, рядом с ZCode-процедурой;
-    старая общая строка «DSH и Qoder — вне плана» заменена Qoder-пробелом.
+    DSH-прогона живёт в файле бандла онто-дока; ZCode-раздел снят вместе с
+    рельсами, общая строка «DSH и Qoder — вне плана» не возвращается.
     """
     path = root / "onto-doc" / "references" / "ontodoc-run.md"
     if not path.is_file():
@@ -358,8 +357,8 @@ def _dsh_run_section_errors(root: Path = SKILLS) -> list[str]:
         if phrase not in section:
             errors.append(f"onto-doc: DSH procedure section lost "
                           f"{phrase!r}")
-    if ZCODE_RUN_HEADING not in text:
-        errors.append("onto-doc: the ZCode procedure section is gone")
+    if "zcode" in text:
+        errors.append("onto-doc: a ZCode procedure section is back")
     if "dsh и qoder — вне плана" in text:
         errors.append("onto-doc: the retired «DSH и Qoder — вне плана» "
                       "section is back")
@@ -368,8 +367,8 @@ def _dsh_run_section_errors(root: Path = SKILLS) -> list[str]:
 
 def test_run_reference_carries_the_dsh_procedure():
     """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 5: DSH-процедура
-    онто-дока — раздел файла бандла рядом с ZCode-разделом; ZCode-раздел
-    сохранён, общая строка «DSH и Qoder — вне плана» снята."""
+онто-дока — раздел файла бандла; ZCode-раздел снят вместе с рельсами,
+    общая строка «DSH и Qoder — вне плана» не возвращается."""
     errors = _dsh_run_section_errors()
     assert errors == [], "\n".join(errors)
 
@@ -416,11 +415,10 @@ def test_run_reference_dsh_section_can_fail(tmp_path: Path):
                for error in _dsh_run_section_errors(
                    _write_tree(tmp_path, no_diff)))
 
-    no_zcode = text.replace(ZCODE_RUN_HEADING, "## zcode — вне плана", 1)
-    assert no_zcode != text
-    assert any("ZCode procedure section is gone" in error
+    zcode_back = text + "\n## zcode — прогон онто-дока\n\nПрогон через workflow.\n"
+    assert any("ZCode procedure section is back" in error
                for error in _dsh_run_section_errors(
-                   _write_tree(tmp_path, no_zcode)))
+                   _write_tree(tmp_path, zcode_back)))
 
     resurrected = text.replace("## Qoder — вне плана",
                                "## DSH и Qoder — вне плана", 1)

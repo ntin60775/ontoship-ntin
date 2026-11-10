@@ -84,12 +84,8 @@ REQUIRED_PHRASES = (
     "расхождение — стоп",
     "названный пробел и стоп",
     "не угадывание",
-    "сохранённый workflow",
-    "тремя аргументами",
-    "корень kb — worktree прогона",
-    "(назначенная модель",
-    "прогон онто-дока по харнессам",
-    "печатает её в log",
+    "fan-out `subagent`",
+    "`workflow` не используется",
     "пишет только внутри",
     "строку на область — куратор, файлы, отказ",
     # read-back of the run card against the worktree fact (live proof
@@ -115,17 +111,19 @@ FORBIDDEN_PHRASES = (
     "surveyor",
     "файл проекта — первоисточник",
     "единственный источник",
+    # Claude never enters the contour: the entry file is AGENTS.md alone
+    # (operator decision, continue.md).
+    "claude.md",
 )
-# .zcode left the ban list with the marketplace-plugin channel:
-# .zcode/skills is a legitimate skill-bundle root now.
-FORBIDDEN_ROOTS = (".dsh", ".qoder")
+# .zcode is back on the ban list: the marketplace-plugin channel and the
+# ZCode rails left the project (operator decision, continue.md).
+FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
 
-# DSH run procedure (dsh-adaptation ticket 03): the branch in SKILL.md and
-# the section in the run reference, scoped separately so a phrase surviving
-# only in the ZCode section does not satisfy the DSH contract.
+# DSH run procedure (dsh-adaptation ticket 03, amended by the ZCode purge):
+# the branch in SKILL.md and the section in the run reference; the ZCode
+# section is gone — its return reddens the contract.
 RUN_REFERENCE = REPO / "skills" / "onto-doc" / "references" / "ontodoc-run.md"
 DSH_RUN_HEADING = "## dsh — прогон онто-дока"
-ZCODE_RUN_HEADING = "## zcode — прогон онто-дока"
 DSH_SKILL_PHRASES = (
     "fan-out `subagent`",
     "spawn, не `subagent_fork`",
@@ -260,11 +258,9 @@ def _contract_errors(text: str) -> list[str]:
     for root in FORBIDDEN_ROOTS:
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
-    # Both channel roots of the engine are named (marketplace-plugin channel).
-    for root in (".agents/skills/kb-search/gitmark.py",
-                 ".zcode/skills/kb-search/gitmark.py"):
-        if root not in text:
-            errors.append(f"body: missing engine path for a channel: {root!r}")
+    # The single installer root of the engine is named.
+    if ".agents/skills/kb-search/gitmark.py" not in text:
+        errors.append("body: missing engine path for the channel root")
     return errors
 
 
@@ -306,8 +302,8 @@ def _dsh_run_errors(text: str) -> list[str]:
         errors.append("dsh-run: the retired «DSH и Qoder — вне плана» line is back")
     if "qoder" not in lowered:
         errors.append("dsh-run: the Qoder gap is not named")
-    if ZCODE_RUN_HEADING not in lowered:
-        errors.append("dsh-run: the ZCode procedure section is gone")
+    if "zcode" in lowered:
+        errors.append("dsh-run: a ZCode procedure section is back")
     return errors
 
 
@@ -434,10 +430,9 @@ def test_dsh_run_contract_can_fail():
     assert resurrected != text
     assert any("DSH и Qoder" in error for error in _dsh_run_errors(resurrected))
 
-    no_zcode = text.replace(ZCODE_RUN_HEADING, "## zcode — вне плана", 1)
-    assert no_zcode != text
-    assert any("ZCode procedure section" in error
-               for error in _dsh_run_errors(no_zcode))
+    zcode_back = text + "\n## zcode — прогон онто-дока\n\nПрогон через сохранённый workflow.\n"
+    assert any("ZCode procedure section is back" in error
+               for error in _dsh_run_errors(zcode_back))
 
 
 def test_dsh_skill_branch_can_fail():
@@ -592,6 +587,13 @@ def test_adaptations_are_limited_to_decision_two():
     assert any("${claude_plugin_root}" in error
                for error in _contract_errors(plugin_root_back))
 
+    claude_md_back = text.replace(
+        "проверь, что `AGENTS.md` существует как",
+        "проверь, что `CLAUDE.md` / `AGENTS.md` существует как", 1)
+    assert claude_md_back != text
+    assert any("claude.md" in error
+               for error in _contract_errors(claude_md_back))
+
     task_back = text + "\nСпавни куратора командой (Task).\n"
     assert any("(task)" in error for error in _contract_errors(task_back))
 
@@ -609,21 +611,17 @@ def test_adaptations_are_limited_to_decision_two():
 def test_launch_procedure_verifies_model_and_level():
     """spec: docs/plans/onto-doc.md#готово — сверка model+level с каталогом
     моделей: расхождение — стоп, каталога нет — названный пробел и стоп;
-    запуск — тремя аргументами root/plan/model, путь — справочник прогона
-    в бандле onto-doc; чтение отчёта и lint+index+map в сессии
-    (решения 4 и 8)."""
+    запуск — fan-out `subagent` с маршрутом куратора, путь — справочник
+    прогона в бандле onto-doc; чтение отчёта и lint+index+map в сессии
+    (решения 4 и 8; транспорт ZCode снят с чисткой рельсов)."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "сверь модель и уровень" in lowered
     assert "расхождение — стоп" in lowered
     assert "названный пробел и стоп" in lowered
     assert "не угадывание" in lowered
-    assert "сохранённый workflow" in lowered
-    assert "тремя аргументами" in lowered
-    assert "корень kb — worktree прогона" in lowered
-    assert "(назначенная модель" in lowered
-    assert "печатает её в log" in lowered
-    assert "прогон онто-дока по харнессам" in lowered
+    assert "fan-out `subagent`" in lowered
+    assert "`workflow` не используется" in lowered
     assert "строку на область — куратор, файлы, отказ" in lowered
     assert "python3 skills/kb-search/gitmark.py lint" in lowered
     assert "gitmark.py index" in lowered
@@ -714,12 +712,8 @@ def test_principle_is_word_for_word():
         "покрытие kb до→после",
         "расхождение — стоп",
         "названный пробел и стоп",
-        "сохранённый workflow",
-        "тремя аргументами",
-        "корень kb — worktree прогона",
-        "(назначенная модель",
-        "прогон онто-дока по харнессам",
-        "печатает её в log",
+        "fan-out `subagent`",
+        "`workflow` не используется",
         "строку на область — куратор, файлы, отказ",
         "сверь карточку с фактом",
         "git diff --cached --name-only",

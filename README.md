@@ -37,9 +37,9 @@ dogfood: движок GitMark, `kb-search`, `kb-curate`, `init` и
 критика плана `critic` и скилл онто-дока `onto-doc`. Состав установки ведёт
 `scripts/install.sh`, индекс скиллов — [skills/README.md](skills/README.md).
 Сквозной dogfood-прогон прошёл 2026-10-22: интервью → тикеты → `ship` до
-локального merge. DSH — первый класс метода: скиллы, `init`, ревью-панель,
-критик и онто-док работают на его нативных инструментах; ZCode остаётся
-legacy-адаптером ([dsh-adaptation](docs/plans/dsh-adaptation.md)). Открытая
+локального merge. Метод живёт на DSH-рельсах: скиллы, `init`, ревью-панель,
+критик и онто-док работают на его нативных инструментах; ZCode-рельсы и канал
+маркета выведены из проекта. Открытая
 работа записана в
 [docs/ops/continue.md](docs/ops/continue.md#что-осталось-по-проекту).
 Предыдущая линия ([ontoship-zcode](https://github.com/ntin60775/ontoship-zcode))

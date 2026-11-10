@@ -88,7 +88,7 @@ def _contract_errors(text: str) -> list[str]:
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden entity {term!r}")
-    for root in (".dsh", ".qoder"):
+    for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
     return errors
@@ -120,14 +120,13 @@ def test_skill_names_the_kb_search_commands_and_json_contract():
     assert "search \"canon\" --json" in body
     assert ".gitmark/" in body
     assert ".agents/skills" in body
-    # Both channel roots are named: installer and marketplace plugin.
-    assert ".zcode/skills" in body
 
 
-@pytest.mark.parametrize("root", (".dsh", ".qoder"))
+@pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
 def test_skill_names_no_harness_root(root: str):
     """spec: docs/plans/harness-agnostic.md#готово — the universal root only;
-    .zcode/skills left the ban list with the marketplace-plugin channel."""
+    .zcode/skills is back on the ban list: the marketplace-plugin channel
+    left the project with the ZCode purge."""
     text = SKILL.read_text("utf-8")
     assert root not in text
     leaked = text + f"\nInstall into {root}/skills instead.\n"

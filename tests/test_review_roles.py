@@ -69,13 +69,12 @@ PACK_RULES = (
     "гейт",
     "init",
 )
-ZCODE_WAY = (
-    "определени",
-    "gen_agents.py",
-    "полный перезапуск",
-    "`subagent_model`",
-    "[current]",
-)
+# The ZCode purge (operator decision): the review section keeps a zcode
+# subsection, and it is named retired — with no surviving procedure tokens
+# (generator, workflow transport, host tool, session-model marker).
+ZCODE_RETIRE_NEEDLES = ("снят", "выведен")
+ZCODE_RETIRE_FORBIDDEN = ("gen_agents", "subagent_model`", "[current]",
+                          "listmodels", "перезапуск")
 # DSH first class (dsh-adaptation ticket 05): the review row names the native
 # panel way instead of a gap; Qoder keeps its named gap.
 DSH_WAY = (
@@ -89,7 +88,7 @@ RETIRED_DSH_PHRASES = (
     "dsh и qoder — вне плана",
     "dsh вне плана",
 )
-GENERATOR_DSH_RULE = "dsh-ветка генератор не зовёт"
+GENERATOR_DSH_RULE = "генератора определений в проекте нет"
 GAP_CARRIERS = (
     HARNESSES,
     REPO / "skills" / "ship" / "references" / "review-panel.md",
@@ -263,10 +262,15 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
         return ["harnesses.md has no review section"]
     whole = _normalized_lower(" ".join(section))
 
-    for token in ZCODE_WAY:
-        if token not in whole:
-            errors.append(f"zcode review way is missing {token!r}")
     blocks = _h3_blocks(section)
+    zcode_retired = any("zcode" in heading
+                        and all(needle in block for needle in ZCODE_RETIRE_NEEDLES)
+                        for heading, block in blocks.items())
+    if not zcode_retired:
+        errors.append("the zcode review way is not named retired")
+    for token in ZCODE_RETIRE_FORBIDDEN:
+        if token in whole:
+            errors.append(f"the retired zcode way names {token!r}")
     dsh_blocks = [block for heading, block in blocks.items() if "dsh" in heading]
     if not dsh_blocks:
         errors.append("dsh review way has no section")
@@ -367,8 +371,8 @@ def test_reviewer_tests_checks_artifact_expectation_and_discrepancies():
 
 def test_harnesses_describe_the_review_way_and_keep_the_qoder_gap():
     """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 1: матрица
-    описывает способ ревью: zcode рабочий (определения, полный перезапуск,
-    subagent_model), DSH — рабочий способ через `subagent` и живой каталог,
+    описывает способ ревью: zcode — снят (рельсы выведены решением
+    оператора), DSH — рабочий способ через `subagent` и живой каталог,
     Qoder — названный пробел в своём подразделе."""
     errors = _harness_errors(HARNESSES.read_text("utf-8"),
                              INDEX.read_text("utf-8"))
@@ -404,12 +408,18 @@ def test_dsh_first_class_can_fail():
     assert any("still named 'пробел'" in error
                for error in _harness_errors(regressed, index))
 
-    unconditional = re.sub(r"DSH-ветка\s+генератор не зовёт",
-                           "генератор зовётся безусловно", harnesses, count=1)
+    unconditional = harnesses.replace(
+        "### zcode — снят\n",
+        "### zcode — снят\n\nГенератор зовётся безусловно.\n\n", 1)
     assert unconditional != harnesses
-    errors = _harness_errors(unconditional, index)
-    assert any("unconditional generator" in error for error in errors)
-    assert any("DSH generator rule" in error for error in errors)
+    assert any("unconditional generator" in error
+               for error in _harness_errors(unconditional, index))
+
+    lost_rule = harnesses.replace("генератора определений в проекте нет",
+                                  "определения не нужны", 1)
+    assert lost_rule != harnesses
+    assert any("DSH generator rule" in error
+               for error in _harness_errors(lost_rule, index))
 
     no_qoder = harnesses.replace("пробел", "реализовано")
     assert no_qoder != harnesses
@@ -487,10 +497,19 @@ def test_reference_check_can_fail():
     assert any("dsh" in error for error in errors)
     assert any("qoder" in error for error in errors)
 
-    no_fallback = harnesses.replace("`subagent_model`", "`agent tool`", 1)
-    assert no_fallback != harnesses
-    assert any("subagent_model" in error
-               for error in _harness_errors(no_fallback, index))
+    # The zcode subsection must stay a retirement note: an unretired heading
+    # or a resurrected transport token both redden.
+    unretired = harnesses.replace("### zcode — снят", "### zcode — рабочий способ", 1)
+    assert unretired != harnesses
+    assert any("not named retired" in error
+               for error in _harness_errors(unretired, index))
+
+    resurrected = harnesses.replace(
+        "### zcode — снят\n",
+        "### zcode — снят\n\nПанель вела роли через `subagent_model`.\n\n", 1)
+    assert resurrected != harnesses
+    assert any("retired zcode way" in error
+               for error in _harness_errors(resurrected, index))
 
     # Every occurrence must go — the frontmatter link alone would keep the
     # `not in` check green — so the index truly stops naming the reference.

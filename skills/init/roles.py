@@ -1,5 +1,5 @@
 # OntoShip role registry: the machine source of the role lists, in the init
-# bundle next to gen_agents.py (plan-gate decisions of docs/plans/role-registry.md,
+# bundle (plan-gate decisions of docs/plans/role-registry.md,
 # accepted by the operator 2026-11-01). Precedent: the installer array SKILLS
 # (scripts/install.sh) is the machine source of the bundle list.
 #

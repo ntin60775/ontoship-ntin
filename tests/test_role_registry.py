@@ -26,7 +26,6 @@ REGISTRY = "skills/init/roles.py"
 # (file, variable, side): which carrier tuple mirrors which registry tuple.
 CARRIER_TUPLES = (
     ("tests/test_skill_init.py", "CORE_ROLES", "core"),
-    ("tests/test_gen_agents.py", "CORE_ROLES", "core"),
     ("tests/test_review_roles.py", "ROLES", "panel"),
 )
 
@@ -43,11 +42,6 @@ PROBES = (
     ("skill-init-tuple-drops-critic", "tests/test_skill_init.py",
      ', "critic",\n', ',\n', "misses the critic role"),
     ("skill-init-tuple-phantom", "tests/test_skill_init.py",
-     '              "curator")', '              "curator", "auditor")',
-     "carries a phantom auditor role"),
-    ("gen-agents-tuple-drops-critic", "tests/test_gen_agents.py",
-     ', "critic",\n', ',\n', "misses the critic role"),
-    ("gen-agents-tuple-phantom", "tests/test_gen_agents.py",
      '              "curator")', '              "curator", "auditor")',
      "carries a phantom auditor role"),
     ("review-roles-tuple-drops-kb", "tests/test_review_roles.py",

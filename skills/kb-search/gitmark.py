@@ -32,8 +32,8 @@ from pathlib import Path
 
 # Vendored from ontoship-zcode (gitmark.py at 5528ae1; MIT, © vakovalskii and OntoShip
 # contributors / 1cprog7), trimmed for the OntoShip core: no inventory/registry (I7),
-# no serve. The engine is harness-agnostic: .agents is the universal install root;
-# .dsh and .zcode stay excluded as legacy roots. Keep the diff to the core minimal.
+# no serve. .agents is the project-local install root; .dsh and .zcode stay
+# excluded as legacy roots of consumer projects. Keep the diff to the core minimal.
 VERSION = "0.1.0"
 
 EXCLUDE_DIRS = {
@@ -41,7 +41,7 @@ EXCLUDE_DIRS = {
     ".pytest_cache", "_vendor", ".venv", "venv", "vendor",
     ".gitmark",
     ".agents",  # installer channel root: skills are not KB documents
-    ".zcode",   # marketplace-plugin channel root: same duplication
+    ".zcode",   # legacy ZCode install root: same duplication
     ".dsh",     # legacy DSH install root: same duplication
 }
 DB_REL = ".gitmark/index.db"
@@ -62,8 +62,7 @@ def repo_root(start: Path) -> Path:
 
 # Корень пакета — от расположения самого движка (<пакет>/skills/kb-search/gitmark.py).
 # В этом репо <пакет> = корень репо; в установленном проекте
-# <проект>/.agents/skills/kb-search/... — навыковый корень (installer
-# и плагин маркета с v0.2.0; деплой v0.1.0 держал его в .zcode/skills).
+# <проект>/.agents/skills/kb-search/... — навыковый корень установщика.
 # Путь не хардкодится и манифесты не читаются.
 PKG_ROOT = Path(__file__).resolve().parents[2]
 
