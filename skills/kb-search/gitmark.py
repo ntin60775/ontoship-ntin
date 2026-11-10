@@ -45,6 +45,10 @@ EXCLUDE_DIRS = {
     ".dsh",     # legacy DSH install root: same duplication
 }
 DB_REL = ".gitmark/index.db"
+# Корпус KB задаёт проект: отслеживаемый git файл в корне репозитория. Каталог
+# .gitmark/ — производное и в gitignore, поэтому истина покрытия живёт вне его.
+SCOPE_REL = "gitmark.scope.json"
+SCOPE_KEY = "exclude_prefixes"
 HEAD_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*$")
 H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 LINK_RE = re.compile(r"(?<!\!)\[[^\]]*\]\(([^)]+)\)")
@@ -260,12 +264,83 @@ def iter_md_fallback(root: Path):
 
 
 def iter_md(root: Path):
-    """Markdown, которые git видит как файлы репозитория."""
-    from_git = git_md_files(root)
-    if from_git is not None:
-        yield from from_git
-        return
-    yield from iter_md_fallback(root)
+    """Markdown, которые git видит как файлы репозитория, минус `gitmark.scope.json`."""
+    yield from iter_corpus(root)[0]
+
+
+def read_scope(root: Path) -> list:
+    """Префиксы исключения из `gitmark.scope.json`; файла нет — пустой список.
+
+    Корпус KB — не «весь git-visible markdown», если проект сказал иначе: дерево
+    содержит генерируемые ожидаемые выводы тестов и поддеревья, чью форму
+    определяет внешний гейт. Формат — единственный ключ `exclude_prefixes`,
+    элемент — относительный путь от корня: папка обязана заканчиваться `/`,
+    имя без `/` обязано именовать существующий файл (иначе `snapshots` зацепит
+    `snapshots-notes`). Битый конфиг — именованный отказ `ScopeError`: зелёный
+    прогон не должен означать «scope не прочитан».
+    """
+    path = root / SCOPE_REL
+    if not path.exists():
+        return []
+    try:
+        raw = path.read_text("utf-8", errors="replace")
+    except OSError as e:
+        raise ScopeError(f"{SCOPE_REL}: не читается — {e}")
+    try:
+        data = json.loads(raw)
+    except ValueError as e:
+        raise ScopeError(f"{SCOPE_REL}: не JSON — {e}")
+    if not isinstance(data, dict):
+        raise ScopeError(f"{SCOPE_REL}: ожидался объект, получен {type(data).__name__}")
+    unknown = sorted(set(data) - {SCOPE_KEY})
+    if unknown:
+        raise ScopeError(f"{SCOPE_REL}: неизвестный ключ {', '.join(unknown)}; "
+                         f"формат — только {SCOPE_KEY}")
+    prefixes = data.get(SCOPE_KEY, [])
+    if not isinstance(prefixes, list):
+        raise ScopeError(f"{SCOPE_REL}: {SCOPE_KEY} — не список")
+    out = []
+    for item in prefixes:
+        if not isinstance(item, str):
+            raise ScopeError(f"{SCOPE_REL}: элемент {SCOPE_KEY} — не строка")
+        rel = _nfc(item.replace("\\", "/"))
+        if not rel.strip():
+            raise ScopeError(f"{SCOPE_REL}: пустой префикс")
+        if rel.startswith("/"):
+            raise ScopeError(f"{SCOPE_REL}: абсолютный префикс вне формата: {rel}")
+        if rel == ".." or "../" in rel or rel.endswith("/.."):
+            raise ScopeError(f"{SCOPE_REL}: префикс не может уходить из репозитория: {rel}")
+        if rel.endswith("/"):
+            out.append(rel)
+        elif (root / rel).is_file():
+            out.append(rel)
+        else:
+            raise ScopeError(f"{SCOPE_REL}: префикс обязан заканчиваться '/' (папка) "
+                             f"или именовать существующий файл: {rel}")
+    return out
+
+
+def _under_scope(path: Path, root: Path, prefixes: list) -> bool:
+    """True — файл под префиксом, то есть вне KB-корпуса проекта."""
+    rel = _nfc(path.relative_to(root).as_posix())
+    return any(rel == pre or (pre.endswith("/") and rel.startswith(pre)) for pre in prefixes)
+
+
+def iter_corpus(root: Path):
+    """Одно определение покрытия: (файлы корпуса, сколько исключено, префиксы).
+
+    Фильтр стоит здесь, до развилки git/фолбэк, поэтому `index`, `search`,
+    `stat`, `map` и `lint` называют один и тот же корпус независимо от того,
+    есть ли git в окружении.
+    """
+    prefixes = read_scope(root)
+    files = git_md_files(root)
+    if files is None:
+        files = list(iter_md_fallback(root))
+    if not prefixes:
+        return files, 0, prefixes
+    kept = [p for p in files if not _under_scope(p, root, prefixes)]
+    return kept, len(files) - len(kept), prefixes
 
 
 def area_of(rel: str) -> str:
@@ -772,6 +847,15 @@ class LintPathError(ValueError):
     ошибками и не переклассифицируются."""
 
 
+class ScopeError(LintPathError):
+    """Именованный отказ по невалидному `gitmark.scope.json`.
+
+    Наследник `LintPathError`, а не «просто» `ValueError`: usage-отказ ловится
+    одним классом, поэтому битый конфиг даёт exit 2 и пустой stdout на любой
+    команде, читающей корпус, — а не внутренний traceback.
+    """
+
+
 def _lint_path_guards(root: Path, rels: list, paths: list | None) -> None:
     """Path-args guards: refuse a missing path or one selecting no KB file.
 
@@ -908,10 +992,11 @@ def _lint_global(root: Path, rels: list, fm_cache: dict) -> list:
 def cmd_lint(root: Path, paths: list | None = None) -> dict:
     """Проверка инвариантов онтологии I1–I6 и I8–I10.
 
-    Возвращает {issues, errors, warnings, checked}; `checked` — весь KB и при
-    выборке: path-аргументы сужают только per-file проверки.
+    Возвращает {issues, errors, warnings, checked, scope_excluded,
+    scope_prefixes}; `checked` — весь KB-корпус и при выборке: path-аргументы
+    сужают только per-file проверки. `scope_*` — что срезано `gitmark.scope.json`.
     """
-    docs = list(iter_md(root))
+    docs, scope_excluded, scope_prefixes = iter_corpus(root)
     rels = [p.relative_to(root).as_posix() for p in docs]
     _lint_path_guards(root, rels, paths)
     for warning in gitignore_warnings(root):
@@ -932,7 +1017,8 @@ def cmd_lint(root: Path, paths: list | None = None) -> dict:
     errs = [i for i in issues if i[0] == "ERR"]
     warns = [i for i in issues if i[0] == "WARN"]
     return {"issues": issues, "errors": errs, "warnings": warns,
-            "checked": len(docs)}
+            "checked": len(docs), "scope_excluded": scope_excluded,
+            "scope_prefixes": len(scope_prefixes)}
 
 
 # ───────────────── инвариант I8: модель онтологии в проекте и в пакете ─────────────────
@@ -1077,6 +1163,25 @@ def cmd_map(root: Path, out: Path) -> dict:
 
 
 # ─────────────────────────── CLI ───────────────────────────
+def _usage_refusal(e: Exception) -> None:
+    """Usage-отказ CLI: stderr, exit 2, stdout остаётся пустым.
+
+    Класс — `LintPathError` и его наследники (путь-аргумент, `gitmark.scope.json`);
+    отдельный от exit 1 = ERR онтологии при --strict. Текст — недоверенный
+    (argv и содержимое репозитория): проходит redact_lite (секрет в строке —
+    ghp_/eyJ/… маскируется, не утекает в stderr), затем управляющие заменяются
+    видимым маркером — C0/DEL, C1 (U+0080–U+009F: 8-битные CSI/OSC/NEL доживают
+    до UTF-8-терминала) и bidi/формат-символы (U+200B–U+200F, U+2028–U+202E:
+    RLO-подделка отображения, Unicode-разделители строк), включая переводы
+    строк (ESC-инъекция и подделка строки отчёта). Замена, не вырезание:
+    удаление склеивало бы путь в другой («docs/README\\n.md» → «README.md»).
+    """
+    msg = re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]", "·",
+                 redact_lite(str(e)))
+    print(f"gitmark: {msg}", file=sys.stderr)
+    sys.exit(2)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="gitmark", description="GitMark Memory Bank — md+git knowledge base CLI")
     ap.add_argument("--root", default=None, help="корень репо (по умолчанию — авто по .git)")
@@ -1092,6 +1197,15 @@ def main(argv=None):
     sub.add_parser("version", help="версия")
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else repo_root(Path.cwd())
+
+    # Битый gitmark.scope.json обязан отказать до любой работы с корпусом — и на
+    # index/map/stat/search, а не только на lint: иначе «тихий» прогон означал бы
+    # «scope не прочитан». Version корпус не трогает.
+    if a.cmd != "version":
+        try:
+            read_scope(root)
+        except LintPathError as e:
+            _usage_refusal(e)
 
     if a.cmd == "index":
         r = cmd_index(root, a.force)
@@ -1127,21 +1241,9 @@ def main(argv=None):
         try:
             r = cmd_lint(root, a.paths or None)
         except LintPathError as e:
-            # именованный отказ по path-аргументу: exit 2 (класс usage-ошибки
-            # argparse), отдельный от exit 1 = ERR онтологии при --strict.
-            # argv-путь — недоверенный текст на границе вывода: как и соседние
-            # печати msg, проходит redact_lite (секрет в пути — ghp_/eyJ/…
-            # masкируется, не утекает в stderr), затем управляющие заменяются
-            # видимым маркером — C0/DEL, C1 (U+0080–U+009F: 8-битные CSI/OSC/
-            # NEL доживают до UTF-8-терминала) и bidi/формат-символы
-            # (U+200B–U+200F, U+2028–U+202E: RLO-подделка отображения,
-            # Unicode-разделители строк), включая переводы строк (ESC-инъекция
-            # и подделка строки отчёта). Замена, не вырезание: удаление
-            # склеивало бы путь в другой («docs/README\n.md» → «README.md»)
-            msg = re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]", "·",
-                         redact_lite(str(e)))
-            print(f"gitmark: {msg}", file=sys.stderr)
-            sys.exit(2)
+            # именованный отказ (путь-аргумент или scope) — usage-код 2, см.
+            # _usage_refusal: печать с редактурой и подменой управляющих символов
+            _usage_refusal(e)
         order = {"ERR": 0, "WARN": 1}
         codes = {}
         for lvl, code, path, msg in sorted(r["issues"], key=lambda x: (order[x[0]], x[1], x[2])):
@@ -1154,6 +1256,11 @@ def main(argv=None):
         summary = " · ".join(f"{c}×{n}" for c, n in sorted(codes.items())) or "—"
         mark = "\033[32m✓ чисто\033[0m" if ne == 0 and nw == 0 else f"\033[31m{ne} ERR\033[0m · \033[33m{nw} WARN\033[0m"
         print(f"\n{mark}  ({r['checked']} файлов · {summary})")
+        # Исключение из корпуса видно в каждом прогоне: ноль находок не должен
+        # выглядеть чистотой там, где дерево просто срезано scope'ом проекта.
+        if r["scope_prefixes"]:
+            print(f"scope: {r['scope_excluded']} файлов исключено по "
+                  f"{r['scope_prefixes']} префиксам")
         if a.strict and ne:
             sys.exit(1)
     elif a.cmd == "version":
