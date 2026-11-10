@@ -611,9 +611,14 @@ def cmd_search(root: Path, query: str, k: int = 8) -> list:
 
 # ─────────────────────────── stat ───────────────────────────
 def cmd_stat(root: Path) -> dict:
+    # scope живёт в корпусе, а не в индексе: поле есть всегда — и до первой
+    # сборки, и без gitmark.scope.json (нули), иначе машинный вывод молчал бы
+    # о сужении покрытия (спека «Готово» 7, решение 17)
+    _, scope_excluded, scope_prefixes = iter_corpus(root)
+    scope = {"excluded_files": scope_excluded, "prefixes": len(scope_prefixes)}
     db = root / DB_REL
     if not db.exists():
-        return {"indexed": False}
+        return {"indexed": False, "scope": scope}
     con = sqlite3.connect(db)
     f = con.execute("SELECT count(*), coalesce(sum(size),0), coalesce(sum(chunks),0) FROM files").fetchone()
     links = con.execute("SELECT count(*) FROM links").fetchone()[0]
@@ -621,7 +626,7 @@ def cmd_stat(root: Path) -> dict:
     has_tri = (con.execute("SELECT v FROM meta WHERE k='trigram'").fetchone() or ("0",))[0] == "1"
     con.close()
     return {"indexed": True, "files": f[0], "bytes": f[1], "chunks": f[2],
-            "links": links, "areas": areas, "trigram": has_tri}
+            "links": links, "areas": areas, "trigram": has_tri, "scope": scope}
 
 
 # ─────────────────────────── lint (онтология) ───────────────────────────
@@ -1245,6 +1250,15 @@ def main(argv=None):
         if r["scope_prefixes"]:
             print(f"scope: {r['scope_excluded']} файлов исключено по "
                   f"{r['scope_prefixes']} префиксам")
+        if a.paths:
+            # Выборка не сужает корпус и глобальные проверки — контракт
+            # «пути сужают только per-file» (страж tests/test_lint_paths.py);
+            # человек видит, где его файлы, а где остальной репозиторий
+            sel = set(a.paths)
+            in_err = sum(1 for x in r["errors"] if x[2] in sel)
+            in_warn = sum(1 for x in r["warnings"] if x[2] in sel)
+            print(f"в выборке: {in_err} ERR · {in_warn} WARN")
+            print(f"вне выборки: {ne - in_err} ERR · {nw - in_warn} WARN")
         print(f"{mark}  ({r['checked']} файлов · {summary})")
         if a.strict and ne:
             sys.exit(1)

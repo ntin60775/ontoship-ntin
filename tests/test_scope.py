@@ -273,3 +273,93 @@ def test_deeply_nested_json_is_a_refusal_not_a_traceback(tmp_path: Path):
     assert r.returncode == 2, f"rc={r.returncode}, stderr={r.stderr[-200:]!r}"
     assert r.stdout == ""
     assert "Traceback" not in r.stderr
+
+
+# ── тикет 02: поле scope в stat --json и две строки при выборке ─────────────
+
+
+def _repo_two_broken(tmp_path: Path) -> Path:
+    """Две битые ссылки: одна внутри будущей выборки, одна вне её."""
+    return make_git_repo(tmp_path, {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n",
+        "docs/keep.md": "---\nnode_type: reference\ntitle: Keep\n"
+                       "links:\n  relates_to: [README.md]\n---\n\n[битая](./nope.md)\n",
+        "docs/other.md": "---\nnode_type: reference\ntitle: Other\n"
+                         "links:\n  relates_to: [README.md]\n---\n\n[битая](./nope2.md)\n",
+        "snapshots/shot.md": "---\nnode_type: reference\ntitle: Shot\n---\n\n[битая](./nope3.md)\n",
+    })
+
+
+def _counts(stdout: str, prefix: str) -> tuple:
+    """(ERR, WARN) из строки вида `в выборке: 1 ERR · 2 WARN`."""
+    line = next(l for l in stdout.splitlines() if l.startswith(prefix + ": "))
+    err, warn = line.split(": ", 1)[1].split(" · ")
+    return int(err.split()[0]), int(warn.split()[0])
+
+
+def test_selection_prints_two_lines(tmp_path: Path):
+    """spec: docs/plans/kb-scope.md#готово-5 — находки разделены по выборке."""
+    root = _repo_two_broken(tmp_path)
+    r = _run(root, "lint", "docs/keep.md")
+    lines = r.stdout.splitlines()
+    assert any(l.startswith("в выборке: ") for l in lines), r.stdout
+    assert any(l.startswith("вне выборки: ") for l in lines), r.stdout
+    in_sel = _counts(r.stdout, "в выборке")
+    out_sel = _counts(r.stdout, "вне выборки")
+    # независимое ожидание из фикстуры: три битые ссылки (I4, ERR) — keep.md внутри
+    # выборки, other.md и snapshots/shot.md вне; сирот нет (relates_to задан)
+    assert in_sel == (1, 0), f"в выборке ожидалось 1 ERR · 0 WARN, факт {in_sel}"
+    assert out_sel == (2, 0), f"вне выборки ожидалось 2 ERR · 0 WARN, факт {out_sel}"
+    assert r.stdout.rstrip().endswith(")"), "итог обязан остаться последней строкой"
+
+
+def test_no_selection_lines_without_paths(tmp_path: Path):
+    """invariant: docs/plans/kb-scope.md#готово-5 — без путей пар строк нет."""
+    root = _repo_two_broken(tmp_path)
+    r = _run(root, "lint")
+    assert "в выборке" not in r.stdout and "вне выборки" not in r.stdout, r.stdout
+
+
+def test_checked_is_full_corpus_under_selection(tmp_path: Path, gm):
+    """invariant: docs/plans/kb-scope.md#готово-5 — выборка не сужает корпус."""
+    root = _repo_two_broken(tmp_path)
+    full = gm.cmd_lint(root)
+    sel = gm.cmd_lint(root, ["docs/keep.md"])
+    assert sel["checked"] == full["checked"] == 4
+    broken = {i[2] for i in full["issues"] if i[1] == "I4"}
+    broken_sel = {i[2] for i in sel["issues"] if i[1] == "I4"}
+    assert broken == broken_sel == {"docs/keep.md", "docs/other.md", "snapshots/shot.md"}
+
+
+def test_stat_json_carries_scope(tmp_path: Path):
+    """spec: docs/plans/kb-scope.md#готово-7 — поле scope с числами из фикстуры."""
+    root = _repo_two_broken(tmp_path)
+    _scope(root, {"exclude_prefixes": ["snapshots/"]})
+    assert _run(root, "index").returncode == 0
+    r = _run(root, "stat", "--json")
+    data = json.loads(r.stdout)
+    assert data["scope"] == {"excluded_files": 1, "prefixes": 1}, data
+
+
+def test_stat_json_scope_is_zero_without_file(tmp_path: Path):
+    """spec: docs/plans/kb-scope.md#готово-7 — без scope-файла поле на месте с нулями."""
+    root = _repo_two_broken(tmp_path)
+    assert _run(root, "index").returncode == 0
+    data = json.loads(_run(root, "stat", "--json").stdout)
+    assert data["scope"] == {"excluded_files": 0, "prefixes": 0}, data
+
+
+def test_stat_json_scope_present_before_any_index(tmp_path: Path):
+    """invariant: docs/plans/kb-scope.md#готово-7 — машинный контракт не исчезает."""
+    root = _repo_two_broken(tmp_path)
+    data = json.loads(_run(root, "stat", "--json").stdout)
+    assert data["indexed"] is False and "scope" in data, data
+
+
+def test_exit_codes_unchanged_under_selection(tmp_path: Path):
+    """spec: docs/plans/kb-scope.md#готово-5 — выборка не вводит новых кодов."""
+    root = _repo_two_broken(tmp_path)
+    assert _run(root, "lint", "docs/keep.md", "--strict").returncode == 1
+    clean = _repo(tmp_path / "clean")
+    _scope(clean, {"exclude_prefixes": ["snapshots/", "apps/"]})
+    assert _run(clean, "lint", "--strict").returncode == 0
