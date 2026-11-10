@@ -45,8 +45,7 @@ EXCLUDE_DIRS = {
     ".dsh",     # legacy DSH install root: same duplication
 }
 DB_REL = ".gitmark/index.db"
-# Корпус KB задаёт проект: отслеживаемый git файл в корне репозитория. Каталог
-# .gitmark/ — производное и в gitignore, поэтому истина покрытия живёт вне его.
+# Истина покрытия — отслеживаемый git файл в корне; .gitmark/ — производное.
 SCOPE_REL = "gitmark.scope.json"
 SCOPE_KEY = "exclude_prefixes"
 HEAD_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*$")
@@ -271,17 +270,10 @@ def iter_md(root: Path):
 def read_scope(root: Path) -> list:
     """Префиксы исключения из `gitmark.scope.json`; файла нет — пустой список.
 
-    Корпус KB — не «весь git-visible markdown», если проект сказал иначе: дерево
-    содержит генерируемые ожидаемые выводы тестов и поддеревья, чью форму
-    определяет внешний гейт. Формат — единственный ключ `exclude_prefixes`,
-    элемент — относительный путь от корня: папка обязана заканчиваться `/`,
-    имя без `/` обязано именовать существующий файл (иначе `snapshots` зацепит
-    `snapshots-notes`). Битый конфиг — именованный отказ `ScopeError`: зелёный
-    прогон не должен означать «scope не прочитан».
+    Формат — носитель `SKILL.md` (решение 13); любое отклонение — `ScopeError`.
     """
     path = root / SCOPE_REL
-    # Висящий симлинк — не «файла нет»: иначе доктрина «тихий прогон = scope не
-    # прочитан» обходится одним `ln -s /nonexistent gitmark.scope.json`
+    # висящий симлинк — не «файла нет» (иначе `ln -s /nonexistent` обходит отказ)
     if not (path.exists() or path.is_symlink()):
         return []
     try:
@@ -291,14 +283,14 @@ def read_scope(root: Path) -> list:
     try:
         data = json.loads(raw)
     except (ValueError, RecursionError) as e:
-        # RecursionError — глубина вложенности JSON; без него внутренний traceback
-        # обошёл бы usage-контракт «отказ назван, stdout пуст»
+        # RecursionError — предельная вложенность: traceback не должен обходить
+        # usage-контракт
         raise ScopeError(f"{SCOPE_REL}: не JSON — {e}")
     if not isinstance(data, dict):
         raise ScopeError(f"{SCOPE_REL}: ожидался объект, получен {type(data).__name__}")
     unknown = sorted(set(data) - {SCOPE_KEY})
     if unknown:
-        raise ScopeError(f"{SCOPE_REL}: неизвестный ключ {', '.join(unknown)}; "
+        raise ScopeError(f"{SCOPE_REL}: неизвестный ключ {', '.join(unknown)}, "
                          f"формат — только {SCOPE_KEY}")
     prefixes = data.get(SCOPE_KEY, [])
     if not isinstance(prefixes, list):
@@ -331,11 +323,10 @@ def _under_scope(path: Path, root: Path, prefixes: list) -> bool:
 
 
 def iter_corpus(root: Path):
-    """Одно определение покрытия: (файлы корпуса, сколько исключено, префиксы).
+    """Одно определение покрытия: (файлы, сколько исключено, префиксы).
 
-    Фильтр стоит здесь, до развилки git/фолбэк, поэтому `index`, `search`,
-    `stat`, `map` и `lint` называют один и тот же корпус независимо от того,
-    есть ли git в окружении.
+    Фильтр стоит до развилки git/фолбэк — `index`, `stat`, `search`, `map`,
+    `lint` называют один корпус.
     """
     prefixes = read_scope(root)
     files = git_md_files(root)
@@ -852,12 +843,8 @@ class LintPathError(ValueError):
 
 
 class ScopeError(LintPathError):
-    """Именованный отказ по невалидному `gitmark.scope.json`.
-
-    Наследник `LintPathError`, а не «просто» `ValueError`: usage-отказ ловится
-    одним классом, поэтому битый конфиг даёт exit 2 и пустой stdout на любой
-    команде, читающей корпус, — а не внутренний traceback.
-    """
+    """Именованный отказ по невалидному `gitmark.scope.json` — usage-класс,
+    ловится одним обработчиком на любой команде, читающей корпус."""
 
 
 def _lint_path_guards(root: Path, rels: list, paths: list | None) -> None:
@@ -1168,17 +1155,11 @@ def cmd_map(root: Path, out: Path) -> dict:
 
 # ─────────────────────────── CLI ───────────────────────────
 def _usage_refusal(e: Exception) -> None:
-    """Usage-отказ CLI: stderr, exit 2, stdout остаётся пустым.
+    """Usage-отказ CLI: stderr, exit 2, stdout пустой (exit 1 — ERR под `--strict`).
 
-    Класс — `LintPathError` и его наследники (путь-аргумент, `gitmark.scope.json`);
-    отдельный от exit 1 = ERR онтологии при --strict. Текст — недоверенный
-    (argv и содержимое репозитория): проходит redact_lite (секрет в строке —
-    ghp_/eyJ/… маскируется, не утекает в stderr), затем управляющие заменяются
-    видимым маркером — C0/DEL, C1 (U+0080–U+009F: 8-битные CSI/OSC/NEL доживают
-    до UTF-8-терминала) и bidi/формат-символы (U+200B–U+200F, U+2028–U+202E:
-    RLO-подделка отображения, Unicode-разделители строк), включая переводы
-    строк (ESC-инъекция и подделка строки отчёта). Замена, не вырезание:
-    удаление склеивало бы путь в другой («docs/README\\n.md» → «README.md»).
+    Текст недоверен (argv, содержимое репозитория): `redact_lite` плюс замена
+    управляющих, C1 и bidi/формат-символов видимым маркером — замена, а не
+    вырезание: удаление склеивало бы путь в другой и открывало ESC-инъекцию.
     """
     msg = re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]", "·",
                  redact_lite(str(e)))
@@ -1202,9 +1183,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     root = Path(a.root).resolve() if a.root else repo_root(Path.cwd())
 
-    # Битый gitmark.scope.json обязан отказать до любой работы с корпусом — и на
-    # index/map/stat/search, а не только на lint: иначе «тихий» прогон означал бы
-    # «scope не прочитан». Version корпус не трогает.
+    # Битый scope отвергается до любой работы с корпусом — и на index/map/stat/
+    # search, а не только на lint (version корпус не читает)
     if a.cmd != "version":
         try:
             read_scope(root)
@@ -1259,10 +1239,8 @@ def main(argv=None):
         ne, nw = len(r["errors"]), len(r["warnings"])
         summary = " · ".join(f"{c}×{n}" for c, n in sorted(codes.items())) or "—"
         mark = "\033[32m✓ чисто\033[0m" if ne == 0 and nw == 0 else f"\033[31m{ne} ERR\033[0m · \033[33m{nw} WARN\033[0m"
-        # Исключение из корпуса видно в каждом прогоне: ноль находок не должен
-        # выглядеть чистотой там, где дерево просто срезано scope'ом проекта.
-        # Строка — перед итогом: итог остаётся последней строкой, и рецепт
-        # `lint | tail -1` не ломается.
+        # Исключение видно в каждом прогоне: молчание не должно выглядеть
+        # чистотой. Строка — до итога, чтобы `lint | tail -1` не ломался.
         print()
         if r["scope_prefixes"]:
             print(f"scope: {r['scope_excluded']} файлов исключено по "
