@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-09
+updated: 2026-11-10
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -342,6 +342,19 @@ passed**, `lint --strict` чист. Живая проба поставки: temp
 маршрута стандарта запускают субагента этой сессии:
 `qwen-token-plan/qwen3.8-flash` с `xhigh` и `qwen-token-plan/qwen3.8-max`
 с `medium` (пробы `route-probe-1` и `route-probe-2`, ответ «ok»).
+
+**Вне тикетного потока, 2026-11-10 — релиз v0.6.0, каталог и поставка в
+1C-DSH.** Bump версии плагина 0.5.0 → 0.6.0 (`33a4122`), тег `v0.6.0` на
+origin (`ls-remote` — `33a4122`); каталог маркета перепинен `0.5.149`
+(`54e8c1c`, ref `v0.6.0`), `validate --fetch` — «version ↔ пин v0.6.0 —
+согласована», чистая установка по пину в `/tmp/ontoship-v060-pin` —
+девять бандлов, `check: ok`. Поставка в `1C-DSH` (DSH-канал): старая
+детач-копия v0.5.0 заменена бандлами из `2b26fd2` (тег `v0.6.0`
+добавляет только bump версии), ZCode-блок AGENTS.md заменён DSH-блоком,
+13 файлов в diff; `.gitignore` не тронут (скиллы версионируются,
+решение 13 Т1), `config.toml` и `continue.md` без правок; реестр —
+потребитель `1C-DSH` v0.6.0, приёмка за оператором. Набор **492 passed**,
+`lint --strict` чист.
 
 **Вне тикетного потока, 2026-11-09 — решение оператора «закоммит и
 почисти от устаревших записей».** Публикация юнита (спека, пять тикетов,
