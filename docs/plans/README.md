@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-09
+updated: 2026-11-10
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -106,6 +106,11 @@ links:
   01–04 влиты и приняты 2026-11-09, тикет 05 принят 2026-11-09 — юнит
   закрыт; критик прогнан 2026-11-09, находки закрыты решением оператора
   «править всё»).
+- [kb-scope.md](kb-scope.md) — настраиваемый корпус KB: `gitmark.scope.json` в
+  корне репозитория режет `iter_md` для всех команд; источник — ишью #1
+  (утверждена на план-гейте 2026-11-10 ask-проходом, решения 1–17; нарезка —
+  три тикета, приняты со сверкой понимания 2026-11-10; критик `ready_after_fixes`,
+  правки закрыты тем же прогоном; юнит открыт, ship не запускался).
 
 Статус юнита — в его строке выше: закрытый несёт дату приёмки, срез и
 панель, открытый назван явно. Доказательства и живые прогоны — в

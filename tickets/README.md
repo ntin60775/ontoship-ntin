@@ -258,3 +258,18 @@ Dogfood-прогон 06 оставил свой игрушечный юнит �
 | 03 | [онто-док DSH](dsh-adaptation/03-onto-doc-dsh.md) | 01 |
 | 04 | [критик DSH](dsh-adaptation/04-critic-dsh.md) | 01 |
 | 05 | [документы, матрица и legacy](dsh-adaptation/05-docs-legacy.md) | 01, 02, 03, 04 |
+
+Юнит [`kb-scope`](../docs/plans/kb-scope.md) «настраиваемый корпус KB в движке
+GitMark»: источник — [ишью #1](https://github.com/ntin60775/ontoship-ntin/issues/1)
+(разбор и воспроизведение — в «Контексте» спеки); спека утверждена на план-гейте
+2026-11-10 ask-проходом (решения 1–17); нарезка — три среза, приняты ask-проходом
+со сверкой понимания 2026-11-10; критик прогнан 2026-11-10
+(`qwen-token-plan-max/qwen3.8-max`, `medium`), вердикт `ready_after_fixes`,
+10 находок закрыты правкой решением оператора «править все десять». Юнит открыт,
+ship не запускался; первый ship — командой `/ship` по тикету 01.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [scope-ридер в iter_md и отказ](kb-scope/01-scope-corpus.md) | — |
+| 02 | [поле scope и две строки вывода](kb-scope/02-scope-output.md) | 01 |
+| 03 | [носители правила, догфуд, consumer-прогон](kb-scope/03-carriers-and-dogfood.md) | 01, 02 |

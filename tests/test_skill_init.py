@@ -78,7 +78,7 @@ HARNESS_NEEDLES = (
 LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
     "`qwen-token-plan/qwen3.8-flash`",
-    "`qwen-token-plan/qwen3.8-max`",
+    "`qwen-token-plan-max/qwen3.8-max`",
     "`xhigh`",
     "`medium`",
     "запиши её без ask",
@@ -717,10 +717,10 @@ def test_standard_layout_contract_can_fail():
     assert any("**Стандартная раскладка.**" in error
                for error in _contract_errors(no_table))
 
-    drifted = text.replace("`qwen-token-plan/qwen3.8-max`",
+    drifted = text.replace("`qwen-token-plan-max/qwen3.8-max`",
                            "`qwen-token-plan/qwen3.8-flash`", 1)
     assert drifted != text
-    assert any("`qwen-token-plan/qwen3.8-max`" in error
+    assert any("`qwen-token-plan-max/qwen3.8-max`" in error
                for error in _contract_errors(drifted))
 
     no_medium = text.replace("`medium`", "`high`", 1)

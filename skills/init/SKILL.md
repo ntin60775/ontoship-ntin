@@ -204,7 +204,7 @@ updated: <дата>
    | роль | `model` | `level` |
    |---|---|---|
    | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
-   | `critic` | `qwen-token-plan/qwen3.8-max` | `medium` |
+   | `critic` | `qwen-token-plan-max/qwen3.8-max` | `medium` |
    | `curator` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
 
    Сверь её с живым каталогом: все шесть маршрутов и их уровни доступны —

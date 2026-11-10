@@ -2,8 +2,9 @@
 # One [agents.<name>] section per role; `model` is required.
 # Routes are the standard layout of dsh-adaptation decision 5 (ask
 # 2026-11-09, amendments 2026-11-09 and 2026-11-10): all six roles run on
-# the `qwen-token-plan` provider — the four reviewers and the curator on
-# qwen3.8-flash with `xhigh`, the critic on qwen3.8-max with `medium`.
+# the Qwen token-plan providers — the four reviewers and the curator on
+# `qwen-token-plan/qwen3.8-flash` with `xhigh`, the critic on
+# `qwen-token-plan-max/qwen3.8-max` with `medium`.
 # `init` delivers the same layout to a fresh project when every route and
 # level is live. DSH is the only rail: the ZCode branch and its generator
 # left the project (operator decision, continue.md).
@@ -32,7 +33,7 @@ model = "qwen-token-plan/qwen3.8-flash"
 level = "xhigh"
 
 [agents.critic]
-model = "qwen-token-plan/qwen3.8-max"
+model = "qwen-token-plan-max/qwen3.8-max"
 level = "medium"
 
 [agents.curator]
