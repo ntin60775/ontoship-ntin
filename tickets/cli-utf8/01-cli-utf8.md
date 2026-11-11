@@ -110,7 +110,9 @@ P3 — бюджет длины, критерий 4 как страж контр�
 ## Доказательства
 
 Срез — worktree `ontoship-ntin-wt-cu01`, ветка `cu01-utf8` от базы
-`9220f93`. Правка движка — одна точка: `_force_utf8_output` (reconfigure
+`9220f93`; merge ff в main = `7b2c6e6` (срез `3fe3cd2`, доказательства
+`9d9dab9`, правки панели `7b2c6e6`), worktree и ветка снесены. Правка
+движка — одна точка: `_force_utf8_output` (reconfigure
 stdout/stderr в UTF-8 с `errors="backslashreplace"`, guard
 `hasattr(stream, "reconfigure")`) и её вызов первой строкой `main`;
 `git diff --stat` по движку — `14 insertions(+)`, 1434 → 1448 строк при

@@ -1424,7 +1424,10 @@ P2 — неверный докстринг про capsys и вакуольные
 516 passed + 3 именованных скипа, 0 failed; красная проба на базе —
 12 failed / 2 passed (зелёные — суррогатный контракт, исправный на базе),
 worktree снесён; онтология не тронута, `install.sh --check` — `check: ok`,
-`lint --strict` чист. Юнит **открыт**: 01 ждёт merge и приёмки. Тикет:
+`lint --strict` чист. Merge ff = `7b2c6e6`, worktree `ontoship-ntin-wt-cu01`
+и ветка снесены; движок consumer-полигона обновлён по линку автоматически
+(контрольный `lint --strict` — `✓ чисто (1509 файлов · —)`, exit 0). Юнит
+**открыт**: 01 ждёт приёмки оператором. Тикет:
 [tickets/cli-utf8/01-cli-utf8.md](../../tickets/cli-utf8/01-cli-utf8.md).
 
 `kb-scope`: **01 scope-ридер в `iter_corpus` и отказ → 02 поле `scope` и две
