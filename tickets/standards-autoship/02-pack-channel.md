@@ -40,14 +40,16 @@ $ scripts/install.sh --check <temp-проект>
 
 ## Доказательства
 
-**Набор.** Полный набор на срезе — **639 passed** (база 624 + 15 новых:
-`tests/test_pack_channel.py` — 13, обнаружение паков в init — 2;
-`test_skill_pack.py` дополнен снятием оговорки пробела). `lint --strict`
-— `✓ чисто`.
+**Набор.** Полный набор на срезе после правок панели — **641 passed**
+(база 624 + 17 новых: `tests/test_pack_channel.py` — 14, обнаружение
+паков в init — 2, снятие оговорки пробела в `test_skill_pack.py` — 1;
+проверено `--collect-only`). `lint --strict` — `✓ чисто`.
 
-**Красная проба на базе.** База `fd500d8`, временный worktree, новые и
-изменённые тесты поднесены к базе: **13 failed / 26 passed** — канала
-`--pack` нет, блок паков в init отсутствует, оговорка пробела на месте.
+**Красная проба на базе.** База `fd500d8`, временный worktree, финальные
+версии трёх изменённых файлов тестов поднесены к базе: **15 failed /
+26 passed** — канала `--pack` нет, блок паков в init отсутствует,
+оговорка пробела на месте. Два теста зелёные на базе правомерно:
+«нет паков — check ok» и «массив SKILLS не меняется».
 
 **Демо-путь.**
 
@@ -56,31 +58,97 @@ $ scripts/install.sh --pack skills/pack/reference-pack /tmp/sas02-smoke
 linked pack reference-pack -> …/skills/pack/reference-pack
 $ scripts/install.sh --copy --pack skills/pack/reference-pack /tmp/sas02-smoke
 copied pack reference-pack -> /tmp/sas02-smoke/.agents/packs/reference-pack
-$ scripts/install.sh --check /tmp/sas02-smoke
-ok pack reference-pack            # skills не ставились — назван drift скиллов
+$ scripts/install.sh --check /tmp/sas02-smoke   # skills не ставились
+drift: kb-search: missing
+drift: kb-curate: missing
+drift: init: missing
+drift: grilling: missing
+drift: to-tickets: missing
+drift: ship: missing
+drift: testing: missing
+drift: critic: missing
+drift: onto-doc: missing
+drift: pack: missing
+ok pack reference-pack
+check: 10 skill(s) drifted                      # exit 1
 $ scripts/install.sh --pack <сломанный манифест: type=contour> /tmp/sas02-smoke
 pack: манифест: type — team или stack: 'contour'
-install: pack refused by contract: …   # exit 1, ничего не записано
+install: pack refused by contract: …            # exit 1, ничего не записано
 ```
 
-Контрактные пробы канала: link/copy и идемпотентность (`unchanged pack`),
-имя цели из манифеста (контракт требует совпадения имени каталога и
-name — различие наблюдательно не отличимо, ожидание взято из манифеста
-независимым чтением), отказ до записи на невалидном источнике, dry-run
-без записи, usage-контур (`--pack` без источника, `--pack --check`,
+Контрактные пробы канала (14 тестов): link/copy и идемпотентность
+(`unchanged pack`), каталог цели равен name манифеста (источник имени
+наблюдательно не отличим — контракт требует равенства имени каталога и
+name; тест доказывает равенство цели манифесту), отказ до записи на
+невалидном источнике, dry-run без записи, usage-контур (`--pack` без
+источника, пустой источник, повторный `--pack`, `--pack --check`,
 несуществующий источник), отказ link заменить detached-копию, `--check`
 валидирует установленный пак и называет сломанный (`drift: pack …`,
-`check: 1 pack(s) drifted`, exit 1), без каталога паков — `check: ok`,
-канал паков не ставит скиллы.
+`check: 1 pack(s) drifted`, exit 1), не-каталог на месте packs — drift,
+имя с управляющим символом sanitится (`we·ird`, отчёт построчный), без
+каталога паков — `check: ok`, канал паков не ставит скиллы.
 
 **Живая проба init.** Temp-проект `/tmp/sas02-init` (git): ядро
-установлено link-каналом, пак — каналом `--pack`; валидатор пака —
-`✓ пак reference-pack (team, 1.0.0) валиден`. Init создал четыре файла
-(`AGENTS.md` — блок, `.gitignore` — четыре строки, `docs/ops/continue.md`
-— скелет, `.agents/config.toml` — бутстрап): роли ядра записаны
-стандартной раскладкой без ask (маршруты сверены с живым каталогом),
-модель роли пака `reviewer-reference-code` назначена бутстрап-вопросом
-оператора 2026-11-11 (вариант `qwen-token-plan/qwen3.8-flash`, `xhigh`).
-Реестр — 7 ролей (6 ядра + роль пака). Идемпотентность: sha256 четырёх
-файлов совпали до и после второго прохода. `install.sh --check` —
-`ok pack reference-pack`, `check: ok`.
+установлено link-каналом, пак — каналом `--pack`. Артефакты:
+
+```console
+$ python3 .agents/skills/pack/validate_pack.py .agents/packs/reference-pack
+✓ пак reference-pack (team, 1.0.0) валиден
+$ scripts/install.sh --check /tmp/sas02-init
+ok pack reference-pack
+check: ok
+```
+
+Отчёт init: `AGENTS.md` — created (блок, маркеры по 1); `.gitignore` —
+created (четыре строки); `docs/ops/continue.md` — created (скелет);
+`.agents/config.toml` — created, бутстрап: роли ядра стандартной
+раскладкой без ask (маршруты сверены с живым каталогом), модель роли
+пака — бутстрап-вопрос оператора 2026-11-11, вариант
+`qwen-token-plan/qwen3.8-flash`, `xhigh`. Реестр — 7 ролей; секция роли
+пака:
+
+```toml
+[agents.reviewer-reference-code]
+model = "qwen-token-plan/qwen3.8-flash"
+level = "xhigh"
+```
+
+Идемпотентность — sha256 четырёх файлов до и после второго прохода
+совпали:
+
+```text
+4a39fa37dad863d1f76e7858c60fc0a21c9889b333871277be43956858dc9fd5  AGENTS.md
+4c7b0a8d6cd6370f6b6c53402763b3bcdbd771aa613aa26d85f447d8a09bedc5  .gitignore
+cc81e91ca47130e9df11c9ec58d341460d637a581125fe95df0c958f4a1f1c5e  .agents/config.toml
+2a65e6e9c7bcd108201864e94960326e49a6a979cfe43f7c09b015bd9fee73c3  docs/ops/continue.md
+```
+
+**Панель.** Четыре роли на `qwen-token-plan/qwen3.8-flash` (`xhigh`,
+маршрут сверен с живым каталогом), один прогон, вход артефактный:
+reviewer-spec — «принять с находками» (1 P2 / 3 P3), reviewer-tests —
+«принять с находками» (2 P2 / 2 P3), reviewer-code — «принять с
+находками» (1 P2 / 5 P3), reviewer-kb — «принять с находками» (1 P2 /
+2 P3). 17 сырых находок, 14 после дедупликации, 10 закрыты одним
+проходом правок: пустой `--pack ""` больше не уводит в канал скиллов
+(отдельный флаг запроса, usage-отказ), повторный `--pack` — отказ,
+разбивка тестов приведена к 12+2+1 (после новых проб — 14+2+1), живая
+проба выложена артефактами (вывод, секция реестра, sha256), `--check`
+называет не-каталог packs, имя с ФС sanitится, оговорка источника имени
+снята с комментария и заголовка теста, повтор правил ядра в блоке паков
+init заменён ссылкой, демо-путь `--check` приведён целиком, финальный
+перевод строки тикета. Мутационные пробы панели: снятие валидации
+источника, вырезание блока паков, «всегда ok» валидатор в `--check`,
+возврат оговорки — каждая краснит набор.
+
+**Зацепки (не закрыты, в реестр):**
+
+- Дублирование канала паков с каналом ядра (~70 строк почти-копий) —
+  параметризация тройкой «dest/entry/src»; рефакторинг вне рамок тикета.
+- `.agents/packs/` не покрыт строками `.gitignore` контракта init —
+  link-пак остаётся untracked-шумом; правка контракта init — решение
+  оператора или тикеты 03/08 (решение 9 фиксирует контракт в этом юните).
+- Имя манифеста читается вторым вызовом python после валидации —
+  теоретический разрыв между проверкой и чтением; практически
+  недостижимо, зацепка на будущее.
+- `--check` пропускает dot-записи в `.agents/packs/` (glob `*`) —
+  согласуется со стилем ядра, зацепка на будущее.

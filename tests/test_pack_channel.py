@@ -81,12 +81,12 @@ def test_pack_copy_install_is_detached(project: Path) -> None:
     assert "unchanged pack reference-pack" in again.stdout
 
 
-def test_pack_name_comes_from_the_manifest(tmp_path: Path,
-                                           project: Path) -> None:
-    """spec: docs/plans/standards-autoship.md#готово — имя цели из
-    манифеста. Контракт требует совпадения имени каталога-источника и
-    name, поэтому различие «имя каталога vs имя манифеста» наблюдательно
-    не отличимо; ожидание берётся из манифеста независимым чтением."""
+def test_installed_pack_dir_matches_manifest_name(tmp_path: Path,
+                                                  project: Path) -> None:
+    """spec: docs/plans/standards-autoship.md#готово — каталог цели равен
+    name манифеста. Контракт требует равенства имени каталога-источника и
+    name, поэтому источник имени (манифест vs каталог) наблюдательно не
+    отличим; тест доказывает равенство цели манифесту, не источник имени."""
     import json
     source = tmp_path / "reference-pack"
     shutil.copytree(REFERENCE, source)
@@ -133,12 +133,48 @@ def test_pack_usage_errors(project: Path) -> None:
     no_source = _install("--pack")
     assert no_source.returncode == 2
     assert "--pack expects a <source>" in no_source.stderr
+    empty_source = _install("--pack", "", str(project))
+    assert empty_source.returncode == 2
+    assert "non-empty <source>" in empty_source.stderr
+    assert not (project / ".agents").exists()
+    twice = _install("--pack", str(REFERENCE), "--pack", str(REFERENCE),
+                     str(project))
+    assert twice.returncode == 2
+    assert "--pack given twice" in twice.stderr
     with_check = _install("--check", "--pack", str(REFERENCE), str(project))
     assert with_check.returncode == 2
     assert "mutually exclusive" in with_check.stderr
     not_a_dir = _install("--pack", str(project / "missing"), str(project))
     assert not_a_dir.returncode == 2
     assert "not a pack directory" in not_a_dir.stderr
+
+
+def test_check_names_a_non_directory_packs_root(project: Path) -> None:
+    """spec: docs/plans/standards-autoship.md#готово — --check называет
+    пропуски: не-каталог на месте packs — drift, не молчаливый ok."""
+    assert _install(str(project)).returncode == 0
+    agents = project / ".agents"
+    (agents / "packs").write_text("not a directory\n", encoding="utf-8")
+    result = _install("--check", str(project))
+    assert result.returncode == 1
+    assert "drift: packs: not a directory" in result.stderr
+    assert "check: 1 pack(s) drifted" in result.stderr
+
+
+def test_check_report_stays_line_based_for_wild_names(project: Path) -> None:
+    """spec: docs/plans/standards-autoship.md#готово — имя с ФС недоверено:
+    управляющие символы заменяются, отчёт остаётся построчным."""
+    assert _install(str(project)).returncode == 0
+    packs = project / ".agents" / "packs"
+    packs.mkdir(parents=True)
+    wild = packs / "we\nird"
+    wild.mkdir()
+    result = _install("--check", str(project))
+    assert result.returncode == 1
+    drift_lines = [line for line in result.stderr.splitlines()
+                   if line.startswith("drift: pack ")]
+    assert len(drift_lines) == 1
+    assert "we·ird" in drift_lines[0]
 
 
 def test_link_refuses_to_replace_a_copy(project: Path) -> None:

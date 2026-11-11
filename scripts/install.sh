@@ -69,6 +69,7 @@ mode=link
 dry_run=0
 project=
 pack_source=
+pack_requested=0
 while (($# > 0)); do
   arg=$1
   shift
@@ -78,7 +79,10 @@ while (($# > 0)); do
       ;;
     --pack)
       (($# >= 1)) || usage_error "--pack expects a <source> directory"
+      ((pack_requested == 0)) || usage_error "--pack given twice"
+      [[ -n $1 ]] || usage_error "--pack expects a non-empty <source>"
       pack_source=$1
+      pack_requested=1
       shift
       ;;
     --copy | --check)
@@ -120,10 +124,10 @@ readonly packs_dest=$project/.agents/packs
 readonly pack_validator=$REPO/skills/pack/validate_pack.py
 
 # The pack channel validates the source before any write: a refused pack
-# installs nothing. The name comes from the validated manifest, not the
-# source directory name.
+# installs nothing. The name comes from the validated manifest; the
+# contract requires it to equal the source directory name.
 pack_name=
-if [[ -n $pack_source ]]; then
+if ((pack_requested)); then
   command -v python3 >/dev/null 2>&1 || die "required tool not found: python3"
   [[ -f $pack_validator ]] || die "pack validator missing: $pack_validator"
   [[ -d $pack_source ]] || usage_error "not a pack directory: $pack_source"
@@ -219,24 +223,33 @@ check() {
   done
   # Installed packs are validated by the contract, not compared to a source:
   # a detached pack outlives its source repository. No packs dir — no packs.
-  if [[ -d $packs_dest ]]; then
-    command -v python3 >/dev/null 2>&1 || die "required tool not found: python3"
-    [[ -f $pack_validator ]] || die "pack validator missing: $pack_validator"
-    for entry in "$packs_dest"/*; do
-      [[ -e $entry || -L $entry ]] || continue
-      name=$(basename -- "$entry")
-      if [[ ! -d $entry ]]; then
-        printf 'drift: pack %s: not a directory\n' "$name" >&2
-        pack_drift=$((pack_drift + 1))
-        continue
-      fi
-      if reason=$(python3 "$pack_validator" "$entry" 2>&1 >/dev/null); then
-        printf 'ok pack %s\n' "$name"
-      else
-        printf 'drift: pack %s: %s\n' "$name" "${reason#pack: }" >&2
-        pack_drift=$((pack_drift + 1))
-      fi
-    done
+  # A non-directory at the packs root is named, not silently skipped.
+  if [[ -e $packs_dest || -L $packs_dest ]]; then
+    if [[ ! -d $packs_dest ]]; then
+      printf 'drift: packs: not a directory\n' >&2
+      pack_drift=$((pack_drift + 1))
+    else
+      command -v python3 >/dev/null 2>&1 || die "required tool not found: python3"
+      [[ -f $pack_validator ]] || die "pack validator missing: $pack_validator"
+      for entry in "$packs_dest"/*; do
+        [[ -e $entry || -L $entry ]] || continue
+        name=$(basename -- "$entry")
+        # Имя с ФС недоверено: управляющие символы заменяются маркером,
+        # чтобы отчёт оставался построчным (идиома валидатора).
+        safe_name=${name//[[:cntrl:]]/·}
+        if [[ ! -d $entry ]]; then
+          printf 'drift: pack %s: not a directory\n' "$safe_name" >&2
+          pack_drift=$((pack_drift + 1))
+          continue
+        fi
+        if reason=$(python3 "$pack_validator" "$entry" 2>&1 >/dev/null); then
+          printf 'ok pack %s\n' "$safe_name"
+        else
+          printf 'drift: pack %s: %s\n' "$safe_name" "${reason#pack: }" >&2
+          pack_drift=$((pack_drift + 1))
+        fi
+      done
+    fi
   fi
   if ((drift > 0)); then
     printf 'check: %d skill(s) drifted\n' "$drift" >&2
@@ -421,7 +434,7 @@ case $mode in
     check
     ;;
   link | copy)
-    if [[ -n $pack_source ]]; then
+    if ((pack_requested)); then
       preflight_pack
       if ((dry_run)); then
         plan_pack
