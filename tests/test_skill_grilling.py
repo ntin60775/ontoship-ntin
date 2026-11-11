@@ -18,6 +18,10 @@ spec: docs/plans/evidence-verification.md#готово — контрольна�
 между разделами
 spec: docs/plans/plan-gate-ask.md#готово — форма план-гейта ask-проходом и
 ограда от правил автономии в «Раундах»
+spec: docs/plans/standards-autoship.md#готово — «Готово» 5: выход grilling
+называет проекции следующим шагом после план-гейта; отчёт триажа — запись
+гейта проекций, без неё нарезка не идёт; снятая формулировка «критик после
+нарезки» под запретом
 invariant: docs/decisions/ontoship-core.md#три фазы — the agent never answers for the operator
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
@@ -77,6 +81,23 @@ PROOFREAD_CONTRADICTIONS = (
     "правки — после гейта",
 )
 PROOFREAD_GATE_ITEM = "- **план-гейт:**"
+
+# Projection handoff (standards-autoship ticket 04, «Готово» 5): the exit
+# names projections as the next step after the plan gate, before slicing.
+PROJECTION_PHRASES = (
+    "следующий шаг после план-гейта",
+    "проекционная валидация спеки",
+    "скилл `critic`",
+    "до нарезки",
+    "запись гейта проекций",
+    "без неё нарезка не идёт",
+    "затем нарезка",
+)
+PROJECTION_CONTRADICTIONS = (
+    "дальше нарезка",
+    "проекции после нарезки",
+)
+RETIRED_CRITIC_PHRASE = "критик после нарезки"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -160,6 +181,20 @@ def _contract_errors(text: str) -> list[str]:
     gate_at = proofread.find(PROOFREAD_GATE_ITEM)
     if step_at >= 0 and gate_at >= 0 and step_at > gate_at:
         errors.append("exit: the control read must precede the plan gate item")
+    for phrase in PROJECTION_PHRASES:
+        if phrase not in proofread:
+            errors.append(f"exit: missing projection phrase {phrase!r}")
+    for phrase in PROJECTION_CONTRADICTIONS:
+        if phrase in proofread:
+            errors.append(f"exit: contradictory projection phrase {phrase!r}")
+    proj_at = proofread.find("следующий шаг после план-гейта")
+    slice_at = proofread.find("затем нарезка")
+    if proj_at >= 0 and gate_at >= 0 and proj_at < gate_at:
+        errors.append("exit: the projection step must follow the plan gate item")
+    if proj_at >= 0 and slice_at >= 0 and slice_at < proj_at:
+        errors.append("exit: slicing must follow the projection step")
+    if RETIRED_CRITIC_PHRASE in lowered:
+        errors.append(f"body: retired phrase {RETIRED_CRITIC_PHRASE!r}")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -563,3 +598,64 @@ def test_autonomy_fence_can_fail():
         assert mutated != text, f"the needle {old!r} matched nothing"
         assert _fence_errors(mutated), \
             f"replacing {old!r} with {new!r} must redden the fence check"
+
+
+# --- projection handoff after the plan gate (standards-autoship ticket 04) ---
+
+
+def test_exit_names_projections_as_the_next_step():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: выход
+    grilling называет проекции следующим шагом после план-гейта; отчёт
+    триажа — запись гейта проекций, без неё нарезка не идёт. Фразы ищутся
+    в разделе «Готовность и выход», порядок: план-гейт → проекции →
+    нарезка."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = re.sub(r"\s+", " ", _section(body, EXIT_HEADING).lower())
+    assert section, "section 'Готовность и выход' is missing"
+    for phrase in PROJECTION_PHRASES:
+        assert phrase in section, \
+            f"the phrase {phrase!r} is missing from the exit section"
+    gate_at = section.find(PROOFREAD_GATE_ITEM)
+    proj_at = section.find("следующий шаг после план-гейта")
+    slice_at = section.find("затем нарезка")
+    assert -1 < gate_at < proj_at < slice_at, \
+        "the exit order must be plan gate, projections, slicing"
+
+
+def test_projection_exit_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the projection handoff check can fail: remove-мутация каждой фразы,
+    возврат прямой нарезки и снятого «критика после нарезки», перестановка
+    проекций раньше план-гейта красят контракт grilling."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    for phrase in PROJECTION_PHRASES:
+        mutated = _remove_phrase(text, phrase)
+        assert mutated != text, f"the needle {phrase!r} matched nothing"
+        assert any(f"missing projection phrase {phrase!r}" in error
+                   for error in _contract_errors(mutated)), phrase
+
+    direct_slicing = text.replace(
+        "- Следующий шаг после план-гейта — проекционная валидация спеки (скилл\n"
+        "  `critic`): агент запускает её до нарезки, один прогон на юнит; отчёт\n"
+        "  триажа в папке юнита трекера — запись гейта проекций, без неё нарезка\n"
+        "  не идёт. Затем нарезка — по правилу канона:",
+        "- Дальше нарезка — по правилу канона:", 1)
+    assert direct_slicing != text
+    errors = _contract_errors(direct_slicing)
+    assert any("contradictory projection phrase 'дальше нарезка'" in error
+               for error in errors), errors
+
+    critic_back = text.replace("чем их поймают проекции до нарезки",
+                               "чем их поймает критик после нарезки", 1)
+    assert critic_back != text
+    assert any(f"retired phrase '{RETIRED_CRITIC_PHRASE}'" in error
+               for error in _contract_errors(critic_back))
+
+    early = text.replace("- **План-гейт:**",
+                         "- Проекции (ранний дубль): следующий шаг после "
+                         "план-гейта.\n- **План-гейт:**", 1)
+    assert early != text
+    assert any("must follow the plan gate item" in error
+               for error in _contract_errors(early))

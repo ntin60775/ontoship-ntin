@@ -60,7 +60,7 @@ POINTS = (
     # canon-section-in-bundles 01: the header points that switched from the
     # canon path to the bundle section. Ship owns the file, the other three
     # cross-reference it from their bundles.
-    ("critic", "спека плюс тикеты", "../ship/references/method-phases.md",
+    ("critic", "Независимый взгляд на спеку", "../ship/references/method-phases.md",
      "docs/reference/method-phases.md",
      "../ship/references/method-phases.md"),
     ("grilling", "Этот скилл — фаза 1",
@@ -92,7 +92,9 @@ OLD_CARRIERS = (
 )
 
 # The «Порядок» step of to-tickets names the bundle section, not the canon.
-ORDER_MARKER = "Критик замыкает нарезку"
+# The marker follows the step rewrite: standards-autoship 04 replaced
+# «Критик замыкает нарезку» with the slicing self-check, the cross-link stays.
+ORDER_MARKER = "Самопроверка нарезки"
 CROSSLINK = "../ship/references/method-phases.md"
 
 GUARD_HEAD = "файл бандла — первоисточник"

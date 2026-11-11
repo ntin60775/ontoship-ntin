@@ -12,9 +12,15 @@ spec: docs/plans/to-tickets-agent.md#готово — agent invocation: the fron
 carries no ``disable-model-invocation``; «Скилл вызывает агент» in the body
 spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
 names an observable artifact and a spec-sourced expectation in both "Срезы"
-and "Порядок"; a green test is a signal to read the artifact, not proof;
-slicing ends with the critic run — после приёмки последнего тикета нарезки
-запуск критика до первого ship, нарезка не закончена без критика (решение 7)
+and "Порядок"; a green test is a signal to read the artifact, not proof
+spec: docs/plans/standards-autoship.md#готово — «Готово» 6: to-tickets несёт
+тикетные грани бывшего чек-листа критика (покрытость «Готово», рёбра,
+демо-пути, падение критериев) как самопроверку основной сессии и проверяет
+запись гейта проекций до нарезки; записи нет — остановка вопросом, тихий
+пропуск невозможен. Инвариант evidence-verification «нарезка замыкается
+критиком» выведен из эксплуатации решением 17 стандартов-автошипа: его тест
+уходит тем же изменением (canon: docs/decisions/ontoship-core.md#одно
+правило качества), снятые формулировки запуска критика под запретом
 spec: docs/plans/understanding-check.md#готово — step 3 of "Порядок" is
 a comprehension check: the agent asks about its own understanding of every
 slice («Задумка тикета N, как я её понял: … Верно?», self-sufficient);
@@ -58,14 +64,26 @@ REQUIRED_PHRASES = (
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
 EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
 CARRIERS_PHRASE = "вывод команды, строка лога, файл, живая проба"
-CRITIC_TRIGGER_PHRASES = (
-    "после приёмки последнего тикета нарезки",
-    "запуск критика до первого ship",
-    "нарезка не закончена без критика",
+GATE_PHRASES = (
+    "запись гейта проекций",
+    "отчёт триажа",
+    "записи нет — остановка и вопрос оператору",
+    "тихий пропуск гейта не делается",
+    "скилл `critic`",
 )
-CRITIC_CONTRADICTIONS = (
-    "не запускается",
-    "не нужен",
+SELF_CHECK_PHRASES = (
+    "самопроверка нарезки",
+    "после приёмки последнего тикета нарезки",
+    "тикетные грани бывшего чек-листа критика",
+    "по носителям, названным в строках",
+    "новых спек",
+    "блокирующие рёбра отражают реальные зависимости",
+    "демо-путь",
+    "падают на базовом коммите",
+)
+GATE_CONTRADICTIONS = (
+    "запись гейта не проверяется",
+    "тихий пропуск допустим",
 )
 CHECK_SECTION_PHRASES = (
     "сверка понимания",
@@ -86,6 +104,14 @@ FORBIDDEN_PHRASES = (
     "вызывает пользователь",
     "вызванный пользователем скилл",
     "не запускай самостоятельно",
+    # retired critic-trigger wording (standards-autoship decision 17):
+    # the projection gate stands before slicing, the ticket facets live
+    # in the slicing self-check
+    "критик замыкает нарезку",
+    "запуск критика до первого ship",
+    "нарезка не закончена без критика",
+    "критика запускает агент сам",
+    "до первого ship",
 )
 
 
@@ -183,13 +209,26 @@ def _contract_errors(text: str) -> list[str]:
                       f"({CARRIERS_PHRASE!r})")
     if "Порядок" in sections:
         sequence = re.sub(r"\s+", " ", sections["Порядок"].lower())
-        for phrase in CRITIC_TRIGGER_PHRASES:
+        for phrase in GATE_PHRASES:
             if phrase not in sequence:
                 errors.append(f"body: section 'Порядок' must carry {phrase!r}")
-        for phrase in CRITIC_CONTRADICTIONS:
+        for phrase in GATE_CONTRADICTIONS:
             if phrase in sequence:
                 errors.append(f"body: section 'Порядок' carries "
                               f"contradictory phrase {phrase!r}")
+        for phrase in SELF_CHECK_PHRASES:
+            if phrase not in sequence:
+                errors.append(f"body: section 'Порядок' must carry {phrase!r}")
+        gate_at = sequence.find("запись гейта проекций")
+        offer_at = sequence.find("предложи срезы")
+        if gate_at >= 0 and offer_at >= 0 and gate_at > offer_at:
+            errors.append("body: the projection gate check must precede "
+                          "the slicing offer")
+        publish_at = sequence.find("опубликуй принятые тикеты")
+        check_at = sequence.find("самопроверка нарезки")
+        if publish_at >= 0 and check_at >= 0 and check_at < publish_at:
+            errors.append("body: the slicing self-check must follow "
+                          "the ticket publication")
         for phrase in CHECK_SECTION_PHRASES:
             if phrase not in sequence:
                 errors.append(f"body: section 'Порядок' must carry {phrase!r}")
@@ -389,54 +428,96 @@ def test_evidence_contract_can_fail():
                for error in _contract_errors(no_section))
 
 
-def test_slicing_ends_with_the_critic_run():
-    """spec: docs/plans/evidence-verification.md#готово — после приёмки
-    последнего тикета нарезки — запуск критика до первого ship; нарезка не
-    закончена без критика (решение 7). Фразы ищутся в разделе «Порядок»."""
+def test_projection_gate_is_checked_before_slicing():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 6: to-tickets
+    проверяет запись гейта проекций до нарезки; записи нет — остановка
+    вопросом, тихий пропуск невозможен. Фразы ищутся в разделе «Порядок»,
+    проверка гейта стоит раньше предложения срезов."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
     assert section, "section 'Порядок' is missing from the skill body"
-    for phrase in CRITIC_TRIGGER_PHRASES:
+    for phrase in GATE_PHRASES:
         assert phrase in section, f"the phrase {phrase!r} is missing from 'Порядок'"
+    for phrase in GATE_CONTRADICTIONS:
+        assert phrase not in section, \
+            f"the contradictory phrase {phrase!r} survives in 'Порядок'"
+    gate_at = section.find("запись гейта проекций")
+    offer_at = section.find("предложи срезы")
+    assert -1 < gate_at < offer_at, \
+        "the gate check must stand before the slicing offer"
 
 
-def test_critic_trigger_contract_can_fail():
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check can fail: потеря триггера, сдвиг момента, ослабление
-    «не закончена» и отрицание запуска критика красят контракт to-tickets
-    (мутационные пробы)."""
+def test_slicing_carries_the_self_check():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 6: тикетные
+    грани бывшего чек-листа критика (покрытость «Готово» по носителям,
+    рёбра, демо-пути, падение критериев) — самопроверка основной сессии
+    после приёмки последнего тикета нарезки (решение 17)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
+    assert section, "section 'Порядок' is missing from the skill body"
+    for phrase in SELF_CHECK_PHRASES:
+        assert phrase in section, f"the phrase {phrase!r} is missing from 'Порядок'"
+    publish_at = section.find("опубликуй принятые тикеты")
+    check_at = section.find("самопроверка нарезки")
+    assert -1 < publish_at < check_at, \
+        "the self-check must follow the ticket publication"
+
+
+def test_gate_and_self_check_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the contract check can fail: потеря проверки гейта, ослабление
+    остановки, возврат критик-триггера и перенос самопроверки раньше
+    публикации красят контракт to-tickets (мутационные пробы)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    no_trigger = text.replace("Нарезка не закончена без критика",
-                              "Нарезка закончена публикацией", 1)
-    assert no_trigger != text
-    assert any("нарезка не закончена без критика" in error
-               for error in _contract_errors(no_trigger))
+    no_gate = text.replace("проверь запись гейта проекций",
+                           "прочитай спеку ещё раз", 1)
+    assert no_gate != text
+    assert any("must carry 'запись гейта проекций'" in error
+               for error in _contract_errors(no_gate))
 
-    late = text.replace("до первого ship", "после первого ship", 1)
-    assert late != text
-    assert any("запуск критика до первого ship" in error
-               for error in _contract_errors(late))
+    silent = text.replace("тихий\n   пропуск гейта не делается",
+                          "тихий пропуск допустим", 1)
+    assert silent != text
+    errors = _contract_errors(silent)
+    assert any("тихий пропуск гейта не делается" in error for error in errors)
+    assert any("contradictory phrase 'тихий пропуск допустим'" in error
+               for error in errors)
 
-    every_ticket = text.replace("последнего тикета нарезки",
-                                "каждого тикета нарезки", 1)
-    assert every_ticket != text
-    assert any("после приёмки последнего тикета нарезки" in error
-               for error in _contract_errors(every_ticket))
+    no_stop = text.replace("Записи нет — остановка и вопрос\n   оператору",
+                           "Записи нет — продолжай", 1)
+    assert no_stop != text
+    assert any("записи нет — остановка и вопрос оператору" in error
+               for error in _contract_errors(no_stop))
 
-    no_run = text.replace("запуск критика до первого ship",
-                          "критик до первого ship не нужен", 1)
-    assert no_run != text
-    assert any("не нужен" in error for error in _contract_errors(no_run))
-    assert any("запуск критика до первого ship" in error
-               for error in _contract_errors(no_run))
+    critic_back = text.replace(
+        "6. **Самопроверка нарезки.**",
+        "6. **Критик замыкает нарезку.** Нарезка не закончена без критика; "
+        "запуск критика до первого ship; критика запускает агент сам. "
+        "**Самопроверка нарезки.**", 1)
+    assert critic_back != text
+    errors = _contract_errors(critic_back)
+    for phrase in ("критик замыкает нарезку",
+                   "нарезка не закончена без критика",
+                   "запуск критика до первого ship",
+                   "критика запускает агент сам"):
+        assert any(f"forbidden phrase {phrase!r}" in error
+                   for error in errors), (phrase, errors)
 
-    negated = text.replace("критика запускает агент сам",
-                           "критик не запускается сам", 1)
-    assert negated != text
-    assert any("не запускается" in error
-               for error in _contract_errors(negated))
+    no_carriers = text.replace("по носителям,\n   названным в строках",
+                               "по тикетам", 1)
+    assert no_carriers != text
+    assert any("по носителям, названным в строках" in error
+               for error in _contract_errors(no_carriers))
+
+    early_check = text.replace(
+        "2. Предложи срезы",
+        "2. Самопроверка нарезки (ранний дубль): после приёмки последнего "
+        "тикета нарезки.\n2. Предложи срезы", 1)
+    assert early_check != text
+    assert any("self-check must follow" in error
+               for error in _contract_errors(early_check))
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))
@@ -469,8 +550,8 @@ def test_contract_check_can_fail():
 
     user_back = _body_mutated(
         text,
-        "Скилл вызывает агент: нарезка идёт ask-проходом сразу после "
-        "план-гейта.",
+        "Скилл вызывает агент: нарезка идёт ask-проходом после план-гейта "
+        "и гейта проекций.",
         "Скилл вызывает пользователь; модель его не вызывает.")
     errors = _contract_errors(user_back)
     assert any("forbidden phrase 'вызывает пользователь'" in error

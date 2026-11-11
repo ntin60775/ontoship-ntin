@@ -1,26 +1,35 @@
-"""Contract for the critic skill (review-config ticket 03).
+"""Contract for the critic skill (standards-autoship ticket 04).
 
-The bundle must be discoverable as ``<root>/critic/SKILL.md`` and carry the
-plan-critic contract: a model-invoked skill (no ``disable-model-invocation``)
-the agent launches right after the unit's last ticket is accepted, before
-the first ship — one run per unit, reading the spec and every ticket whole,
-on the configured model (one differing from the session model is a
-recommendation, not a ban) with no fallback, reporting
-findings to the operator before the first ship and never re-asking plan-gate
-decisions. The checklist additionally carries the two evidence items of
-evidence-verification ticket 02: the price question — which «Готово» items
-will be expensive to prove and could be simplified or split before code —
-and the coverage check by carriers named in the «Готово» lines of new specs
-(decisions 2 and 5).
+The bundle keeps the name ``critic`` and is rewritten into the projection
+validation skill (plan-gate decision 16): a model-invoked skill the agent
+launches right after the spec is approved at the plan gate, before slicing —
+one run per unit. The main session generates dynamic semantic slices from the
+spec (seed: the critic checklist and the eight plan-validation projections),
+each slice runs in a subordinate session (``subagent``, spawn) with a role
+prompt and a goal on artifact input; the flash pool is named, the main session
+picks the model per slice with a reason in the report, checked against the
+live catalog. Findings pass the main session's triage (confirm/reject with a
+reason, overengineering check); disputed ones go to the operator via ask. The
+triage report in the unit's tracker folder is the projection gate record:
+without it slicing does not proceed. The retired plan-critic wording (run
+after the last ticket, whole tickets as input, no fallback) stays banned.
 
-spec: docs/plans/review-config.md#готово — skills/critic/SKILL.md, модельный
-      скилл критика: запуск сразу после приёмки последнего тикета, чек-лист,
-      один прогон на юнит, модель из конфига, отличие от сессионной —
-      рекомендация, без фолбэка
-spec: docs/plans/evidence-verification.md#готово — критик спрашивает про
-      дорогую верификацию и сверяет носители по строкам новых спек
-spec: docs/decisions/ontoship-core.md#три фазы — критик плана: находки
-      оператору до ship, решения план-гейта не перепрашиваются
+The old contract of review-config ticket 03 and the DSH branch of
+dsh-adaptation ticket 04 are retired by decision 16: the critic gate becomes
+the projection gate, one skill and one gate; their tests left with this
+rewrite (canon: docs/decisions/ontoship-core.md#одно правило качества —
+a retired rule's tests leave with the same change).
+
+spec: docs/plans/standards-autoship.md#готово — «Готово» 5: скилл critic
+      переписан, имя бандла сохраняется; запуск сразу после план-гейта до
+      нарезки; динамические срезы, семя, подчинённые сессии, flash-пул,
+      выбор модели с причиной, триаж, отчёт — запись гейта проекций
+spec: docs/plans/standards-autoship.md#решения план-гейта — решения 15–17:
+      пул flash и выбор модели под срез, один скилл и один гейт, порядок
+      «проекции до нарезки»
+spec: docs/plans/standards-autoship.md#ограничения — проекции не запускаются
+      на модели сессии молча: фолбэк называется в отчёте, провал и на
+      фолбэке — остановка и вопрос оператору
 spec: docs/plans/canon-section-in-bundles.md#готово — шапка критика
       ссылается на методную секцию бандла, не на путь канона
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -36,55 +45,102 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "critic" / "SKILL.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
-CHECKLIST = ("покрытость", "связность", "рёбра", "демо-пути", "честность критериев")
-EVIDENCE_PHRASES = (
-    "дорого доказывать",
-    "упростить или разрезать до кода",
-    "по носителям, названным в строках",
-    "новых спек",
-)
+
 REQUIRED_PHRASES = (
-    "сразу после приёмки последнего тикета",
-    "до первого ship",
+    "агент запускает",
+    "сразу после утверждения спеки на план-гейте",
+    "до нарезки",
     "не командой оператора",
     "один прогон на юнит",
-    "спеку",
-    "тикеты юнита целиком",
-    "артефакты",
-    "не ход исполнения",
-    "рекомендация, не запрет",
-    "совпадение допустимо",
-    "нет фолбэка на модель сессии",
-    ".agents/config.toml",
-    "решения план-гейта не перепрашиваются",
-    "находки оператору до первого ship",
     "docs/plans/<slug>.md",
+    "смысловые срезы",
+    "динамические",
+    "семя генерации",
+    "подчинённая сессия",
+    "`subagent` (spawn, не `subagent_fork`)",
+    "ролевым промптом и целью",
+    "вход среза артефактный",
+    "не ход исполнения",
+    "все срезы стартуют в одном сообщении",
+    "триаж",
+    "оверинжиниринг",
+    "спорное — оператору",
+    "отчёт триажа",
+    "tickets/<slug>/",
+    "запись гейта проекций",
+    "без записи гейта нарезка не идёт",
+    "решения план-гейта не перепрашиваются",
     "../ship/references/method-phases.md",
-    "приоритет",
-    "зацепка",
+    "идентификаторы подчинённых сессий",
 )
 
-# DSH model check and launch (dsh-adaptation ticket 04): the subsection is
-# scoped so a phrase surviving in the neutral `## Модель` bullets does not
-# satisfy the DSH contract.
-DSH_HEADING = "### dsh — модель и запуск"
-DSH_PHRASES = (
-    "`<provider>/<model>`",
-    "`reasoning_effort`",
+SEED_HEADING = "семя срезов"
+SEED_PHRASES = (
+    "чек-лист критика",
+    "восемь проекций",
+    "покрытость «готово»",
+    "связность",
+    "рёбра",
+    "демо-пути",
+    "честность критериев",
+    "цена доказательства",
+    "покрытие, порядок, доказательства, власть, время, окружение, термины, риск",
+)
+
+RUN_HEADING = "исполнение срезов"
+POOL_PHRASES = (
+    "пул валидации — flash",
+    "`deepseek-account/deepseek-flash` с уровнем `max`",
+    "`qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`",
+    "модель под срез выбирает основная сессия",
+    "причина выбора",
     "`list_subagent_models`",
-    "дефолт модели, отметь это в отчёте",
+)
+SESSION_MODEL_PHRASES = (
     "runtime-контекста",
     "`powered by <model>`",
     "спроси оператора",
     "подтверди модель",
     "нет ни строки, ни подтверждения — остановка и названный пробел",
-    "совпадение помечается в отчёте",
-    "молчаливый перевыбор не делается",
-    "фолбэка нет",
-    "недоступная модель останавливает прогон",
-    "`subagent` (spawn, не `subagent_fork`)",
-    "`provider`, `model` и `reasoning_effort`",
-    "вердикт и находки",
+)
+FALLBACK_PHRASES = (
+    "молчаливый запуск на модели сессии не делается",
+    "провал и на фолбэке — остановка и вопрос оператору",
+    "«валидацию провёл исполнитель» законным исходом не является",
+)
+
+TRIAGE_HEADING = "триаж"
+TRIAGE_PHRASES = (
+    "подтверждается или отвергается с причиной",
+    "оверинжиниринг",
+    "спорное — оператору ask-инструментом хоста",
+    "решения план-гейта не перепрашиваются",
+)
+
+REPORT_HEADING = "отчёт и гейт проекций"
+REPORT_PHRASES = (
+    "отчёт триажа — артефакт в папке юнита локального трекера",
+    "tickets/<slug>/",
+    "он же запись гейта проекций",
+    "модели срезов с причинами выбора",
+    "идентификаторы подчинённых сессий",
+    "находки с вердиктами триажа",
+    "без записи гейта нарезка не идёт",
+    "to-tickets проверяет её до нарезки",
+)
+
+# The retired plan-critic wording (review-config 03, dsh-adaptation 04):
+# decision 16 turns the critic gate into the projection gate, decision 17
+# moves the run before slicing. Planting any of these back reddens.
+RETIRED_PHRASES = (
+    "сразу после приёмки последнего тикета",
+    "до первого ship",
+    "тикеты юнита целиком",
+    "нет фолбэка на модель сессии",
+    "критик плана",
+    "находки оператору до первого ship",
+    "модель роли `critic` назначает",
+    "рекомендация, не запрет",
 )
 
 
@@ -126,99 +182,14 @@ def _drop_phrase(text: str, phrase: str) -> str:
     return re.sub(pattern, "", text, flags=re.IGNORECASE)
 
 
-def _dsh_section(text: str) -> str:
-    """Slice the DSH model-and-launch subsection; empty when it is absent.
-
-    The slice ends at the next `##` or `###` heading, so a phrase that
-    survives only in the neutral `## Модель` bullets or in a later
-    subsection does not satisfy the DSH contract.
-    """
-    lowered = _normalized_lower(text)
-    start = lowered.find(DSH_HEADING)
-    if start == -1:
+def _section(body: str, heading: str) -> str:
+    """Body of one ``## `` section matched case-insensitively by its heading;
+    a ``### `` subsection belongs to its parent section."""
+    lowered = body.lower()
+    start = lowered.find(f"## {heading}")
+    if start < 0:
         return ""
-    ends = [index for index in (lowered.find(" ## ", start + 1),
-                                lowered.find(" ### ", start + 1))
-            if index != -1]
-    return lowered[start:min(ends) if ends else len(lowered)]
-
-
-def _dsh_errors(text: str) -> list[str]:
-    """Return every violated DSH critic contract; empty means it is sound.
-
-    spec: docs/plans/dsh-adaptation.md#готово — DSH-ветка критика: маршрут
-    и уровень из `.agents/config.toml` сверяются с живым
-    `list_subagent_models`; модель сессии — из runtime-контекста с
-    подтверждением оператора при неоднозначности и остановкой без
-    источника; совпадение моделей помечается в отчёте, отличие —
-    рекомендация; фолбэка нет; запуск через `subagent` (spawn, не
-    `subagent_fork`) с явными `provider`, `model` и `reasoning_effort`.
-    """
-    lowered = _normalized_lower(text)
-    errors: list[str] = []
-    section = _dsh_section(text)
-    if not section:
-        errors.append(f"dsh-critic: missing section {DSH_HEADING!r}")
-    else:
-        for phrase in DSH_PHRASES:
-            if phrase not in section:
-                errors.append(f"dsh-critic: DSH section lost {phrase!r}")
-        for phrase in ("фолбэк на модель сессии", "фолбэк разрешён"):
-            if phrase in section:
-                errors.append("dsh-critic: DSH section restores a fallback "
-                              f"{phrase!r}")
-    # The neutral model rules stay in force for every harness (ZCode branch
-    # preserved): they live outside the DSH subsection and must not be
-    # rewritten away.
-    neutral = lowered.replace(section, "", 1) if section else lowered
-    for phrase in ("нет фолбэка на модель сессии",
-                   "рекомендация, не запрет",
-                   "совпадение допустимо"):
-        if phrase not in neutral:
-            errors.append(f"dsh-critic: neutral model rule lost {phrase!r}")
-    return errors
-
-
-def test_dsh_model_check_and_launch_are_named():
-    """spec: docs/plans/dsh-adaptation.md#готово — «Готово» 4: DSH-подраздел
-    критика несёт сверку через `list_subagent_models`, модель сессии из
-    runtime-контекста, подтверждение оператора, пометку совпадения,
-    остановку без источника, отсутствие фолбэка и запуск через `subagent`;
-    нейтральные правила модели сохранены."""
-    assert _dsh_errors(SKILL.read_text("utf-8")) == []
-
-
-@pytest.mark.parametrize("phrase", DSH_PHRASES)
-def test_every_dsh_phrase_has_a_failing_probe(phrase: str) -> None:
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    removing any named DSH phrase, however short, reddens the DSH contract."""
-    text = SKILL.read_text("utf-8")
-    mutated = _drop_phrase(text, phrase)
-    assert mutated != text, f"the mutation must remove {phrase!r}"
-    errors = _dsh_errors(mutated)
-    assert any(f"DSH section lost {phrase!r}" in error for error in errors), errors
-
-
-def test_dsh_critic_contract_can_fail():
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the DSH critic contract rejects a missing section, a restored fallback and
-    a rewritten neutral rule (the ZCode branch stays in force)."""
-    text = SKILL.read_text("utf-8")
-    assert _dsh_errors(text) == []
-
-    no_heading = text.replace(DSH_HEADING, "### dsh — вне плана", 1)
-    assert no_heading != text
-    assert any("missing section" in error for error in _dsh_errors(no_heading))
-
-    fallback = text.replace("фолбэка нет — недоступная модель",
-                            "фолбэк разрешён; недоступная модель", 1)
-    assert fallback != text
-    assert any("restores a fallback" in error for error in _dsh_errors(fallback))
-
-    neutral = text.replace("рекомендация, не запрет", "запрет", 1)
-    assert neutral != text
-    assert any("neutral model rule lost" in error
-               for error in _dsh_errors(neutral))
+    return body[start:].split("\n## ", 1)[0]
 
 
 def _contract_errors(text: str) -> list[str]:
@@ -246,18 +217,33 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("frontmatter: description contains ': ' and must be quoted")
     if "disable-model-invocation" in fields:
         errors.append("frontmatter: disable-model-invocation must be absent — "
-                      "the critic is a model-invoked skill")
+                      "the projection validation is a model-invoked skill")
 
     lowered = _normalized_lower(body)
     for phrase in REQUIRED_PHRASES:
         if phrase not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
-    for phrase in EVIDENCE_PHRASES:
-        if phrase not in lowered:
-            errors.append(f"checklist: missing evidence phrase {phrase!r}")
-    for item in CHECKLIST:
-        if item not in lowered:
-            errors.append(f"checklist: missing {item!r}")
+    for phrase in RETIRED_PHRASES:
+        if phrase in lowered:
+            errors.append(f"body: retired plan-critic phrase {phrase!r}")
+
+    scoped = (
+        (SEED_HEADING, SEED_PHRASES, "seed"),
+        (RUN_HEADING, POOL_PHRASES, "pool"),
+        (RUN_HEADING, SESSION_MODEL_PHRASES, "session-model"),
+        (RUN_HEADING, FALLBACK_PHRASES, "fallback"),
+        (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
+        (REPORT_HEADING, REPORT_PHRASES, "report"),
+    )
+    for heading, phrases, label in scoped:
+        section = _normalized_lower(_section(body, heading))
+        if not section:
+            errors.append(f"{label}: missing section «{heading}»")
+            continue
+        for phrase in phrases:
+            if phrase not in section:
+                errors.append(f"{label}: section «{heading}» lost {phrase!r}")
+
     # .zcode stays banned here: this skill names no channel roots.
     for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
@@ -266,7 +252,8 @@ def _contract_errors(text: str) -> list[str]:
 
 
 def test_skill_is_a_discoverable_directory_bundle():
-    """spec: docs/plans/review-config.md#готово — skills/critic/SKILL.md."""
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: имя бандла
+    critic сохраняется, скилл переписан в проекционную валидацию."""
     assert SKILL.is_file(), "the critic skill is missing"
     fields, _ = _parse(SKILL.read_text("utf-8"))
     assert fields["name"] == "critic"
@@ -275,124 +262,139 @@ def test_skill_is_a_discoverable_directory_bundle():
     assert _contract_errors(SKILL.read_text("utf-8")) == []
 
 
-def test_skill_is_model_invoked():
-    """spec: docs/plans/review-config.md#готово — критик — модельный скилл:
-    без disable-model-invocation, агент запускает его сам."""
+def test_skill_is_model_invoked_before_slicing():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: агент
+    запускает проекции сразу после утверждения спеки на план-гейте, до
+    нарезки, не командой оператора; один прогон на юнит (решение 17)."""
     fields, body = _parse(SKILL.read_text("utf-8"))
     assert "disable-model-invocation" not in fields
     lowered = _normalized_lower(body)
     assert "агент запускает" in lowered
-    assert "один прогон на юнит" in lowered
-    assert "до первого ship" in lowered
+    assert "сразу после утверждения спеки на план-гейте" in lowered
+    assert "до нарезки" in lowered
     assert "не командой оператора" in lowered
+    assert "один прогон на юнит" in lowered
 
 
-def test_model_difference_from_the_session_model_is_a_recommendation():
-    """spec: docs/plans/review-config.md#готово — модель критика из
-    .agents/config.toml; отличие от сессионной — рекомендация, совпадение
-    допустимо и помечается в отчёте; фолбэка нет (решение 14, поправка
-    2026-11-09)."""
+def test_slices_are_dynamic_and_generated_from_the_spec():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: основная
+    сессия генерирует смысловые срезы из спеки — динамические, не
+    фиксированный обход."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert ".agents/config.toml" in lowered
-    assert "рекомендация, не запрет" in lowered
-    assert "совпадение допустимо" in lowered
-    assert "остановка и вопрос оператору" in lowered
-    assert "нет фолбэка на модель сессии" in lowered
+    assert "генерирует смысловые срезы из спеки" in lowered
+    assert "динамические" in lowered
+    assert "семя генерации" in lowered
 
 
-def test_critic_reads_artifacts_not_the_run():
-    """spec: docs/plans/review-config.md#готово — независимость: роль не видит
-    хода исполнения, она читает артефакты."""
+def test_seed_carries_the_checklist_and_the_eight_projections():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: семя —
+    чек-лист критика и восемь проекций прецедента валидации плана; фразы
+    ищутся в разделе «Семя срезов»."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "артефакты" in lowered
-    assert "не ход исполнения" in lowered
-    assert "спеку" in lowered
-    assert "тикеты юнита целиком" in lowered
+    section = _normalized_lower(_section(body, SEED_HEADING))
+    assert section, "section «Семя срезов» is missing"
+    for phrase in SEED_PHRASES:
+        assert phrase in section, f"the seed lost {phrase!r}"
 
 
-def test_checklist_covers_the_five_spec_items():
-    """spec: docs/plans/review-config.md#готово — чек-лист критика: покрытость
-    «Готово», связность, рёбра, демо-пути, честность критериев."""
+def test_slices_run_in_subordinate_sessions_on_artifact_input():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: каждый
+    срез исполняет подчинённая сессия (subagent, spawn) с ролевым промптом
+    и целью; вход артефактный, не ход исполнения."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    for item in CHECKLIST:
-        assert item in lowered, f"checklist item {item!r} is missing"
+    section = _normalized_lower(_section(body, RUN_HEADING))
+    assert section, "section «Исполнение срезов» is missing"
+    for phrase in ("подчинённая сессия",
+                   "`subagent` (spawn, не `subagent_fork`)",
+                   "ролевым промптом и целью",
+                   "все срезы стартуют в одном сообщении",
+                   "вход среза артефактный",
+                   "не ход исполнения"):
+        assert phrase in section, f"the run section lost {phrase!r}"
 
 
-def test_checklist_asks_the_price_of_evidence():
-    """spec: docs/plans/evidence-verification.md#готово — в чек-лист входит
-    вопрос: какие пункты «Готово» будет дорого доказывать и нельзя ли
-    упростить или разрезать до кода (решение 5)."""
+def test_flash_pool_and_per_slice_model_choice():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 15:
+    пул flash (deepseek-flash/max, qwen3.8-flash/xhigh), модель под срез
+    выбирает основная сессия с причиной в отчёте, сверка с живым каталогом."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "дорого доказывать" in lowered
-    assert "упростить или разрезать до кода" in lowered
+    section = _normalized_lower(_section(body, RUN_HEADING))
+    assert section, "section «Исполнение срезов» is missing"
+    for phrase in POOL_PHRASES:
+        assert phrase in section, f"the pool contract lost {phrase!r}"
 
 
-def test_coverage_is_verified_by_carriers_of_new_specs():
-    """spec: docs/plans/evidence-verification.md#готово — покрытость «Готово»
-    сверяется по носителям, названным в строках новых спек (решение 2)."""
+def test_session_model_comes_from_the_runtime_context():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: сверка с
+    живым каталогом; модель сессии — из runtime-контекста, при
+    неоднозначности подтверждение оператора, без источника — остановка."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "по носителям, названным в строках" in lowered
-    assert "новых спек" in lowered
+    section = _normalized_lower(_section(body, RUN_HEADING))
+    assert section, "section «Исполнение срезов» is missing"
+    for phrase in SESSION_MODEL_PHRASES:
+        assert phrase in section, f"the session-model contract lost {phrase!r}"
 
 
-def test_evidence_contract_can_fail():
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check can fail: потеря вопроса о цене доказательства или сверки
-    носителей красит контракт критика."""
-    text = SKILL.read_text("utf-8")
-    assert _contract_errors(text) == []
-
-    no_price = text.replace("дорого доказывать", "дорого проверять", 1)
-    assert no_price != text
-    assert any("дорого доказывать" in error
-               for error in _contract_errors(no_price))
-
-    no_split = text.replace("упростить или разрезать до кода", "упростить", 1)
-    assert no_split != text
-    assert any("упростить или разрезать до кода" in error
-               for error in _contract_errors(no_split))
-
-    no_carriers = text.replace("по носителям, названным в строках",
-                               "по носителям из тикетов", 1)
-    assert no_carriers != text
-    assert any("по носителям, названным в строках" in error
-               for error in _contract_errors(no_carriers))
-
-    # The description also says «новых спек»; the mutation must hit the body
-    # checklist, so it targets the body-only sentence opening.
-    old_specs_too = text.replace("У новых спек", "У всех спек", 1)
-    assert old_specs_too != text
-    assert any("новых спек" in error
-               for error in _contract_errors(old_specs_too))
-
-
-def test_findings_go_to_the_operator_before_the_first_ship():
-    """spec: docs/decisions/ontoship-core.md#три фазы — находки идут оператору
-    до ship."""
+def test_fallback_is_named_and_failure_stops_the_run():
+    """spec: docs/plans/standards-autoship.md#ограничения — проекции не
+    запускаются на модели сессии молча: фолбэк называется в отчёте, провал
+    и на фолбэке — остановка и вопрос оператору."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "находки оператору до первого ship" in lowered
-    assert "приоритет" in lowered
-    assert "зацепка" in lowered
+    section = _normalized_lower(_section(body, RUN_HEADING))
+    assert section, "section «Исполнение срезов» is missing"
+    for phrase in FALLBACK_PHRASES:
+        assert phrase in section, f"the fallback contract lost {phrase!r}"
+
+
+def test_triage_confirms_or_rejects_with_a_reason():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: триаж
+    основной сессии — подтверждение/отвержение с причиной, проверка
+    оверинжиниринга; спорное — оператору ask-ом."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _normalized_lower(_section(body, TRIAGE_HEADING))
+    assert section, "section «Триаж» is missing"
+    for phrase in TRIAGE_PHRASES:
+        assert phrase in section, f"the triage contract lost {phrase!r}"
+
+
+def test_report_is_the_projection_gate_record():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: отчёт
+    триажа — артефакт в папке юнита трекера, он же запись гейта проекций;
+    без записи нарезка не идёт."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _normalized_lower(_section(body, REPORT_HEADING))
+    assert section, "section «Отчёт и гейт проекций» is missing"
+    for phrase in REPORT_PHRASES:
+        assert phrase in section, f"the report contract lost {phrase!r}"
 
 
 def test_plan_gate_decisions_are_not_reasked():
-    """spec: docs/plans/review-config.md#ограничения — критик не перевыбирает
-    решения план-гейта."""
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: триаж не
+    перевыбирает решения план-гейта — они приняты оператором."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "решения план-гейта не перепрашиваются" in lowered
 
 
+def test_retired_plan_critic_wording_is_banned():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решения
+    16–17: критик-гейт становится гейтом проекций, прогон идёт до нарезки;
+    снятые формулировки старого критика под запретом контракта — возврат
+    любой из них краснит (мутационные пробы)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    for phrase in RETIRED_PHRASES:
+        planted = text + f"\n{phrase.capitalize()}.\n"
+        errors = _contract_errors(planted)
+        assert any(f"retired plan-critic phrase {phrase!r}" in error
+                   for error in errors), errors
+
+
 def test_contract_check_can_fail():
-    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check rejects a model-invocation flag, a lost refusal, a lost
-    checklist item, a leaked harness root and a missing name."""
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the contract check rejects a model-invocation flag, a lost gate record,
+    a lost triage reason, a leaked harness root and a missing name."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -401,18 +403,24 @@ def test_contract_check_can_fail():
     assert any("disable-model-invocation" in error
                for error in _contract_errors(model_locked))
 
-    no_refusal = text.replace("нет фолбэка на модель сессии", "фолбэк запрещён", 1)
-    assert no_refusal != text
-    assert any("нет фолбэка на модель сессии" in error
-               for error in _contract_errors(no_refusal))
+    no_gate = text.replace("Без записи гейта нарезка не идёт",
+                           "Нарезка идёт без записи", 1)
+    assert no_gate != text
+    assert any("без записи гейта нарезка не идёт" in error
+               for error in _contract_errors(no_gate))
 
-    # The word sits in the description and in the checklist item body; the
-    # mutation must remove every occurrence or the check stays green.
-    no_edge_item = text.replace("рёбра", "связи").replace("Рёбра", "Связи")
-    assert no_edge_item != text
-    assert any("рёбра" in error for error in _contract_errors(no_edge_item))
+    no_reason = text.replace("подтверждается\nили отвергается с причиной",
+                             "подтверждается\nили отвергается", 1)
+    assert no_reason != text
+    assert any("подтверждается или отвергается с причиной" in error
+               for error in _contract_errors(no_reason))
 
-    leaked_install_root = text + "\nЗапусти критика из .zcode/skills.\n"
+    no_seed = text.replace("## Семя срезов", "## Список проверок", 1)
+    assert no_seed != text
+    assert any("missing section «семя срезов»" in error
+               for error in _contract_errors(no_seed))
+
+    leaked_install_root = text + "\nЗапусти проекции из .zcode/skills.\n"
     assert any(".zcode" in error for error in _contract_errors(leaked_install_root))
 
     missing_name = "\n".join(line for line in text.splitlines()
@@ -420,31 +428,17 @@ def test_contract_check_can_fail():
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
 
-    silent_launch = text.replace("сразу после приёмки последнего тикета",
-                                 "после влития всех тикетов", 1)
-    assert silent_launch != text
-    assert any("сразу после приёмки последнего тикета" in error
-               for error in _contract_errors(silent_launch))
 
-
-@pytest.mark.parametrize(
-    ("needle", "replacement"),
-    [
-        ("спеку", "план"),
-        ("артефакты", "материалы"),
-        ("приоритет", "важность"),
-        ("зацепка", "указатель"),
-    ],
-)
-def test_every_short_marker_has_a_failing_probe(needle: str, replacement: str) -> None:
+@pytest.mark.parametrize("phrase", REQUIRED_PHRASES)
+def test_every_required_phrase_has_a_failing_probe(phrase: str) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    removing any required phrase, however short, reddens the contract
-    (зацепка P3-2 тикета 03, закрыта по команде оператора)."""
+    removing any required phrase, however short, reddens the contract."""
     text = SKILL.read_text("utf-8")
-    mutated = text.replace(needle, replacement)
-    assert mutated != text, f"the mutation must remove {needle!r}"
+    mutated = _drop_phrase(text, phrase)
+    assert mutated != text, f"the mutation must remove {phrase!r}"
     errors = _contract_errors(mutated)
-    assert any(f"missing required phrase '{needle}'" in error for error in errors), errors
+    assert any(f"missing required phrase {phrase!r}" in error
+               for error in errors), errors
 
 
 def test_no_forbidden_harness_root():
