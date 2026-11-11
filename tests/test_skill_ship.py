@@ -1,38 +1,52 @@
 """Contract for the ship skill (workflow-skills ticket 03, review-config
-ticket 04, ship-isolation ticket 01).
+ticket 04, ship-isolation ticket 01, standards-autoship ticket 05).
 
 The bundle must be discoverable as ``<root>/ship/SKILL.md`` and carry the
 phase-3 single pass — worktree, implementation, proof tests, exactly one
-review pass, dev/prod checks, merge — with stop points read from the spec's
-«Ограничения» section, review yielding leads instead of a convergence loop,
-and honest degradation without a remote: a local commit and a named gap,
-never a faked PR.
+review pass, dev/prod checks, the pack mechanical gates, merge — with stop
+points read from the spec's «Ограничения» section, review yielding leads
+instead of a convergence loop, and honest degradation without a remote: a
+local commit and a named gap, never a faked PR.
 
 Step one demands an isolated worktree unconditionally (ship-isolation
 ticket 01): the phrase «изолированный worktree» lives in step 1 of the
 «Один проход» section, and the permissive «или ветку» is forbidden
 anywhere in the skill file, frontmatter included.
 
+standards-autoship ticket 05 (decisions 10, 11, 15) flips the executor:
+the frontmatter drops ``disable-model-invocation`` — the model invokes the
+skill in the autonomous chain, the manual ``/ship`` survives; ticket
+acceptance is automatic on the fully green contour (criteria proven, panel
+after one fix pass without open P1/P2, dev/prod passed, pack gates green,
+stop points passed), P3 goes to the leads register, anything open or a stop
+is an operator question; the pass carries the pack mechanical-gate step
+(configs-as-data executed by the core); the panel assembles from core and
+pack roles, ``reviewer-code`` receives the standards sources in priority
+order; independence by default — reviewers on a model different from the
+session one, fallback to another available non-session model, then the
+session model marked and stopped. The critic gate becomes the projection
+gate (decision 16): the unit's first ship needs the triage-report record.
+
 The review pass runs as a specialists panel (review-config ticket 04): roles
 from ``.agents/config.toml`` run in parallel in one pass, the executor
 deduplicates findings into one report; a role's input is its scope and
 checklist, its output a verdict and findings with priorities and leads;
-independence is artifacts, never the run's story. Definition models are
-checked against the config before launch and regenerated on drift
-(decision 9); the check covers the model and the reasoning level (onto-doc
-decision 4). An unavailable role model falls back to the session model,
-marked in the report (decision 14); a failure on the fallback too means one
-retry and a stop (decision 4); a base-set role missing from the config is a
-named gap in the report, not a silent skip; the critic gate must hold before
-a unit's first ship.
+independence is artifacts, never the run's story. Routes and levels are
+checked against the live host listing before launch; a base-set or pack
+role missing from the config is a named gap in the report, not a silent
+skip.
 
 spec: docs/plans/workflow-skills.md#готово — skills/ship/SKILL.md
-spec: docs/plans/workflow-skills.md#ограничения — ship is model-inaccessible
+spec: docs/plans/standards-autoship.md#готово — «Готово» 3 (часть ship), 8, 9:
+model invocation, auto-acceptance, pack gates, core+pack panel, independence
+spec: docs/plans/standards-autoship.md#решения план-гейта — решения 10, 11,
+15, 16: зелёный контур автоприёмки, ship вызывает модель, независимость по
+умолчанию, гейт проекций вместо критик-гейта
 spec: docs/decisions/ontoship-core.md#три фазы — one pass, stop points from
 «Ограничения», review gives leads
 spec: docs/plans/review-config.md#готово — ship ведёт ревью панелью
 spec: docs/plans/review-config.md#ограничения — панель один прогон,
-пропущенная роль названа, критик-гейт перед первым ship юнита
+пропущенная роль названа
 spec: docs/plans/ship-isolation.md#готово — шаг 1 безусловный изолированный
 worktree, «или ветку» запрещена во всём тексте скилла
 spec: docs/plans/canon-section-in-bundles.md#готово — шапка ship называет
@@ -47,7 +61,7 @@ from pathlib import Path
 
 import pytest
 
-import test_canon_sync  # reuse: the ZCode panel-run anchors, not duplicated
+import test_canon_sync  # reuse: the panel-run anchors, not duplicated
 
 REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "ship" / "SKILL.md"
@@ -56,7 +70,8 @@ NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 ANCHOR_RE = re.compile(r"\b[\w-]+(?:\.[\w-]+)+:\d+")
 PASS_STEPS = ("**worktree", "**реализация", "**доказательные тесты",
-              "**один прогон ревью", "**проверки dev и prod", "**merge")
+              "**один прогон ревью", "**проверки dev и prod",
+              "**механические гейты пака", "**merge")
 REQUIRED_PHRASES = (
     "один проход",
     "worktree",
@@ -79,7 +94,9 @@ REQUIRED_PHRASES = (
     "docs/plans/<slug>.md",
     "references/method-phases.md",
     "три фазы",
-    "вызывает пользователь",
+    "скилл вызывает модель",
+    "ручной вызов `/ship` сохраняется",
+    "в автономной цепочке",
 )
 FORBIDDEN_PHRASES = (
     "повторяй прогоны ревью",
@@ -88,6 +105,14 @@ FORBIDDEN_PHRASES = (
     "или ветку",
     "файл проекта — первоисточник",
     "единственный источник",
+    # standards-autoship 05: the retired user-only invocation and the
+    # unconditional acceptance ask (decisions 10, 11).
+    "disable-model-invocation",
+    "модель его не вызывает",
+    "скилл вызывает только пользователь",
+    "не запускай самостоятельно",
+    "приёмка тикета идёт отдельным ask-вопросом",
+    "критик-гейт",
 )
 PANEL_PHRASES = (
     "ревью-панель",
@@ -102,15 +127,10 @@ PANEL_PHRASES = (
     "не ход исполнения",
     ".agents/config.toml",
     "маршрут и уровень каждой роли",
-    "фолбэк на модель сессии",
-    "пометкой в отчёте",
     "повторная проба",
     "затем остановка",
     "базового набора",
     "пропуск в отчёте",
-    "критик-гейт",
-    "до первого ship юнита",
-    "запись прогона",
     "references/review-panel.md",
     "справочник `references/review-panel.md`",
     "процедура запуска ролей — в том же `references/review-panel.md`",
@@ -118,6 +138,71 @@ PANEL_PHRASES = (
     "проект переопределяет его документом `docs/reference/review-panel.md`",
     "написал свой, бери его",
     "бери её оттуда",
+)
+# standards-autoship 05: the panel assembles from core and pack roles
+# («Готово» 3); a role without a config section is a named gap for both.
+ASSEMBLY_PHRASES = (
+    "панель собирается из ролей ядра и ролей паков",
+    ".agents/packs/",
+    "чек-лист роли пака берётся из файла её манифеста",
+    "модель роли назначает реестр, не пак",
+    "без секции в конфиге не запускается",
+    "молчаливая подмена не делается",
+)
+# standards-autoship 05, decision 10: the green contour of auto-acceptance.
+AUTOSHIP_PHRASES = (
+    "автоприёмка тикета на полном зелёном контуре",
+    "без ask",
+    "критерии приёмки закрыты доказательствами",
+    "панель после одного прохода правок без незакрытых p1/p2",
+    "проверки dev/prod пройдены",
+    "механические гейты пака зелёные",
+    "точки остановки спеки пройдены",
+    "p3 — в реестр зацепок",
+    "незакрытое или остановка — вопрос оператору",
+    "tickets/<slug>/",
+)
+# standards-autoship 05, «Готово» 8: the mechanical-gate step of the pass.
+GATE_STEP_PHRASES = (
+    "конфиги-данные исполняет ядро",
+    "run_gates.py",
+    "без shell-интерпретации",
+    "expect_exit",
+    "прочитай вывод каждого гейта",
+    "шаг называет ноль",
+    "красный гейт — находка",
+    "повторный прогон гейтов — механическая проверка",
+)
+# standards-autoship 05, decision 15: independence by default.
+INDEPENDENCE_PHRASES = (
+    "независимость по умолчанию",
+    "ревьюеры идут на модели, отличной от сессионной",
+    "powered by <model>",
+    "фолбэк на другую доступную не-сессионную модель",
+    "фолбэк на модель сессии с пометкой и остановкой",
+    "какая роль и почему",
+    "одна повторная проба, затем остановка прохода",
+    "«ревью провёл исполнитель» законным исходом не является",
+    "автоприёмка на таком контуре не делается",
+)
+# standards-autoship 05, decision 8: reviewer-code standards input.
+STANDARDS_PHRASES = (
+    "источники стандартов в порядке приоритета",
+    "канон > стандарты проекта > пак команды > пак стека > базовый документ",
+    "источник называется во входе роли",
+    "неразрешимый конфликт норм — вопрос оператору",
+    "docs/reference/baseline-standards.md",
+)
+# standards-autoship 05, decision 16: the projection gate replaces the
+# critic gate; the record is the triage report in the unit's tracker folder.
+PROJECTION_GATE_PHRASES = (
+    "гейт проекций",
+    "до первого ship юнита",
+    "записи гейта проекций",
+    "отчёт триажа",
+    "tickets/<slug>/",
+    "запись прогона",
+    "тихий пропуск гейта не делается",
 )
 # The DSH branch (dsh-adaptation ticket 01): spawn with an explicit route and
 # effort in one message; routes are checked against the live host listing,
@@ -137,12 +222,14 @@ DSH_SKILL_PHRASES = DSH_COMMON_PHRASES + (
     "`create_worktree`",
     "`git worktree`",
     "сгенерированные определения ролей не нужны",
-    "какая роль и почему пошла на модели сессии",
+    "какая роль и почему",
 )
 DSH_PANEL_PHRASES = DSH_COMMON_PHRASES + (
     "`.agents/config.toml`",
     "дедуплицируется",
-    "фолбэк на модель сессии с пометкой",
+    "независимость по умолчанию",
+    "фолбэк на другую доступную не-сессионную модель",
+    "фолбэк на модель сессии с пометкой и остановкой",
     "одна повторная проба, затем остановка прохода",
 )
 DSH_PANEL_HEADING = "### dsh — рабочий способ"
@@ -200,6 +287,24 @@ def _pass_step_one(lowered: str) -> str:
     return section
 
 
+def _pass_gate_step(lowered: str) -> str:
+    """Slice the mechanical-gate step between its marker and the merge step."""
+    start = lowered.find("**механические гейты пака")
+    if start == -1:
+        return ""
+    end = lowered.find("**merge", start + 1)
+    return lowered[start:end] if end != -1 else lowered[start:]
+
+
+def _section(lowered: str, heading: str) -> str:
+    """Slice one ``## `` section of the whitespace-normalized body."""
+    start = lowered.find(f"## {heading}")
+    if start == -1:
+        return ""
+    end = lowered.find(" ## ", start + 1)
+    return lowered[start:end] if end != -1 else lowered[start:]
+
+
 def _contract_errors(text: str) -> list[str]:
     """Return every violated skill contract; empty means the skill is sound."""
     try:
@@ -223,9 +328,10 @@ def _contract_errors(text: str) -> list[str]:
     if ": " in description and not (raw_description.startswith('"')
                                     and raw_description.endswith('"')):
         errors.append("frontmatter: description contains ': ' and must be quoted")
-    if fields.get("disable-model-invocation", "").lower() != "true":
-        errors.append("frontmatter: disable-model-invocation must be true "
-                      "(the model never invokes this skill)")
+    if "disable-model-invocation" in fields:
+        errors.append("frontmatter: disable-model-invocation must be absent — "
+                      "the model invokes ship in the autonomous chain "
+                      "(standards-autoship decision 11)")
 
     lowered = _normalized_lower(body)
     for phrase in REQUIRED_PHRASES:
@@ -236,14 +342,53 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in PANEL_PHRASES:
         if phrase not in lowered:
             errors.append(f"panel: missing required phrase {phrase!r}")
+    for phrase in ASSEMBLY_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"assembly: missing required phrase {phrase!r}")
     for phrase in DSH_SKILL_PHRASES:
         if phrase not in lowered:
             errors.append(f"dsh: missing required phrase {phrase!r}")
+
+    gate_step = _pass_gate_step(lowered)
+    if not gate_step:
+        errors.append("gates: the mechanical-gate step of the pass is missing")
+    else:
+        for phrase in GATE_STEP_PHRASES:
+            if phrase not in gate_step:
+                errors.append(f"gates: the gate step lost {phrase!r}")
+
+    autoship = _section(lowered, "автоприёмка")
+    if not autoship:
+        errors.append("autoship: missing section «Автоприёмка»")
+    else:
+        for phrase in AUTOSHIP_PHRASES:
+            if phrase not in autoship:
+                errors.append(f"autoship: section «Автоприёмка» lost {phrase!r}")
+
+    independence = _section(lowered, "ревью-панель")
+    if not independence:
+        errors.append("independence: missing section «Ревью-панель»")
+    else:
+        for phrase in INDEPENDENCE_PHRASES:
+            if phrase not in independence:
+                errors.append(f"independence: the panel section lost {phrase!r}")
+        for phrase in STANDARDS_PHRASES:
+            if phrase not in independence:
+                errors.append(f"standards: the panel section lost {phrase!r}")
+
+    projection = _section(lowered, "гейт проекций")
+    if not projection:
+        errors.append("projection: missing section «Гейт проекций»")
+    else:
+        for phrase in PROJECTION_GATE_PHRASES:
+            if phrase not in projection:
+                errors.append(f"projection: the gate section lost {phrase!r}")
+
     full_text = _normalized_lower(text)
     for phrase in FORBIDDEN_PHRASES:
         if phrase in full_text:
-            errors.append(f"body: forbidden convergence-loop or PR-imitation "
-                          f"phrase {phrase!r}")
+            errors.append(f"body: forbidden convergence-loop, PR-imitation or "
+                          f"retired-flow phrase {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -264,26 +409,33 @@ def test_skill_is_a_discoverable_directory_bundle():
     assert _contract_errors(SKILL.read_text("utf-8")) == []
 
 
-def test_skill_is_user_invoked_only():
-    """spec: docs/plans/workflow-skills.md#ограничения — ship is model-inaccessible."""
-    fields, body = _parse(SKILL.read_text("utf-8"))
-    assert fields.get("disable-model-invocation", "").lower() == "true"
+def test_skill_is_model_invoked_and_manual_ship_survives():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 11:
+    frontmatter снимает disable-model-invocation, скилл вызывает модель в
+    автономной цепочке; ручной вызов `/ship` на один тикет сохраняется."""
+    text = SKILL.read_text("utf-8")
+    fields, body = _parse(text)
+    assert "disable-model-invocation" not in fields
     lowered = _normalized_lower(body)
-    assert "вызывает пользователь" in lowered
-    assert "модель его не вызывает" in lowered
+    assert "скилл вызывает модель" in lowered
+    assert "в автономной цепочке" in lowered
+    assert "ручной вызов `/ship` сохраняется" in lowered
+    assert "один тикет за запуск" in lowered
     assert "может звать модельные скиллы" in lowered
     assert "не другой пользовательский" in lowered
 
 
 def test_skill_carries_the_single_pass():
-    """spec: docs/decisions/ontoship-core.md#три фазы — one pass, steps in order."""
+    """spec: docs/decisions/ontoship-core.md#три фазы — one pass, steps in order.
+    spec: docs/plans/standards-autoship.md#готово — «Готово» 8: шаг
+    механических гейтов пака стоит между проверками dev/prod и merge."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     positions = [lowered.find(step) for step in PASS_STEPS]
     assert all(position >= 0 for position in positions), \
         f"a pass step is missing: {list(zip(PASS_STEPS, positions))}"
     assert positions == sorted(positions), \
-        "the pass steps must appear in worktree → … → merge order"
+        "the pass steps must appear in worktree → … → gates → merge order"
 
 
 def test_step_one_demands_an_isolated_worktree():
@@ -300,7 +452,9 @@ def test_step_one_demands_an_isolated_worktree():
 
 
 def test_stop_points_come_from_the_spec():
-    """spec: docs/plans/workflow-skills.md#готово — stop points from «Ограничения»."""
+    """spec: docs/plans/workflow-skills.md#готово — stop points from «Ограничения».
+    spec: docs/plans/standards-autoship.md#готово — «Готово» 8: точки
+    остановки из «Ограничений» спеки не меняются."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "точки остановки" in lowered
@@ -334,16 +488,86 @@ def test_degradation_without_remote_is_honest():
     assert "создай pull request" not in lowered
 
 
-def test_acceptance_ask_carries_the_decision_not_the_report():
-    """invariant: docs/decisions/ontoship-core.md#три фазы — the acceptance ask
-    carries the decision, not the report; the factual report stays in chat
-    before the call, option descriptions carry consequences."""
+def test_auto_acceptance_on_the_green_contour():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 10:
+    автоприёмка тикета на полном зелёном контуре без ask; P3 — в реестр
+    зацепок; незакрытое или остановка — вопрос оператору."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _section(_normalized_lower(body), "автоприёмка")
+    assert section, "the «Автоприёмка» section is missing"
+    for phrase in AUTOSHIP_PHRASES:
+        assert phrase in section, f"the green contour lost {phrase!r}"
+
+
+def test_question_form_survives_for_the_operator():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 8: вопрос
+    оператору при незакрытом или остановке сохраняет форму ask-прохода:
+    отчёт фактами в чате перед вызовом, решение в поле вопроса, следствия
+    выбора в описаниях вариантов."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "приёмка тикета идёт отдельным ask-вопросом" in lowered
     assert "отчёт фактами стоит в чате перед вызовом" in lowered
     assert "в поле вопроса — одно предложение" in lowered
     assert "следствия выбора, не доказательства" in lowered
+    assert "приёмка тикета идёт отдельным ask-вопросом" not in lowered, \
+        "the unconditional acceptance ask is retired (decision 10)"
+
+
+def test_pass_carries_the_pack_gate_step():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 8: шаг
+    механических гейтов пака; конфиги-данные исполняет ядро, вывод
+    прочитан, красный гейт — находка, повторный прогон — не ревью."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    step = _pass_gate_step(_normalized_lower(body))
+    assert step, "the mechanical-gate step is missing from the pass"
+    for phrase in GATE_STEP_PHRASES:
+        assert phrase in step, f"the gate step lost {phrase!r}"
+
+
+def test_panel_assembles_core_and_pack_roles():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 3: ship
+    собирает панель из ролей ядра и ролей паков; чек-лист роли пака — файл
+    её манифеста, модель назначает реестр; роль без секции — названный
+    пропуск, молчаливая подмена не делается."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    for phrase in ASSEMBLY_PHRASES:
+        assert phrase in lowered, f"the panel assembly lost {phrase!r}"
+
+
+def test_reviewer_code_gets_standards_in_priority_order():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 8:
+    reviewer-code получает источники стандартов в порядке приоритета
+    (канон > стандарты проекта > пак команды > пак стека > базовый
+    документ); источник называется во входе роли, конфликт — оператору."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _section(_normalized_lower(body), "ревью-панель")
+    assert section, "the «Ревью-панель» section is missing"
+    for phrase in STANDARDS_PHRASES:
+        assert phrase in section, f"the standards input lost {phrase!r}"
+
+
+def test_independence_by_default_with_fallback_chain():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 15:
+    независимость по умолчанию — ревьюеры на модели, отличной от сессионной;
+    фолбэк: другая доступная не-сессионная, затем сессионная с пометкой и
+    остановкой; провал и на фолбэке — повторная проба и остановка."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _section(_normalized_lower(body), "ревью-панель")
+    assert section, "the «Ревью-панель» section is missing"
+    for phrase in INDEPENDENCE_PHRASES:
+        assert phrase in section, f"the independence policy lost {phrase!r}"
+
+
+def test_projection_gate_holds_before_the_units_first_ship():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 16:
+    критик-гейт становится гейтом проекций; юнит не идёт в первый ship без
+    записи гейта проекций — отчёта триажа в папке юнита трекера."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _section(_normalized_lower(body), "гейт проекций")
+    assert section, "the «Гейт проекций» section is missing"
+    for phrase in PROJECTION_GATE_PHRASES:
+        assert phrase in section, f"the projection gate lost {phrase!r}"
 
 
 def test_skill_anchors_to_the_bundle_section():
@@ -367,18 +591,17 @@ def test_skill_names_no_harness_root(root: str):
 
 def test_contract_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
-    contract check rejects a missing flag, a loop, a fake PR, a stop-point
-    regression, an anchor, a missing name, a lost isolated-worktree word,
-    the phrase carried out of step 1 (into the intro or another section),
-    and the «или ветку» comeback."""
+    contract check rejects a restored invocation flag, a loop, a fake PR, a
+    stop-point regression, an anchor, a missing name, a lost isolated-worktree
+    word, the phrase carried out of step 1, the «или ветку» comeback, the
+    retired user-only invocation and the retired acceptance ask."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
-    missing_flag = "\n".join(line for line in text.splitlines()
-                             if not line.startswith("disable-model-invocation:"))
-    assert missing_flag != text
+    restored_flag = text.replace("---\n", "---\ndisable-model-invocation: true\n", 1)
+    assert restored_flag != text
     assert any("disable-model-invocation" in error
-               for error in _contract_errors(missing_flag))
+               for error in _contract_errors(restored_flag))
 
     looped = text.replace("доложи остальные",
                           "повторяй прогоны ревью до нуля находок", 1)
@@ -443,6 +666,149 @@ def test_contract_check_can_fail():
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
 
+    user_only = text.replace("Скилл вызывает\nмодель",
+                             "Скилл вызывает только пользователь", 1)
+    if user_only == text:
+        user_only = text.replace("Скилл вызывает модель",
+                                 "Скилл вызывает только пользователь", 1)
+    user_only = user_only.replace("В автономной цепочке скилл вызывает модель",
+                                  "В автономной цепочке скилл вызывает пользователь", 1)
+    assert user_only != text
+    errors = _contract_errors(user_only)
+    assert any("скилл вызывает модель" in error for error in errors)
+    assert any("скилл вызывает только пользователь" in error for error in errors)
+
+    ask_back = text.replace("Незакрытое или остановка — вопрос оператору",
+                            "Приёмка тикета идёт отдельным ask-вопросом", 1)
+    assert ask_back != text
+    errors = _contract_errors(ask_back)
+    assert any("приёмка тикета идёт отдельным ask-вопросом" in error
+               for error in errors)
+    assert any("незакрытое или остановка — вопрос оператору" in error
+               for error in errors)
+
+
+def test_gate_step_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    gate-step contract rejects a lost runner, a lost no-shell rule, a lost
+    expect_exit check, a lost read-the-output order, a lost zero-gates case
+    and a gate step carried out of the pass."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    for old, new, needle in (
+        ("run_gates.py", "исполнитель бандла", "run_gates.py"),
+        ("без shell-интерпретации", "через shell", "без shell-интерпретации"),
+        ("expect_exit", "ожидаемый код", "expect_exit"),
+        ("Прочитай вывод каждого гейта", "Смотри сводку гейтов",
+         "прочитай вывод каждого гейта"),
+        ("шаг называет ноль", "шаг молчит", "шаг называет ноль"),
+        ("конфиги-данные исполняет ядро", "конфиги исполняет пак",
+         "конфиги-данные исполняет ядро"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_step = _body_mutated(text, "**Механические гейты пака.**", "**Гейты.**")
+    assert any("mechanical-gate step" in error
+               for error in _contract_errors(no_step))
+
+
+def test_auto_acceptance_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    auto-acceptance contract rejects a lost green-contour condition, a lost
+    P3 register, a lost operator question, a blocking P3 and a lost section."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    for old, new, needle in (
+        ("критерии приёмки закрыты доказательствами", "критерии закрыты",
+         "критерии приёмки закрыты доказательствами"),
+        ("панель после одного прохода правок без незакрытых P1/P2",
+         "панель без находок", "панель после одного прохода правок без незакрытых p1/p2"),
+        ("механические гейты пака зелёные", "гейты пройдены",
+         "механические гейты пака зелёные"),
+        ("P3 — в реестр зацепок", "P3 тоже блокирует",
+         "p3 — в реестр зацепок"),
+        ("Незакрытое или остановка — вопрос оператору",
+         "Незакрытое закрывает исполнитель", "незакрытое или остановка — вопрос оператору"),
+    ):
+        mutated = text.replace(old, new, 1)
+        assert mutated != text, f"the mutation must change the text: {old!r}"
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_section = text.replace("## Автоприёмка", "## Приёмка", 1)
+    assert no_section != text
+    assert any("missing section «Автоприёмка»" in error
+               for error in _contract_errors(no_section))
+
+
+def test_independence_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    independence contract rejects a lost default, a lost non-session
+    fallback, a lost mark-and-stop, a lost session-model source and a silent
+    session-model run."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    for old, new, needle in (
+        ("Ревьюеры идут на модели, отличной от\nсессионной",
+         "Ревьюеры идут на любой модели",
+         "ревьюеры идут на модели, отличной от сессионной"),
+        ("фолбэк на другую доступную не-сессионную модель",
+         "фолбэк на модель сессии",
+         "фолбэк на другую доступную не-сессионную модель"),
+        ("фолбэк на модель сессии с пометкой и остановкой",
+         "фолбэк на модель сессии молча",
+         "фолбэк на модель сессии с пометкой и остановкой"),
+        ("`powered by <model>`", "`powered by <provider>`",
+         "powered by <model>"),
+        ("автоприёмка на таком контуре не делается",
+         "автоприёмка делается",
+         "автоприёмка на таком контуре не делается"),
+    ):
+        mutated = text.replace(old, new, 1)
+        if mutated == text:
+            flat = re.sub(r"\s+", " ", text)
+            mutated_flat = flat.replace(re.sub(r"\s+", " ", old), new, 1)
+            assert mutated_flat != flat, f"the mutation must change the text: {old!r}"
+            mutated = text.replace(re.sub(r"\s+", " ", old), new, 1)
+            if mutated == text:
+                # the phrase wraps: mutate the normalized body in place
+                body = _parse(text)[1]
+                flat_body = re.sub(r"\s+", " ", body)
+                mutated = text.replace(
+                    body, flat_body.replace(re.sub(r"\s+", " ", old), new, 1), 1)
+        assert mutated != text, f"the mutation must change the text: {old!r}"
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+
+def test_projection_gate_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    projection-gate contract rejects a restored critic gate, a lost record,
+    a silent skip and a lost section."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    critic_back = text.replace("## Гейт проекций", "## Критик-гейт", 1)
+    assert critic_back != text
+    errors = _contract_errors(critic_back)
+    assert any("критик-гейт" in error for error in errors)
+    assert any("missing section «Гейт проекций»" in error for error in errors)
+
+    no_record = _body_mutated(text, "без записи гейта проекций",
+                              "без записи критика")
+    assert any("записи гейта проекций" in error
+               for error in _contract_errors(no_record))
+
+    silent = _body_mutated(text, "тихий пропуск гейта не делается",
+                           "тихий пропуск гейта допустим")
+    assert any("тихий пропуск гейта не делается" in error
+               for error in _contract_errors(silent))
+
 
 def test_panel_runs_roles_from_config_in_one_pass():
     """spec: docs/plans/review-config.md#готово — роли из конфига параллельно
@@ -486,43 +852,24 @@ def test_panel_checks_routes_and_levels_before_launch():
     assert "бери её оттуда" in lowered
 
 
-def test_panel_fallback_is_marked_and_failure_stops():
-    """spec: docs/plans/review-config.md#готово — недоступная модель роли:
-    фолбэк на модель сессии с пометкой в отчёте (решение 14); провал и на
-    фолбэке — одна повторная проба, затем остановка (решение 4)."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "фолбэк на модель сессии" in lowered
-    assert "пометкой в отчёте" in lowered
-    assert "повторная проба" in lowered
-    assert "затем остановка" in lowered
-
-
-def test_panel_names_missing_base_set_roles():
+def test_panel_names_missing_roles():
     """spec: docs/plans/review-config.md#ограничения — роль базового набора
-    без секции в конфиге не запускается, а называется в отчёте пропуском."""
+    без секции в конфиге не запускается, а называется в отчёте пропуском.
+    spec: docs/plans/standards-autoship.md#готово — «Готово» 3: то же
+    правило для ролей паков."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "базового набора" in lowered
     assert "пропуск в отчёте" in lowered
-
-
-def test_critic_gate_holds_before_the_units_first_ship():
-    """spec: docs/plans/review-config.md#ограничения — критик-гейт: юнит не
-    идёт в первый ship без прогона критика; проход подтверждает гейт ссылкой
-    на запись прогона."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "критик-гейт" in lowered
-    assert "до первого ship юнита" in lowered
-    assert "запись прогона" in lowered
+    assert "без секции в конфиге не запускается" in lowered
+    assert "молчаливая подмена не делается" in lowered
 
 
 def test_panel_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     panel contract rejects a lost deduplication order, a lost fallback mark,
-    a lost retry-and-stop, a silent base-set skip, a lost regeneration, a
-    lost level in the definition check and a lost critic gate."""
+    a lost retry-and-stop, a silent role skip, a lost level in the route
+    check, a lost pack assembly and a lost projection gate."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -537,11 +884,6 @@ def test_panel_check_can_fail():
     assert no_dedup != text, "mutation must change the text"
     assert any("дедуплицируй" in error for error in _contract_errors(no_dedup))
 
-    unmarked = text.replace("с пометкой в отчёте", "без пометки", 1)
-    assert unmarked != text
-    assert any("пометкой в отчёте" in error
-               for error in _contract_errors(unmarked))
-
     no_stop = text.replace("затем остановка прохода", "затем продолжение", 1)
     assert no_stop != text
     assert any("затем остановка" in error for error in _contract_errors(no_stop))
@@ -554,12 +896,18 @@ def test_panel_check_can_fail():
 
     no_take = text.replace("бери её оттуда", "бери из описания", 1)
     assert no_take != text
-    assert any("бери её оттуда" in error
-               for error in _contract_errors(no_take))
+    assert any("бери её оттуда" in error for error in _contract_errors(no_take))
 
-    no_gate = text.replace("Критик-гейт", "Проверка критика", 1)
+    no_packs = text.replace("Панель собирается из ролей ядра и ролей паков",
+                            "Панель собирается из ролей ядра", 1)
+    assert no_packs != text
+    assert any("панель собирается из ролей ядра и ролей паков" in error
+               for error in _contract_errors(no_packs))
+
+    no_gate = text.replace("Гейт проекций", "Проверка проекций", 1)
     assert no_gate != text
-    assert any("критик-гейт" in error for error in _contract_errors(no_gate))
+    assert any("missing section «Гейт проекций»" in error
+               for error in _contract_errors(no_gate))
 
 
 def test_panel_references_come_from_the_bundle():
@@ -633,8 +981,8 @@ def _panel_dsh_section(text: str) -> str:
     """Slice the DSH launch section; empty when its heading is absent.
 
     The slice is delimited by the DSH heading and the next `###` heading, so a
-    phrase that survives only in the ZCode or Qoder section does not satisfy
-    the DSH contract. The text is whitespace-normalized, like the rest of the
+    phrase that survives only in the Qoder section does not satisfy the DSH
+    contract. The text is whitespace-normalized, like the rest of the
     contract checks.
     """
     lowered = _normalized_lower(text)
@@ -653,9 +1001,9 @@ def _panel_errors(text: str) -> list[str]:
     spec: docs/plans/dsh-adaptation.md#готово — DSH-раздел панели: роль идёт
     через `subagent` (spawn, не `subagent_fork`) с `provider`, `model` и
     `reasoning_effort` из конфига, все роли в одном сообщении, отчёт один и
-    дедуплицирован, недоступная модель — фолбэк на модель сессии с пометкой,
-    провал — повторная проба и остановка; ZCode-раздел снят вместе с рельсами,
-    старая строка «DSH и Qoder — вне плана» заменена Qoder-пробелом.
+    дедуплицирован; ZCode-раздел снят вместе с рельсами.
+    spec: docs/plans/standards-autoship.md#решения план-гейта — решение 15:
+    независимость по умолчанию и цепочка фолбэков в DSH-разделе.
     DSH-фразы ищутся только в DSH-секции, якоря panel-run — по всему файлу.
     """
     lowered = _normalized_lower(text)
@@ -700,10 +1048,10 @@ def test_dsh_ship_branch_is_named():
 def test_dsh_panel_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the DSH panel contract rejects a lost spawn (guarded as one relation, not
-    two tokens), a lost live route check, a lost fallback mark, a lost
-    deduplication, a lost config source, a lost section heading, a lost Qoder
-    gap, a resurrected «DSH и Qoder — вне плана» line and a lost ZCode
-    anchor."""
+    two tokens), a lost live route check, a lost independence default, a lost
+    non-session fallback, a lost mark-and-stop, a lost deduplication, a lost
+    config source, a lost section heading, a lost Qoder gap, a resurrected
+    «DSH и Qoder — вне плана» line and a lost panel-run anchor."""
     text = PANEL_FILE.read_text("utf-8")
     assert _panel_errors(text) == []
 
@@ -717,11 +1065,23 @@ def test_dsh_panel_contract_can_fail():
     assert no_routes != text
     assert any("`list_subagent_models`" in error for error in _panel_errors(no_routes))
 
-    no_fallback = text.replace("фолбэк на модель сессии с пометкой",
-                               "фолбэк на модель сессии", 1)
-    assert no_fallback != text
-    assert any("фолбэк на модель сессии с пометкой" in error
-               for error in _panel_errors(no_fallback))
+    no_independence = text.replace("Независимость по умолчанию",
+                                   "Независимость по выбору", 1)
+    assert no_independence != text
+    assert any("независимость по умолчанию" in error
+               for error in _panel_errors(no_independence))
+
+    no_non_session = text.replace("фолбэк на другую доступную не-сессионную модель",
+                                  "фолбэк на любую доступную модель", 1)
+    assert no_non_session != text
+    assert any("фолбэк на другую доступную не-сессионную модель" in error
+               for error in _panel_errors(no_non_session))
+
+    no_mark_stop = text.replace("фолбэк на модель сессии с пометкой и остановкой",
+                                "фолбэк на модель сессии", 1)
+    assert no_mark_stop != text
+    assert any("фолбэк на модель сессии с пометкой и остановкой" in error
+               for error in _panel_errors(no_mark_stop))
 
     zcode_back = text + "\n### zcode — рабочий способ\n\nГенератор пишет определения.\n"
     assert any("ZCode section is back" in error
@@ -732,7 +1092,7 @@ def test_dsh_panel_contract_can_fail():
     assert any("дедуплицируется" in error for error in _panel_errors(no_dedup))
 
     no_config = text.replace("берётся из `.agents/config.toml`",
-                             "берётся из конфига", 1)
+                              "берётся из конфига", 1)
     assert no_config != text
     assert any("`.agents/config.toml`" in error for error in _panel_errors(no_config))
 

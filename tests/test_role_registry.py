@@ -234,3 +234,115 @@ def test_a_mutated_carrier_is_named_by_the_probe(
     assert old in source, f"the probe {probe} no longer matches its carrier"
     errors = _registry_errors(_carriers(tmp_path, **{rel: source.replace(old, new, 1)}))
     assert any(needle in error for error in errors), errors
+
+
+# standards-autoship 05 («Готово» 9, decision 15): the committed registry
+# carries the panel routes and the validation pool; independence by default
+# is a registry norm. The standard pool's independent source is the spec's
+# decision 15, not the config itself. Pack roles are dynamic (installed-pack
+# manifests) and are not listed in this repo's registry.
+CONFIG = ".agents/config.toml"
+STANDARD_POOL = (
+    ("deepseek-account/deepseek-flash", "max"),
+    ("qwen-token-plan/qwen3.8-flash", "xhigh"),
+)
+
+
+def _config_errors(root: Path) -> list[str]:
+    """Every violated registry-config rule; empty means the registry is sound."""
+    import tomllib
+
+    path = root / CONFIG
+    if not path.is_file():
+        return [f"config: {CONFIG} is missing"]
+    text = path.read_text("utf-8")
+    try:
+        data = tomllib.loads(text)
+    except tomllib.TOMLDecodeError as exc:
+        return [f"config: {CONFIG} is not TOML ({exc})"]
+    errors: list[str] = []
+    core = _parsed_tuple((root / REGISTRY).read_text("utf-8"), "CORE_ROLES") or []
+    agents = data.get("agents", {})
+    if not isinstance(agents, dict):
+        return ["config: the agents table is missing"]
+    for role in core:
+        section = agents.get(role)
+        if not isinstance(section, dict) or not isinstance(section.get("model"), str) \
+                or "/" not in section.get("model", ""):
+            errors.append(f"config: the {role} role has no model route section")
+    validation = data.get("validation")
+    if not isinstance(validation, dict) or "pool" not in validation:
+        errors.append("config: the validation pool section [validation] is missing")
+    else:
+        pool = validation["pool"]
+        if not isinstance(pool, list):
+            errors.append("config: the validation pool is not a list")
+        else:
+            entries = []
+            for item in pool:
+                if not isinstance(item, dict) or not item.get("model") \
+                        or not item.get("level"):
+                    errors.append(f"config: a pool entry without model/level: {item!r}")
+                    continue
+                entries.append((item["model"], item["level"]))
+            if len(entries) != len(set(entries)):
+                errors.append("config: the validation pool carries a duplicate entry")
+            if sorted(entries) != sorted(STANDARD_POOL):
+                errors.append(f"config: the validation pool {entries} "
+                              "is not the standard flash pool")
+    if "Independence by default" not in text:
+        errors.append("config: the independence-by-default norm is not named")
+    return errors
+
+
+def _config_tree(tmp_path: Path, config_text: str) -> Path:
+    """A temporary tree with the registry source and a mutated config."""
+    root = tmp_path / "tree"
+    for rel in (REGISTRY, CONFIG):
+        target = root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = config_text if rel == CONFIG else (REPO / rel).read_text("utf-8")
+        target.write_text(content, "utf-8")
+    return root
+
+
+def test_committed_registry_carries_roles_and_the_pool() -> None:
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: реестр
+    .agents/config.toml несёт маршруты панели и пул валидации; независимость
+    по умолчанию — норма реестра; пул — стандартный flash решения 15."""
+    assert _config_errors(REPO) == []
+
+
+def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the registry-config contract rejects a lost pool section, a drifted pool
+    route, a lost pool level, a duplicate pool entry, a lost core role
+    section and a lost independence norm."""
+    config = (REPO / CONFIG).read_text("utf-8")
+    assert _config_errors(REPO) == []
+
+    probes = (
+        ("no-pool-section", config.split("\n[validation]\n")[0],
+         "[validation] is missing"),
+        ("drifted-route",
+         config.replace("deepseek-account/deepseek-flash",
+                        "deepseek-account/deepseek-max", 1),
+         "is not the standard flash pool"),
+        ("lost-level", config.replace('level = "max"', 'level = ""', 1),
+         "without model/level"),
+        ("duplicate-entry",
+         config.replace(
+             '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },',
+             '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },\n'
+             '  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },', 1),
+         "duplicate entry"),
+        ("lost-core-section",
+         config.replace("[agents.curator]", "[agents.kurator]", 1),
+         "the curator role has no model route section"),
+        ("lost-norm", config.replace("Independence by default", "Independence", 1),
+         "independence-by-default norm"),
+    )
+    for name, mutated, needle in probes:
+        assert mutated != config, f"the probe {name} must change the config"
+        errors = _config_errors(_config_tree(tmp_path / name, mutated))
+        assert any(needle in error for error in errors), (name, errors)

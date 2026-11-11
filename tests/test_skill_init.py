@@ -20,6 +20,9 @@ spec: docs/plans/review-config.md#готово — реестр ролей .agen
 spec: docs/plans/dsh-adaptation.md#готово — стандартная раскладка шести ролей,
       запись без ask при живых маршрутах (ZCode-ветка выведена решением
       оператора; хроника — continue.md)
+spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): init
+      пишет стандартную раскладку с пулом flash, независимость по умолчанию —
+      норма реестра, секция пула в существующем конфиге — названный пропуск
 invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance,
       Reel or acceptance chord
 invariant: docs/plans/harness-agnostic.md#готово — no harness root named
@@ -89,6 +92,23 @@ LAYOUT_NEEDLES = (
     "runtime-контекст",
     "`<provider>/<model>`",
     "штатный дефолт модели",
+)
+
+# standards-autoship 05 («Готово» 9, decision 15): the registry carries the
+# validation pool beside the role routes; init writes the standard flash pool
+# with the layout, checks it against the live catalog by the same rule, and
+# names the independence norm. The pool section is part of the registry: an
+# existing config without it is a named gap, not a silent append.
+POOL_NEEDLES = (
+    "**Пул валидации.**",
+    "`[validation]`",
+    "`deepseek-account/deepseek-flash`",
+    "`max`",
+    "Сверь маршруты и уровни пула с живым каталогом",
+    "пиши без ask",
+    "Независимость по умолчанию — норма реестра",
+    "ревьюеры идут на модели, отличной от сессионной",
+    "Секция пула валидации `[validation]`",
 )
 
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
@@ -404,6 +424,11 @@ def _contract_errors(text: str) -> list[str]:
         for needle in LAYOUT_NEEDLES:
             if needle not in layout:
                 errors.append(f"layout: missing {needle!r}")
+        # The pool clauses wrap at 80 columns: check the flattened section.
+        flat_layout = re.sub(r"\s+", " ", layout)
+        for needle in POOL_NEEDLES:
+            if needle not in flat_layout:
+                errors.append(f"pool: missing {needle!r}")
 
     for term in FORBIDDEN:
         if _mentions(text, term):
@@ -747,6 +772,55 @@ def test_standard_layout_contract_can_fail():
     assert no_level_default != text
     assert any("штатный дефолт модели" in error
                for error in _contract_errors(no_level_default))
+
+
+def test_bootstrap_writes_the_validation_pool():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: init пишет
+    стандартную раскладку с пулом flash; маршруты и уровни пула сверяются с
+    живым каталогом по тому же правилу, независимость по умолчанию — норма
+    реестра; секция пула в существующем конфиге — названный пропуск."""
+    text = SKILL.read_text("utf-8")
+    layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
+    assert layout, "the bootstrap section is missing"
+    flat_layout = re.sub(r"\s+", " ", layout)
+    for needle in POOL_NEEDLES:
+        assert needle in flat_layout, f"bootstrap section lost {needle!r}"
+    assert "Для паков назови итог" in text
+
+
+def test_pool_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the pool contract rejects a lost pool marker, a drifted pool route, a
+    lost pool level, a lost live-catalog check, a lost independence norm,
+    a lost session-model difference and a lost existing-config pool gap."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    for old, new, needle in (
+        ("**Пул валидации.**", "Пул:", "**Пул валидации.**"),
+        ("`deepseek-account/deepseek-flash`", "`deepseek-account/deepseek-max`",
+         "`deepseek-account/deepseek-flash`"),
+        ("с уровнем `max`", "с уровнем `high`", "`max`"),
+        ("Сверь маршруты и уровни пула с живым каталогом",
+         "Сверь маршруты пула с конфигом",
+         "Сверь маршруты и уровни пула с живым каталогом"),
+        ("Независимость по умолчанию — норма реестра",
+         "Независимость — по выбору оператора",
+         "Независимость по умолчанию — норма реестра"),
+        ("ревьюеры идут на модели, отличной от сессионной",
+         "ревьюеры идут на любой модели",
+         "ревьюеры идут на модели, отличной от сессионной"),
+        ("Секция пула валидации `[validation]`", "Секция пула",
+         "Секция пула валидации `[validation]`"),
+    ):
+        # Whitespace-flexible replace: the clause may wrap at 80 columns,
+        # the line structure of the rest of the skill stays intact.
+        pattern = re.escape(old).replace("\\ ", r"\s+")
+        mutated = re.sub(pattern, new, text, count=1)
+        assert mutated != text, f"the mutation must change the text: {old!r}"
+        assert any(f"pool: missing {needle!r}" in error
+                   for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
 
 
 def test_init_owns_exactly_four_files():

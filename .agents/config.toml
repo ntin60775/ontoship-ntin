@@ -8,9 +8,16 @@
 # `init` delivers the same layout to a fresh project when every route and
 # level is live. DSH is the only rail: the ZCode branch and its generator
 # left the project (operator decision, continue.md).
-# The critic model is recommended to differ from the session model; a match
-# is allowed and marked in the report (decision 10, recommendation since
-# 2026-11-09).
+# Independence by default (standards-autoship decision 15): reviewers run
+# on a model different from the session model; the panel fallback chain is
+# another available non-session model, then the session model marked in the
+# report with a stop. The norm lives in the registry; the ship skill and
+# its review-panel reference carry the procedure.
+# The critic role is projection validation since standards-autoship
+# decision 16 (the bundle name is kept): validation slices pick their
+# routes from the [validation] pool below, not from the role route; the
+# role section stays in the core composition. A critic model match with
+# the session model is allowed and marked in the report (recommendation).
 # A level value is a bare token: letters, digits, '.', '_', '-'.
 # `level` is the role's reasoning_effort, passed straight to `subagent`;
 # with the key absent the model default applies and the report marks it, while
@@ -39,3 +46,13 @@ level = "medium"
 [agents.curator]
 model = "qwen-token-plan/qwen3.8-flash"
 level = "xhigh"
+
+# Validation pool (standards-autoship decisions 15, 16): projection
+# validation picks a model per slice from this flash pool; the main session
+# records the reason in the report. `init` writes the same pool to a fresh
+# project when every route and level is live.
+[validation]
+pool = [
+  { model = "deepseek-account/deepseek-flash", level = "max" },
+  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
+]

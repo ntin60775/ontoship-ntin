@@ -69,6 +69,16 @@ PACK_RULES = (
     "гейт",
     "init",
 )
+# standards-autoship 05 («Готово» 3, 9; решения 8, 15): the KB panel carrier
+# names the core+pack assembly, the independence norm and the standards
+# priority of the reviewer-code input; the harness DSH way carries the
+# non-session fallback chain.
+PANEL_ASSEMBLY = (
+    "панель собирается из ролей ядра и ролей паков",
+    "независимость по умолчанию",
+    "канон > стандарты проекта > пак команды > пак стека > базовый документ",
+)
+DSH_FALLBACK_CHAIN = "фолбэк на другую доступную не-сессионную модель"
 # The ZCode purge (operator decision): the review section keeps a zcode
 # subsection, and it is named retired — with no surviving procedure tokens
 # (generator, workflow transport, host tool, session-model marker).
@@ -250,6 +260,9 @@ def _reference_errors(text: str) -> list[str]:
     for rule in PACK_RULES:
         if rule not in lowered:
             errors.append(f"pack rule {rule!r} is missing")
+    for phrase in PANEL_ASSEMBLY:
+        if phrase not in lowered:
+            errors.append(f"panel assembly {phrase!r} is missing")
     errors.extend(_reviewer_tests_evidence_errors(text))
     return errors
 
@@ -282,6 +295,8 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
         for phrase in ("пробел", "вне плана"):
             if phrase in dsh_block:
                 errors.append(f"dsh review way is still named {phrase!r}")
+        if DSH_FALLBACK_CHAIN not in dsh_block:
+            errors.append("dsh review way lost the non-session fallback chain")
     qoder_gap = any("qoder" in heading and "пробел" in block
                     for heading, block in blocks.items())
     if not qoder_gap:
@@ -358,6 +373,33 @@ def test_reference_carries_the_pack_rules():
     lowered = _normalized_lower(REFERENCE.read_text("utf-8"))
     for rule in PACK_RULES:
         assert rule in lowered, f"pack rule {rule!r} is missing"
+
+
+def test_reference_names_the_core_pack_assembly_and_independence():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 3, 9: KB-носитель
+    панели называет сборку из ролей ядра и ролей паков, независимость по
+    умолчанию и приоритет источников стандартов reviewer-code; DSH-способ
+    матрицы несёт цепочку не-сессионных фолбэков."""
+    text = REFERENCE.read_text("utf-8")
+    lowered = _normalized_lower(text)
+    for phrase in PANEL_ASSEMBLY:
+        assert phrase in lowered, f"the panel carrier lost {phrase!r}"
+    harnesses = HARNESSES.read_text("utf-8")
+    assert DSH_FALLBACK_CHAIN in _normalized_lower(harnesses)
+
+    # can-fail: each assembly clause and the fallback chain reddens on loss.
+    # The priority phrase lives in two places (the panel preamble and the
+    # reviewer-code scope): every occurrence must go for the probe.
+    for phrase in PANEL_ASSEMBLY:
+        pattern = re.escape(phrase).replace("\\ ", r"\s+")
+        mutated = re.sub(pattern, "", text, flags=re.IGNORECASE)
+        assert mutated != text, f"the mutation must change the text: {phrase!r}"
+        assert any("panel assembly" in error
+                   for error in _reference_errors(mutated)), phrase
+    no_chain = harnesses.replace(DSH_FALLBACK_CHAIN, "фолбэк на модель сессии", 1)
+    assert no_chain != harnesses
+    assert any("non-session fallback chain" in error
+               for error in _harness_errors(no_chain, INDEX.read_text("utf-8")))
 
 
 def test_reviewer_tests_checks_artifact_expectation_and_discrepancies():

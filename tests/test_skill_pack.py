@@ -45,6 +45,7 @@ REQUIRED_PHRASES = (
     "reference-pack/",
     "только stdlib",
     "--pack",
+    "run_gates.py",
 )
 FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
 OLD_CARRIERS = (
@@ -61,6 +62,11 @@ CONTRACT_PHRASES = (
     "reviewer-<kontur>-<aspect>",
     "expect_exit",
     "валидатор проверяет схему, не семантику",
+    # standards-autoship 05: the gate-execution contract of the core runner.
+    "исполнение гейтов",
+    "run_gates.py",
+    "exit 1",
+    "без shell-интерпретации",
 )
 
 
@@ -141,6 +147,27 @@ def test_reference_pack_passes_the_validator() -> None:
         capture_output=True, text=True, encoding="utf-8")
     assert result.returncode == 0, result.stderr
     assert "✓ пак reference-pack (team, 1.0.0) валиден" in result.stdout
+
+
+def test_gate_execution_contract_is_named() -> None:
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 8 (тикет 05):
+    шаг механических гейтов пака опирается на исполнитель бандла —
+    run_gates.py рядом с валидатором; контракт исполнения назван в
+    API-документе, скилл ведёт в него."""
+    assert (BUNDLE / "run_gates.py").is_file(), "the gate runner is missing"
+    contract = _normalized(CONTRACT.read_text(encoding="utf-8"))
+    for phrase in ("исполнение гейтов", "run_gates.py", "exit 1",
+                   "без shell-интерпретации"):
+        assert phrase in contract, f"the execution contract lost {phrase!r}"
+    skill = _normalized(SKILL.read_text(encoding="utf-8"))
+    assert "run_gates.py" in skill
+    assert "механические гейты пака" in skill
+
+    # can-fail: the contract check reddens when the execution section leaves.
+    text = CONTRACT.read_text(encoding="utf-8")
+    stripped = text.replace("## Исполнение гейтов", "## Прочее", 1)
+    assert stripped != text
+    assert "исполнение гейтов" not in _normalized(stripped)
 
 
 def _missing_phrases(text: str) -> list[str]:

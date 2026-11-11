@@ -69,10 +69,15 @@ PANEL_CARRIERS = (
     REPO / "skills/ship/SKILL.md",
     REPO / "skills/ship/references/review-panel.md",
 )
+# standards-autoship 05 (decision 15): the fallback chain replaces the
+# direct session-model fallback — another available non-session model first,
+# then the session model marked and stopped. The anchors moved with the
+# rule in every carrier of the set.
 PANEL_ANCHORS = (
     "без секции в конфиге не запускается",
     "молчаливая подмена не делается",
-    "модель сессии с пометкой в отчёте",
+    "фолбэк на другую доступную не-сессионную модель",
+    "фолбэк на модель сессии с пометкой и остановкой",
     "«ревью провёл исполнитель» законным исходом не является",
 )
 
@@ -81,7 +86,7 @@ PANEL_RUN_CARRIERS = (
     REPO / "skills/ship/references/review-panel.md",
 )
 PANEL_RUN_ANCHORS = (
-    "Недоступная модель роли — фолбэк на модель сессии с пометкой в отчёте",
+    "фолбэк на другую доступную не-сессионную модель",
     "«ревью провёл исполнитель» законным исходом не является",
     "одна повторная проба, затем остановка прохода",
 )

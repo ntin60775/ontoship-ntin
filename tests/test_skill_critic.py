@@ -24,6 +24,8 @@ spec: docs/plans/standards-autoship.md#готово — «Готово» 5: ск
       переписан, имя бандла сохраняется; запуск сразу после план-гейта до
       нарезки; динамические срезы, семя, подчинённые сессии, flash-пул,
       выбор модели с причиной, триаж, отчёт — запись гейта проекций
+spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): пул
+      валидации живёт в реестре, скилл читает маршруты из секции [validation]
 spec: docs/plans/standards-autoship.md#решения план-гейта — решения 15–17:
       пул flash и выбор модели под срез, один скилл и один гейт, порядок
       «проекции до нарезки»
@@ -88,13 +90,21 @@ SEED_PHRASES = (
 )
 
 RUN_HEADING = "исполнение срезов"
+# standards-autoship 05 («Готово» 9): the pool lives in the registry —
+# the skill reads the routes from the [validation] section and names the
+# standard layout; a registry without the pool section is a named gap and
+# a stop, the routes are not guessed.
 POOL_PHRASES = (
     "пул валидации — flash",
+    "реестр `.agents/config.toml`",
+    "секция `[validation]`",
+    "стандартная раскладка пула",
     "`deepseek-account/deepseek-flash` с уровнем `max`",
     "`qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`",
     "модель под срез выбирает основная сессия",
     "причина выбора",
     "`list_subagent_models`",
+    "реестр без секции пула — назови пропуск и остановись",
 )
 SESSION_MODEL_PHRASES = (
     "runtime-контекста",
@@ -326,6 +336,20 @@ def test_flash_pool_and_per_slice_model_choice():
     assert section, "section «Исполнение срезов» is missing"
     for phrase in POOL_PHRASES:
         assert phrase in section, f"the pool contract lost {phrase!r}"
+
+
+def test_pool_comes_from_the_registry():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: реестр
+    .agents/config.toml несёт пул валидации; скилл читает маршруты пула из
+    секции [validation], стандартная раскладка названа, реестр без секции
+    пула — названный пропуск и остановка (маршруты не угадываются)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _normalized_lower(_section(body, RUN_HEADING))
+    assert section, "section «Исполнение срезов» is missing"
+    for phrase in ("реестр `.agents/config.toml`", "секция `[validation]`",
+                   "стандартная раскладка пула",
+                   "реестр без секции пула — назови пропуск и остановись"):
+        assert phrase in section, f"the registry pool source lost {phrase!r}"
 
 
 def test_session_model_comes_from_the_runtime_context():
