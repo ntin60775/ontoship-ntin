@@ -1656,10 +1656,11 @@ init (строка `.agents/packs/`, решение оператора при п
 исполнена 2026-11-12 по команде «делай» (см. «Что осталось»).
 
 **Тикет 05 «ship-исполнитель и политика ролей» сделан 2026-11-12**
-(срез `00702ff` в worktree `ontoship-ntin-wt-sa05`, ветка
-`sa05-executor` от `d5b4268`; rebase на main тикета 03 — без
-конфликтов; `create_worktree` упал на отсутствующем `node` — worktree
-создан `git worktree`): frontmatter ship без
+(срез `89ab1f1` + доказательства `de62507` + правки панели `19e31ce`
+в worktree `ontoship-ntin-wt-sa05`, ветка `sa05-executor` от `d5b4268`;
+rebase на main тикета 03 и малую правку `.gitignore` init `d2531f2`,
+конфликт записей continue.md разрешён; `create_worktree` упал на
+отсутствующем `node` — worktree создан `git worktree`): frontmatter ship без
 `disable-model-invocation` (модельный вызов в цепочке, ручной `/ship`
 сохранён), автоприёмка на полном зелёном контуре без ask (решение 10),
 шаг механических гейтов пака — исполнитель `run_gates.py` бандла pack

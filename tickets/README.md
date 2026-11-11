@@ -419,9 +419,10 @@ worktree снесён. Тикет 01 принят оператором 2026-11-1
 набор 660 passed. Тикет 03 принят оператором 2026-11-11 (ask, вариант
 «принять»); итоговый main = `6ce7e62`, worktree снесён.
 
-Тикет 05 сделан 2026-11-12 (срез `00702ff` в worktree
-`ontoship-ntin-wt-sa05`, ветка `sa05-executor` от `d5b4268`; rebase на
-main тикета 03 без конфликтов; `create_worktree` упал на отсутствующем
+Тикет 05 сделан 2026-11-12 (срез `89ab1f1` + доказательства `de62507`
++ правки панели `19e31ce` в worktree `ontoship-ntin-wt-sa05`, ветка
+`sa05-executor` от `d5b4268`; rebase на main тикета 03 и малую правку
+`.gitignore` init `d2531f2`; `create_worktree` упал на отсутствующем
 `node` — worktree создан `git worktree`): ship вызывает модель
 (frontmatter без `disable-model-invocation`, ручной `/ship` сохранён),
 автоприёмка на полном зелёном контуре (решение 10), шаг механических
