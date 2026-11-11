@@ -441,6 +441,24 @@ def resolve_link(src_rel: str, href: str, known: set) -> str | None:
     return hits[0] if len(hits) == 1 else None
 
 
+def resolve_edge(root: Path, src_rel: str, href: str, known: set) -> str | None:
+    """Ребро связности (I3): сначала мягкий резолв по корпусу, потом цель на ФС.
+
+    Файл вне корпуса — его срезал `gitmark.scope.json` или не взял git, — но на
+    файловой системе он есть: читатель по ссылке дойдёт, и «сироту» из этого не
+    делают. В обратную сторону связь не считается: исключённый документ не
+    сканируется, и связность KB решают документы KB. Мягкий граф индекса,
+    `map` и I6 остаются на `known` — их узлы только из корпуса.
+    """
+    tgt = resolve_link(src_rel, href, known)
+    if tgt:
+        return tgt
+    ok, norm = fs_resolve(root, src_rel, href)
+    if ok and norm and norm.endswith(".md") and not norm.startswith("../"):
+        return norm if (root / norm).is_file() else None
+    return None
+
+
 # ─────────────────────────── index ───────────────────────────
 def _has_trigram(con) -> bool:
     try:
@@ -795,26 +813,26 @@ def card_schema_issues(rels: list, fm_cache: dict) -> list:
     return issues
 
 
-def index_chain_issues(root: Path) -> list:
-    """I10 — индексная цепочка: README каждого подраздела docs/ достижим по
-    body-ссылке из README родителя, от docs/README.md вниз по дереву.
+def index_chain_issues(root: Path, rels) -> list:
+    """I10 — индексная цепочка по корпусу: README подраздела docs/ достижим по
+    body-ссылке из README родителя, от docs/README.md вниз.
 
-    Body-семантика: frontmatter не участвует, ссылки внутри fenced-блоков и
-    inline-кода не считаются (тот же strip_code, что у I4). Ссылка покрывает
-    подраздел, если резолвится в сам каталог подраздела или его README.md.
-    Подраздел без README — находка I5, здесь не дублируется; без docs/README.md
-    цепочки нет и проверять нечего.
+    Цепочка идёт по выборуке, а не по дереву: подраздел, исключённый
+    `gitmark.scope.json`, из неё выпадает — находок нет ни на его родителе, ни
+    на его собственном README. Body-семантика: frontmatter не участвует, ссылки
+    внутри fenced-блоков и inline-кода не считаются (тот же strip_code, что у
+    I4). Ссылка покрывает подраздел, если резолвится в сам каталог подраздела
+    или его README.md. Подраздел без README — находка I5, здесь не дублируется;
+    без docs/README.md в корпусе цепочки нет и проверять нечего.
     """
-    docs_root = root / "docs"
-    if not (docs_root / "README.md").exists():
+    readmes = {posixpath.dirname(r) for r in rels
+               if r.startswith("docs/") and r.endswith("/README.md")}
+    if "docs" not in readmes:
         return []
-    readmes: dict = {}
-    for p in docs_root.rglob("README.md"):
-        readmes[p.parent.relative_to(root).as_posix()] = p
     issues = []
     for rel_dir in sorted(readmes):
         try:
-            text = readmes[rel_dir].read_text("utf-8", errors="replace")
+            text = (root / rel_dir / "README.md").read_text("utf-8", errors="replace")
         except Exception:
             # Нечитаемый README — fail-closed: находка, а не молчаливый пропуск
             # всей подцепочки ниже (гейт-находка 12).
@@ -828,12 +846,7 @@ def index_chain_issues(root: Path) -> list:
             if not h or is_external(h) or h.startswith("/"):
                 continue
             covered.add(posixpath.normpath((Path(rel_dir) / h).as_posix()))
-        for child in sorted((root / rel_dir).iterdir()):
-            if not child.is_dir():
-                continue
-            child_rel = child.relative_to(root).as_posix()
-            if child_rel not in readmes:
-                continue
+        for child_rel in sorted(d for d in readmes if posixpath.dirname(d) == rel_dir):
             if child_rel not in covered and child_rel + "/README.md" not in covered:
                 issues.append(("ERR", "I10", rel_dir + "/README.md",
                                f"в теле индекса нет ссылки на подраздел {child_rel}/"))
@@ -898,7 +911,8 @@ def _lint_link_graph(root: Path, docs: list, known: set):
         fm_cache[rel] = fm
         outs = set()
         for href in LINK_RE.findall(strip_code(text)):
-            tgt = resolve_link(rel, href, known)      # мягко: ребро графа и поиска
+            # мягкий резолв по корпусу плюс цель на ФС: срез не делает сироту
+            tgt = resolve_edge(root, rel, href, known)
             if tgt:
                 outs.add(tgt)
                 in_links.setdefault(tgt, set()).add(rel)
@@ -981,7 +995,7 @@ def _lint_global(root: Path, rels: list, fm_cache: dict) -> list:
     # I9 — схемы карточек: обязательные поля и допустимые значения
     issues.extend(card_schema_issues(rels, fm_cache))
     # I10 — индексная цепочка: README подраздела — по body-ссылке из README родителя
-    issues.extend(index_chain_issues(root))
+    issues.extend(index_chain_issues(root, rels))
     return issues
 
 

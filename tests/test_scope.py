@@ -392,3 +392,175 @@ def test_exit_codes_unchanged_under_selection(tmp_path: Path):
     clean = _repo(tmp_path / "clean")
     _scope(clean, {"exclude_prefixes": ["snapshots/", "apps/"]})
     assert _run(clean, "lint", "--strict").returncode == 0
+
+
+# ── тикет 03: scope над глобальными проверками — I10 и рёбра графа ─────────
+
+
+def _repo_chain(tmp_path: Path) -> Path:
+    """KB с индексами: docs/, docs/reference/, docs/gen/ и docs/gen/deep/.
+
+    docs/README.md ссылается на docs/gen/ только во frontmatter — I10 смотрит в
+    тело, поэтому до срезки находка законна. Ожидание считано по фикстуре, не
+    движком: ровно 2 ERR I10 (docs/README.md → docs/gen/, docs/gen/README.md →
+    docs/gen/deep/), никаких прочих находок.
+    """
+    return make_git_repo(tmp_path, {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n"
+                          "links:\n  relates_to: [gen/README.md]\n---\n\n# KB\n\n"
+                          "[Справочник](reference/)\n",
+        "docs/reference/README.md": "---\nnode_type: index\ntitle: Ref\n---\n\n# Ref\n\n[X](x.md)\n",
+        "docs/reference/x.md": "---\nnode_type: reference\ntitle: X\n---\n\n[Индекс](README.md)\n",
+        "docs/gen/README.md": "---\nnode_type: index\ntitle: Gen\n---\n\n# Gen\n\n[X](../reference/x.md)\n",
+        "docs/gen/deep/README.md": "---\nnode_type: index\ntitle: Deep\n---\n\n# Deep\n",
+    })
+
+
+def _findings(root: Path, gm, code: str) -> list:
+    return sorted((i[0], i[2]) for i in gm.cmd_lint(root)["issues"] if i[1] == code)
+
+
+def _all_findings(root: Path, gm) -> list:
+    """Все находки (уровень, код, путь) — сверка, что срез не добавил прочего."""
+    return sorted((i[0], i[1], i[2]) for i in gm.cmd_lint(root)["issues"])
+
+
+def _cut(root: Path, prefixes) -> Path:
+    """Записать gitmark.scope.json и обновить индекс: корпус движка = корпус git."""
+    _scope(root, {"exclude_prefixes": list(prefixes)})
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    return root
+
+
+I10_BEFORE = [("ERR", "docs/README.md"), ("ERR", "docs/gen/README.md")]
+
+
+def test_i10_cut_subtree_silences_the_parent(tmp_path: Path, gm):
+    """spec: docs/plans/kb-scope.md#готово-1 — исключённый подраздел вне цепочки.
+
+    До среза находка законна, после — её нет: docs/gen/ больше не KB, и
+    родительский индекс не обязан на него ссылаться.
+    """
+    root = _repo_chain(tmp_path)
+    assert _all_findings(root, gm) == [("ERR", "I10", "docs/README.md"),
+                                       ("ERR", "I10", "docs/gen/README.md")]
+    assert _all_findings(_cut(root, ["docs/gen/"]), gm) == []
+    assert _run(root, "lint", "--strict").returncode == 0
+
+
+def test_i10_cut_index_makes_no_finding_on_itself(tmp_path: Path, gm):
+    """spec: docs/plans/kb-scope.md#готово-1 — ни ERR I10 на срезанном README.
+
+    Срезан только docs/gen/README.md, его подраздел docs/gen/deep/ остаётся в
+    корпусе: находка на исключённом пути исчезает и новой не появляется — без
+    индекса родителя цепочка обрывается, а не додумывается.
+    """
+    root = _cut(_repo_chain(tmp_path), ["docs/gen/README.md"])
+    assert _findings(root, gm, "I10") == []
+
+
+def test_i10_without_scope_is_untouched(tmp_path: Path, gm):
+    """invariant: без scope-файла и по мёртвому префиксу цепочка считается как раньше."""
+    root = _repo_chain(tmp_path)
+    assert _findings(root, gm, "I10") == I10_BEFORE
+    assert _findings(_cut(root, ["nope/"]), gm, "I10") == I10_BEFORE
+
+
+def test_i10_chain_needs_the_root_index_in_the_corpus(tmp_path: Path, gm):
+    """spec: docs/plans/kb-scope.md#готово-1 — без docs/README.md в корпусе цепочки нет."""
+    root = _cut(_repo_chain(tmp_path), ["docs/README.md"])
+    assert _findings(root, gm, "I10") == []
+
+
+def test_i10_never_reaches_outside_docs(tmp_path: Path, gm):
+    """invariant: I10 остаётся цепочкой docs/ — подраздел вне docs/ не затрагивается.
+
+    `skills/README.md` не ссылается на `skills/kb/`, и это не находка: ни до
+    срезки, ни после.
+    """
+    root = make_git_repo(tmp_path, {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n",
+        "skills/README.md": "# Skills\n",
+        "skills/kb/README.md": "# KB skill\n",
+    })
+    assert _findings(root, gm, "I10") == []
+    assert _findings(_cut(root, ["skills/"]), gm, "I10") == []
+
+
+def _repo_edge(tmp_path: Path, links_out: bool) -> Path:
+    """docs/gen/ как единственный мост к docs/x.md — наружу или только внутрь.
+
+    `links_out=True` — у docs/x.md есть исходящая ссылка в docs/gen/snap.md;
+    `links_out=False` — связь docs/x.md была только входящей из docs/gen/.
+    До срезки оба дерева чистые: в корпусе все цели на месте.
+    """
+    body = "[Снапшот](gen/snap.md)\n" if links_out else "# X\n"
+    return make_git_repo(tmp_path, {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n\n[Gen](gen/)\n",
+        "docs/x.md": "---\nnode_type: reference\ntitle: X\n---\n\n" + body,
+        "docs/gen/README.md": "---\nnode_type: index\ntitle: Gen\n---\n\n[X](../x.md)\n",
+        "docs/gen/snap.md": "---\nnode_type: reference\ntitle: Snap\n"
+                            "links:\n  relates_to: [README.md]\n---\n\n# Snap\n",
+    })
+
+
+def test_edge_to_an_excluded_target_is_not_an_orphan(tmp_path: Path, gm):
+    """spec: docs/plans/kb-scope.md#готово-1 — срез не создаёт мнимых сирот.
+
+    docs/x.md ведёт в docs/gen/snap.md: цель вне корпуса, но существует на
+    файловой системе — связь настоящая, читатель до неё дойдёт.
+    """
+    root = _repo_edge(tmp_path, links_out=True)
+    assert _all_findings(root, gm) == []
+    assert _run(root, "lint", "--strict").returncode == 0
+    root = _cut(root, ["docs/gen/"])
+    assert _all_findings(root, gm) == []
+    assert _run(root, "lint", "--strict").returncode == 0
+
+
+def test_orphan_of_a_dead_link_target_stays_reported(tmp_path: Path, gm):
+    """invariant: I3 остаётся fail-closed — цели нет на ФС, сирота остаётся."""
+    root = _repo_edge(tmp_path, links_out=True)
+    (root / "docs/gen/snap.md").unlink()
+    subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+    # цель не читается: до срезки связь есть по корпусу, I4 на битую ссылку нет —
+    # файл был в корпусе и удалён, LINK_RE её больше не видит
+    assert _findings(root, gm, "I3") == []
+    assert _findings(_cut(root, ["docs/gen/"]), gm, "I3") == [("WARN", "docs/x.md")]
+
+
+def test_inbound_only_from_a_cut_subtree_stays_an_orphan(tmp_path: Path, gm):
+    """invariant: I3 — связность KB решают документы KB, чужое дерево не оправдание.
+
+    Решение оператора (2026-11-11): исходящая связь резолвится по ФС, входящая
+    из исключённого поддерева — нет. docs/x.md никуда не ведёт, и единственным
+    его связчиком был docs/gen/README.md, который больше не KB.
+    """
+    root = _repo_edge(tmp_path, links_out=False)
+    assert _all_findings(root, gm) == []
+    root = _cut(root, ["docs/gen/"])
+    assert _all_findings(root, gm) == [("WARN", "I3", "docs/x.md")]
+
+
+def test_soft_graph_edges_stay_in_the_corpus(tmp_path: Path, gm):
+    """invariant: мягкий граф index остаётся по корпусу — ФС-рёбра только для I3.
+
+    Без scope ребро docs/x.md → docs/gen/snap.md в таблице `links` есть; с
+    обрезанным docs/gen/ рёбер вне корпуса нет ни у кого.
+    """
+    import sqlite3
+
+    def edges(root: Path) -> set:
+        gm.cmd_index(root)
+        con = sqlite3.connect(root / ".gitmark" / "index.db")
+        got = set(con.execute("SELECT src, dst FROM links").fetchall())
+        con.close()
+        return got
+
+    full = _repo_edge(tmp_path / "full", links_out=True)
+    assert ("docs/x.md", "docs/gen/snap.md") in edges(full)
+    cut = _cut(_repo_edge(tmp_path / "cut", links_out=True), ["docs/gen/"])
+    corpus = set(_rels(cut, gm))
+    assert corpus == {"docs/README.md", "docs/x.md"}
+    got = edges(cut)
+    assert all(src in corpus and dst in corpus for src, dst in got), got
