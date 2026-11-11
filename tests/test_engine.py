@@ -9,6 +9,7 @@ from __future__ import annotations
 import ast
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -39,6 +40,43 @@ def test_cmd_lint_is_short_and_orchestrates_helpers(gm):
               if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)}
     assert {"_lint_path_guards", "_lint_link_graph", "_lint_readme_index",
             "_lint_per_doc", "_lint_global"} <= called
+
+
+ENGINE_CAP_RE = re.compile(r"≤ ~(\d+) строк")
+
+
+def _engine_cap() -> int:
+    """The measured cap from its carrier: core-kb.md «Готово» 4.
+
+    Independent source: the number is read from the durable plan, never
+    recomputed from the engine file itself.
+    """
+    text = (REPO / "docs" / "plans" / "core-kb.md").read_text("utf-8")
+    match = ENGINE_CAP_RE.search(text)
+    assert match, "core-kb.md «Готово» 4 does not name the engine length cap"
+    return int(match.group(1))
+
+
+def _length_errors(text: str, cap: int) -> list[str]:
+    lines = len(text.splitlines())
+    return [] if lines <= cap else [f"engine is {lines} lines (cap {cap})"]
+
+
+def test_engine_length_stays_within_the_measured_cap(gm):
+    """spec: docs/plans/kb-scope.md#готово-8 — the engine file stays within the
+    measured cap of core-kb.md «Готово» 4 (kb-scope decision 14)."""
+    assert _length_errors(ENGINE.read_text("utf-8"), _engine_cap()) == []
+
+
+def test_engine_length_check_can_fail(gm):
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    length check reddens when the engine grows past the carrier's cap."""
+    cap = _engine_cap()
+    text = ENGINE.read_text("utf-8")
+    assert _length_errors(text, cap) == []
+    grown = text + "\n# padding" * (cap - len(text.splitlines()) + 1)
+    errors = _length_errors(grown, cap)
+    assert errors and "cap" in errors[0]
 
 
 def test_package_root_in_this_repo(gm):

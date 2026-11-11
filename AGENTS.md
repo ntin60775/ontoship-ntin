@@ -80,6 +80,9 @@ python3 skills/kb-search/gitmark.py lint     # проверки онтологи
 python3 skills/kb-search/gitmark.py map -o docs-map.html
 ```
 
+Правка `gitmark.scope.json` меняет корпус KB: после неё, как после правки
+документов, обязателен `index` — `search` и `stat` читают индекс.
+
 <!-- BEGIN ontoship -->
 ## База знаний (OntoShip)
 

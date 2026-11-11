@@ -3,7 +3,7 @@ node_type: plan
 title: core-kb — устанавливаемое ядро базы знаний
 service: _platform
 status: active
-updated: 2026-10-22
+updated: 2026-11-11
 links:
   relates_to: [harness-agnostic.md, ../decisions/ontoship-core.md, ../reference/sources.md]
 ---
@@ -43,7 +43,8 @@ inventory**.
    `node_type` дают `ERR I4` / `ERR I1`, а `lint --strict` выходит с кодом 1.
 4. Файл движка — урезанная версия вендорной базы: нет команды `inventory` или `serve`
    и нет I7; `cmd_lint` — оркестрация вынесенных помощников (≤ 80 строк); файл
-   остаётся одним файлом (≤ ~1300 строк); тесты урезанного движка проходят.
+   остаётся одним файлом (≤ ~1450 строк — измеренная планка решения 14 юнита
+   [kb-scope](kb-scope.md), сторожится тестом длины); тесты урезанного движка проходят.
 5. Свежая сессия DSH во временном репозитории видит `kb-search`, `kb-curate`, `init`
    в каталоге скиллов (каталог обнаруживается из `.dsh/skills`).
 6. Собственный `docs/` этого репозитория проходит `lint --strict` после `init` +

@@ -16,6 +16,10 @@ description: "Создание, обновление, вывод из экспл
 `python3 skills/kb-search/gitmark.py search "<terms>"`. Если существующий документ
 покрывает тему, обнови его, а не создавай дубль.
 
+Корпус KB задаёт проект файлом `gitmark.scope.json`; полный текст правила —
+в скилле `kb-search`, раздел «KB-корпус и `gitmark.scope.json`»
+(`skills/kb-search/SKILL.md`).
+
 ## Пять операций
 
 | операция | когда |

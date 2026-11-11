@@ -135,6 +135,57 @@ def test_skill_contract_can_fail():
                for error in _contract_errors(unquoted_description))
 
 
+SCOPE_SECTION = "KB-корпус и `gitmark.scope.json`"
+
+
+def _scope_link_errors(text: str, carrier: str) -> list[str]:
+    """kb-curate points at the kb-search carrier and never retells the rule.
+
+    spec source: docs/plans/kb-scope.md «Готово» 8, decision 13 — one full
+    text, the format key lives in the carrier only.
+    """
+    errors: list[str] = []
+    flat = re.sub(r"\s+", " ", text)
+    if "gitmark.scope.json" not in flat:
+        errors.append("scope: kb-curate does not name gitmark.scope.json")
+    if "skills/kb-search/SKILL.md" not in flat:
+        errors.append("scope: kb-curate does not point at the carrier file")
+    if f"раздел «{SCOPE_SECTION}»" not in flat:
+        errors.append("scope: kb-curate does not name the carrier section")
+    if f"## {SCOPE_SECTION}" not in carrier:
+        errors.append("scope: the named section is missing from the carrier")
+    if "exclude_prefixes" in text:
+        errors.append("scope: kb-curate retells the format rule (carrier only)")
+    return errors
+
+
+def test_kb_curate_links_the_scope_rule_without_retelling_it():
+    """spec: docs/plans/kb-scope.md#готово-8 — kb-curate refers to the kb-search
+    carrier and does not duplicate the rule (decision 13)."""
+    carrier = (REPO / "skills" / "kb-search" / "SKILL.md").read_text("utf-8")
+    assert _scope_link_errors(SKILL.read_text("utf-8"), carrier) == []
+
+
+def test_scope_link_check_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — a
+    retelling, a lost pointer or a renamed carrier section reddens."""
+    text = SKILL.read_text("utf-8")
+    carrier = (REPO / "skills" / "kb-search" / "SKILL.md").read_text("utf-8")
+    assert _scope_link_errors(text, carrier) == []
+
+    retold = text + "\nФормат — ключ `exclude_prefixes`.\n"
+    assert any("retells" in e for e in _scope_link_errors(retold, carrier))
+
+    lost = text.replace("skills/kb-search/SKILL.md", "skills/nowhere/SKILL.md")
+    assert lost != text
+    assert any("carrier file" in e for e in _scope_link_errors(lost, carrier))
+
+    renamed = carrier.replace(f"## {SCOPE_SECTION}", "## Корпус", 1)
+    assert renamed != carrier
+    assert any("missing from the carrier" in e
+               for e in _scope_link_errors(text, renamed))
+
+
 def _table_types(text: str) -> list[str]:
     """The types in the `| node_type ...` table, in file order."""
     found: list[str] = []

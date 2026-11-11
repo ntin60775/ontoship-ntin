@@ -16,7 +16,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import ENGINE, make_git_repo
+from conftest import ENGINE, REPO, make_git_repo
 
 PREFIXES = ["snapshots/", "apps/web/tests/expected/"]
 KEEP = ["docs/README.md", "docs/keep.md", "snapshots-notes/keep2.md"]
@@ -644,3 +644,20 @@ def test_i10_chain_normalizes_forms_once(tmp_path: Path, gm):
     })
     assert _findings(root, gm, "I10") == []
     assert _all_findings(root, gm) == [("ERR", "I4", "docs/README.md")]
+
+
+# ── догфуд: корпус пакета не содержит трекер ───────────────────────────────
+
+
+def test_package_corpus_excludes_the_tracker(gm):
+    """invariant: docs/plans/kb-scope.md#готово-7 — the package corpus carries
+    no tickets/: the fixture reads the repository's real gitmark.scope.json
+    (decision 12). Absolute counts stay out: they drift with the tracker.
+    """
+    scope_path = REPO / "gitmark.scope.json"
+    assert scope_path.is_file(), "dogfood gitmark.scope.json is missing"
+    prefixes = json.loads(scope_path.read_text("utf-8"))["exclude_prefixes"]
+    assert "tickets/" in prefixes
+    rels = [p.relative_to(REPO).as_posix() for p in gm.iter_corpus(REPO)[0]]
+    assert not any(rel.startswith("tickets/") for rel in rels)
+    assert any(rel.startswith("docs/") for rel in rels), "KB itself stayed"
