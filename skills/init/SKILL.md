@@ -1,6 +1,6 @@
 ---
 name: init
-description: "Инициализация точки входа OntoShip в проекте: блок в AGENTS.md, четыре строки .gitignore, реестр ролей .agents/config.toml с бутстрап-выбором моделей и скелет docs/ops/continue.md, когда файла нет. Идемпотентно; пишет только AGENTS.md, .gitignore, .agents/config.toml и docs/ops/continue.md, а в AGENTS.md — только между маркерами ontoship. Используй после установки ядра, когда пользователь просит инициализировать или настроить OntoShip в этом проекте."
+description: "Инициализация точки входа OntoShip в проекте: блок в AGENTS.md, пять строк .gitignore, реестр ролей .agents/config.toml с бутстрап-выбором моделей и скелет docs/ops/continue.md, когда файла нет. Идемпотентно; пишет только AGENTS.md, .gitignore, .agents/config.toml и docs/ops/continue.md, а в AGENTS.md — только между маркерами ontoship. Используй после установки ядра, когда пользователь просит инициализировать или настроить OntoShip в этом проекте."
 ---
 
 # Init
@@ -15,8 +15,9 @@ description: "Инициализация точки входа OntoShip в пр�
   `<!-- END ontoship -->`. Всё вне маркеров — текст проекта: никогда не правь, не
   перемещай и не переписывай файл целиком.
 - `.gitignore` — строки, которые требует харнесс: `.gitmark/`, `*-map.html`,
-  `.scratch/`, `.agents/skills/` — строка навыкового корня скрывает
-  project-local установку скиллов.
+  `.scratch/`, `.agents/skills/`, `.agents/packs/` — строка навыкового корня
+  скрывает project-local установку скиллов, строка корня паков — установленные
+  паки стандартов.
 - `.agents/config.toml` — реестр ролей: одна секция `[agents.<роль>]` на роль
   с обязательным ключом `model`.
 - `docs/ops/continue.md` — скелет состояния работы: init создаёт его, только
@@ -125,6 +126,7 @@ Init пишет эти четыре файла и ничего больше: о�
 *-map.html
 .scratch/
 .agents/skills/
+.agents/packs/
 ```
 
 Если файл непустой и не заканчивается переводом строки, добавь его перед

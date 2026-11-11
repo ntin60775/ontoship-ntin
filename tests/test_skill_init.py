@@ -9,7 +9,7 @@ continue skeleton and the bootstrap contract — and prove the check can fail
 a direct operator decision; the skill names no ZCode root and no generator.
 
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed
-      block, .gitignore (four lines), the project-local skill root
+      block, .gitignore (five lines), the project-local skill root
 spec: docs/plans/entry-and-continuity.md#готово — init создаёт скелет
       docs/ops/continue.md при отсутствии: пять разделов и чек-лист трёх
       переходов дословно; существующий файл не перезаписывается, отчёт
@@ -33,8 +33,10 @@ REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "init" / "SKILL.md"
 BEGIN = "<!-- BEGIN ontoship -->"
 END = "<!-- END ontoship -->"
-# One rail (DSH): the four-line .gitignore set with the literal skill root.
-GITIGNORE = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/")
+# One rail (DSH): the five-line .gitignore set with the literal skill root
+# and the pack root (operator decision 2026-11-11, ticket 02 hook).
+GITIGNORE = (".gitmark/", "*-map.html", ".scratch/", ".agents/skills/",
+             ".agents/packs/")
 CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb", "critic",
               "curator")
 # The ownership contract (entry-and-continuity «Готово» 2): the four files,
@@ -452,7 +454,7 @@ def _contract_errors(text: str) -> list[str]:
 
     gitignore_sets = _gitignore_sets(text)
     if gitignore_sets != [GITIGNORE]:
-        errors.append("gitignore: the fenced set is not the verbatim four-line set")
+        errors.append("gitignore: the fenced set is not the verbatim five-line set")
 
     # The single channel root is literal, not a placeholder: both the block
     # line and the .gitignore set name `.agents/skills`.
@@ -662,14 +664,16 @@ def test_continue_skeleton_contract_can_fail():
                for error in _contract_errors(lost_bullet))
 
 
-def test_gitignore_set_is_four_lines():
+def test_gitignore_set_is_five_lines():
     """spec: docs/plans/harness-agnostic.md#готово (с припиской 2026-11-02),
     docs/plans/dsh-adaptation.md#решения (следствие 2), операторское решение
-    о чистке ZCode — DSH пишет четыре строки: `.gitmark/`, `*-map.html`,
-    `.scratch/` и literal корень `.agents/skills/`."""
+    о чистке ZCode — DSH пишет строки `.gitmark/`, `*-map.html`,
+    `.scratch/`, literal корень `.agents/skills/`; пятая строка
+    `.agents/packs/` — решение оператора 2026-11-11 при приёмке тикета 02
+    standards-autoship (зацепка закрыта после приёмки тикета 03)."""
     text = SKILL.read_text("utf-8")
     assert _gitignore_sets(text) == [GITIGNORE]
-    assert len(GITIGNORE) == 4
+    assert len(GITIGNORE) == 5
 
 
 def test_harness_is_dsh_only():
