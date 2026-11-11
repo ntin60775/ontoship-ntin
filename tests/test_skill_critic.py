@@ -301,7 +301,10 @@ def test_seed_carries_the_checklist_and_the_eight_projections():
 def test_slices_run_in_subordinate_sessions_on_artifact_input():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: каждый
     срез исполняет подчинённая сессия (subagent, spawn) с ролевым промптом
-    и целью; вход артефактный, не ход исполнения."""
+    и целью; вход артефактный, не ход исполнения. Фразы «все срезы
+    стартуют в одном сообщении» и «не ход исполнения» унаследованы от
+    прецедентов dsh-adaptation (fan-out в одном сообщении) и review-config
+    (независимость входом) — источник фраз шире, чем «Готово» 5."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = _normalized_lower(_section(body, RUN_HEADING))
     assert section, "section «Исполнение срезов» is missing"
@@ -438,6 +441,37 @@ def test_every_required_phrase_has_a_failing_probe(phrase: str) -> None:
     assert mutated != text, f"the mutation must remove {phrase!r}"
     errors = _contract_errors(mutated)
     assert any(f"missing required phrase {phrase!r}" in error
+               for error in errors), errors
+
+
+SCOPED_PROBE_CASES = tuple(
+    (label, heading, phrase)
+    for heading, phrases, label in (
+        (SEED_HEADING, SEED_PHRASES, "seed"),
+        (RUN_HEADING, POOL_PHRASES, "pool"),
+        (RUN_HEADING, SESSION_MODEL_PHRASES, "session-model"),
+        (RUN_HEADING, FALLBACK_PHRASES, "fallback"),
+        (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
+        (REPORT_HEADING, REPORT_PHRASES, "report"),
+    )
+    for phrase in phrases
+)
+
+
+@pytest.mark.parametrize(
+    ("label", "heading", "phrase"), SCOPED_PROBE_CASES,
+    ids=[f"{label}:{phrase[:24]}" for label, _heading, phrase in SCOPED_PROBE_CASES])
+def test_every_scoped_phrase_has_a_failing_probe(label: str, heading: str,
+                                                 phrase: str) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    removing any scoped phrase (seed, pool, session model, fallback, triage,
+    report) reddens its section check, not only the global body check
+    (зацепка P3-1 ревью-панели тикета 04)."""
+    text = SKILL.read_text("utf-8")
+    mutated = _drop_phrase(text, phrase)
+    assert mutated != text, f"the mutation must remove {phrase!r}"
+    errors = _contract_errors(mutated)
+    assert any(f"{label}: section «{heading}» lost {phrase!r}" in error
                for error in errors), errors
 
 

@@ -451,7 +451,10 @@ def test_slicing_carries_the_self_check():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 6: тикетные
     грани бывшего чек-листа критика (покрытость «Готово» по носителям,
     рёбра, демо-пути, падение критериев) — самопроверка основной сессии
-    после приёмки последнего тикета нарезки (решение 17)."""
+    после приёмки последнего тикета нарезки (решение 17). Формулировки
+    покрытости «по носителям, названным в строках» и «новых спек»
+    унаследованы от evidence-verification (решение 2) и перенесены сюда
+    решением 17 — источник фраз шире, чем «Готово» 6."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
     assert section, "section 'Порядок' is missing from the skill body"
@@ -518,6 +521,25 @@ def test_gate_and_self_check_contract_can_fail():
     assert early_check != text
     assert any("self-check must follow" in error
                for error in _contract_errors(early_check))
+
+
+def _drop_phrase(text: str, phrase: str) -> str:
+    """Remove every occurrence of a phrase regardless of case and internal
+    line wrapping, keeping the line structure (section headings survive)."""
+    pattern = re.escape(phrase).replace("\\ ", r"\s+")
+    return re.sub(pattern, "", text, flags=re.IGNORECASE)
+
+
+@pytest.mark.parametrize("phrase", GATE_PHRASES + SELF_CHECK_PHRASES)
+def test_every_gate_and_self_check_phrase_has_a_failing_probe(phrase: str) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    removing any gate or self-check phrase, however short, reddens the
+    «Порядок» contract (зацепка P3-2 ревью-панели тикета 04)."""
+    text = SKILL.read_text("utf-8")
+    mutated = _drop_phrase(text, phrase)
+    assert mutated != text, f"the mutation must remove {phrase!r}"
+    errors = _contract_errors(mutated)
+    assert any(f"must carry {phrase!r}" in error for error in errors), errors
 
 
 @pytest.mark.parametrize("root", (".dsh", ".zcode", ".qoder"))

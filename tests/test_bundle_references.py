@@ -203,13 +203,6 @@ def _old_carrier_errors(texts: dict[str, str]) -> list[str]:
     return errors
 
 
-def _canon_path_errors(texts: dict[str, str]) -> list[str]:
-    """No shipped skill body names the ntin canon path anymore."""
-    return [f"{skill}: canon path {CANON_PATH!r} still referenced"
-            for skill, text in texts.items()
-            if CANON_PATH in _normalized_lower(text)]
-
-
 def _crosslink_errors(texts: dict[str, str]) -> list[str]:
     """The «Порядок» step of to-tickets names the bundle section."""
     try:

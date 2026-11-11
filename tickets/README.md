@@ -365,6 +365,8 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 в worktree `ontoship-ntin-wt-sa04`): критик → проекционная валидация до
 нарезки, гейт проекций и самопроверка в to-tickets, проекции в выходе
 grilling; красная проба на базе — 51 failed / 48 passed, набор
-527 passed; живой прогон на игрушечной спеке — отчёт триажа и запись
-гейта в [04-projection-report.md](standards-autoship/04-projection-report.md).
-Ждёт ревью-панели и приёмки.
+527 passed (после правок панели — 575 passed); живой прогон на
+игрушечной спеке — отчёт триажа и запись гейта в
+[04-projection-report.md](standards-autoship/04-projection-report.md).
+Панель — четыре «принять с находками», 11 находок закрыты одним
+проходом, три оставлены с причинами; ждёт приёмки.
