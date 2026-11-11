@@ -3,7 +3,9 @@
 
 Проверяет манифест пака и целостность ссылок по контракту бандла
 (`references/pack-contract.md`); семантику команд гейтов не проверяет —
-пак доверенный источник команды, команды исполняет ядро.
+пак доверенный источник команды, команды исполняет ядро. Проверка
+останавливается на первом нарушении: именованный отказ, stderr, exit 2,
+stdout пустой.
 
 spec: docs/plans/standards-autoship.md#готово — бандл pack: валидатор
       на stdlib, именованный отказ (stderr, exit 2, stdout пустой),
@@ -20,7 +22,7 @@ import sys
 from pathlib import Path
 
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
-VERSION_RE = re.compile(r"\d+\.\d+\.\d+\Z")
+VERSION_RE = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+\Z")
 ROLE_RE = re.compile(r"reviewer-[a-z0-9]+(?:-[a-z0-9]+)+\Z")
 MANIFEST_KEYS = {"name", "type", "version", "standards", "roles", "gates"}
 ROLE_KEYS = {"name", "checklist"}
@@ -41,22 +43,29 @@ def _require(cond: bool, reason: str) -> None:
         _fail(reason)
 
 
+def _keys_repr(keys: set) -> str:
+    return ", ".join(repr(key) for key in sorted(keys))
+
+
 def _md_path(pack: Path, value: object, what: str) -> None:
     _require(isinstance(value, str) and value != "",
              f"{what}: путь — непустая строка")
     path = Path(value)
     _require(not path.is_absolute() and ".." not in path.parts,
-             f"{what}: путь относительный, без '..': {value}")
-    _require(path.suffix == ".md", f"{what}: ожидается .md: {value}")
-    _require((pack / path).is_file(),
-             f"{what}: файл не существует: {value}")
+             f"{what}: путь относительный, без '..': {value!r}")
+    _require(path.suffix == ".md", f"{what}: ожидается .md: {value!r}")
+    target = (pack / path).resolve()
+    _require(target.is_relative_to(pack.resolve()),
+             f"{what}: цель вне пака: {value!r}")
+    _require(target.is_file(),
+             f"{what}: файл не существует: {value!r}")
 
 
 def _check_role(pack: Path, role: object, index: int) -> None:
     what = f"roles[{index}]"
     _require(isinstance(role, dict), f"{what}: роль — объект")
     _require(set(role) <= ROLE_KEYS,
-             f"{what}: неизвестные ключи {sorted(set(role) - ROLE_KEYS)}")
+             f"{what}: неизвестные ключи {_keys_repr(set(role) - ROLE_KEYS)}")
     _require("name" in role and "checklist" in role,
              f"{what}: обязательные ключи name и checklist")
     name = role["name"]
@@ -69,7 +78,7 @@ def _check_gate(gate: object, index: int) -> None:
     what = f"gates[{index}]"
     _require(isinstance(gate, dict), f"{what}: гейт — объект")
     _require(set(gate) <= GATE_KEYS,
-             f"{what}: неизвестные ключи {sorted(set(gate) - GATE_KEYS)}")
+             f"{what}: неизвестные ключи {_keys_repr(set(gate) - GATE_KEYS)}")
     _require("name" in gate and "command" in gate,
              f"{what}: обязательные ключи name и command")
     _require(isinstance(gate["name"], str) and gate["name"] != "",
@@ -92,14 +101,16 @@ def validate(pack: Path) -> tuple[str, str, str]:
         manifest = json.loads(manifest_path.read_text("utf-8"))
     except (json.JSONDecodeError, UnicodeDecodeError) as e:
         _fail(f"манифест: не JSON ({e})")
+    except OSError as e:
+        _fail(f"манифест: не читается ({e})")
     _require(isinstance(manifest, dict), "манифест: ожидается JSON-объект")
     _require(set(manifest) <= MANIFEST_KEYS,
-             f"манифест: неизвестные ключи {sorted(set(manifest) - MANIFEST_KEYS)}")
+             f"манифест: неизвестные ключи {_keys_repr(set(manifest) - MANIFEST_KEYS)}")
     for key in ("name", "type", "version"):
         _require(key in manifest, f"манифест: нет обязательного ключа {key}")
     name = manifest["name"]
     _require(isinstance(name, str) and NAME_RE.match(name) is not None,
-             f"манифест: name — [a-z0-9-]: {name!r}")
+             f"манифест: name — [a-z0-9]+(-[a-z0-9]+)*: {name!r}")
     _require(name == pack.name,
              f"манифест: name {name!r} не совпадает с именем каталога {pack.name!r}")
     pack_type = manifest["type"]
@@ -124,11 +135,15 @@ def validate(pack: Path) -> tuple[str, str, str]:
 
 
 def _force_utf8_output() -> None:
+    """Вывод CLI — UTF-8 независимо от локали и PYTHONIOENCODING (идиома
+    юнита cli-utf8): кириллица и `✓` роняли `print` в C-локали без
+    PYTHONUTF8. `errors="backslashreplace"` на обоих потоках сохраняет
+    контракт отказа: неэнкодимые символы печатаются эскейпами, а не
+    крашем. Поток без `reconfigure` (переопределён тестом) не трогается.
+    """
     for stream in (sys.stdout, sys.stderr):
-        try:
+        if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8", errors="backslashreplace")
-        except (AttributeError, ValueError):
-            pass
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -139,13 +154,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("pack", help="каталог пака с manifest.json")
     args = parser.parse_args(argv)
     pack = Path(args.pack)
+    if pack.exists() and not pack.is_dir():
+        print(f"pack: ожидается каталог: {str(pack)!r}", file=sys.stderr)
+        return 2
     if not pack.is_dir():
-        print(f"pack: каталог не существует: {pack}", file=sys.stderr)
+        print(f"pack: каталог не существует: {str(pack)!r}", file=sys.stderr)
         return 2
     try:
         name, pack_type, version = validate(pack)
     except PackError as e:
-        print(f"pack: {e}", file=sys.stderr)
+        # Текст недоверен (содержимое манифеста): управляющие, C1 и
+        # bidi/формат-символы заменяются видимым маркером — замена, а не
+        # вырезание, чтобы не склеить путь в другой (идиома gitmark).
+        msg = re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]",
+                     "·", str(e))
+        print(f"pack: {msg}", file=sys.stderr)
         return 2
     print(f"✓ пак {name} ({pack_type}, {version}) валиден")
     return 0

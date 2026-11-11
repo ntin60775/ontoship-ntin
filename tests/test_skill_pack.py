@@ -93,15 +93,27 @@ def test_skill_is_a_model_invoked_pack_contract() -> None:
         assert _normalized(phrase) in lowered, f"lost phrase {phrase!r}"
 
 
+def _bundle_texts() -> dict[str, str]:
+    texts = {"SKILL.md": SKILL.read_text(encoding="utf-8"),
+             "references/pack-contract.md": CONTRACT.read_text(encoding="utf-8"),
+             "validate_pack.py": VALIDATOR.read_text(encoding="utf-8")}
+    for path in sorted(REFERENCE.rglob("*")):
+        if path.is_file():
+            texts[str(path.relative_to(BUNDLE))] = path.read_text(encoding="utf-8")
+    return texts
+
+
 def test_skill_names_no_harness_root_or_retired_carrier() -> None:
     """invariant: docs/plans/harness-agnostic.md#готово — skill texts name no
     harness root; invariant: docs/plans/bundle-references.md#готово — retired
-    carriers stay out of shipped bodies."""
-    lowered = _normalized(SKILL.read_text(encoding="utf-8"))
-    for root in FORBIDDEN_ROOTS:
-        assert root not in lowered, f"forbidden harness root {root!r}"
-    for carrier in OLD_CARRIERS:
-        assert carrier not in lowered, f"retired carrier {carrier!r}"
+    carriers stay out of shipped bodies. Every shipped bundle file is a
+    carrier, not only SKILL.md."""
+    for name, text in _bundle_texts().items():
+        lowered = _normalized(text)
+        for root in FORBIDDEN_ROOTS:
+            assert root not in lowered, f"{name}: forbidden harness root {root!r}"
+        for carrier in OLD_CARRIERS:
+            assert carrier not in lowered, f"{name}: retired carrier {carrier!r}"
 
 
 def test_contract_reference_is_portable() -> None:
@@ -130,14 +142,21 @@ def test_reference_pack_passes_the_validator() -> None:
     assert "✓ пак reference-pack (team, 1.0.0) валиден" in result.stdout
 
 
+def _missing_phrases(text: str) -> list[str]:
+    lowered = _normalized(text)
+    return [phrase for phrase in REQUIRED_PHRASES
+            if _normalized(phrase) not in lowered]
+
+
 def test_skill_contract_can_fail() -> None:
     """spec: docs/plans/standards-autoship.md#готово — контракт умеет падать:
-    потеря guard-фразы и приоритета норм краснит проверку."""
+    потеря guard-фразы и приоритета норм краснит проверку (предикат гоняется
+    по мутированному носителю, не по собственному срезу строки)."""
     text = SKILL.read_text(encoding="utf-8")
+    assert _missing_phrases(text) == []
     for phrase in ("написал свой, бери его",
                    "канон > стандарты проекта > пак команды > пак стека > базовый документ"):
-        assert _normalized(phrase) in _normalized(text)
         pattern = re.escape(phrase).replace("\\ ", r"\s+")
         stripped = re.sub(pattern, "", text, flags=re.IGNORECASE)
         assert stripped != text, "the mutation must change the text"
-        assert _normalized(phrase) not in _normalized(stripped)
+        assert phrase in _missing_phrases(stripped)

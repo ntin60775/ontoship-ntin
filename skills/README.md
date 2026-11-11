@@ -12,11 +12,12 @@ links:
 
 # Скиллы
 
-Состав скиллов ведёт один машинный носитель — массив `SKILLS` установщика
-`scripts/install.sh`; канал один — `<project>/.agents/skills`. Ядро KB — `kb-search`,
-`kb-curate`, `init`; фазы метода — `grilling`, `to-tickets`, `ship`;
-правило качества — `testing`; ревью плана — `critic`; док-часть —
-`onto-doc`; контракт паков стандартов — `pack`.
+Состав скиллов ведёт один машинный носитель — массив `SKILLS`
+установщика `scripts/install.sh`; канал один —
+`<project>/.agents/skills`. Ядро KB — `kb-search`, `kb-curate`, `init`;
+фазы метода — `grilling`, `to-tickets`, `ship`; правило качества —
+`testing`; ревью плана — `critic`; док-часть — `onto-doc`; контракт
+паков стандартов — `pack`.
 
 - [kb-search/](kb-search/SKILL.md) — движок GitMark и поиск по KB.
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
