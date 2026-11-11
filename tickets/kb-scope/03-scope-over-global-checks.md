@@ -80,7 +80,8 @@ PATH», срез отделён и снесён `git worktree`). Коммиты:
 
 **Красная проба на базе: 6 failed / 43 passed** (слепок `0e15db2` в
 `.scratch/worktrees/kb-scope-03-base` + тот же файл тестов; повторено ролями
-`reviewer-tests` и `reviewer-code`). Краснеют `test_i10_cut_subtree_silences_the_parent`,
+`reviewer-tests` и `reviewer-code`). Краснеют
+`test_i10_cut_subtree_silences_the_parent`,
 `test_i10_cut_index_makes_no_finding_on_itself`,
 `test_i10_chain_needs_the_root_index_in_the_corpus`,
 `test_edge_to_an_excluded_target_is_not_an_orphan` (четыре criteria-кейса),
@@ -88,7 +89,8 @@ PATH», срез отделён и снесён `git worktree`). Коммиты:
 `test_i10_chain_normalizes_forms_once` (две правки панели: fail-closed
 переписанной цепочки и NFC-ключ цепочки). Зелёные по построению и обязаны быть
 зелёными: `test_i10_without_scope_is_untouched`,
-`test_i10_never_reaches_outside_docs`, `test_orphan_of_a_dead_link_target_stays_reported`,
+`test_i10_never_reaches_outside_docs`,
+`test_orphan_of_a_dead_link_target_stays_reported`,
 `test_inbound_only_from_a_cut_subtree_stays_an_orphan` (пин решения 19),
 `test_soft_graph_edges_stay_in_the_corpus`.
 
@@ -98,12 +100,13 @@ PATH», срез отделён и снесён `git worktree`). Коммиты:
 `resolve_edge` → `None` (1); `has_link = True` при любом scope (4 — два стража
 из прежнего набора и два новых); ФС-рёбра в `cmd_index` (1); возврат второго
 `fs_resolve` на ту же ссылку — поведение не меняет, проверяется замером цены.
-Две пробы из первой редакции панели (`fail_closed_silent`, `repo_escape_gate_off`)
-до правки выживали весь набор — закрыты новыми стражами тем же срезом.
+Две пробы из первой редакции панели (`fail_closed_silent`,
+`repo_escape_gate_off`) до правки выживали весь набор — закрыты новыми
+стражами тем же срезом.
 
-**Цена.** Второй `fs_resolve` на ссылку, найденный `reviewer-code`:consumer-дерево,
-три префикса, три прогона: база 3.40 с · двойной резолв 3.84 с · срез с одним
-резолвом 3.33 с (+15% против −2% на фоне базы).
+**Цена.** Второй `fs_resolve` на ту же ссылку, найденный `reviewer-code`.
+Замер на consumer-дереве, три префикса, три прогона (медиана): база 3.40 с ·
+двойной резолв 3.84 с (+15%) · срез с одним резолвом 3.33 с (−2% на фоне базы).
 
 **Демо-путь живьём** — три фикстуры среза, `--strict`, срез против базы
 (`gitmark` = `python3 skills/kb-search/gitmark.py --root <дерево>`):
@@ -214,5 +217,12 @@ P3 ложный комментарий теста, P3 «map не провере�
 `✓ чисто (107 файлов · —)`, exit 0; `map` → 0 вне индекса. Движок — **1434
 строки** при планке решения 14 «≤ ~1450» (запас 17 строк; якорный тест длины —
 тикет 04), `cmd_lint` — 32 строки под AST-стражем, новых импортов нет.
-Онтологии не тронуты: `git show d6ea61f --stat` — только `skills/kb-search/gitmark.py`
-и `tests/test_scope.py`, I8 проходит.
+Онтологии не тронуты: `git show d6ea61f --stat` — только
+`skills/kb-search/gitmark.py` и `tests/test_scope.py`, I8 проходит.
+
+**Приёмка:** тикет принят оператором 2026-11-11 (ask, вариант «принять»).
+Тем же ask-проходом оператор открыл юнит
+[`cli-utf8`](../cli-utf8/01-cli-utf8.md) на унаследованный дефект, названный в
+разборе расхождений, и поставил его в очередь после тикета 04.
+Следующий по рёбрам — [04](04-carriers-and-dogfood.md); с ним закрывается
+ишью #1.
