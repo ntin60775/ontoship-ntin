@@ -615,7 +615,7 @@ def cmd_stat(root: Path) -> dict:
     # сборки, и без gitmark.scope.json (нули), иначе машинный вывод молчал бы
     # о сужении покрытия (спека «Готово» 7, решение 17)
     _, scope_excluded, scope_prefixes = iter_corpus(root)
-    scope = {"excluded_files": scope_excluded, "prefixes": len(scope_prefixes)}
+    scope = {"excluded_files": scope_excluded, "prefix_count": len(scope_prefixes)}
     db = root / DB_REL
     if not db.exists():
         return {"indexed": False, "scope": scope}
@@ -989,7 +989,7 @@ def cmd_lint(root: Path, paths: list | None = None) -> dict:
     """Проверка инвариантов онтологии I1–I6 и I8–I10.
 
     Возвращает {issues, errors, warnings, checked, scope_excluded,
-    scope_prefixes}; `checked` — весь KB-корпус и при выборке: path-аргументы
+    scope_prefix_count}; `checked` — весь KB-корпус и при выборке: path-аргументы
     сужают только per-file проверки. `scope_*` — что срезано `gitmark.scope.json`.
     """
     docs, scope_excluded, scope_prefixes = iter_corpus(root)
@@ -1014,7 +1014,7 @@ def cmd_lint(root: Path, paths: list | None = None) -> dict:
     warns = [i for i in issues if i[0] == "WARN"]
     return {"issues": issues, "errors": errs, "warnings": warns,
             "checked": len(docs), "scope_excluded": scope_excluded,
-            "scope_prefixes": len(scope_prefixes)}
+            "scope_prefix_count": len(scope_prefixes)}
 
 
 # ───────────────── инвариант I8: модель онтологии в проекте и в пакете ─────────────────
@@ -1247,9 +1247,9 @@ def main(argv=None):
         # Исключение видно в каждом прогоне: молчание не должно выглядеть
         # чистотой. Строка — до итога, чтобы `lint | tail -1` не ломался.
         print()
-        if r["scope_prefixes"]:
+        if r["scope_prefix_count"]:
             print(f"scope: {r['scope_excluded']} файлов исключено по "
-                  f"{r['scope_prefixes']} префиксам")
+                  f"{r['scope_prefix_count']} префиксам")
         if a.paths:
             # Выборка не сужает корпус и глобальные проверки — контракт
             # «пути сужают только per-file» (страж tests/test_lint_paths.py);

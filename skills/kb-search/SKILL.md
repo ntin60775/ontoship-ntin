@@ -92,7 +92,7 @@ python3 skills/kb-search/gitmark.py stat --json
 
 Сообщает, существует ли индекс и сколько файлов, чанков, ссылок и областей он
 покрывает. `stat --json` всегда печатает валидный JSON; до первого индекса он
-возвращает `{"indexed": false}`.
+возвращает `{"indexed": false, "scope": {"excluded_files": 0, "prefix_count": 0}}`.
 
 ### `version` — версия движка
 

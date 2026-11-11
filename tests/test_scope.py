@@ -67,7 +67,7 @@ def test_scope_cuts_lint_corpus(tmp_path: Path, gm):
     assert r["checked"] == len(KEEP)
     assert [i[2] for i in r["issues"] if i[2] in CUT] == []
     assert r["scope_excluded"] == len(CUT)
-    assert r["scope_prefixes"] == len(PREFIXES)
+    assert r["scope_prefix_count"] == len(PREFIXES)
 
 
 def test_scope_cuts_index_stat_search_map(tmp_path: Path, gm):
@@ -365,7 +365,7 @@ def test_stat_json_carries_scope(tmp_path: Path):
     _scope(root, {"exclude_prefixes": ["snapshots/"]})
     assert _run(root, "index").returncode == 0
     data = json.loads(_run(root, "stat", "--json").stdout)
-    assert data["scope"] == {"excluded_files": 1, "prefixes": 1}, data
+    assert data["scope"] == {"excluded_files": 1, "prefix_count": 1}, data
 
 
 def test_stat_json_scope_is_zero_without_file(tmp_path: Path):
@@ -373,7 +373,7 @@ def test_stat_json_scope_is_zero_without_file(tmp_path: Path):
     root = _repo_mixed(tmp_path)
     assert _run(root, "index").returncode == 0
     data = json.loads(_run(root, "stat", "--json").stdout)
-    assert data["scope"] == {"excluded_files": 0, "prefixes": 0}, data
+    assert data["scope"] == {"excluded_files": 0, "prefix_count": 0}, data
 
 
 def test_stat_json_scope_present_before_any_index(tmp_path: Path):

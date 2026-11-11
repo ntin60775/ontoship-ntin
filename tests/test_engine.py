@@ -178,7 +178,7 @@ def test_stat_json_contract(gm, tmp_path: Path):
     # ядро (core-kb#готово-2) обещает валидный JSON всегда; поле scope добавлено
     # юнитом kb-scope (решение 17) и присутствует даже до первой сборки индекса
     assert json.loads(before.stdout) == {
-        "indexed": False, "scope": {"excluded_files": 0, "prefixes": 0}}
+        "indexed": False, "scope": {"excluded_files": 0, "prefix_count": 0}}
     _index_kb(tmp_path)
     gm.cmd_index(tmp_path)
     after = subprocess.run(
