@@ -46,6 +46,8 @@
 
 Срез `4e806fc` в worktree `ontoship-ntin-wt-sa04` (ветка
 `sa04-projections`) от базового коммита `de5e9d2` (публикация юнита).
+Правки панели `eef566e`; merge ff в main = `eef566e`, worktree снесён,
+ветка удалена.
 Инструмент хоста `create_worktree` не отработал (нет `node` в PATH) —
 worktree создан `git worktree`, как разрешает скилл ship; названный
 факт окружения, не дефект среза.
