@@ -417,9 +417,10 @@ def fs_resolve(root: Path, src_rel: str, href: str):
 def resolve_link(src_rel: str, href: str, known: set) -> str | None:
     """Мягкий резолв `.md`-ссылки внутри KB — «что имел в виду автор».
 
-    Для индекса, графа, I3 и I6: точный путь от файла, путь от корня KB и, наконец,
-    единственное совпадение по имени файла — так документы связываются, даже если
-    ссылку писали «как в вики». Адресуемость проверяет не он, а `fs_resolve` (I4).
+    Для индекса, `map` и I6 (I3 — через `resolve_edge`, который зовёт его первым
+    шагом): точный путь от файла, путь от корня KB и, наконец, единственное
+    совпадение по имени файла — так документы связываются, даже если ссылку
+    писали «как в вики». Адресуемость проверяет не он, а `fs_resolve` (I4).
     """
     href = _nfc(urllib.parse.unquote(_strip_sel(href)))
     if not href or not href.endswith(".md") or is_external(href):
@@ -441,22 +442,27 @@ def resolve_link(src_rel: str, href: str, known: set) -> str | None:
     return hits[0] if len(hits) == 1 else None
 
 
-def resolve_edge(root: Path, src_rel: str, href: str, known: set) -> str | None:
-    """Ребро связности (I3): сначала мягкий резолв по корпусу, потом цель на ФС.
+def resolve_edge(root: Path, src_rel: str, href: str, known: set,
+                 ok: bool, norm: str | None) -> str | None:
+    """Ребро связности (I3): мягкий резолв по корпусу, иначе — цель на ФС.
 
     Файл вне корпуса — его срезал `gitmark.scope.json` или не взял git, — но на
     файловой системе он есть: читатель по ссылке дойдёт, и «сироту» из этого не
-    делают. В обратную сторону связь не считается: исключённый документ не
-    сканируется, и связность KB решают документы KB. Мягкий граф индекса,
-    `map` и I6 остаются на `known` — их узлы только из корпуса.
+    делают. `(ok, norm)` приходит из `fs_resolve` вызывающего цикла: второй
+    резолв на ту же ссылку обошёл бы линт в +15% времени (замер на корпусе
+    1509 файлов: 3.33 с → 3.84 с).
+
+    В обратную сторону связь не считается: исключённый документ не сканируется,
+    и связность KB решают документы KB (решение оператора, ask 2026-11-11). Цель
+    за корнем репозитория связностью тоже не считается — у графа нет узлов вне
+    дерева. Мягкий граф индекса остаётся на `known`: его узлы только из корпуса
+    (страж `test_soft_graph_edges_stay_in_the_corpus`).
     """
     tgt = resolve_link(src_rel, href, known)
-    if tgt:
+    if tgt or not ok or not norm or not norm.endswith(".md") \
+            or norm.startswith("../"):
         return tgt
-    ok, norm = fs_resolve(root, src_rel, href)
-    if ok and norm and norm.endswith(".md") and not norm.startswith("../"):
-        return norm if (root / norm).is_file() else None
-    return None
+    return norm if (root / norm).is_file() else None
 
 
 # ─────────────────────────── index ───────────────────────────
@@ -817,22 +823,25 @@ def index_chain_issues(root: Path, rels) -> list:
     """I10 — индексная цепочка по корпусу: README подраздела docs/ достижим по
     body-ссылке из README родителя, от docs/README.md вниз.
 
-    Цепочка идёт по выборуке, а не по дереву: подраздел, исключённый
-    `gitmark.scope.json`, из неё выпадает — находок нет ни на его родителе, ни
-    на его собственном README. Body-семантика: frontmatter не участвует, ссылки
+    Цепочка идёт по корпусу, а не по дереву (path-выборкой она не сужается):
+    подраздел, исключённый `gitmark.scope.json`, из неё выпадает — находок нет
+    ни на его родителе, ни на его собственном README. Body-семантика: frontmatter не участвует, ссылки
     внутри fenced-блоков и inline-кода не считаются (тот же strip_code, что у
     I4). Ссылка покрывает подраздел, если резолвится в сам каталог подраздела
     или его README.md. Подраздел без README — находка I5, здесь не дублируется;
     без docs/README.md в корпусе цепочки нет и проверять нечего.
     """
-    readmes = {posixpath.dirname(r) for r in rels
-               if r.startswith("docs/") and r.endswith("/README.md")}
+    # ключ — NFC (им в `covered` сверяются ссылки), путь чтения — raw из git
+    readmes: dict = {}
+    for r in rels:
+        if r.startswith("docs/") and r.endswith("/README.md"):
+            readmes.setdefault(posixpath.dirname(_nfc(r)), r)
     if "docs" not in readmes:
         return []
     issues = []
     for rel_dir in sorted(readmes):
         try:
-            text = (root / rel_dir / "README.md").read_text("utf-8", errors="replace")
+            text = (root / readmes[rel_dir]).read_text("utf-8", errors="replace")
         except Exception:
             # Нечитаемый README — fail-closed: находка, а не молчаливый пропуск
             # всей подцепочки ниже (гейт-находка 12).
@@ -911,12 +920,12 @@ def _lint_link_graph(root: Path, docs: list, known: set):
         fm_cache[rel] = fm
         outs = set()
         for href in LINK_RE.findall(strip_code(text)):
+            ok, norm = fs_resolve(root, rel, href)    # строго: дойдёт ли читатель
             # мягкий резолв по корпусу плюс цель на ФС: срез не делает сироту
-            tgt = resolve_edge(root, rel, href, known)
+            tgt = resolve_edge(root, rel, href, known, ok, norm)
             if tgt:
                 outs.add(tgt)
                 in_links.setdefault(tgt, set()).add(rel)
-            ok, _ = fs_resolve(root, rel, href)       # строго: дойдёт ли читатель
             if not ok:
                 hint = f" (рядом нет; похоже на {tgt})" if tgt else ""
                 issues.append(("ERR", "I4", rel, f"битая ссылка → {href}{hint}"))

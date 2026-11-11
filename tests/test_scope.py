@@ -46,8 +46,11 @@ def _rels(root: Path, gm) -> list:
 
 
 def _run(root: Path, *argv: str):
+    # encoding=utf-8: вывод движка — UTF-8, и прогон не должен зависеть от
+    # локали оболочки (LC_ALL=C ломает text=True без явной кодировки)
     return subprocess.run([sys.executable, str(ENGINE), "--root", str(root), *argv],
-                          capture_output=True, text=True, timeout=120)
+                          capture_output=True, text=True, encoding="utf-8",
+                          timeout=120)
 
 
 # ── корпус: срезка и обратная совместимость ────────────────────────────────
@@ -523,10 +526,12 @@ def test_orphan_of_a_dead_link_target_stays_reported(tmp_path: Path, gm):
     root = _repo_edge(tmp_path, links_out=True)
     (root / "docs/gen/snap.md").unlink()
     subprocess.run(["git", "add", "-A"], cwd=root, check=True)
-    # цель не читается: до срезки связь есть по корпусу, I4 на битую ссылку нет —
-    # файл был в корпусе и удалён, LINK_RE её больше не видит
-    assert _findings(root, gm, "I3") == []
-    assert _findings(_cut(root, ["docs/gen/"]), gm, "I3") == [("WARN", "docs/x.md")]
+    # цель удалена с диска: `ERR I4` на docs/x.md живёт и до срезки, и после
+    # (fs_resolve смотрит на ФС), сиротой x.md становится только после срезки —
+    # до неё его спасает входящая связь из docs/gen/README.md, которая в корпусе
+    assert _all_findings(root, gm) == [("ERR", "I4", "docs/x.md")]
+    assert _all_findings(_cut(root, ["docs/gen/"]), gm) == [("ERR", "I4", "docs/x.md"),
+                                                            ("WARN", "I3", "docs/x.md")]
 
 
 def test_inbound_only_from_a_cut_subtree_stays_an_orphan(tmp_path: Path, gm):
@@ -564,3 +569,78 @@ def test_soft_graph_edges_stay_in_the_corpus(tmp_path: Path, gm):
     assert corpus == {"docs/README.md", "docs/x.md"}
     got = edges(cut)
     assert all(src in corpus and dst in corpus for src, dst in got), got
+    # тот же корпус у `map`: узла и ребра вне выборки в HTML нет
+    html = cut / "kb-map.html"
+    gm.cmd_map(cut, html)
+    body = html.read_text("utf-8")
+    assert "docs/gen/snap.md" not in body and "docs/x.md" in body
+
+
+def test_i10_unreadable_readme_in_corpus_stays_a_finding(tmp_path: Path, gm):
+    """invariant: I10 fail-closed — нечитаемый README в корпусе остаётся находкой.
+
+    Гейт-находка 12 переживает переписывание цепочки на корпус: файл в выборке
+    есть, а читается не — находка, а не молчаливый пропуск подцепочки. Висячий
+    symlink для этого не годится: `git_md_files` берёт только `is_file()`, такой
+    путь в корпус не попадает.
+    """
+    import os
+    root = _repo_chain(tmp_path)
+    target = root / "docs/reference/README.md"
+    target_relative = "docs/reference/README.md"
+    target.chmod(0o000)
+    if target.exists() and not os.access(target, os.R_OK):
+        expected = "unreadable"
+    else:
+        pytest.skip("права на чтение не снимаются (прогон от root)")
+    try:
+        found = [i for i in gm.cmd_lint(root)["issues"]
+                 if i[1] == "I10" and "не читается" in i[3]]
+        assert [i[2] for i in found] == ["docs/reference/README.md"], found
+        assert _findings(root, gm, "I10") == sorted(I10_BEFORE + [("ERR", target_relative)])
+        # срез узла: README уходит из корпуса — вместе с ним уходит fail-closed
+        # находка, а ссылки родителя на docs/reference/ больше не требуется.
+        # `git add` тут не нужен и не пройдёт: файл не читается, а scope-файл
+        # корпус видит и неотслеживаемым (`ls-files -o`)
+        _scope(root, {"exclude_prefixes": ["docs/reference/"]})
+        assert _findings(root, gm, "I10") == I10_BEFORE
+    finally:
+        target.chmod(0o644)
+
+
+def test_edge_leaving_the_repo_is_not_a_relation(tmp_path: Path, gm):
+    """invariant: связь за корнем репозитория сироту не оправдывает — узел вне KB.
+
+    Консервативный gate в `resolve_edge`: `fs_resolve` проверяет такую цель
+    «там, куда ведёт» (I4 молчит, файл на месте), но рёбра связности из неё не
+    делает — узлы графа не уходят за корень.
+    """
+    sibling = tmp_path / "sibling"
+    sibling.mkdir()
+    (sibling / "note.md").write_text("# Note\n", encoding="utf-8")
+    root = make_git_repo(tmp_path / "repo", {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n",
+        "docs/x.md": "---\nnode_type: reference\ntitle: X\n---\n\n"
+                     "[Заметка](../../sibling/note.md)\n",
+    })
+    assert _all_findings(root, gm) == [("WARN", "I3", "docs/x.md")]
+
+
+def test_i10_chain_normalizes_forms_once(tmp_path: Path, gm):
+    """invariant: I10 — цель в теле и путь README сверяются в NFC (оба направления).
+
+    Подраздел записан на диске в NFD (`de\u0301cor`), ссылка в индексе — в NFC
+    (`d\u00e9cor`). Имя файла для чтения берётся из git как есть, сравнение —
+    нормализованное: на базе этот кейс даёт ложный `ERR I10` («Ограничения»
+    спеки: нормализация целей — NFC). `ERR I4` остаётся: строгая адресность
+    `fs_resolve` проверяет байтовое имя на диске и в рамки среза не входит.
+    """
+    nfd, nfc = "de\u0301cor", "d\u00e9cor"
+    assert nfd != nfc
+    root = make_git_repo(tmp_path, {
+        "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n\n"
+                          f"[Декор]({nfc}/)\n",
+        f"docs/{nfd}/README.md": "---\nnode_type: index\ntitle: Decor\n---\n\n# Decor\n",
+    })
+    assert _findings(root, gm, "I10") == []
+    assert _all_findings(root, gm) == [("ERR", "I4", "docs/README.md")]
