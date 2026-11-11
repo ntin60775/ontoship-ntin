@@ -3,10 +3,10 @@ node_type: index
 title: Справочники
 service: _platform
 status: active
-updated: 2026-11-10
+updated: 2026-11-11
 links:
   part_of: [../README.md]
-  relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, ../decisions/ontoship-core.md]
+  relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, baseline-standards.md, ../decisions/ontoship-core.md]
 ---
 
 # Справочники
@@ -24,3 +24,5 @@ links:
   вход и выход роли, регламент паков контуров.
 - [text-style.md](text-style.md) — канон текстов: скиллы, правила, справочники,
   сообщения гейтов.
+- [baseline-standards.md](baseline-standards.md) — базовые стандарты инженерии
+  и стека из знаний модели; нижний приоритет норм, утверждён оператором.
