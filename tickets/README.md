@@ -343,3 +343,20 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | # | тикет | блокируется |
 |---|---|---|
 | 01 | [UTF-8 в выводе CLI](cli-utf8/01-cli-utf8.md) | — |
+
+Юнит [`standards-autoship`](../docs/plans/standards-autoship.md) открыт
+2026-11-11: спека утверждена на план-гейте ask-проходом (решения 1–18),
+нарезка — восемь тикетов приняты со сверкой понимания того же дня;
+критик нарезки снят решением оператора 2026-11-11 (в новом потоке
+валидация идёт до нарезки, прогон после нарезки бессмысленен).
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [бандл pack: контракт, валидатор, эталон](standards-autoship/01-pack-bundle.md) | — |
+| 02 | [канал паков и обнаружение](standards-autoship/02-pack-channel.md) | 01 |
+| 03 | [базовые стандарты](standards-autoship/03-baseline-standards.md) | 01 |
+| 04 | [проекционная валидация и самопроверка](standards-autoship/04-projection-validation.md) | — |
+| 05 | [ship-исполнитель и политика ролей](standards-autoship/05-ship-executor.md) | 02, 04 |
+| 06 | [цепочка-оркестратор и финишная приёмка](standards-autoship/06-chain-orchestrator.md) | 04, 05 |
+| 07 | [канон, зеркало, KB](standards-autoship/07-canon-mirror-kb.md) | 04, 05, 06 |
+| 08 | [живая проба и закрывающий набор](standards-autoship/08-live-proof.md) | 01–07 |
