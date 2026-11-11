@@ -637,6 +637,10 @@ def test_i10_chain_normalizes_forms_once(tmp_path: Path, gm):
     """
     nfd, nfc = "de\u0301cor", "d\u00e9cor"
     assert nfd != nfc
+    try:
+        nfd.encode(sys.getfilesystemencoding())
+    except UnicodeEncodeError:
+        pytest.skip("кодировка ФС не представляет NFD-имя (C-локаль)")
     root = make_git_repo(tmp_path, {
         "docs/README.md": "---\nnode_type: index\ntitle: KB\n---\n\n# KB\n\n"
                           f"[Декор]({nfc}/)\n",

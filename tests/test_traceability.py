@@ -35,7 +35,7 @@ PATH_RE = re.compile(r"(docs/[^\s#`]+)#([^\s`]+)")
 TICKET_PATH_RE = re.compile(r"(?:^|\s)(tickets/[^\s#`]+)")
 I_CODE_RE = re.compile(r"\bI(\d+)\b")
 ENGINE_TESTS = {"test_engine.py", "test_lint_paths.py", "test_redact.py",
-                "test_scope.py"}
+                "test_scope.py", "test_cli_utf8.py"}
 
 
 def _markers(text: str):

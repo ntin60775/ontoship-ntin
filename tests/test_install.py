@@ -46,6 +46,7 @@ def run(project: Path, *flags: str) -> subprocess.CompletedProcess[str]:
         [str(INSTALL), *flags, str(project)],
         capture_output=True,
         text=True,
+        encoding="utf-8",
         check=False,
     )
 

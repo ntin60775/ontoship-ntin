@@ -150,6 +150,10 @@ def test_stat_failure_hands_decision_to_guard2(kb: Path, gm, monkeypatch):
 def test_unicode_forms_are_byte_exact(kb: Path, gm):
     """invariant: selection is byte-exact; an NFC/NFD mismatch is a named refusal."""
     word_nfd = unicodedata.normalize("NFD", "ёмкость")
+    try:
+        word_nfd.encode(sys.getfilesystemencoding())
+    except UnicodeEncodeError:
+        pytest.skip("кодировка ФС не представляет NFD-имя (C-локаль)")
     (kb / "docs" / "notes" / (word_nfd + ".md")).write_text("# Ё\n", encoding="utf-8")
     nfd = "docs/notes/" + word_nfd + ".md"
     nfc = "docs/notes/" + unicodedata.normalize("NFC", "ёмкость") + ".md"
@@ -259,7 +263,7 @@ def test_guard_mutation_probe_reopens_silent_clean(gm, tmp_path: Path, monkeypat
 def _run(kb: Path, *argv: str):
     return subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(kb), "lint", *argv],
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, encoding="utf-8", timeout=60,
     )
 
 
@@ -296,6 +300,10 @@ def test_cli_mixed_paths_exit2(kb: Path):
 
 def test_cli_control_chars_stripped_from_refusal(kb: Path):
     """invariant: argv is untrusted text; controls are replaced, never cut."""
+    try:
+        "строка".encode(sys.getfilesystemencoding())
+    except UnicodeEncodeError:
+        pytest.skip("C-локаль не кодирует кириллический argv — входная половина вне рамок")
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(kb), "lint",
          "docs/\x1b[2J\x7f\u009b\u202efake строка\nERR I9 подделка-nope"],
@@ -332,7 +340,7 @@ def test_cli_refusal_masks_secret_in_path(kb: Path):
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(kb), "lint",
          "docs/x?token=ghp_FAKETOKEN12345"],
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, encoding="utf-8", timeout=60,
     )
     assert r.returncode == 2
     assert "ghp_FAKETOKEN12345" not in r.stderr

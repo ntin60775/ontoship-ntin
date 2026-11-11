@@ -214,7 +214,7 @@ def test_lint_stdout_redacted(probe_kb):
     """spec: docs/plans/core-kb.md#готово-2 — I2/I4/I9 messages are redacted, format survives."""
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(probe_kb), "lint"],
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, encoding="utf-8", timeout=60,
     )
     assert r.returncode == 0, f"gitmark упал: {r.stderr[-500:]}"
     out = r.stdout + r.stderr
@@ -234,7 +234,7 @@ def test_gitignore_warning_redacted(tmp_path):
     (tmp_path / ".gitignore").write_text("!secret=FAKEkey456789.md\n", "utf-8")
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(tmp_path), "lint"],
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, encoding="utf-8", timeout=60,
     )
     assert r.returncode == 0, f"gitmark упал: {r.stderr[-500:]}"
     combined = r.stdout + r.stderr

@@ -129,7 +129,7 @@ def test_lint_never_emits_i7(gm, tmp_path: Path):
 def test_version_cli(gm):
     """spec: docs/plans/core-kb.md#готово-2 — version reports the package version."""
     r = subprocess.run([sys.executable, str(ENGINE), "version"],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0
     assert r.stdout.strip() == f"gitmark {gm.VERSION}"
 
@@ -187,7 +187,7 @@ def test_cli_clean_kb_lint_strict_exit0(tmp_path: Path):
     root = _clean_kb(tmp_path)
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(root), "lint", "--strict"],
-        capture_output=True, text=True, timeout=60)
+        capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stdout + r.stderr
     assert "чисто" in r.stdout
 
@@ -207,7 +207,7 @@ def test_demo_flow_red_green(gm, tmp_path: Path):
         "# Note\n\nThe platypus swims.\n", encoding="utf-8")
     r = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(root), "lint", "--strict"],
-        capture_output=True, text=True, timeout=60)
+        capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert r.returncode == 0, r.stdout + r.stderr
 
 
@@ -215,7 +215,7 @@ def test_stat_json_contract(gm, tmp_path: Path):
     """spec: docs/plans/core-kb.md#готово-2 — stat --json always emits valid JSON."""
     before = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(tmp_path), "stat", "--json"],
-        capture_output=True, text=True, timeout=60)
+        capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert before.returncode == 0
     # ядро (core-kb#готово-2) обещает валидный JSON всегда; поле scope добавлено
     # юнитом kb-scope (решение 17) и присутствует даже до первой сборки индекса
@@ -225,7 +225,7 @@ def test_stat_json_contract(gm, tmp_path: Path):
     gm.cmd_index(tmp_path)
     after = subprocess.run(
         [sys.executable, str(ENGINE), "--root", str(tmp_path), "stat", "--json"],
-        capture_output=True, text=True, timeout=60)
+        capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert after.returncode == 0
     data = json.loads(after.stdout)
     assert data["indexed"] is True and data["files"] == 3

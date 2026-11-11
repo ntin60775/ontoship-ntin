@@ -275,7 +275,7 @@ def _demo_repo(tmp_path: Path) -> Path:
 
 def _cli(root: Path) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(ENGINE), "--root", str(root),
-                           "lint", "--strict"], capture_output=True, text=True)
+                           "lint", "--strict"], capture_output=True, text=True, encoding="utf-8")
 
 
 def test_demo_doc_passes_then_i1_and_i4_fail_strict(gm, tmp_path: Path):
