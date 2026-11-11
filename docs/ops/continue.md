@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-10
+updated: 2026-11-11
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -304,14 +304,14 @@ worktree `ontoship-ntin-wt-dsh04` снесён): подраздел
 цифра набора 452 passed (2026-11-06), текущая — 489 passed
 (срез 03 юнита `kb-scope`; совпадение с цифрой эпохи
 `dsh-adaptation` `8d659cf` случайно). Маршруты ролей — стандартная
-раскладка (2026-11-10): ревьюеры и куратор —
+раскладка (2026-11-11): ревьюеры и куратор —
 `qwen-token-plan/qwen3.8-flash` с `xhigh`, критик —
-`qwen-token-plan-max/qwen3.8-max` с `medium` (поправка того же дня: живой
-каталог не отдаёт `qwen3.8-max` на `qwen-token-plan`, spawn возвращает
-`route … is not allowed for this Session`). Живой каталог уровней:
-`qwen-token-plan/qwen3.8-flash` — low/medium/xhigh,
-`qwen-token-plan-max/qwen3.8-max` — medium (default) и xhigh. Ту же раскладку
-поставляет `init` в свежем DSH-проекте, когда все маршруты живы.
+`qwen-token-plan-max/qwen4-max-preview` с `medium` (замена `qwen3.8-max`,
+ушедшей из каталога профиля). Уровни нового маршрута по конфигу профиля —
+`medium` и `xhigh`; живая сверка каталога и проба маршрута — в новой
+сессии: политика субагентов снимается при создании сессии, текущая
+хранит старый список `allowedModels`. Ту же раскладку поставляет `init`
+в свежем DSH-проекте, когда все маршруты живы.
 Артефакты проб: панель — тикет 01
 (`tickets/dsh-adaptation/01-review-panel-dsh.md`), init — тикет 02
 (`/tmp/dsh02-live-init-final`), онто-док — тикет 03
@@ -331,6 +331,24 @@ DSH-ветка генератор не зовёт), приписки в `review-
 глобальной установки нет. Красная проба — 4 failed / 484 passed, набор
 **488 passed**, `lint --strict` чист. **Юнит `dsh-adaptation` закрыт:**
 все пять тикетов приняты, открытой работы по юниту нет.
+
+**Вне тикетного потока, 2026-11-11 — стандартная раскладка: критик на
+`qwen4-max-preview` (решение оператора, ask).** Оператор добавил
+`qwen4-max-preview` в профиль DSH (`qwen-token-plan-max`, уровни `medium`
+и `xhigh`, она же дефолт сессии); `qwen3.8-max` из каталога ушла.
+Решением ask критик переведён на `qwen-token-plan-max/qwen4-max-preview`
+с `medium`; остальные пять ролей остаются на
+`qwen-token-plan/qwen3.8-flash` с `xhigh`. Правлены реестр
+`.agents/config.toml`, таблица стандарта `skills/init/SKILL.md`, пин
+`tests/test_skill_init.py` (красная проба до правки пина — 10 failed /
+9 passed в его наборе), приписка к решению 5 и «Ограничения» спеки
+`dsh-adaptation`. Тем же решением заменён пин `allowedModels` профиля
+(`~/.dsh/profiles/web/cordis.patch.yml`): политика субагентов снимается
+при создании сессии, поэтому живая проба нового маршрута и живая проба
+поставки `init` — названный пробел до новой сессии. Совпадение модели
+критика с сессионной допустимо и помечается в отчёте (рекомендация).
+Набор **489 passed**, `lint --strict` чист, `install.sh --check` —
+`check: ok`.
 
 **Вне тикетного потока, 2026-11-10 — стандартная раскладка ролей
 (решение оператора).** Раскладка шести ролей стала стандартной поставкой:
