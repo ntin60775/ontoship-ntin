@@ -44,6 +44,7 @@ REQUIRED_PHRASES = (
     "reviewer-<kontur>-<aspect>",
     "reference-pack/",
     "только stdlib",
+    "--pack",
 )
 FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
 OLD_CARRIERS = (
@@ -146,6 +147,15 @@ def _missing_phrases(text: str) -> list[str]:
     lowered = _normalized(text)
     return [phrase for phrase in REQUIRED_PHRASES
             if _normalized(phrase) not in lowered]
+
+
+def test_channel_gap_wording_is_gone() -> None:
+    """spec: docs/plans/standards-autoship.md#готово — канал --pack и
+    обнаружение init поставлены: оговорка пробела снята с носителей."""
+    for path in (SKILL, CONTRACT):
+        lowered = _normalized(path.read_text(encoding="utf-8"))
+        assert "ещё не поставлены" not in lowered, path
+        assert "пока канал не поставлен" not in lowered, path
 
 
 def test_skill_contract_can_fail() -> None:

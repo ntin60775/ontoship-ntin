@@ -2,15 +2,20 @@
 # OntoShip core — project-local install.
 #
 # usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
+#        scripts/install.sh [--dry-run] [--copy] --pack <source> <project>
 #
 # The target layout is <project>/.agents/skills/<name>/SKILL.md — the project-local
 # skill root shared by zcode, DSH and Qoder. The default install links the skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
-# form and names every missing or drifted skill. --dry-run prints the planned links
-# or copies and runs the same preflight checks without writing. Legacy harness roots
+# form, names every missing or drifted skill and validates installed standards
+# packs. --dry-run prints the planned links or copies and runs the same preflight
+# checks without writing. --pack <source> installs a standards pack into
+# <project>/.agents/packs/<name> after the pack contract validator passes; the
+# pack name comes from the manifest. Legacy harness roots
 # (.dsh, .zcode, .qoder) are reported as warnings
 # and never written or deleted. The install is idempotent and writes only under
-# <project>/.agents/skills. It links the skills; it does not run the init skill.
+# <project>/.agents (skills and packs). It links the skills; it does not run the
+# init skill.
 
 set -euo pipefail
 
@@ -24,6 +29,7 @@ readonly REPO=$(CDPATH= cd -- "$here/.." && pwd -P)
 usage() {
   cat <<'EOF'
 usage: scripts/install.sh [--dry-run] [--copy | --check] <project>
+       scripts/install.sh [--dry-run] [--copy] --pack <source> <project>
 
 Install the OntoShip core into <project>/.agents/skills, the project-local skill root
 shared by zcode, DSH and Qoder.
@@ -34,10 +40,17 @@ shared by zcode, DSH and Qoder.
   --dry-run  print the planned links (or copies with --copy) and run the same
              preflight checks without writing; cannot be combined with --check
   --copy     copy the skill directories instead (detached install)
-  --check    verify the install; warn about legacy .dsh/.zcode/.qoder entries;
-             exit 1 and name each missing or drifted skill
+  --check    verify the install and validate installed packs; warn about legacy
+             .dsh/.zcode/.qoder entries; exit 1 and name each missing or drifted
+             skill and each invalid pack
+  --pack <source>
+             install a standards pack into <project>/.agents/packs/<name>; the
+             source must pass the pack contract validator, the name comes from
+             the manifest; link/copy follows the mode; cannot be combined with
+             --check
 
-Idempotent; writes only <project>/.agents/skills; never runs the init skill.
+Idempotent; writes only under <project>/.agents (skills and packs); never runs
+the init skill.
 EOF
 }
 
@@ -55,12 +68,18 @@ usage_error() {
 mode=link
 dry_run=0
 project=
+pack_source=
 while (($# > 0)); do
   arg=$1
   shift
   case $arg in
     --dry-run)
       dry_run=1
+      ;;
+    --pack)
+      (($# >= 1)) || usage_error "--pack expects a <source> directory"
+      pack_source=$1
+      shift
       ;;
     --copy | --check)
       if [[ $mode != "link" && $mode != "${arg#--}" ]]; then
@@ -92,8 +111,30 @@ done
 if ((dry_run)); then
   [[ $mode != "check" ]] || usage_error "--dry-run and --check are mutually exclusive"
 fi
+if [[ -n $pack_source && $mode == "check" ]]; then
+  usage_error "--pack and --check are mutually exclusive"
+fi
 project=$(CDPATH= cd -- "$project" && pwd -P)
 readonly dest=$project/.agents/skills
+readonly packs_dest=$project/.agents/packs
+readonly pack_validator=$REPO/skills/pack/validate_pack.py
+
+# The pack channel validates the source before any write: a refused pack
+# installs nothing. The name comes from the validated manifest, not the
+# source directory name.
+pack_name=
+if [[ -n $pack_source ]]; then
+  command -v python3 >/dev/null 2>&1 || die "required tool not found: python3"
+  [[ -f $pack_validator ]] || die "pack validator missing: $pack_validator"
+  [[ -d $pack_source ]] || usage_error "not a pack directory: $pack_source"
+  pack_source=$(CDPATH= cd -- "$pack_source" && pwd -P)
+  if ! python3 "$pack_validator" "$pack_source" >/dev/null; then
+    die "pack refused by contract: $pack_source"
+  fi
+  pack_name=$(python3 -c \
+    'import json, sys; print(json.loads(open(sys.argv[1], encoding="utf-8").read())["name"])' \
+    "$pack_source/manifest.json")
+fi
 
 for tool in cp diff find ln mkdir readlink rm; do
   command -v "$tool" >/dev/null 2>&1 || die "required tool not found: $tool"
@@ -163,7 +204,7 @@ legacy_warnings() {
 }
 
 check() {
-  local drift=0 name path
+  local drift=0 pack_drift=0 name path entry reason
   legacy_warnings
   for name in "${SKILLS[@]}"; do
     path=$dest/$name
@@ -176,8 +217,34 @@ check() {
       drift=$((drift + 1))
     fi
   done
+  # Installed packs are validated by the contract, not compared to a source:
+  # a detached pack outlives its source repository. No packs dir — no packs.
+  if [[ -d $packs_dest ]]; then
+    command -v python3 >/dev/null 2>&1 || die "required tool not found: python3"
+    [[ -f $pack_validator ]] || die "pack validator missing: $pack_validator"
+    for entry in "$packs_dest"/*; do
+      [[ -e $entry || -L $entry ]] || continue
+      name=$(basename -- "$entry")
+      if [[ ! -d $entry ]]; then
+        printf 'drift: pack %s: not a directory\n' "$name" >&2
+        pack_drift=$((pack_drift + 1))
+        continue
+      fi
+      if reason=$(python3 "$pack_validator" "$entry" 2>&1 >/dev/null); then
+        printf 'ok pack %s\n' "$name"
+      else
+        printf 'drift: pack %s: %s\n' "$name" "${reason#pack: }" >&2
+        pack_drift=$((pack_drift + 1))
+      fi
+    done
+  fi
   if ((drift > 0)); then
     printf 'check: %d skill(s) drifted\n' "$drift" >&2
+  fi
+  if ((pack_drift > 0)); then
+    printf 'check: %d pack(s) drifted\n' "$pack_drift" >&2
+  fi
+  if ((drift > 0 || pack_drift > 0)); then
     return 1
   fi
   printf 'check: ok\n'
@@ -276,26 +343,112 @@ plan_copies() {
   done
 }
 
+# Pack channel: one validated pack per run, link or copy by mode. The
+# preflight refuses the whole run rather than half-install or destroy a
+# detached copy — the same contour as the core channel.
+preflight_pack() {
+  local parent=$project/.agents target=$packs_dest/$pack_name
+  if [[ ( -e $parent || -L $parent ) && ! -d $parent ]]; then
+    die "refusing to replace a non-directory: $parent"
+  fi
+  if [[ ( -e $packs_dest || -L $packs_dest ) && ! -d $packs_dest ]]; then
+    die "refusing to replace a non-directory: $packs_dest"
+  fi
+  if [[ $mode == copy ]]; then
+    if [[ -L $target || ! -e $target ]]; then
+      return 0
+    fi
+    [[ -d $target ]] || die "refusing to replace a non-directory: $target"
+    is_copy_of "$target" "$pack_source" ||
+      die "copy differs: $target (remove it to reinstall)"
+  else
+    if [[ -e $target && ! -L $target ]]; then
+      die "refusing to replace a non-symlink: $target (remove it, or use --copy/--check)"
+    fi
+  fi
+}
+
+install_pack_link() {
+  local target=$packs_dest/$pack_name
+  if is_link_to "$target" "$pack_source"; then
+    printf 'unchanged pack %s\n' "$pack_name"
+    return 0
+  fi
+  if [[ -L $target ]]; then
+    rm -f -- "$target"
+  fi
+  ln -s -- "$pack_source" "$target"
+  printf 'linked pack %s -> %s\n' "$pack_name" "$pack_source"
+}
+
+install_pack_copy() {
+  local target=$packs_dest/$pack_name
+  if is_copy_of "$target" "$pack_source"; then
+    printf 'unchanged pack %s\n' "$pack_name"
+    return 0
+  fi
+  if [[ -L $target ]]; then
+    rm -f -- "$target"
+  fi
+  cp -a -- "$pack_source" "$target"
+  find "$target" -type d -name __pycache__ -prune -exec rm -rf -- {} +
+  find "$target" -type f -name '*.pyc' -delete
+  printf 'copied pack %s -> %s\n' "$pack_name" "$target"
+}
+
+# Mirror the pack install without touching the disk; the wording never
+# claims a write.
+plan_pack() {
+  local target=$packs_dest/$pack_name
+  [[ -d $packs_dest ]] || printf 'would create %s\n' "$packs_dest"
+  if [[ $mode == copy ]]; then
+    if is_copy_of "$target" "$pack_source"; then
+      printf 'would leave pack %s unchanged\n' "$pack_name"
+    else
+      printf 'would copy pack %s -> %s\n' "$pack_name" "$target"
+    fi
+  else
+    if is_link_to "$target" "$pack_source"; then
+      printf 'would leave pack %s unchanged\n' "$pack_name"
+    else
+      printf 'would link pack %s -> %s\n' "$pack_name" "$pack_source"
+    fi
+  fi
+}
+
 case $mode in
   check)
     check
     ;;
-  link)
-    preflight_install
-    if ((dry_run)); then
-      plan_links
+  link | copy)
+    if [[ -n $pack_source ]]; then
+      preflight_pack
+      if ((dry_run)); then
+        plan_pack
+      else
+        mkdir -p -- "$packs_dest"
+        if [[ $mode == copy ]]; then
+          install_pack_copy
+        else
+          install_pack_link
+        fi
+      fi
     else
-      mkdir -p -- "$dest"
-      install_links
-    fi
-    ;;
-  copy)
-    preflight_install
-    if ((dry_run)); then
-      plan_copies
-    else
-      mkdir -p -- "$dest"
-      install_copies
+      preflight_install
+      if ((dry_run)); then
+        if [[ $mode == copy ]]; then
+          plan_copies
+        else
+          plan_links
+        fi
+      else
+        mkdir -p -- "$dest"
+        if [[ $mode == copy ]]; then
+          install_copies
+        else
+          install_links
+        fi
+      fi
     fi
     ;;
 esac

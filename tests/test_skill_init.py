@@ -957,3 +957,55 @@ def test_repo_managed_block_matches_the_init_block():
     inner = match.group(1)
     expected = BLOCK.replace(f"{BEGIN}\n", "").replace(f"\n{END}", "")
     assert inner.strip("\n") == expected.strip("\n")
+
+
+PACK_DISCOVERY_NEEDLES = (
+    ".agents/packs/",
+    "validate_pack.py",
+    "reviewer-<kontur>-<aspect>",
+    "невалидный манифест",
+    "бутстрап-вопросом",
+    "Конфиг существует",
+    "Конфига нет",
+    "канон > стандарты проекта > пак команды > пак стека > базовый документ",
+)
+
+
+def _pack_discovery_missing(text: str) -> list[str]:
+    layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
+    if not layout:
+        return ["bootstrap section missing"]
+    marker = "**Паки стандартов.**"
+    if marker not in layout:
+        return ["pack block missing"]
+    block = layout.split(marker, 1)[1]
+    flat = re.sub(r"\s+", " ", block)
+    return [needle for needle in PACK_DISCOVERY_NEEDLES if needle not in flat]
+
+
+def test_bootstrap_discovers_and_registers_packs():
+    """spec: docs/plans/standards-autoship.md#готово — init обнаруживает
+    .agents/packs/, валидирует манифесты валидатором бандла pack, называет
+    пропуски; роли паков регистрируются бутстрап-вопросом, существующий
+    конфиг не трогается; приоритет норм назван."""
+    text = SKILL.read_text("utf-8")
+    assert _pack_discovery_missing(text) == []
+    assert "Для паков назови итог" in text
+
+
+def test_pack_discovery_contract_can_fail():
+    """spec: docs/plans/standards-autoship.md#готово — контракт обнаружения
+    паков умеет падать: потеря каждого носителя краснит проверку. Мутация
+    живёт внутри блока паков: «Конфиг существует»/«Конфига нет» есть и в
+    бутстрапе ядра, их удаление там не снимает блок паков."""
+    text = SKILL.read_text("utf-8")
+    assert _pack_discovery_missing(text) == []
+    marker = "**Паки стандартов.**"
+    head, block = text.split(marker, 1)
+    for needle in PACK_DISCOVERY_NEEDLES:
+        pattern = re.escape(needle).replace("\\ ", r"\s+")
+        mutated_block = re.sub(pattern, "", block, count=1, flags=re.IGNORECASE)
+        assert mutated_block != block, \
+            f"the mutation must change the text: {needle!r}"
+        mutated = head + marker + mutated_block
+        assert needle in _pack_discovery_missing(mutated), needle
