@@ -125,9 +125,10 @@ consumer-дереве (форк DSH) с тремя префиксами: `snapsh
 ## Доказательства
 
 Срез — worktree `ontoship-ntin-wt-kbs04`, ветка `kbs04-carriers` от базы
-`2d39f21`. Хост-инструмент `create_worktree` упал (нет `node` в PATH его
-подпроцесса) — worktree создан запасным путём `git worktree` по правилу
-скилла ship.
+`2d39f21`; merge ff в main = `5fbcf04` (срез `666be6e`, доказательства
+`ca056f3`, правки панели `5fbcf04`). Хост-инструмент `create_worktree`
+упал (нет `node` в PATH его подпроцесса) — worktree создан запасным путём
+`git worktree` по правилу скилла ship.
 
 ### Догфуд: замеры на базе и на срезе
 
@@ -270,6 +271,12 @@ strict exit=0
 119 WARN` до фикса. После merge — восстановить линки полигона на main
 checkout тем же установщиком и внести запись в runbook: снос worktree без
 восстановления оставил бы полигон с висячими линками движка.
+
+Линки восстановлены после merge (ff = `5fbcf04`): `bash scripts/install.sh
+<полигон>` из main checkout — девять `linked`, `--check` — `check: ok`;
+контрольный `lint --strict` из полигона — `scope: 836 файлов исключено по
+3 префиксам`, `✓ чисто (1509 файлов · —)`, exit 0. Worktree
+`ontoship-ntin-wt-kbs04` и ветка `kbs04-carriers` снесены.
 
 ### KB сопровождён
 
