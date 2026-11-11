@@ -31,7 +31,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack")
 
 # Method-section files shipped inside the bundles (bundle-references 01);
 # listed from disk, so a new references/ file joins this check by itself.
