@@ -34,7 +34,8 @@ grilling-раундов: дефект измерен, правка назван�
 
 **Демо-путь:** дерево — этот репозиторий (кириллица в выводимых строках,
 `gitmark.scope.json` в корне, краш на строке `scope:`); тестовый кейс —
-фикстура `make_git_repo` с кириллическим каталогом.
+фикстура `make_git_repo` с кириллицей в содержимом и заголовках (пути
+ASCII: кодировка ФС в C-локали не создаёт кириллических имён).
 
 ```console
 $ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.py --root <дерево> lint
@@ -47,17 +48,17 @@ $ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.p
 
 **Критерии приёмки**:
 
-- [ ] краш воспроизведён и снят — артефакт: `tests/` (новый кейс, запускающий
+- [x] краш воспроизведён и снят — артефакт: `tests/` (новый кейс, запускающий
       CLI subprocess с `env` `LC_ALL=C`, `PYTHONUTF8=0`,
       `PYTHONCOERCECLOCALE=0`) и скопированный вывод демо-пути до и после;
       ожидание: на базе прогона — `Traceback` в stderr и stdout в 1 байт
       `\n`, на срезе — читаемый вывод и корректный exit-код; кейс красен на
       базовом коммите тикета
-- [ ] правка в одном месте — артефакт: `git diff`; ожидание: настройка
+- [x] правка в одном месте — артефакт: `git diff`; ожидание: настройка
       кодировки потоков вывода в `main` (или в единственной точке печати),
       а не `errors="replace"` в тридцати `print`; ветка недоступна
       (поток переопределён тестом) — поведение не меняется
-- [ ] набор цел и не зависит от локали — артефакт: два вывода pytest, обычный
+- [x] набор цел и не зависит от локали — артефакт: два вывода pytest, обычный
       прогон и прогон с `LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0`;
       ожидание: 0 failed в обоих прогонах; именованные скипы по кодировке ФС
       допустимы и называются в доказательстве. Базовый замер на коммите
@@ -66,13 +67,13 @@ $ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.p
       test_lint_paths 9, test_redact 2, test_scope 11, test_skill_kb_curate 1);
       цифры «2 и 10» первой редакции унаследованы от замера kb-scope/03 на
       его базе и сняты этим перезамером
-- [ ] контракт отказа не подменён — артефакт: `lint` на несуществующем пути
+- [x] контракт отказа не подменён — артефакт: `lint` на несуществующем пути
       и битый `gitmark.scope.json` в C-локали; ожидание: `gitmark: …` в
       stderr, exit 2, пустой stdout, текст сообщения сохранён (после правки —
       читаемая кириллица в UTF-8, не эскейпы и не каша из `?`); на базе
       контракт уже зелёный (stderr — `backslashreplace`) — это страж
       контракта, не красный кейс (контракт отказа юнита `kb-scope` не подменён)
-- [ ] онтология и тексты инвариантов не правятся — артефакт: `git diff` по
+- [x] онтология и тексты инвариантов не правятся — артефакт: `git diff` по
       `docs/ontology.md` и `skills/kb-curate/ontology.md`; ожидание: изменений
       нет (дефект транспортный, не онтологический)
 
@@ -99,3 +100,104 @@ P3 — бюджет длины, критерий 4 как страж контр�
 до механического `encoding="utf-8"`, критерий 3 переформулирован «0 failed;
 именованные скипы по кодировке ФС допустимы», перезамер и измеренная
 поверхность, все пять P3). Открытых зацепок критика нет.
+
+## Доказательства
+
+Срез — worktree `ontoship-ntin-wt-cu01`, ветка `cu01-utf8` от базы
+`9220f93`. Правка движка — одна точка: `_utf8_output` (reconfigure
+stdout/stderr в UTF-8 с guard `hasattr(stream, "reconfigure")`) и её вызов
+первой строкой `main`; `git diff --stat` по движку — `12 insertions(+)`,
+1434 → 1446 строк, бюджет 16 строк соблюдён (планка «≤ ~1450», тест длины
+зелёный). Форма вывода выбрана UTF-8, не транслит.
+
+### Демо-путь: до и после
+
+База `9220f93`, проектное дерево, C-локаль:
+
+```console
+$ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.py lint
+exit=1
+stdout bytes: 1        # байт `\n` от print() до краша
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 10-15: ordinal not in range(128)
+```
+
+Срез, та же команда:
+
+```console
+$ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.py lint
+scope: 60 файлов исключено по 1 префиксам
+✓ чисто  (48 файлов · —)
+lint exit=0
+$ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.py lint --strict
+strict exit=0
+$ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 skills/kb-search/gitmark.py lint docs/nope.md
+gitmark: путь не найден: docs/nope.md
+refusal exit=2
+```
+
+### Набор: два прогона
+
+```console
+$ python3 -m pytest tests/ -q
+512 passed in 5.63s        # 505 базы + 7 новых (tests/test_cli_utf8.py)
+$ LC_ALL=C PYTHONUTF8=0 PYTHONCOERCECLOCALE=0 python3 -m pytest tests/ -q
+509 passed, 3 skipped in 5.42s
+```
+
+0 failed в обоих прогонах. Именованные скипы C-локали (3):
+
+- `tests/test_scope.py::test_i10_chain_normalizes_forms_once` — «кодировка
+  ФС не представляет NFD-имя (C-локаль)»;
+- `tests/test_lint_paths.py::test_unicode_forms_are_byte_exact` — та же
+  причина (NFD-имя фикстуры);
+- `tests/test_lint_paths.py::test_cli_control_chars_stripped_from_refusal` —
+  «C-локаль не кодирует кириллический argv — входная половина вне рамок».
+
+Базовый замер C-локали (до правки, на `d4ca55f`): 26 failed / 479 passed —
+в тикете выше; после правки движка и хелперов — 0 failed.
+
+### Красная проба на базе
+
+Отдельный worktree `ontoship-ntin-wt-cu01-red` на `9220f93`, новый файл
+`tests/test_cli_utf8.py` скопирован поверх базы:
+
+```console
+$ python3 -m pytest tests/test_cli_utf8.py -q
+7 failed in 0.46s
+```
+
+Красны все 7: пять target-кейсов — краш/эскейпы вместо вывода, два
+guard-кейса — `_utf8_output` на базе отсутствует. Красный worktree снесён.
+
+### Правка в одном месте и онтология
+
+```console
+$ git diff --stat -- skills/kb-search/gitmark.py
+ skills/kb-search/gitmark.py | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+$ git diff --stat -- docs/ontology.md skills/kb-curate/ontology.md
+(пусто)
+$ wc -l skills/kb-search/gitmark.py
+1446 skills/kb-search/gitmark.py
+```
+
+Хелперы набора: механический `encoding="utf-8"` в 11 местах пяти файлов
+(`test_engine.py` — 5, `test_lint_paths.py` — 2, `test_redact.py` — 2,
+`test_install.py` — 1, `test_skill_kb_curate.py` — 1); логика и структура
+хелперов не менялись. Тесты, пинившие эскейпы эпохи краша, окрепли после
+правки декодирования (байтовые ассерты кириллицы в stderr отказов).
+
+### Разбор расхождений
+
+- **Фикстура «с кириллическим каталогом» невозможна в C-локали.** Кодировка
+  ФС (ascii) не создаёт кириллических имён — та же природа, что NFD-скип.
+  Фикстура несёт кириллицу в содержимом и заголовках, пути ASCII; краш
+  воспроизводится строками вывода (`scope:`, `✓ чисто`), не путями.
+  Формулировка демо-пути поправлена тем же срезом.
+- **Поисковый запрос обязан быть ASCII.** Кириллический argv в C-локали —
+  входная половина (вне рамок): запрос кейса — маркер `ZEBRA` в содержимом
+  фикстуры, кириллица проверяется в заголовке выдачи («Заметка»).
+- **Трассировка target-маркеров.** Страж `test_traceability.py` отвергает
+  пути `tickets/` в маркерах любого класса (эфемерный трекер): маркеры
+  называют инцидент без пути, путь источника — в прозе докстринга.
+- **Иных расхождений ожидание/факт не было.**
