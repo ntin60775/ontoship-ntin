@@ -48,11 +48,15 @@ ENGINE_CAP_RE = re.compile(r"≤ ~(\d+) строк")
 def _engine_cap() -> int:
     """The measured cap from its carrier: core-kb.md «Готово» 4.
 
-    Independent source: the number is read from the durable plan, never
-    recomputed from the engine file itself.
+    Independent source: the number is read from item 4 of the durable plan
+    (not the first `≤ ~N строк` anywhere in the file), never recomputed from
+    the engine file itself.
     """
     text = (REPO / "docs" / "plans" / "core-kb.md").read_text("utf-8")
-    match = ENGINE_CAP_RE.search(text)
+    section = text.split("## Готово", 1)[1].split("\n## ", 1)[0]
+    item = re.search(r"^4\. .*?(?=^\d+\. |\Z)", section, re.MULTILINE | re.DOTALL)
+    assert item, "core-kb.md «Готово» has no item 4"
+    match = ENGINE_CAP_RE.search(item.group(0))
     assert match, "core-kb.md «Готово» 4 does not name the engine length cap"
     return int(match.group(1))
 

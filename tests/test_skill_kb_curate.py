@@ -154,7 +154,7 @@ def _scope_link_errors(text: str, carrier: str) -> list[str]:
         errors.append("scope: kb-curate does not name the carrier section")
     if f"## {SCOPE_SECTION}" not in carrier:
         errors.append("scope: the named section is missing from the carrier")
-    if "exclude_prefixes" in text:
+    if "exclude_prefixes" in flat:
         errors.append("scope: kb-curate retells the format rule (carrier only)")
     return errors
 
