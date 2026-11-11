@@ -4,12 +4,13 @@ target: C-locale CLI crash — UnicodeEncodeError, one-byte stdout, the honest
 exit code replaced by the crash code. Incident source: the «Разбор
 расхождений ожидание/факт» section of kb-scope ticket 03
 (tickets/kb-scope/03-scope-over-global-checks.md), measured 2026-11-10.
-The fix is one point, `_utf8_output` in `main`; these tests run the CLI as
-a subprocess with the C-locale env and decode its output as UTF-8.
+The fix is one point, `_force_utf8_output` in `main`; these tests run the
+CLI as a subprocess with the C-locale env and decode its output as UTF-8.
 
 The input half of the C locale (argv surrogates) stays out of the unit:
 queries and fixture paths are ASCII, Cyrillic lives in file content and in
-the engine's output strings.
+the engine's output strings. The refusal contract on undecodable argv is
+guarded separately — it is output behavior, not input handling.
 """
 from __future__ import annotations
 
@@ -18,6 +19,8 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 from conftest import ENGINE, make_git_repo
 
@@ -40,11 +43,14 @@ def _kb(tmp_path: Path) -> Path:
     })
 
 
-def _run(root: Path, *argv: str):
-    env = {**os.environ, **C_LOCALE}
+def _run(root: Path, *argv: str, locale: dict | None = None):
+    # PYTHONIOENCODING is dropped: it would force the stream encoding
+    # independently of the locale and green the targets even on the base.
+    env = {**os.environ, **(C_LOCALE if locale is None else locale)}
+    env.pop("PYTHONIOENCODING", None)
     return subprocess.run([sys.executable, str(ENGINE), "--root", str(root), *argv],
                           capture_output=True, text=True, encoding="utf-8",
-                          env=env, timeout=120)
+                          env=env, timeout=60)
 
 
 def test_lint_clean_kb_prints_utf8_and_exits_zero(tmp_path: Path):
@@ -77,26 +83,54 @@ def test_lint_dirty_kb_honest_exit_in_c_locale(tmp_path: Path):
     note.write_text(note.read_text("utf-8").replace("(README.md)", "(missing.md)"),
                     encoding="utf-8")
     r = _run(root, "lint", "--strict")
-    assert r.returncode == 1
-    assert "I4" in r.stdout
+    assert r.returncode == 1, r.stderr[-500:]
+    assert "I4" in r.stdout, r.stdout[-500:]
     assert "Traceback" not in r.stderr
 
 
-def test_index_stat_search_survive_c_locale(tmp_path: Path):
-    """target: C-locale CLI crash (kb-scope/03) — index (✓), human stat (·)
-    and search (Cyrillic heading) print in the C locale; stat --json is
-    ASCII-only and never crashed."""
+def test_index_prints_in_c_locale(tmp_path: Path):
+    """target: C-locale CLI crash (kb-scope/03) — index prints its ✓ line."""
+    r = _run(_kb(tmp_path), "index")
+    assert r.returncode == 0, r.stderr[-500:]
+    assert "✓ index" in r.stdout
+
+
+def test_human_stat_prints_in_c_locale(tmp_path: Path):
+    """target: C-locale CLI crash (kb-scope/03) — human stat prints the · line."""
     root = _kb(tmp_path)
-    idx = _run(root, "index")
-    assert idx.returncode == 0, idx.stderr[-500:]
-    assert "✓ index" in idx.stdout
-    st = _run(root, "stat")
-    assert st.returncode == 0 and "GitMark ·" in st.stdout
-    sj = _run(root, "stat", "--json")
-    assert sj.returncode == 0 and json.loads(sj.stdout)["files"] == 3
-    sr = _run(root, "search", "ZEBRA")
-    assert sr.returncode == 0 and "docs/reference/note.md" in sr.stdout
-    assert "Заметка" in sr.stdout
+    assert _run(root, "index").returncode == 0
+    r = _run(root, "stat")
+    assert r.returncode == 0, r.stderr[-500:]
+    assert "GitMark ·" in r.stdout
+
+
+def test_stat_json_stays_ascii_in_c_locale(tmp_path: Path):
+    """target: C-locale CLI crash (kb-scope/03) — stat --json is ASCII-only
+    and never crashed; the guard keeps it valid JSON."""
+    root = _kb(tmp_path)
+    assert _run(root, "index").returncode == 0
+    r = _run(root, "stat", "--json")
+    assert r.returncode == 0, r.stderr[-500:]
+    assert json.loads(r.stdout)["files"] == 3
+
+
+def test_search_prints_cyrillic_heading_in_c_locale(tmp_path: Path):
+    """target: C-locale CLI crash (kb-scope/03) — search prints the Cyrillic
+    heading; the query is ASCII (argv input half stays out of the unit)."""
+    root = _kb(tmp_path)
+    assert _run(root, "index").returncode == 0
+    r = _run(root, "search", "ZEBRA")
+    assert r.returncode == 0, r.stderr[-500:]
+    assert "docs/reference/note.md" in r.stdout
+    assert "Заметка" in r.stdout
+
+
+def test_help_prints_in_c_locale(tmp_path: Path):
+    """target: C-locale CLI crash (kb-scope/03) — argparse usage carries
+    Cyrillic descriptions and prints before any command dispatch."""
+    r = _run(tmp_path, "--help")
+    assert r.returncode == 0, r.stderr[-500:]
+    assert "корень репо" in r.stdout
 
 
 def test_refusal_contract_readable_in_c_locale(tmp_path: Path):
@@ -113,25 +147,52 @@ def test_refusal_contract_readable_in_c_locale(tmp_path: Path):
     assert "gitmark.scope.json: не JSON" in r2.stderr
 
 
-def test_utf8_output_leaves_foreign_stream_alone(monkeypatch, gm):
+@pytest.mark.parametrize("locale", [C_LOCALE, {}], ids=["c-locale", "utf8-locale"])
+def test_refusal_survives_undecodable_argv(tmp_path: Path, locale: dict):
+    """target: cu01 review panel — reconfigure without errors= reset stderr
+    to strict and crashed the refusal on an argv surrogate (regression
+    against base 9220f93, which exits 2 in both locales)."""
+    root = _kb(tmp_path)
+    r = _run(root, "lint", "docs/\udcffnope.md", locale=locale)
+    assert r.returncode == 2, r.stderr[-500:]
+    assert r.stdout == ""
+    assert "gitmark:" in r.stderr
+    assert "Traceback" not in r.stderr
+
+
+def test_force_utf8_output_sets_encoding_and_errors(monkeypatch, gm):
+    """invariant: the guard reconfigures both streams with UTF-8 and
+    backslashreplace — the refusal contract on argv surrogates depends on it."""
+    class Recording:
+        def __init__(self):
+            self.calls = []
+
+        def reconfigure(self, **kw):
+            self.calls.append(kw)
+
+    out, err = Recording(), Recording()
+    monkeypatch.setattr(gm.sys, "stdout", out)
+    monkeypatch.setattr(gm.sys, "stderr", err)
+    gm._force_utf8_output()
+    want = {"encoding": "utf-8", "errors": "backslashreplace"}
+    assert out.calls == [want]
+    assert err.calls == [want]
+
+
+def test_force_utf8_output_leaves_foreign_stream_alone(monkeypatch, gm):
     """invariant: a test-overridden stream without reconfigure stays untouched
     — the ticket's «ветка недоступна — поведение не меняется»."""
     class Foreign:
-        def __init__(self):
-            self.written = []
-
-        def write(self, s):
-            self.written.append(s)
+        pass
 
     out, err = Foreign(), Foreign()
     monkeypatch.setattr(gm.sys, "stdout", out)
     monkeypatch.setattr(gm.sys, "stderr", err)
-    gm._utf8_output()
-    assert out.written == [] and err.written == []
+    gm._force_utf8_output()
 
 
-def test_utf8_output_under_capsys(gm, capsys):
+def test_force_utf8_output_under_capsys(gm, capsys):
     """invariant: the pytest capture stream survives the guard and prints."""
-    gm._utf8_output()
+    gm._force_utf8_output()
     print("✓ чисто")
     assert "✓ чисто" in capsys.readouterr().out

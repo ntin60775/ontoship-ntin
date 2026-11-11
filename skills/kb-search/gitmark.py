@@ -1182,15 +1182,17 @@ def cmd_map(root: Path, out: Path) -> dict:
 
 
 # ─────────────────────────── CLI ───────────────────────────
-def _utf8_output() -> None:
-    """Вывод CLI — UTF-8 независимо от локали: кириллица и `✓` роняли `print`
-    в C-локали без PYTHONUTF8 (UnicodeEncodeError, exit-код подменён кодом
-    падения). Поток, переопределённый тестом (capsys), не несёт `reconfigure`
-    или уже UTF-8 — поведение не меняется.
+def _force_utf8_output() -> None:
+    """Вывод CLI — UTF-8 независимо от локали и PYTHONIOENCODING (осознанное
+    решение юнита cli-utf8): кириллица и `✓` роняли `print` в C-локали без
+    PYTHONUTF8 (UnicodeEncodeError, exit-код подменён кодом падения).
+    `errors="backslashreplace"` на обоих потоках сохраняет контракт отказа:
+    неэнкодимые символы (суррогаты argv) печатаются эскейпами, а не крашем.
+    Поток без `reconfigure` (переопределён тестом) не трогается.
     """
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
-            stream.reconfigure(encoding="utf-8")
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
 
 
 def _usage_refusal(e: Exception) -> None:
@@ -1207,7 +1209,7 @@ def _usage_refusal(e: Exception) -> None:
 
 
 def main(argv=None):
-    _utf8_output()
+    _force_utf8_output()
     ap = argparse.ArgumentParser(prog="gitmark", description="GitMark Memory Bank — md+git knowledge base CLI")
     ap.add_argument("--root", default=None, help="корень репо (по умолчанию — авто по .git)")
     sub = ap.add_subparsers(dest="cmd", required=True)
