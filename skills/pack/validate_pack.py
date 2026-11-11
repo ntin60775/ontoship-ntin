@@ -34,6 +34,18 @@ ROLE_KEYS = {"name", "checklist"}
 GATE_KEYS = {"name", "command", "expect_exit"}
 TYPES = ("team", "stack")
 
+# Untrusted text at the output boundary: control, C1 and bidi/format
+# characters become a visible marker — a replacement, not a deletion, so a
+# path is not glued into a different one (the gitmark idiom). Shared with
+# the gate runner of this bundle (run_gates.py).
+REDACT_RE = re.compile(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]")
+
+
+def redact(text: str) -> str:
+    """Недоверенный текст на границе вывода: видимый маркер вместо
+    управляющих, C1 и bidi/формат-символов."""
+    return REDACT_RE.sub("·", text)
+
 
 class PackError(ValueError):
     """Нарушение контракта пака: именованный отказ, exit 2."""
@@ -108,6 +120,13 @@ def validate(pack: Path) -> tuple[str, str, str]:
         _fail(f"манифест: не JSON ({e})")
     except OSError as e:
         _fail(f"манифест: не читается ({e})")
+    return check_manifest(pack, manifest)
+
+
+def check_manifest(pack: Path, manifest: object) -> tuple[str, str, str]:
+    """Схема уже разобранного манифеста: общий носитель проверки для
+    валидатора и исполнителя гейтов (run_gates.py читает манифест один
+    раз). Нарушение — PackError с причиной."""
     _require(isinstance(manifest, dict), "манифест: ожидается JSON-объект")
     _require(set(manifest) <= MANIFEST_KEYS,
              f"манифест: неизвестные ключи {_keys_repr(set(manifest) - MANIFEST_KEYS)}")
@@ -139,12 +158,13 @@ def validate(pack: Path) -> tuple[str, str, str]:
     return name, pack_type, version
 
 
-def _force_utf8_output() -> None:
+def force_utf8_output() -> None:
     """Вывод CLI — UTF-8 независимо от локали и PYTHONIOENCODING (идиома
     юнита cli-utf8): кириллица и `✓` роняли `print` в C-локали без
     PYTHONUTF8. `errors="backslashreplace"` на обоих потоках сохраняет
     контракт отказа: неэнкодимые символы печатаются эскейпами, а не
     крашем. Поток без `reconfigure` (переопределён тестом) не трогается.
+    Общий носитель идиомы для валидатора и исполнителя гейтов бандла.
     """
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -152,7 +172,7 @@ def _force_utf8_output() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    _force_utf8_output()
+    force_utf8_output()
     parser = argparse.ArgumentParser(
         prog="validate_pack",
         description="Валидатор пака стандартов по контракту API v1.")
@@ -169,11 +189,8 @@ def main(argv: list[str] | None = None) -> int:
         name, pack_type, version = validate(pack)
     except PackError as e:
         # Текст недоверен (содержимое манифеста): управляющие, C1 и
-        # bidi/формат-символы заменяются видимым маркером — замена, а не
-        # вырезание, чтобы не склеить путь в другой (идиома gitmark).
-        msg = re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]",
-                     "·", str(e))
-        print(f"pack: {msg}", file=sys.stderr)
+        # bidi/формат-символы заменяются видимым маркером (redact).
+        print(f"pack: {redact(str(e))}", file=sys.stderr)
         return 2
     print(f"✓ пак {name} ({pack_type}, {version}) валиден")
     return 0

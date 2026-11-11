@@ -12,6 +12,11 @@ exit 2, stdout пустой), как у валидатора. Паков нет 
 exit 0. Вывод в UTF-8 независимо от локали; недоверенный текст (имена
 гейтов, вывод команд) редактируется на границе вывода.
 
+Манифесты всех паков валидируются до исполнения гейтов: отказ не
+смешивается с выводом гейтов и не оставляет побочных эффектов исполненных
+команд (контракт «stdout пустой» держится и на нескольких паках).
+Идиома UTF-8 и redact — общие носители валидатора бандла.
+
 Трассировка ниже адресует документы репозитория метода ontoship-ntin;
 в проект-потребитель они не ставятся — адреса живут в репозитории
 метода (провенанс назван явно, комментарий не врёт).
@@ -27,42 +32,34 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import subprocess
 import sys
 from pathlib import Path
 
-from validate_pack import PackError, validate
+from validate_pack import PackError, check_manifest, force_utf8_output, redact
 
 # Named threshold: a gate longer than this is red with a named reason,
 # not a hung pass. The contract names the value (pack-contract.md).
 TIMEOUT_S = 600
 
-# Untrusted text at the output boundary: control, C1 and bidi/format
-# characters become a visible marker (the pack validator idiom).
-REDACT_RE = re.compile(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u2028-\u202e]")
 
-
-def _redact(text: str) -> str:
-    return REDACT_RE.sub("·", text)
-
-
-def _force_utf8_output() -> None:
-    """Вывод CLI — UTF-8 независимо от локали и PYTHONIOENCODING (идиома
-    юнита cli-utf8): кириллица и `✓` роняли `print` в C-локали без
-    PYTHONUTF8. `errors="backslashreplace"` на обоих потоках сохраняет
-    контракт отказа. Поток без `reconfigure` (переопределён тестом) не
-    трогается.
-    """
-    for stream in (sys.stdout, sys.stderr):
-        if hasattr(stream, "reconfigure"):
-            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
+def _load_manifest(pack: Path) -> dict:
+    """Манифест пака один раз; нарушение контура — PackError с причиной."""
+    manifest_path = pack / "manifest.json"
+    if not manifest_path.is_file():
+        raise PackError("манифест: manifest.json не существует")
+    try:
+        return json.loads(manifest_path.read_text("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        raise PackError(f"манифест: не JSON ({e})") from e
+    except OSError as e:
+        raise PackError(f"манифест: не читается ({e})") from e
 
 
 def _run_gate(command: list[str], root: Path) -> tuple[int | None, str, str]:
-    """Код выхода и вывод команды; None — команда не найдена или таймаут,
-    причина третьим элементом. Без shell-интерпретации, в окружении
-    проекта."""
+    """Код выхода и вывод команды; None — команда не запускается или
+    таймаут, причина третьим элементом. Без shell-интерпретации, в
+    окружении проекта."""
     try:
         proc = subprocess.run(command, cwd=root, shell=False,
                               capture_output=True, text=True,
@@ -72,11 +69,13 @@ def _run_gate(command: list[str], root: Path) -> tuple[int | None, str, str]:
         return None, "", f"команда не найдена: {command[0]}"
     except subprocess.TimeoutExpired:
         return None, "", f"таймаут {TIMEOUT_S} с"
+    except OSError as e:
+        return None, "", f"команда не запускается: {e}"
     return proc.returncode, proc.stdout, proc.stderr
 
 
 def main(argv: list[str] | None = None) -> int:
-    _force_utf8_output()
+    force_utf8_output()
     parser = argparse.ArgumentParser(
         prog="run_gates",
         description="Исполнитель механических гейтов установленных паков.")
@@ -90,28 +89,38 @@ def main(argv: list[str] | None = None) -> int:
         print(f"gates: каталог не существует: {str(root)!r}", file=sys.stderr)
         return 2
     packs_root = root / ".agents" / "packs"
+    if packs_root.exists() and not packs_root.is_dir():
+        print(f"gates: ожидается каталог паков: {str(packs_root)!r}",
+              file=sys.stderr)
+        return 2
     packs = sorted(path for path in packs_root.iterdir() if path.is_dir()) \
         if packs_root.is_dir() else []
     if not packs:
         print("паков нет: гейтов 0")
         return 0
-    total = 0
-    red = 0
+    # Phase 1: validate every manifest before any gate runs — the refusal
+    # contour (stderr, exit 2, empty stdout) holds for multi-pack installs.
+    manifests = []
     for pack in packs:
         try:
-            name, _type, _version = validate(pack)
+            manifest = _load_manifest(pack)
+            name, _type, _version = check_manifest(pack, manifest)
         except PackError as e:
-            print(f"gates: {_redact(str(e))}", file=sys.stderr)
+            print(f"gates: {redact(str(e))}", file=sys.stderr)
             return 2
-        manifest = json.loads((pack / "manifest.json").read_text("utf-8"))
+        manifests.append((name, manifest))
+    # Phase 2: execute the gates of the validated packs.
+    total = 0
+    red = 0
+    for name, manifest in manifests:
         for gate in manifest.get("gates", []):
             total += 1
             expected = gate.get("expect_exit", 0)
             code, out, err = _run_gate(gate["command"], root)
-            label = _redact(f"{name}/{gate['name']}")
+            label = redact(f"{name}/{gate['name']}")
             if code is None:
                 red += 1
-                print(f"✗ гейт {label}: {_redact(err)}")
+                print(f"✗ гейт {label}: {redact(err)}")
                 continue
             if code == expected:
                 print(f"✓ гейт {label}: exit {code}")
@@ -122,7 +131,7 @@ def main(argv: list[str] | None = None) -> int:
             for stream_text in (out, err):
                 if stream_text.strip():
                     for line in stream_text.splitlines():
-                        print(f"    {_redact(line)}")
+                        print(f"    {redact(line)}")
     if red:
         print(f"гейты паков: {red} из {total} красные")
         return 1

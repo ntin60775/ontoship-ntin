@@ -500,10 +500,10 @@ def test_auto_acceptance_on_the_green_contour():
 
 
 def test_question_form_survives_for_the_operator():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 8: вопрос
-    оператору при незакрытом или остановке сохраняет форму ask-прохода:
-    отчёт фактами в чате перед вызовом, решение в поле вопроса, следствия
-    выбора в описаниях вариантов."""
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 10:
+    незакрытое или остановка — вопрос оператору; прежняя форма ask-прохода
+    (отчёт фактами в чате перед вызовом, решение в поле вопроса, следствия
+    выбора в описаниях вариантов) перенесена в раздел «Автоприёмка»."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "отчёт фактами стоит в чате перед вызовом" in lowered

@@ -330,26 +330,16 @@ def test_slices_run_in_subordinate_sessions_on_artifact_input():
 def test_flash_pool_and_per_slice_model_choice():
     """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 15:
     пул flash (deepseek-flash/max, qwen3.8-flash/xhigh), модель под срез
-    выбирает основная сессия с причиной в отчёте, сверка с живым каталогом."""
+    выбирает основная сессия с причиной в отчёте, сверка с живым каталогом.
+    spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05):
+    пул живёт в реестре (секция [validation]), стандартная раскладка
+    названа, реестр без секции пула — пропуск и остановка; фразы пула
+    сторожатся одним набором POOL_PHRASES и scoped-пробами по нему."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = _normalized_lower(_section(body, RUN_HEADING))
     assert section, "section «Исполнение срезов» is missing"
     for phrase in POOL_PHRASES:
         assert phrase in section, f"the pool contract lost {phrase!r}"
-
-
-def test_pool_comes_from_the_registry():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: реестр
-    .agents/config.toml несёт пул валидации; скилл читает маршруты пула из
-    секции [validation], стандартная раскладка названа, реестр без секции
-    пула — названный пропуск и остановка (маршруты не угадываются)."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, RUN_HEADING))
-    assert section, "section «Исполнение срезов» is missing"
-    for phrase in ("реестр `.agents/config.toml`", "секция `[validation]`",
-                   "стандартная раскладка пула",
-                   "реестр без секции пула — назови пропуск и остановись"):
-        assert phrase in section, f"the registry pool source lost {phrase!r}"
 
 
 def test_session_model_comes_from_the_runtime_context():

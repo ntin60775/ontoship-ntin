@@ -238,6 +238,57 @@ def test_invalid_manifest_is_the_validator_refusal(tmp_path: Path):
     assert "type" in result.stderr
 
 
+def test_mixed_packs_refuse_before_any_gate_runs(tmp_path: Path):
+    """spec: docs/plans/standards-autoship.md#ограничения — контур отказа
+    держится на нескольких паках: валидный пак раньше по сортировке не
+    печатает гейты и не исполняет команды, когда манифест второго пака
+    невалиден (правка панели среза: двухфазный прогон)."""
+    _pack(tmp_path, "alpha-pack", [
+        {"name": "ok", "command": ["python3", "-c",
+                                   "import pathlib; pathlib.Path('side-effect').write_text('x')"]},
+    ])
+    broken = tmp_path / ".agents" / "packs" / "beta-pack"
+    broken.mkdir(parents=True)
+    (broken / "manifest.json").write_text(
+        json.dumps({"name": "beta-pack", "type": "guild", "version": "1.0.0"}),
+        "utf-8")
+    result = _run([str(tmp_path)])
+    assert result.returncode == 2
+    assert result.stdout == "", "the refusal contour must stay empty on stdout"
+    assert "type" in result.stderr
+    assert not (tmp_path / "side-effect").exists(), \
+        "a gate ran before the refusal — validation must precede execution"
+
+
+def test_non_executable_command_is_a_red_gate_not_a_crash(tmp_path: Path):
+    """spec: docs/plans/standards-autoship.md#готово — ошибка запуска
+    команды (не только отсутствие файла) — красный гейт с названной
+    причиной, не трейсбек исполнителя (правка панели среза)."""
+    script = tmp_path / "gate.sh"
+    script.write_text("#!/bin/sh\nexit 0\n", "utf-8")
+    script.chmod(0o644)  # no execute bit: PermissionError on launch
+    _pack(tmp_path, "perm-pack", [
+        {"name": "perm", "command": [str(script)]},
+    ])
+    result = _run([str(tmp_path)])
+    assert result.returncode == 1
+    assert "✗ гейт perm-pack/perm" in result.stdout
+    assert "команда не запускается" in result.stdout
+    assert "Traceback" not in result.stderr
+
+
+def test_packs_root_is_a_file_is_a_named_refusal(tmp_path: Path):
+    """spec: docs/plans/standards-autoship.md#готово — битый канал
+    установки (.agents/packs — файл) — именованный отказ, а не молчаливый
+    названный ноль (правка панели среза)."""
+    (tmp_path / ".agents").mkdir()
+    (tmp_path / ".agents" / "packs").write_text("not a directory", "utf-8")
+    result = _run([str(tmp_path)])
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "ожидается каталог паков" in result.stderr
+
+
 def test_untrusted_output_is_redacted(tmp_path: Path):
     """invariant: docs/plans/core-kb.md#готово — недоверенный текст на
     границе вывода: управляющие символы вывода команды заменяются видимым

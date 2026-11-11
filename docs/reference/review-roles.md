@@ -3,11 +3,11 @@ node_type: reference
 title: Ревью-роли — базовый набор и регламент паков
 service: _platform
 status: active
-updated: 2026-11-11
+updated: 2026-11-12
 tags: [review, roles, panel, packs, ship]
 links:
   part_of: [README.md]
-  relates_to: [../plans/review-config.md, harnesses.md, ../decisions/ontoship-core.md]
+  relates_to: [../plans/review-config.md, ../plans/standards-autoship.md, harnesses.md, ../decisions/ontoship-core.md]
 ---
 
 # Ревью-роли — базовый набор и регламент паков
