@@ -271,7 +271,11 @@ GitMark»: источник — [ишью #1](https://github.com/ntin60775/ontos
 + сокращение прозы `c1de496`, merge ff в `0aa301b`; панель: `reviewer-spec`
 ready, `reviewer-tests` принять, `reviewer-code` принято, `reviewer-kb` принять
 с правками; 469 passed, движок 1397 строк). Ишью #1 остаётся OPEN до тикета
-04 — нужно живое consumer-подтверждение `✓ чисто`. Тот же пробел закрыт в
+04 — нужно живое consumer-подтверждение `✓ чисто`. Тикет 02 сделан и влит
+2026-11-11 (срез `2a16145` + панель `e4e70dc` + решения оператора `47555e1`,
+merge ff; панель: `reviewer-spec` ready_after_fixes, `reviewer-tests` принять,
+`reviewer-code` принять, `reviewer-kb` принять с находками; 477 passed, движок
+1411 строк), ждёт приёмки. Тот же пробел закрыт в
 `docs/plans/kb-scope.md` «Готово» 5: при выборке per-file проверки (I1/I2/I3/I6)
 считаются только по выбранным файлам, поэтому «вне выборки» — это глобальные
 находки (I4/I5/I8/I9/I10) на остальных путях.
@@ -279,6 +283,6 @@ ready, `reviewer-tests` принять, `reviewer-code` принято, `reviewe
 | # | тикет | блокируется |
 |---|---|---|
 | 01 | [scope-ридер в iter_md и отказ](kb-scope/01-scope-corpus.md) | — |
-| 02 | [поле scope и две строки вывода](kb-scope/02-scope-output.md) | 01 |
+| 02 | [поле scope и две строки вывода](kb-scope/02-scope-output.md) | 01 — влит, ждёт приёмки |
 | 03 | [scope над глобальными проверками](kb-scope/03-scope-over-global-checks.md) | 01 |
 | 04 | [носители правила, догфуд, consumer-прогон](kb-scope/04-carriers-and-dogfood.md) | 01, 02, 03 |
