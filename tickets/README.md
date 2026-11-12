@@ -359,7 +359,8 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 05 | [ship-исполнитель и политика ролей](standards-autoship/05-ship-executor.md) | 02, 04 |
 | 06 | [цепочка-оркестратор и финишная приёмка](standards-autoship/06-chain-orchestrator.md) | 04, 05 |
 | 07 | [канон, зеркало, KB](standards-autoship/07-canon-mirror-kb.md) | 04, 05, 06 |
-| 08 | [живая проба и закрывающий набор](standards-autoship/08-live-proof.md) | 01–07 |
+| 08 | [живая проба и закрывающий набор](standards-autoship/08-live-proof.md) | 01–07, 09 |
+| 09 | [инициирующий промпт оркестратора](standards-autoship/09-orchestrator-entry-prompt.md) | 06 |
 
 Тикет 04 сделан 2026-11-11 (срез `4e806fc` + доказательства `0a7fd6b`
 в worktree `ontoship-ntin-wt-sa04`): критик → проекционная валидация до
