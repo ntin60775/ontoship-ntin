@@ -55,7 +55,10 @@ REQUIRED_PHRASES = (
     "один юнит за запуск",
     "один тикет за проход ship",
     "новая сессия без контекста планирования",
-    "отдельная сессия хоста, открытая оператором",
+    "корневая сессия хоста, открытая оператором",
+    "не субагент сессии планирования",
+    "связаны только файлами",
+    "межсессионного messaging и управления нет",
     "../ship/references/method-phases.md",
     "файл бандла — первоисточник",
     "проект переопределяет его документом `docs/reference/method-phases.md`",
@@ -149,6 +152,27 @@ REPORT_PHRASES = (
     "возврат открывает работу по находкам",
     "отчёт фактами стоит в чате перед вызовом",
 )
+# «Визуализация»: one ticket-DAG is the source of truth; TWO derived static
+# views — the graph and the Kanban (decision 19). blocked is computed from the
+# edges; the ready-frontier is computed and read from the Kanban ready column,
+# not rendered as a separate third block; Temporal status colors, no host code;
+# the live DSH panel is a separate future unit.
+VIZ_PHRASES = (
+    "источник истины — тикеты и блокирующие рёбра",
+    "виды вычисляются",
+    "не ведутся отдельно",
+    "два производных вида",
+    "граф зависимостей и kanban",
+    "колонка blocked вычисляется",
+    "не проставляется руками",
+    "ready-frontier читается колонкой ready",
+    "отдельный третий блок не рендерится",
+    "цвета статусов — лексика temporal",
+    "mermaid",
+    "генерируемым svg/markdown",
+    "без кода хоста",
+    "живая панель dsh — отдельный юнит",
+)
 FORBIDDEN_PHRASES = (
     # the retired or rejected flows: a user-only orchestrator, compaction,
     # a fresh executor per ticket, parallel tickets, acceptance without the
@@ -173,6 +197,7 @@ EXECUTOR_HEADING = "исполнитель"
 BUDGET_HEADING = "стражи бюджета"
 STOP_HEADING = "остановка цепочки"
 REPORT_HEADING = "финальный отчёт и приёмка"
+VIZ_HEADING = "визуализация: один dag — производные виды"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -261,6 +286,7 @@ def _contract_errors(text: str) -> list[str]:
         (BUDGET_HEADING, "budget", BUDGET_PHRASES),
         (STOP_HEADING, "stop", STOP_PHRASES),
         (REPORT_HEADING, "report", REPORT_PHRASES),
+        (VIZ_HEADING, "viz", VIZ_PHRASES),
     ):
         section = _section(lowered, heading)
         if not section:
@@ -320,16 +346,18 @@ def test_skill_is_model_invoked():
 def test_clean_session_start_and_operator_command():
     """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 13:
     оркестратор всегда в чистой сессии; старт по команде оператора после
-    нарезки и гейта проекций. Чистая сессия определена: spawn из сессии
-    планирования либо отдельная сессия хоста."""
+    нарезки и гейта проекций. Чистая сессия — корневая сессия хоста,
+    открытая оператором, не субагент планирования; планирование и
+    оркестратор связаны только файлами (вариант 1, решение 19)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
     lowered = _normalized_lower(text)
     when = _section(lowered, WHEN_HEADING)
     assert "чистой сессии по команде оператора «цепочка»" in when
     assert "новая сессия без контекста планирования" in when
-    assert "spawn, не `subagent_fork`" in when
-    assert "отдельная сессия хоста, открытая оператором" in when
+    assert "корневая сессия хоста, открытая оператором" in when
+    assert "не субагент сессии планирования" in when
+    assert "связаны только файлами" in when
 
     renamed = _body_mutated(text, "по команде оператора «цепочка»",
                             "по команде оператора «chain-run»")
@@ -339,6 +367,12 @@ def test_clean_session_start_and_operator_command():
                            "сессия с контекстом планирования")
     assert any("без контекста планирования" in error
                for error in _contract_errors(forked))
+
+    subagent_orch = _body_mutated(
+        text, "корневая сессия хоста, открытая оператором",
+        "субагент сессии планирования")
+    assert any("корневая сессия хоста" in error
+               for error in _contract_errors(subagent_orch))
 
 
 def test_entry_checks_projection_gate_and_edges():
@@ -525,6 +559,38 @@ def test_final_report_form_and_acceptance():
                               "Приёмка словом без отчёта")
     errors = _contract_errors(word_only)
     assert any("приёмка словом без отчёта" in error for error in errors)
+
+
+def test_viz_derived_views_from_one_dag():
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 19:
+    один ticket-DAG (markdown+git) — источник истины; два производных
+    статических вида — граф и Kanban; blocked вычисляется из рёбер,
+    ready-frontier читается колонкой ready (отдельный третий блок не
+    рендерится), цвета Temporal, без кода хоста; живая панель DSH —
+    отдельный юнит."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    for old, new, needle in (
+        ("не ведутся отдельно", "ведутся отдельно", "не ведутся отдельно"),
+        ("два производных вида", "три производных вида",
+         "два производных вида"),
+        ("отдельный третий блок не рендерится",
+         "третий блок рендерится отдельно",
+         "отдельный третий блок не рендерится"),
+        ("Колонка blocked вычисляется", "Колонка blocked проставляется",
+         "колонка blocked вычисляется"),
+        ("не проставляется руками", "проставляется руками",
+         "не проставляется руками"),
+        ("цвета статусов — лексика Temporal", "цвета статусов произвольные",
+         "цвета статусов — лексика temporal"),
+        ("без кода хоста", "кодом хоста", "без кода хоста"),
+        ("Живая панель DSH — отдельный юнит",
+         "Живая панель DSH входит в цепочку",
+         "живая панель dsh — отдельный юнит"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
 
 
 def test_contract_check_can_fail():
