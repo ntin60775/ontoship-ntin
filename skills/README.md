@@ -16,8 +16,9 @@ links:
 установщика `scripts/install.sh`; канал один —
 `<project>/.agents/skills`. Ядро KB — `kb-search`, `kb-curate`, `init`;
 фазы метода — `grilling`, `to-tickets`, `ship`; правило качества —
-`testing`; ревью плана — `critic`; док-часть — `onto-doc`; контракт
-паков стандартов — `pack`; автономная цепочка — `chain`.
+`testing`; проекционная валидация спеки — `critic`; док-часть —
+`onto-doc`; контракт паков стандартов — `pack`; автономная цепочка —
+`chain`.
 
 - [kb-search/](kb-search/SKILL.md) — движок GitMark и поиск по KB.
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
@@ -31,7 +32,8 @@ links:
 - [ship/](ship/SKILL.md) — один проход: worktree, тесты, ревью-панель,
   merge.
 - [testing/](testing/SKILL.md) — классы тестов и планка качества.
-- [critic/](critic/SKILL.md) — критика плана до первого ship.
+- [critic/](critic/SKILL.md) — проекционная валидация спеки до нарезки,
+  один прогон на юнит; отчёт триажа — запись гейта проекций.
 - [onto-doc/](onto-doc/SKILL.md) — тяжёлая док-часть: fan-out кураторов
   по плану.
 - [pack/](pack/SKILL.md) — контракт паков стандартов: манифест,

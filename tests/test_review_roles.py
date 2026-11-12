@@ -3,9 +3,9 @@
 ``docs/reference/review-roles.md`` must carry the base-set role
 contracts — ``reviewer-spec``, ``reviewer-tests``, ``reviewer-code``,
 ``reviewer-kb`` — each with a scope and a checklist, plus the pack rules:
-packs carry prompts and checklists only, role names follow
-``reviewer-<kontur>-<aspect>``, init detects pack roles, gates stay with the
-core. ``docs/reference/harnesses.md`` must describe how each harness
+packs carry standards, role checklists and gate configs as data, role names
+follow ``reviewer-<kontur>-<aspect>``, init detects pack roles, gates stay
+with the core and the core executes the gate configs. ``docs/reference/harnesses.md`` must describe how each harness
 organizes the review panel: the working zcode way (role definitions from the
 config, the full-restart cost of a model change, the ``subagent_model``
 fallback path, the ``[current]`` marker for the session-model check), the
@@ -21,6 +21,8 @@ linking the «Артефакт доказательства» section of docs/re
 (evidence-verification ticket 02).
 
 spec: docs/plans/review-config.md#готово — справочник ролей и регламент паков
+spec: docs/plans/standards-autoship.md#решения план-гейта — 3: регламент
+паков — стандарты, чек-листы и конфиги гейтов как данные, гейты у ядра
 spec: docs/plans/dsh-adaptation.md#готово — DSH первый класс в матрице:
 рабочий способ панели и онто-дока, Qoder — названный пробел
 spec: docs/plans/review-config.md#решения план-гейта — 9, 11, 12
@@ -61,14 +63,19 @@ COUNTED_ROLE = re.compile(
 )
 INDEPENDENCE_PHRASES = ("вердикт", "приоритет", "зацепк", "артефакты",
                         "не ход исполнения")
+# standards-autoship 07 («Готово» 13, решение 3): the pack carries standards,
+# role checklists and gate configs as data; the retired «только промпты и
+# чек-листы» rule must not return.
 PACK_RULES = (
     "пак",
-    "только промпты и чек-листы",
+    "стандарты, чек-листы ролей и конфиги механических гейтов как данные",
     "reviewer-<kontur>-<aspect>",
     "без кода",
     "гейт",
     "init",
+    "конфиги гейтов исполняет ядро в окружении проекта",
 )
+RETIRED_PACK_RULE = "только промпты и чек-листы"
 # standards-autoship 05 («Готово» 3, 9; решения 8, 15): the KB panel carrier
 # names the core+pack assembly, the independence norm and the standards
 # priority of the reviewer-code input; the harness DSH way carries the
@@ -260,6 +267,8 @@ def _reference_errors(text: str) -> list[str]:
     for rule in PACK_RULES:
         if rule not in lowered:
             errors.append(f"pack rule {rule!r} is missing")
+    if RETIRED_PACK_RULE in lowered:
+        errors.append(f"retired pack rule {RETIRED_PACK_RULE!r} is back")
     for phrase in PANEL_ASSEMBLY:
         if phrase not in lowered:
             errors.append(f"panel assembly {phrase!r} is missing")
@@ -367,12 +376,15 @@ def test_reference_states_input_output_and_independence():
 
 
 def test_reference_carries_the_pack_rules():
-    """spec: docs/plans/review-config.md#решения план-гейта — 12: пак несёт
-    только промпты и чек-листы, имена reviewer-<kontur>-<aspect>, init
-    обнаруживает роли пака; гейты остаются у ядра."""
+    """spec: docs/plans/standards-autoship.md#решения план-гейта — 3: пак
+    несёт стандарты, чек-листы ролей и конфиги механических гейтов как
+    данные, имена reviewer-<kontur>-<aspect>, init обнаруживает роли пака;
+    гейты остаются у ядра, конфиги исполняет ядро; снятое правило «только
+    промпты и чек-листы» не возвращается."""
     lowered = _normalized_lower(REFERENCE.read_text("utf-8"))
     for rule in PACK_RULES:
         assert rule in lowered, f"pack rule {rule!r} is missing"
+    assert RETIRED_PACK_RULE not in lowered
 
 
 def test_reference_names_the_core_pack_assembly_and_independence():
@@ -507,6 +519,16 @@ def test_reference_check_can_fail():
     assert no_pack_names != text
     assert any("reviewer-<kontur>-<aspect>" in error
                for error in _reference_errors(no_pack_names))
+
+    # Gate configs as data (decision 3): losing the «как данные» clause or
+    # resurrecting the retired prompts-only rule both redden.
+    no_data = text.replace("как данные", "как промпты", 1)
+    assert no_data != text
+    assert any("конфиги механических гейтов как данные" in error
+               for error in _reference_errors(no_data))
+    old_rule = text + "\n\nПак несёт только промпты и чек-листы.\n"
+    assert any("retired pack rule" in error
+               for error in _reference_errors(old_rule))
 
     # A role's checklist must be its own: dropping every bullet of the last
     # role (whose section once swallowed the trailing sections) has to fail.

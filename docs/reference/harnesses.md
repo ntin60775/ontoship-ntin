@@ -4,10 +4,10 @@ title: Совместимость харнессов — project-local скил�
 service: _platform
 status: active
 updated: 2026-11-12
-tags: [harness, skills, review, agents-md, zcode, dsh, qoder]
+tags: [harness, skills, review, agents-md, zcode, dsh, qoder, chain, projections, packs]
 links:
   part_of: [README.md]
-  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, ../plans/entry-and-continuity.md, ../plans/standards-autoship.md, review-roles.md, ../ops/continue.md]
+  relates_to: [../plans/harness-agnostic.md, ../plans/review-config.md, ../plans/onto-doc.md, ../plans/entry-and-continuity.md, ../plans/standards-autoship.md, review-roles.md, pack-contract.md, ../ops/continue.md]
 ---
 
 # Совместимость харнессов
@@ -16,9 +16,12 @@ links:
 `<project>/.agents/skills` (установщик) достаточно для zcode, DSH и Qoder;
 слой адаптеров не нужен.
 Живые каталоги подтвердили все три сессии: DSH 0.2.2-rc.1 (2026-11-06)
-видит восемь модельных скиллов проекта, `ship` вызывается командой
-`/ship`. Справочник фиксирует доказательства, чтобы следующая сессия не
-выводила их заново.
+видел восемь модельных скиллов проекта, `ship` вызывался командой
+`/ship`. Состав бандлов с тех пор — одиннадцать
+([skills/README.md](../../skills/README.md)); `ship` вызывается моделью
+в автономной цепочке, ручной `/ship` сохранён (решение 11 спеки
+[standards-autoship](../plans/standards-autoship.md)). Справочник фиксирует
+доказательства, чтобы следующая сессия не выводила их заново.
 
 ## Матрица
 
@@ -146,6 +149,39 @@ Qoder — единственный оставшийся пробел панел�
 Способ запуска кураторов онто-дока в Qoder живой сессией не подтверждён —
 как у ревью-панели выше; возврат — словом оператора.
 
+## Цепочка и проекции по харнессам
+
+Спека — [standards-autoship.md](../plans/standards-autoship.md): автономная
+цепочка исполняет тикеты после принятой нарезки, проекционная валидация
+проверяет спеку до нарезки. Контракты несут скиллы `chain` и `critic`;
+способ запуска — DSH.
+
+### zcode — цепочка и проекции сняты
+
+Рельс выведен из проекта: цепочка и проекции живут только на DSH-рельсах.
+Возврат — решением оператора.
+
+### DSH — цепочка и проекции
+
+Цепочку ведёт оркестратор в чистой корневой сессии, открытой оператором;
+сессия планирования и оркестратор связаны только файлами (markdown+git),
+межсессионного messaging и управления нет. Оркестратор спавнит одну
+продолжаемую сессию-исполнитель — `subagent` (spawn, не `subagent_fork`) —
+и передаёт тикеты по одному через `send_message`; тикет исполняет скилл
+`ship`, панель внутри исполнителя идёт по реестру с независимостью по
+правилу скилла ship. Проекции — fan-out `subagent` (spawn, не
+`subagent_fork`) с ролевым промптом и целью, все срезы стартуют в одном
+сообщении; маршруты и уровни срезов — из пула `[validation]` реестра
+`.agents/config.toml`, сверка с живым `list_subagent_models`. Лимит
+активных детей хоста может быть меньше состава панели или числа срезов —
+сколько позволяет лимит, стартует в одном сообщении, остальные по мере
+завершения, прогон остаётся одним, рассрочка называется в отчёте.
+
+### Qoder — цепочка и проекции — пробел окружения
+
+Способ запуска цепочки и проекций в Qoder живой сессией не подтверждён —
+как у ревью-панели выше; возврат — словом оператора.
+
 ## Вход в метод по харнессам
 
 Спека — [entry-and-continuity.md](../plans/entry-and-continuity.md): вход в
@@ -172,9 +208,11 @@ Qoder — единственный оставшийся пробел панел�
   `.zcode/skills` — legacy чужих проектов.
   `scripts/install.sh --check` предупреждает о legacy и никогда их не
   удаляет; удаление — решение оператора.
-- Строки `.gitignore` — `.gitmark/`, `*-map.html`, `.scratch/` и навыковый
-  корень `.agents/skills/` — пишет скилл `init`: установка и производные
-  локальны и не коммитятся.
+- Строки `.gitignore` — `.gitmark/`, `*-map.html`, `.scratch/`, навыковый
+  корень `.agents/skills/` и корень паков `.agents/packs/` — пишет скилл
+  `init`: установка и производные локальны и не коммитятся.
+- Канал паков стандартов — `install.sh --pack <источник> <проект>`; паки
+  живут в `.agents/packs/`, контракт — [pack-contract.md](pack-contract.md).
 
 ## Запасные варианты и границы
 
@@ -197,6 +235,7 @@ Qoder — единственный оставшийся пробел панел�
 
 - План: [harness-agnostic.md](../plans/harness-agnostic.md) — решение и тикеты.
 - Роли: [review-roles.md](review-roles.md) — контракты панели и регламент паков.
+- Паки: [pack-contract.md](pack-contract.md) — контракт паков стандартов.
 - Установка: [scripts/install.sh](../../scripts/install.sh) — канал и `--check`.
 - Состояние: [continue.md](../ops/continue.md) — что проверено в этом
   репозитории.

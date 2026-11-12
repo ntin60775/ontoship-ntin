@@ -3,7 +3,7 @@ node_type: index
 title: Документация — главный индекс
 service: _platform
 status: active
-updated: 2026-11-10
+updated: 2026-11-12
 links:
   relates_to: [../AGENTS.md, decisions/README.md, plans/README.md, ops/README.md, reference/README.md]
 ---
@@ -45,8 +45,10 @@ links:
   [sources.md](reference/sources.md) — три источника и что из каждого взято;
   [testing.md](reference/testing.md) — spec-, инвариантные и target-тесты;
   [harnesses.md](reference/harnesses.md) — совместимость zcode, DSH и Qoder;
-  панель и онто-док на DSH-рельсах, ZCode-канал снят;
+  панель, онто-док, цепочка и проекции на DSH-рельсах, ZCode-канал снят;
   [review-roles.md](reference/review-roles.md) — контракты ревью-ролей и регламент паков;
+  [pack-contract.md](reference/pack-contract.md) — контракт паков стандартов,
+  проектный носитель;
   [text-style.md](reference/text-style.md) — канон текстов: скиллы, правила,
   справочники, сообщения гейтов.
 - [ontology.md](ontology.md) — словарь типов, frontmatter, типизированные ссылки и

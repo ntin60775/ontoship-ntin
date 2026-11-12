@@ -20,6 +20,9 @@ Named carrier sets share the anchor mechanics:
   the new flow (projection gate, slicing self-check, chain, auto-acceptance,
   pack gates, standards priority), and the gate-shape test guards the manual
   gate list and forbids the retired flow phrases;
+- ``pack-contract`` — the pack contract API v1: the KB project carrier
+  (docs/reference/pack-contract.md) and the bundle carrier
+  (skills/pack/references/pack-contract.md);
 - ``guard`` — the boundary rule (a bundle file is the primary source, the
   project overrides it): the canon and the four referencing skills.
 
@@ -42,6 +45,9 @@ spec: docs/plans/bundle-references.md#готово — якорные набор
 guard-фраза; KB-страница каждой секции называет файл бандла носителем
 spec: docs/plans/canon-section-in-bundles.md#готово — набор method-phases:
 канон ↔ секция бандла ship, четыре якоря тикета
+spec: docs/plans/standards-autoship.md#готово — «Готово» 10, 13: новый поток
+в каноне и зеркале, форма ручных гейтов; справочник паков — проектный
+носитель контракта, якорный паритет с бандлом pack
 """
 from __future__ import annotations
 
@@ -158,6 +164,20 @@ RETIRED_FLOW_PHRASES = (
     "до первого ship",
 )
 
+# standards-autoship 07 («Готово» 13): the KB pack reference is the project
+# carrier of the pack contract; the bundle file stays the primary source.
+PACK_CONTRACT_CARRIERS = (
+    REPO / "docs/reference/pack-contract.md",
+    REPO / "skills/pack/references/pack-contract.md",
+)
+PACK_CONTRACT_ANCHORS = (
+    "конфиги гейтов исполняет ядро в окружении проекта",
+    "reviewer-<kontur>-<aspect>",
+    "канон > стандарты проекта > пак команды > пак стека > базовый документ",
+    "валидатор проверяет схему, не семантику команды",
+    "пак — доверенный источник команды",
+)
+
 GUARD_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
     REPO / "skills/ship/SKILL.md",
@@ -178,6 +198,7 @@ SETS = (
     ("panel-intro", PANEL_INTRO_CARRIERS, PANEL_INTRO_ANCHORS),
     ("ontodoc-run", ONTODOC_CARRIERS, ONTODOC_ANCHORS),
     ("method-phases", METHOD_CARRIERS, METHOD_ANCHORS),
+    ("pack-contract", PACK_CONTRACT_CARRIERS, PACK_CONTRACT_ANCHORS),
     ("guard", GUARD_CARRIERS, GUARD_ANCHORS),
 )
 
@@ -192,6 +213,8 @@ KB_NAMED_CARRIERS = (
      "skills/onto-doc/references/ontodoc-run.md"),
     (REPO / "docs/reference/review-roles.md",
      "skills/ship/references/review-panel.md"),
+    (REPO / "docs/reference/pack-contract.md",
+     "skills/pack/references/pack-contract.md"),
 )
 NAMING_PHRASE = "Носитель методной секции в бандле"
 
@@ -259,7 +282,7 @@ def test_anchor_in_every_carrier(set_name: str, anchor: str,
             "carrier — if the rule was deliberately reworded, update the "
             "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
             "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
-            "ANCHORS / GUARD_ANCHORS) "
+            "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
             "in this test"
         )
     assert not missing, (
