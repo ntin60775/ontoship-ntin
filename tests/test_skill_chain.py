@@ -25,6 +25,11 @@ the bundle-list parity of eleven names lives in test_install.py.
 
 spec: docs/plans/standards-autoship.md#готово — «Готово» 7, 11, 9: бандл
 chain, финальный отчёт, команда запуска в блоке init
+spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+решение 20): скилл называет источник инициирующего промпта — сессия
+планирования пишет его в continue.md («Стартовый промпт») финальным шагом
+to-tickets или командой «орк-промт», оператор переносит промпт в новую
+корневую сессию оркестратора; промпт — указатель, не пересказ
 spec: docs/plans/standards-autoship.md#решения план-гейта — решения 12, 13,
 14: носитель цепочки, архитектура (чистая сессия, один продолжаемый
 исполнитель, стражи бюджета, пенсия, остановка, компакта нет), финишная
@@ -208,6 +213,20 @@ FORBIDDEN_PHRASES = (
     "gen_agents",
     "план-мод",
 )
+# «Когда использовать»: the entry-prompt source (decision 20) — the planning
+# session writes the prompt into continue.md («Стартовый промпт») via the
+# final to-tickets step or the manual command «орк-промт»; the operator
+# transfers it to the new root orchestrator session; the prompt is a pointer
+# (command, unit address, state pointer), not a state retelling.
+SOURCE_PHRASES = (
+    "инициирующий промпт пишет сессия планирования",
+    "«стартовый промпт»",
+    "финальный шаг to-tickets",
+    "«орк-промт»",
+    "оператор переносит промпт",
+    "указатель на состояние",
+    "не пересказ",
+)
 WHEN_HEADING = "когда использовать"
 ENTRY_HEADING = "вход и порядок рёбер"
 EXECUTOR_HEADING = "исполнитель"
@@ -293,9 +312,13 @@ def _contract_errors(text: str) -> list[str]:
     when = _section(lowered, WHEN_HEADING)
     if not when:
         errors.append("when: missing section «Когда использовать»")
-    elif "чистой сессии по команде оператора «цепочка»" not in when:
-        errors.append("when: the clean-session operator command «цепочка» "
-                      "left the section")
+    else:
+        if "чистой сессии по команде оператора «цепочка»" not in when:
+            errors.append("when: the clean-session operator command «цепочка» "
+                          "left the section")
+        for phrase in SOURCE_PHRASES:
+            if phrase not in when:
+                errors.append(f"when: section «{WHEN_HEADING}» lost {phrase!r}")
 
     for heading, label, phrases in (
         (ENTRY_HEADING, "entry", ENTRY_PHRASES),
@@ -390,6 +413,43 @@ def test_clean_session_start_and_operator_command():
         "субагент сессии планирования")
     assert any("корневая сессия хоста" in error
                for error in _contract_errors(subagent_orch))
+
+
+def test_prompt_source_is_named():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+    решение 20): скилл называет источник инициирующего промпта — сессия
+    планирования пишет его в continue.md («Стартовый промпт») финальным
+    шагом to-tickets после приёмки нарезки и самопроверки или ручной
+    командой «орк-промт»; оператор переносит промпт в новую корневую
+    сессию оркестратора; промпт — команда «цепочка», адрес юнита и
+    указатель на состояние, не пересказ. Мутации: потеря источника,
+    переноса оператором, указателя и ручной команды краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    when = _section(_normalized_lower(text), WHEN_HEADING)
+    for phrase in SOURCE_PHRASES:
+        assert phrase in when, f"the phrase {phrase!r} left «Когда использовать»"
+
+    for old, new, needle in (
+        ("Инициирующий промпт пишет сессия планирования",
+         "Инициирующий промпт пишет оркестратор",
+         "инициирующий промпт пишет сессия планирования"),
+        ("финальный шаг to-tickets", "шаг ship", "финальный шаг to-tickets"),
+        ("Оператор переносит промпт", "Промпт передаётся автоматически",
+         "оператор переносит промпт"),
+        ("указатель на состояние, не пересказ",
+         "пересказ состояния", "указатель на состояние"),
+        ("«орк-промт»", "«орк-промпт»", "«орк-промт»"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_source = _body_mutated(
+        text, "Инициирующий промпт пишет сессия планирования", "")
+    errors = _contract_errors(no_source)
+    assert any("инициирующий промпт пишет сессия планирования" in error
+               for error in errors)
 
 
 def test_entry_checks_projection_gate_and_edges():

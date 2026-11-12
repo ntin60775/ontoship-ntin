@@ -27,6 +27,13 @@ slice («Задумка тикета N, как я её понял: … Верн�
 a mismatch sends the slice back for rewording before publication; the
 retired quiz wording stays out of the skill and the runbook, and inside
 this test lives only in mutation probes and the contract ban (решения 1–5)
+spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+решение 20): финальный шаг «Порядка» — «Передача в цепочку»: после приёмки
+нарезки и самопроверки сессия планирования генерирует инициирующий промпт
+оркестратора и пишет его в continue.md («Стартовый промпт»); промпт —
+команда «цепочка», адрес юнита и указатель на состояние, не пересказ;
+оператор переносит промпт в новую корневую сессию; ручная команда
+«орк-промт» генерирует промпт повторно
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 """
 from __future__ import annotations
@@ -84,6 +91,36 @@ SELF_CHECK_PHRASES = (
 GATE_CONTRADICTIONS = (
     "запись гейта не проверяется",
     "тихий пропуск допустим",
+)
+# «Готово» 15 (ticket 09, decision 20): the final step of «Порядок» hands the
+# unit over to the chain — the planning session generates the orchestrator
+# entry prompt into continue.md after the slicing acceptance and the
+# self-check; the prompt is a pointer (command, unit address, state pointer),
+# not a state retelling; the operator transfers it to a new root session;
+# the manual command «орк-промт» regenerates it.
+HANDOFF_PHRASES = (
+    "передача в цепочку",
+    "после приёмки нарезки и самопроверки",
+    "инициирующий промпт оркестратора",
+    "«стартовый промпт»",
+    "команда «цепочка»",
+    "адрес юнита",
+    "указатель на состояние",
+    "не пересказ состояния",
+    "оператор переносит промпт",
+    "новую корневую сессию оркестратора",
+    "межсессионного messaging нет",
+    "«орк-промт»",
+    "генерирует промпт повторно",
+)
+HANDOFF_CONTRADICTIONS = (
+    # the rejected alternative of decision 20: a state retelling instead of
+    # a pointer
+    "промпт пересказывает состояние",
+)
+WHEN_HANDOFF_PHRASES = (
+    "команду «орк-промт»",
+    "инициирующий промпт",
 )
 CHECK_SECTION_PHRASES = (
     "сверка понимания",
@@ -186,6 +223,9 @@ def _contract_errors(text: str) -> list[str]:
     if "вызывает пользователь" in description.lower():
         errors.append("frontmatter: description must call the agent "
                       "(«Скилл вызывает агент.»), not the user")
+    if "орк-промт" not in description:
+        errors.append("frontmatter: description must name the manual "
+                      "command «орк-промт» (standards-autoship decision 20)")
 
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in REQUIRED_PHRASES:
@@ -236,6 +276,27 @@ def _contract_errors(text: str) -> list[str]:
             if phrase in sequence:
                 errors.append(f"body: section 'Порядок' carries "
                               f"forbidden phrase {phrase!r}")
+        for phrase in HANDOFF_PHRASES:
+            if phrase not in sequence:
+                errors.append(f"body: section 'Порядок' must carry {phrase!r}")
+        for phrase in HANDOFF_CONTRADICTIONS:
+            if phrase in sequence:
+                errors.append(f"body: section 'Порядок' carries "
+                              f"contradictory phrase {phrase!r}")
+        check_at = sequence.find("самопроверка нарезки")
+        handoff_at = sequence.find("передача в цепочку")
+        if check_at >= 0 and handoff_at >= 0 and handoff_at < check_at:
+            errors.append("body: the chain handoff must follow "
+                          "the slicing self-check")
+    when = sections.get("Когда использовать")
+    if when is None:
+        errors.append("body: missing section 'Когда использовать'")
+    else:
+        when_flat = re.sub(r"\s+", " ", when.lower())
+        for phrase in WHEN_HANDOFF_PHRASES:
+            if phrase not in when_flat:
+                errors.append("body: section 'Когда использовать' must "
+                              f"carry {phrase!r}")
     anchor = ANCHOR_RE.search(text)
     if anchor:
         errors.append(f"body: file:line anchor {anchor.group(0)!r}")
@@ -535,6 +596,122 @@ def test_every_gate_and_self_check_phrase_has_a_failing_probe(phrase: str) -> No
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     removing any gate or self-check phrase, however short, reddens the
     «Порядок» contract (зацепка P3-2 ревью-панели тикета 04)."""
+    text = SKILL.read_text("utf-8")
+    mutated = _drop_phrase(text, phrase)
+    assert mutated != text, f"the mutation must remove {phrase!r}"
+    errors = _contract_errors(mutated)
+    assert any(f"must carry {phrase!r}" in error for error in errors), errors
+
+
+def _step_seven_block(text: str) -> str:
+    """Return the full step-7 block inside «Порядок»: the ``7. `` line and
+    its continuation lines, up to the next numbered step or section heading.
+    Step 7 closes «Порядок», so the section heading ends the block."""
+    lines = text.splitlines()
+    order = next(i for i, line in enumerate(lines) if line == "## Порядок")
+    start = next(i for i in range(order + 1, len(lines))
+                 if lines[i].startswith("7. "))
+    end = next((i for i in range(start + 1, len(lines))
+                if re.match(r"\d+\. ", lines[i]) or lines[i].startswith("## ")),
+               len(lines))
+    return "\n".join(lines[start:end])
+
+
+def test_handoff_to_chain_follows_self_check():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+    решение 20): финальный шаг «Порядка» — «Передача в цепочку»: после
+    приёмки нарезки и самопроверки сессия планирования генерирует
+    инициирующий промпт оркестратора в continue.md («Стартовый промпт»);
+    промпт — команда «цепочка», адрес юнита и указатель на состояние,
+    не пересказ; оператор переносит его в новую корневую сессию; ручная
+    команда «орк-промт» генерирует промпт повторно. Шаг стоит после
+    самопроверки, команда названа в «Когда использовать» и description."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    body = _parse(text)[1]
+    section = re.sub(r"\s+", " ", _sections(body).get("Порядок", "").lower())
+    assert section, "section 'Порядок' is missing from the skill body"
+    for phrase in HANDOFF_PHRASES:
+        assert phrase in section, \
+            f"the phrase {phrase!r} is missing from 'Порядок'"
+    for phrase in HANDOFF_CONTRADICTIONS:
+        assert phrase not in section, \
+            f"the contradictory phrase {phrase!r} survives in 'Порядок'"
+    check_at = section.find("самопроверка нарезки")
+    handoff_at = section.find("передача в цепочку")
+    assert -1 < check_at < handoff_at, \
+        "the chain handoff must follow the slicing self-check"
+    when = re.sub(
+        r"\s+", " ", _sections(body).get("Когда использовать", "").lower())
+    for phrase in WHEN_HANDOFF_PHRASES:
+        assert phrase in when, \
+            f"the phrase {phrase!r} is missing from 'Когда использовать'"
+    description = _unquote(_parse(text)[0]["description"])
+    assert "орк-промт" in description, \
+        "the description must name the manual command «орк-промт»"
+
+
+def test_handoff_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    the handoff contract can fail: удаление шага 7, потеря указателя,
+    возврат пересказа состояния, ранний дубль передачи до самопроверки,
+    потеря ручной команды и переноса промпта оператором краснят контракт
+    to-tickets (мутационные пробы)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    no_step = text.replace(_step_seven_block(text) + "\n", "", 1)
+    assert no_step != text
+    errors = _contract_errors(no_step)
+    assert any("must carry 'передача в цепочку'" in error for error in errors)
+    assert any("must carry 'инициирующий промпт оркестратора'" in error
+               for error in errors)
+
+    no_pointer = _body_mutated(text, "указатель на состояние",
+                               "краткий пересказ")
+    assert any("must carry 'указатель на состояние'" in error
+               for error in _contract_errors(no_pointer))
+
+    retelling = _body_mutated(
+        text, "указатель на состояние — не пересказ состояния",
+        "промпт пересказывает состояние")
+    errors = _contract_errors(retelling)
+    assert any("contradictory phrase 'промпт пересказывает состояние'" in error
+               for error in errors)
+    assert any("must carry 'не пересказ состояния'" in error
+               for error in errors)
+
+    early_handoff = text.replace(
+        "6. **Самопроверка нарезки.**",
+        "6. **Передача в цепочку (ранний дубль).** После приёмки нарезки.\n"
+        "6. **Самопроверка нарезки.**", 1)
+    assert early_handoff != text
+    assert any("chain handoff must follow" in error
+               for error in _contract_errors(early_handoff))
+
+    no_command = _body_mutated(text, "«орк-промт»", "«орк-промпт»", count=-1)
+    errors = _contract_errors(no_command)
+    assert any("must carry '«орк-промт»'" in error for error in errors)
+    assert any("must carry 'команду «орк-промт»'" in error for error in errors)
+
+    no_transfer = _body_mutated(text, "Оператор переносит промпт",
+                                "Промпт передаётся автоматически")
+    assert any("must carry 'оператор переносит промпт'" in error
+               for error in _contract_errors(no_transfer))
+
+    no_description = text.replace(
+        " Команда «орк-промт» генерирует инициирующий промпт оркестратора.",
+        "", 1)
+    assert no_description != text
+    assert any("description must name the manual command" in error
+               for error in _contract_errors(no_description))
+
+
+@pytest.mark.parametrize("phrase", HANDOFF_PHRASES + WHEN_HANDOFF_PHRASES)
+def test_every_handoff_phrase_has_a_failing_probe(phrase: str) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    removing any handoff phrase, however short, reddens the contract
+    (the same guard the gate and self-check phrases carry)."""
     text = SKILL.read_text("utf-8")
     mutated = _drop_phrase(text, phrase)
     assert mutated != text, f"the mutation must remove {phrase!r}"

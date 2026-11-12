@@ -23,6 +23,10 @@ spec: docs/plans/dsh-adaptation.md#готово — стандартная ра�
 spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): init
       пишет стандартную раскладку с пулом flash, независимость по умолчанию —
       норма реестра, секция пула в существующем конфиге — названный пропуск
+spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+      решение 20): управляемый блок называет команду «орк-промт» —
+      инициирующий промпт оркестратора в continue.md, скилл to-tickets;
+      паритет блока сохранён (шаблон скилла, этот литерал, AGENTS.md)
 invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance,
       Reel or acceptance chord
 invariant: docs/plans/harness-agnostic.md#готово — no harness root named
@@ -191,15 +195,17 @@ BLOCK = """\
   сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой
   `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка
-  в чистой сессии, скилл `chain`.
+  в чистой сессии, скилл `chain`; «орк-промт» — инициирующий промпт
+  оркестратора в continue.md, скилл `to-tickets`.
 <!-- END ontoship -->
 """
 
 # Rule clauses of the entry section (docs/plans/entry-and-continuity.md,
 # «Готово» 1, 3; dsh-adaptation consequence 2; standards-autoship «Готово» 9,
-# decisions 11, 12): one anchor per clause, so a dropped clause reddens with
-# its own name. The ship clause names the model invocation in the chain and
-# the manual `/ship`; the command bullet names the chain launch command.
+# decisions 11, 12; «Готово» 15, decision 20): one anchor per clause, so a
+# dropped clause reddens with its own name. The ship clause names the model
+# invocation in the chain and the manual `/ship`; the command bullet names
+# the chain launch command and the entry-prompt regeneration command.
 ENTRY_RULES = (
     "свободные правки в обход тикета не",
     "Запрос плана открывает draft-спеку через скилл `grilling`",
@@ -211,6 +217,8 @@ ENTRY_RULES = (
     "`/ship` или «исполняй тикет N»",
     "«цепочка» — автономная цепочка",
     "в чистой сессии, скилл `chain`",
+    "«орк-промт» — инициирующий промпт",
+    "оркестратора в continue.md, скилл `to-tickets`",
 )
 
 # The continue.md skeleton shipped by init (docs/plans/entry-and-continuity.md,
@@ -593,7 +601,8 @@ def test_entry_section_rules_are_pinned_and_mutation_reddens():
              "  сессия продолжается оттуда и берёт следующий тикет оттуда же.\n")
     commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой\n"
                 "  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка\n"
-                "  в чистой сессии, скилл `chain`.\n")
+                "  в чистой сессии, скилл `chain`; «орк-промт» — инициирующий промпт\n"
+                "  оркестратора в continue.md, скилл `to-tickets`.\n")
     assert state in text and commands in text
     swapped = text.replace(state + commands, commands + state)
     assert swapped != text
@@ -614,8 +623,8 @@ def test_block_names_the_chain_command():
     assert "один тикет за запуск — моделью в автономной цепочке" in flat_block
 
     dropped = text.replace(
-        "; «цепочка» — автономная цепочка\n  в чистой сессии, скилл `chain`.",
-        ".", 1)
+        "; «цепочка» — автономная цепочка\n  в чистой сессии, скилл `chain`;",
+        ";", 1)
     assert dropped != text
     errors = _contract_errors(dropped)
     assert any("«цепочка» — автономная цепочка" in error for error in errors)
@@ -632,6 +641,35 @@ def test_block_names_the_chain_command():
     assert any("скилл `ship` исполняет" in error for error in errors)
     assert any("один тикет за запуск — моделью в автономной цепочке" in error
                for error in errors)
+
+
+def test_block_names_the_orc_prompt_command():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+    решение 20): управляемый блок называет команду «орк-промт» —
+    инициирующий промпт оркестратора в continue.md, скилл `to-tickets`.
+    Мутации: потеря команды и переименование команды краснят контракт;
+    паритет блока держит test_repo_managed_block_matches_the_init_block."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
+    flat_block = re.sub(r"\s+", " ", BLOCK)
+    assert "«орк-промт» — инициирующий промпт" in flat_block
+    assert "оркестратора в continue.md, скилл `to-tickets`" in flat_block
+
+    dropped = text.replace(
+        "; «орк-промт» — инициирующий промпт\n"
+        "  оркестратора в continue.md, скилл `to-tickets`.",
+        ".", 1)
+    assert dropped != text
+    errors = _contract_errors(dropped)
+    assert any("«орк-промт» — инициирующий промпт" in error for error in errors)
+    assert any("оркестратора в continue.md, скилл `to-tickets`" in error
+               for error in errors)
+
+    renamed = text.replace("«орк-промт» — инициирующий промпт",
+                           "«орк-промпт» — инициирующий промпт", 1)
+    assert renamed != text
+    assert any("«орк-промт» — инициирующий промпт" in error
+               for error in _contract_errors(renamed))
 
 
 def test_continue_skeleton_clauses_are_pinned():
