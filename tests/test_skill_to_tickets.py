@@ -651,6 +651,19 @@ def test_handoff_to_chain_follows_self_check():
         "the description must name the manual command «орк-промт»"
 
 
+def _mutated_wrapped(text: str, old: str, new: str, count: int = 1) -> str:
+    """Replace a phrase tolerating the 80-column wrap while keeping the line
+    structure: section-scoped probes must not flatten the ``## `` headings
+    (the body-flattening ``_body_mutated`` serves whole-body phrases only)."""
+    pattern = re.escape(old).replace("\\ ", r"\s+")
+    # re.sub reads count=0 as «every occurrence»; -1 keeps the str.replace
+    # calling convention of the other mutation helpers.
+    mutated = re.sub(pattern, new, text, count=max(count, 0),
+                     flags=re.IGNORECASE)
+    assert mutated != text, f"the mutation must change the text: {old!r}"
+    return mutated
+
+
 def test_handoff_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the handoff contract can fail: удаление шага 7, потеря указателя,
@@ -667,12 +680,12 @@ def test_handoff_contract_can_fail():
     assert any("must carry 'инициирующий промпт оркестратора'" in error
                for error in errors)
 
-    no_pointer = _body_mutated(text, "указатель на состояние",
-                               "краткий пересказ")
+    no_pointer = _mutated_wrapped(text, "указатель на состояние",
+                                  "краткий пересказ")
     assert any("must carry 'указатель на состояние'" in error
                for error in _contract_errors(no_pointer))
 
-    retelling = _body_mutated(
+    retelling = _mutated_wrapped(
         text, "указатель на состояние — не пересказ состояния",
         "промпт пересказывает состояние")
     errors = _contract_errors(retelling)
@@ -689,13 +702,13 @@ def test_handoff_contract_can_fail():
     assert any("chain handoff must follow" in error
                for error in _contract_errors(early_handoff))
 
-    no_command = _body_mutated(text, "«орк-промт»", "«орк-промпт»", count=-1)
+    no_command = _mutated_wrapped(text, "«орк-промт»", "«орк-промпт»", count=-1)
     errors = _contract_errors(no_command)
     assert any("must carry '«орк-промт»'" in error for error in errors)
     assert any("must carry 'команду «орк-промт»'" in error for error in errors)
 
-    no_transfer = _body_mutated(text, "Оператор переносит промпт",
-                                "Промпт передаётся автоматически")
+    no_transfer = _mutated_wrapped(text, "Оператор переносит промпт",
+                                   "Промпт передаётся автоматически")
     assert any("must carry 'оператор переносит промпт'" in error
                for error in _contract_errors(no_transfer))
 
