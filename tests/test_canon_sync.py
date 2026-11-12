@@ -16,7 +16,10 @@ Named carrier sets share the anchor mechanics:
   (docs/reference/harnesses.md) and the bundle carrier
   (skills/onto-doc/references/ontodoc-run.md);
 - ``method-phases`` — the canon's three-phase section: the canon and the
-  bundle carrier (skills/ship/references/method-phases.md);
+  bundle carrier (skills/ship/references/method-phases.md); the anchors carry
+  the new flow (projection gate, slicing self-check, chain, auto-acceptance,
+  pack gates, standards priority), and the gate-shape test guards the manual
+  gate list and forbids the retired flow phrases;
 - ``guard`` — the boundary rule (a bundle file is the primary source, the
   project overrides it): the canon and the four referencing skills.
 
@@ -115,13 +118,44 @@ METHOD_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
     REPO / "skills/ship/references/method-phases.md",
 )
+# standards-autoship 07 («Готово» 10; решения 8, 10, 11, 13, 16, 17): the
+# new flow replaces the retired one in every carrier of the set — projection
+# validation before slicing, the slicing self-check, the autonomous chain with
+# auto-acceptance, the pack mechanical gates and the standards priority. The
+# retired anchors («Гейты ручные: … команда ship», «вручную, то есть без
+# автоматических цепочек») left the tuple with the rule; the gate-shape test
+# below forbids their return.
 METHOD_ANCHORS = (
     "Факты — работа агента; решения — работа оператора",
     "Никаких якорей `file:line` — они гниют",
-    "Гейты ручные: план-гейт, вопрос нарезки и команда ship",
     "`to-tickets` **вызывает агент**",
-    "вручную, то есть без автоматических цепочек",
     "один прогон ревью (панель специалистов параллельно, один отчёт)",
+    "Гейты ручные: план-гейт, нарезка и финишная приёмка",
+    "других ручных гейтов нет",
+    "автоприёмка на полном зелёном контуре",
+    "запись гейта проекций",
+    "без записи нарезка не идёт",
+    "механические гейты пака",
+    "канон > стандарты проекта > пак команды > пак стека > базовый документ",
+    "`ship` вызывается моделью",
+    "каждый пункт «Готово» спеки закрыт тикетом",
+    "одной продолжаемой сессии-исполнителю",
+)
+
+# The manual-gate shape (decision 11): plan gate, slicing and final acceptance
+# are the only manual gates; the ship command left the list, ticket acceptance
+# is automatic on the full green contour. The retired flow phrases must not
+# return into the canon or the mirror.
+MANUAL_GATES = "Гейты ручные: план-гейт, нарезка и финишная приёмка"
+GATE_EXCLUSIVITY = "других ручных гейтов нет"
+AUTO_ACCEPT = "автоприёмка на полном зелёном контуре"
+RETIRED_FLOW_PHRASES = (
+    "автоматических цепочек нет",
+    "вручную, то есть без автоматических цепочек",
+    "гейты ручные: план-гейт, вопрос нарезки и команда ship",
+    "команда ship",
+    "критик плана",
+    "до первого ship",
 )
 
 GUARD_CARRIERS = (
@@ -198,6 +232,17 @@ def _page_names_carrier(page: Path, carrier: str) -> bool:
     return NAMING_PHRASE.lower() in text and carrier in text
 
 
+def _gate_shape_errors(text: str) -> list[str]:
+    """Violated manual-gate shape of one method carrier; empty is sound."""
+    flat = _flat(text)
+    errors = [f"gate shape lost {phrase!r}"
+              for phrase in (MANUAL_GATES, GATE_EXCLUSIVITY, AUTO_ACCEPT)
+              if _flat(phrase) not in flat]
+    errors.extend(f"retired flow phrase {phrase!r} is back"
+                  for phrase in RETIRED_FLOW_PHRASES if _flat(phrase) in flat)
+    return errors
+
+
 @pytest.mark.parametrize("carrier", ALL_CARRIERS,
                          ids=_carrier_name)
 def test_carrier_exists(carrier: Path) -> None:
@@ -234,6 +279,50 @@ def test_kb_page_names_its_bundle_carrier(page: Path, carrier: str) -> None:
         f"{_carrier_name(page)} must name the bundle carrier {carrier} "
         f"with the phrase «{NAMING_PHRASE}»"
     )
+
+
+@pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
+def test_manual_gates_shape(carrier: Path) -> None:
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 10, решение 11:
+    план-гейт, нарезка и финишная приёмка — единственные ручные гейты; команда
+    ship из перечня ручных гейтов ушла, автоприёмка тикета названа; снятый
+    поток (критик после нарезки, «автоматических цепочек нет») не
+    возвращается."""
+    errors = _gate_shape_errors(carrier.read_text(encoding="utf-8"))
+    assert errors == [], f"{_carrier_name(carrier)}: {errors}"
+
+
+def test_gate_shape_can_fail() -> None:
+    """invariant: docs/decisions/ontoship-core.md#три фазы — the gate-shape
+    check reddens on a returned ship command in the manual list, a lost final
+    acceptance, a lost exclusivity clause, a lost auto-acceptance and a
+    resurrected retired phrase; probes mutate the canon text in memory."""
+    canon = METHOD_CARRIERS[0].read_text(encoding="utf-8")
+    assert _gate_shape_errors(canon) == []
+
+    returned = canon.replace(
+        MANUAL_GATES,
+        "Гейты ручные: план-гейт, нарезка, финишная приёмка и команда ship", 1)
+    assert returned != canon, "the mutation must change the gate list"
+    assert any("команда ship" in error for error in _gate_shape_errors(returned))
+
+    no_final = canon.replace("и финишная приёмка", "и приёмка тикета", 1)
+    assert no_final != canon
+    assert any("gate shape lost" in error and "финишная приёмка" in error
+               for error in _gate_shape_errors(no_final))
+
+    no_exclusive = canon.replace(GATE_EXCLUSIVITY, "прочие гейты автоматичны", 1)
+    assert no_exclusive != canon
+    assert any(GATE_EXCLUSIVITY in error
+               for error in _gate_shape_errors(no_exclusive))
+
+    no_auto = canon.replace(AUTO_ACCEPT, "приёмка тикета оператором", 1)
+    assert no_auto != canon
+    assert any(AUTO_ACCEPT in error for error in _gate_shape_errors(no_auto))
+
+    resurrected = canon + "\n\nАвтоматических цепочек нет.\n"
+    assert any("автоматических цепочек нет" in error
+               for error in _gate_shape_errors(resurrected))
 
 
 def test_parity_mutations_can_fail(tmp_path: Path) -> None:
@@ -309,18 +398,19 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     assert missing == [panel.as_posix()], missing
 
     # The method-phases pair: an anchor dropped from the bundle section
-    # alone reddens while the canon still holds it.
+    # alone reddens while the canon still holds it. The seed carries the
+    # new-flow gate wording (standards-autoship 07).
     canon = seed("canon-phases.md",
-                 "Гейты ручные: план-гейт, вопрос нарезки и команда ship.")
+                 "Гейты ручные: план-гейт, нарезка и финишная приёмка.")
     section = seed("method-phases.md",
-                   "Гейты ручные: план-гейт, вопрос нарезки и команда ship.")
+                   "Гейты ручные: план-гейт, нарезка и финишная приёмка.")
     mutated_text = section.read_text("utf-8").replace(
-        "команда ship", "команда merge")
+        "финишная приёмка", "приёмка тикета")
     assert mutated_text != section.read_text("utf-8"), \
         "the mutation must remove the anchor"
     section.write_text(mutated_text, "utf-8")
     missing = _missing_carriers(
-        "Гейты ручные: план-гейт, вопрос нарезки и команда ship",
+        "Гейты ручные: план-гейт, нарезка и финишная приёмка",
         (canon, section))
     assert missing == [section.as_posix()], missing
 
