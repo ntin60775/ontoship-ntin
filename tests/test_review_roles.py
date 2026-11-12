@@ -1,19 +1,21 @@
-"""Contract for the review-roles reference and the harness review rows (review-config ticket 04).
+"""Contract for the review-roles reference and the harness review rows
+(review-config ticket 04).
 
 ``docs/reference/review-roles.md`` must carry the base-set role
 contracts — ``reviewer-spec``, ``reviewer-tests``, ``reviewer-code``,
 ``reviewer-kb`` — each with a scope and a checklist, plus the pack rules:
 packs carry standards, role checklists and gate configs as data, role names
 follow ``reviewer-<kontur>-<aspect>``, init detects pack roles, gates stay
-with the core and the core executes the gate configs. ``docs/reference/harnesses.md`` must describe how each harness
-organizes the review panel: the working zcode way (role definitions from the
-config, the full-restart cost of a model change, the ``subagent_model``
-fallback path, the ``[current]`` marker for the session-model check), the
-working DSH way (``subagent`` with ``provider``, ``model`` and
-``reasoning_effort``, a live ``list_subagent_models``) and Qoder named a gap
-inside its own subsection of the review section, never implemented
-silently. The reference is linked from the folder index. The ``reviewer-tests`` checklist additionally carries the two
-evidence items: every acceptance criterion must show what and where to look
+with the core and the core executes the gate configs.
+``docs/reference/harnesses.md`` must describe how each harness organizes
+the review panel: the zcode way named retired (the rail left the project),
+the working DSH way (``subagent`` with ``provider``, ``model`` and
+``reasoning_effort``, a live ``list_subagent_models``, the non-session
+fallback chain) and Qoder named a gap inside its own subsection of the
+review section, never implemented silently. The reference is linked from
+the folder index. The ``reviewer-tests`` checklist additionally carries the
+two evidence items: every acceptance criterion must show what and where to
+look
 (command output, log line, file, live probe) plus a spec-sourced expectation
 — «тест прошёл» with no place to look is a finding — and the ticket must
 dissect every expectation/fact discrepancy or carry the line «не было»,

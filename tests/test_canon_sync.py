@@ -124,6 +124,14 @@ METHOD_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
     REPO / "skills/ship/references/method-phases.md",
 )
+# The manual-gate shape (decision 11): plan gate, slicing and final acceptance
+# are the only manual gates; the ship command left the list, ticket acceptance
+# is automatic on the full green contour. The three literals live once and
+# feed both the anchor tuple and the gate-shape test.
+MANUAL_GATES = "Гейты ручные: план-гейт, нарезка и финишная приёмка"
+GATE_EXCLUSIVITY = "других ручных гейтов нет"
+AUTO_ACCEPT = "автоприёмка на полном зелёном контуре"
+
 # standards-autoship 07 («Готово» 10; решения 8, 10, 11, 13, 16, 17): the
 # new flow replaces the retired one in every carrier of the set — projection
 # validation before slicing, the slicing self-check, the autonomous chain with
@@ -136,9 +144,9 @@ METHOD_ANCHORS = (
     "Никаких якорей `file:line` — они гниют",
     "`to-tickets` **вызывает агент**",
     "один прогон ревью (панель специалистов параллельно, один отчёт)",
-    "Гейты ручные: план-гейт, нарезка и финишная приёмка",
-    "других ручных гейтов нет",
-    "автоприёмка на полном зелёном контуре",
+    MANUAL_GATES,
+    GATE_EXCLUSIVITY,
+    AUTO_ACCEPT,
     "запись гейта проекций",
     "без записи нарезка не идёт",
     "механические гейты пака",
@@ -148,13 +156,10 @@ METHOD_ANCHORS = (
     "одной продолжаемой сессии-исполнителю",
 )
 
-# The manual-gate shape (decision 11): plan gate, slicing and final acceptance
-# are the only manual gates; the ship command left the list, ticket acceptance
-# is automatic on the full green contour. The retired flow phrases must not
-# return into the canon or the mirror.
-MANUAL_GATES = "Гейты ручные: план-гейт, нарезка и финишная приёмка"
-GATE_EXCLUSIVITY = "других ручных гейтов нет"
-AUTO_ACCEPT = "автоприёмка на полном зелёном контуре"
+# The retired flow phrases must not return into the canon or the mirror. The
+# full old gate list and the bare «команда ship» are a deliberate double
+# guard: the first names the exact retired wording, the second catches any
+# return of the ship command as a manual gate.
 RETIRED_FLOW_PHRASES = (
     "автоматических цепочек нет",
     "вручную, то есть без автоматических цепочек",
@@ -327,14 +332,16 @@ def test_gate_shape_can_fail() -> None:
         MANUAL_GATES,
         "Гейты ручные: план-гейт, нарезка, финишная приёмка и команда ship", 1)
     assert returned != canon, "the mutation must change the gate list"
-    assert any("команда ship" in error for error in _gate_shape_errors(returned))
+    assert any("команда ship" in error
+               for error in _gate_shape_errors(returned))
 
     no_final = canon.replace("и финишная приёмка", "и приёмка тикета", 1)
     assert no_final != canon
     assert any("gate shape lost" in error and "финишная приёмка" in error
                for error in _gate_shape_errors(no_final))
 
-    no_exclusive = canon.replace(GATE_EXCLUSIVITY, "прочие гейты автоматичны", 1)
+    no_exclusive = canon.replace(GATE_EXCLUSIVITY,
+                                 "прочие гейты автоматичны", 1)
     assert no_exclusive != canon
     assert any(GATE_EXCLUSIVITY in error
                for error in _gate_shape_errors(no_exclusive))

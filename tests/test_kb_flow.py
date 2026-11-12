@@ -133,6 +133,18 @@ def _pack_reference_errors(page: str, index: str) -> list[str]:
     return errors
 
 
+def _skills_index_errors(text: str) -> list[str]:
+    """Every violated critic-description fact of the skills index; empty is
+    sound."""
+    lowered = _normalized_lower(text)
+    errors: list[str] = []
+    if CRITIC_DESCRIPTION not in lowered:
+        errors.append("skills index lost the projection-validation description")
+    if RETIRED_CRITIC_DESCRIPTION in lowered:
+        errors.append("retired plan-critique description is back")
+    return errors
+
+
 def test_harnesses_carry_the_chain_and_projections():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 13:
     harnesses.md несёт цепочку и проекции — DSH-способ с чистой корневой
@@ -155,9 +167,7 @@ def test_skills_index_describes_projection_validation():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 13, решение
     16: индекс бандлов описывает critic как проекционную валидацию спеки до
     нарезки; снятая критика плана до первого ship не возвращается."""
-    text = SKILLS_INDEX.read_text("utf-8")
-    assert CRITIC_DESCRIPTION in _normalized_lower(text)
-    assert RETIRED_CRITIC_DESCRIPTION not in _normalized_lower(text)
+    assert _skills_index_errors(SKILLS_INDEX.read_text("utf-8")) == []
 
 
 def test_kb_flow_checks_can_fail():
@@ -206,7 +216,13 @@ def test_kb_flow_checks_can_fail():
                for error in _pack_reference_errors(no_channel, index))
 
     skills_index = SKILLS_INDEX.read_text("utf-8")
+    assert _skills_index_errors(skills_index) == []
     returned = skills_index.replace(CRITIC_DESCRIPTION,
-                                    RETIRED_CRITIC_DESCRIPTION, 1)
+                                    RETIRED_CRITIC_DESCRIPTION)
     assert returned != skills_index
-    assert RETIRED_CRITIC_DESCRIPTION in _normalized_lower(returned)
+    assert any("retired plan-critique" in error
+               for error in _skills_index_errors(returned))
+    no_description = skills_index.replace(CRITIC_DESCRIPTION, "ревью плана")
+    assert no_description != skills_index
+    assert any("projection-validation description" in error
+               for error in _skills_index_errors(no_description))

@@ -3,7 +3,7 @@ node_type: plan
 title: DSH-адаптация — метод на нативных инструментах DSH
 service: _platform
 status: active
-updated: 2026-11-09
+updated: 2026-11-12
 tags: [plan, dsh, harness, review-panel, critic, onto-doc, init, config, live-proof]
 links:
   relates_to:

@@ -3,7 +3,7 @@ node_type: plan
 title: workflow-skills — фазы метода как скиллы
 service: _platform
 status: active
-updated: 2026-10-23
+updated: 2026-11-12
 links:
   relates_to: [../decisions/ontoship-core.md, harness-agnostic.md, ../reference/sources.md, ../reference/testing.md, ../ops/continue.md]
 ---
