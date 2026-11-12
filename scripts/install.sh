@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack)
+readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack chain)
 readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
 readonly EXCLUDES=(-x __pycache__ -x '*.pyc')
 
@@ -36,7 +36,7 @@ shared by zcode, DSH and Qoder.
 
   (default)  symlink the skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing,
-             critic, onto-doc, pack
+             critic, onto-doc, pack, chain
   --dry-run  print the planned links (or copies with --copy) and run the same
              preflight checks without writing; cannot be combined with --check
   --copy     copy the skill directories instead (detached install)

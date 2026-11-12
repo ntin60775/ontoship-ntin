@@ -227,7 +227,8 @@ def test_check_without_packs_stays_ok(project: Path) -> None:
 
 def test_skills_array_unchanged_by_pack_channel() -> None:
     """spec: docs/plans/standards-autoship.md#готово — массив SKILLS ядра
-    не меняется каналом паков."""
+    не меняется каналом паков; состав одиннадцать имён (рамки юнита:
+    девять существующих плюс pack и chain), паритет сторожит test_install."""
     source = INSTALL.read_text(encoding="utf-8")
     assert "readonly SKILLS=(kb-search kb-curate init grilling to-tickets " \
-        "ship testing critic onto-doc pack)" in source
+        "ship testing critic onto-doc pack chain)" in source

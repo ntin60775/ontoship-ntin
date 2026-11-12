@@ -16,6 +16,9 @@ spec: docs/plans/review-loose-ends.md#готово — the installer array is th
 spec: docs/plans/canon-section-in-bundles.md#готово — link и copy ставят
       method-phases.md, ссылки скиллов на секции резолвятся в дереве
       установки
+spec: docs/plans/standards-autoship.md#готово — «Готово» 7, рамки: состав
+      бандлов — одиннадцать, chain joins the rest; the parity guards the
+      eleven names
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -31,7 +34,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack", "chain")
 
 # Method-section files shipped inside the bundles (bundle-references 01);
 # listed from disk, so a new references/ file joins this check by itself.

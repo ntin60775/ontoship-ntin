@@ -181,29 +181,36 @@ BLOCK = """\
 
 ## Вход в работу (OntoShip)
 
-- Изменения этого проекта идут через ship-флоу: скилл `ship` вызывается
-  командой `/ship`, один тикет за запуск; свободные правки в обход тикета
-  не делаются — прямые решения оператора выше этого правила.
+- Изменения этого проекта идут через ship-флоу: скилл `ship` исполняет
+  один тикет за запуск — моделью в автономной цепочке или вручную
+  командой `/ship`; свободные правки в обход тикета не делаются —
+  прямые решения оператора выше этого правила.
 - Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
   харнесса не используется.
 - Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
   сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой
-  `/ship` или «исполняй тикет N».
+  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка
+  в чистой сессии, скилл `chain`.
 <!-- END ontoship -->
 """
 
 # Rule clauses of the entry section (docs/plans/entry-and-continuity.md,
-# «Готово» 1, 3; dsh-adaptation consequence 2): one anchor per clause, so a
-# dropped clause reddens with its own name. The ship clause names `/ship`.
+# «Готово» 1, 3; dsh-adaptation consequence 2; standards-autoship «Готово» 9,
+# decisions 11, 12): one anchor per clause, so a dropped clause reddens with
+# its own name. The ship clause names the model invocation in the chain and
+# the manual `/ship`; the command bullet names the chain launch command.
 ENTRY_RULES = (
     "свободные правки в обход тикета не",
     "Запрос плана открывает draft-спеку через скилл `grilling`",
     "харнесса не используется",
     "Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):",
-    "скилл `ship` вызывается",
+    "скилл `ship` исполняет",
+    "один тикет за запуск — моделью в автономной цепочке",
     "командой `/ship`",
     "`/ship` или «исполняй тикет N»",
+    "«цепочка» — автономная цепочка",
+    "в чистой сессии, скилл `chain`",
 )
 
 # The continue.md skeleton shipped by init (docs/plans/entry-and-continuity.md,
@@ -476,6 +483,12 @@ def _contract_errors(text: str) -> list[str]:
         for marker in (BEGIN, END):
             if got.count(marker) != 1:
                 errors.append(f"block: expected exactly one {marker!r}")
+        # Entry-section clauses: one named error per lost clause, so a
+        # dropped chain command or ship wording reddens with its own name.
+        flat_got = re.sub(r"\s+", " ", got)
+        for rule in ENTRY_RULES:
+            if rule not in flat_got:
+                errors.append(f"block: entry rule missing {rule!r}")
 
     gitignore_sets = _gitignore_sets(text)
     if gitignore_sets != [GITIGNORE]:
@@ -579,11 +592,46 @@ def test_entry_section_rules_are_pinned_and_mutation_reddens():
     state = ("- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):\n"
              "  сессия продолжается оттуда и берёт следующий тикет оттуда же.\n")
     commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой\n"
-                "  `/ship` или «исполняй тикет N».\n")
+                "  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка\n"
+                "  в чистой сессии, скилл `chain`.\n")
     assert state in text and commands in text
     swapped = text.replace(state + commands, commands + state)
     assert swapped != text
     assert _contract_errors(swapped), "step-order swap did not redden"
+
+
+def test_block_names_the_chain_command():
+    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: управляемый
+    блок init называет команду запуска цепочки в чистой сессии; строка ship
+    несёт модельный вызов в автономной цепочке и ручной `/ship` (решения 11,
+    12; зацепка тикета 05 — строка «вызывается командой /ship»). Мутации:
+    потеря команды цепочки и возврат снятой user-only формулировки краснят."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
+    flat_block = re.sub(r"\s+", " ", BLOCK)
+    assert "«цепочка» — автономная цепочка" in flat_block
+    assert "в чистой сессии, скилл `chain`" in flat_block
+    assert "один тикет за запуск — моделью в автономной цепочке" in flat_block
+
+    dropped = text.replace(
+        "; «цепочка» — автономная цепочка\n  в чистой сессии, скилл `chain`.",
+        ".", 1)
+    assert dropped != text
+    errors = _contract_errors(dropped)
+    assert any("«цепочка» — автономная цепочка" in error for error in errors)
+    assert any("в чистой сессии, скилл `chain`" in error for error in errors)
+
+    reverted = text.replace(
+        "скилл `ship` исполняет\n"
+        "  один тикет за запуск — моделью в автономной цепочке или вручную\n"
+        "  командой `/ship`;",
+        "скилл `ship` вызывается\n"
+        "  командой `/ship`, один тикет за запуск;", 1)
+    assert reverted != text
+    errors = _contract_errors(reverted)
+    assert any("скилл `ship` исполняет" in error for error in errors)
+    assert any("один тикет за запуск — моделью в автономной цепочке" in error
+               for error in errors)
 
 
 def test_continue_skeleton_clauses_are_pinned():
