@@ -318,7 +318,7 @@ def _contract_errors(text: str) -> list[str]:
                           "left the section")
         for phrase in SOURCE_PHRASES:
             if phrase not in when:
-                errors.append(f"when: section «{WHEN_HEADING}» lost {phrase!r}")
+                errors.append(f"when: section «Когда использовать» lost {phrase!r}")
 
     for heading, label, phrases in (
         (ENTRY_HEADING, "entry", ENTRY_PHRASES),
@@ -426,7 +426,7 @@ def test_prompt_source_is_named():
     переноса оператором, указателя и ручной команды краснят контракт."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
-    when = _section(_normalized_lower(text), WHEN_HEADING)
+    when = _section(_normalized_lower(_parse(text)[1]), WHEN_HEADING)
     for phrase in SOURCE_PHRASES:
         assert phrase in when, f"the phrase {phrase!r} left «Когда использовать»"
 

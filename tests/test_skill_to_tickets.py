@@ -283,7 +283,6 @@ def _contract_errors(text: str) -> list[str]:
             if phrase in sequence:
                 errors.append(f"body: section 'Порядок' carries "
                               f"contradictory phrase {phrase!r}")
-        check_at = sequence.find("самопроверка нарезки")
         handoff_at = sequence.find("передача в цепочку")
         if check_at >= 0 and handoff_at >= 0 and handoff_at < check_at:
             errors.append("body: the chain handoff must follow "
