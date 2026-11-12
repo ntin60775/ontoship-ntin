@@ -13,8 +13,10 @@ handoff prompt happens at a ticket boundary; there is no compaction. An
 exception stops the chain and transfers the state to continue.md. The final
 report (decision 14, «Готово» 11) is a fact report with the spec's «Готово»
 items proven, demo paths, gaps, the leads register and mermaid diagrams of key
-decisions and use cases; its durable copy lives in the unit's tracker folder,
-the decision is presented and defended in the planning session, acceptance is
+decisions and use cases; its durable copy lives in the unit's tracker folder.
+The orchestrator only writes the durable copy and ends the chain: the
+planning-session agent presents and defends the decision from that copy (the
+operator transfers it; there is no cross-session messaging), acceptance is
 the ask «принять/вернуть» and a return opens work on the findings.
 
 The managed init block names the chain launch command («Готово» 9): that
@@ -156,27 +158,29 @@ REPORT_PHRASES = (
     "возврат открывает работу по находкам",
     "отчёт фактами стоит в чате перед вызовом",
 )
-# «Визуализация»: one ticket-DAG is the source of truth; TWO derived static
-# views — the graph and the Kanban (decision 19). blocked is computed from the
-# edges; the ready-frontier is computed and read from the Kanban ready column,
-# not rendered as a separate third block; Temporal status colors, no host code.
-# The live DSH panel is the external plugin ontoship-chain-board: the
-# orchestrator calls its tool once at the chain start and the board opens only
-# in the orchestrator session (operator decision 2026-11-12); the ReactFlow+ELK
-# panel stays a future unit.
+# «Визуализация»: one ticket-DAG is the source of truth; the orchestrator
+# computes TWO derived static views (decision 19) and keeps them in the unit's
+# tracker folder: the graph is a mermaid block, the Kanban a markdown table.
+# blocked is computed from the edges; the ready-frontier is computed and read
+# from the Kanban ready column, not rendered as a separate third block;
+# Temporal status colors, no host code. The live DSH panel is the external
+# plugin ontoship-chain-board: the orchestrator calls its tool once at the
+# chain start and the board opens only in the orchestrator session (operator
+# decision 2026-11-12); the ReactFlow+ELK panel stays a future unit.
 VIZ_PHRASES = (
     "источник истины — тикеты и блокирующие рёбра",
-    "виды вычисляются",
-    "не ведутся отдельно",
+    "оркестратор вычисляет виды",
+    "не ведёт их отдельно",
     "два производных вида",
-    "граф зависимостей и kanban",
-    "колонка blocked вычисляется",
-    "не проставляется руками",
+    "граф зависимостей — mermaid-блок",
+    "kanban — markdown-таблица",
+    "колонку blocked оркестратор вычисляет",
+    "не проставляет руками",
     "ready-frontier читается колонкой ready",
     "отдельный третий блок не рендерится",
     "цвета статусов — лексика temporal",
     "mermaid",
-    "генерируемым svg/markdown",
+    "рендерит виды из тикетов",
     "без кода хоста",
     "живая панель dsh — внешний плагин",
     "один раз вызывает инструмент",
@@ -578,25 +582,33 @@ def test_final_report_form_and_acceptance():
 
 def test_viz_derived_views_from_one_dag():
     """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 19:
-    один ticket-DAG (markdown+git) — источник истины; два производных
-    статических вида — граф и Kanban; blocked вычисляется из рёбер,
-    ready-frontier читается колонкой ready (отдельный третий блок не
-    рендерится), цвета Temporal, без кода хоста; живая панель DSH —
-    внешний плагин, оркестратор роутится на его инструмент один раз
-    (приписка 2026-11-12), доска только в сессии оркестратора."""
+    один ticket-DAG (markdown+git) — источник истины; оркестратор
+    вычисляет два производных статических вида — граф (mermaid-блок)
+    и Kanban (markdown-таблица), файлы в папке юнита трекера; blocked
+    вычисляется из рёбер, ready-frontier читается колонкой ready
+    (отдельный третий блок не рендерится), цвета Temporal, без кода
+    хоста; живая панель DSH — внешний плагин, оркестратор роутится на
+    его инструмент один раз (приписка 2026-11-12), доска только
+    в сессии оркестратора."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
     for old, new, needle in (
-        ("не ведутся отдельно", "ведутся отдельно", "не ведутся отдельно"),
+        ("не ведёт их отдельно", "ведёт их отдельно", "не ведёт их отдельно"),
         ("два производных вида", "три производных вида",
          "два производных вида"),
+        ("граф зависимостей — mermaid-блок",
+         "граф зависимостей — произвольный формат",
+         "граф зависимостей — mermaid-блок"),
+        ("Kanban — markdown-таблица", "Kanban — произвольный формат",
+         "kanban — markdown-таблица"),
         ("отдельный третий блок не рендерится",
          "третий блок рендерится отдельно",
          "отдельный третий блок не рендерится"),
-        ("Колонка blocked вычисляется", "Колонка blocked проставляется",
-         "колонка blocked вычисляется"),
-        ("не проставляется руками", "проставляется руками",
-         "не проставляется руками"),
+        ("Колонку blocked оркестратор вычисляет",
+         "Колонку blocked оркестратор проставляет",
+         "колонку blocked оркестратор вычисляет"),
+        ("не проставляет руками", "проставляет руками",
+         "не проставляет руками"),
         ("цвета статусов — лексика Temporal", "цвета статусов произвольные",
          "цвета статусов — лексика temporal"),
         ("без кода хоста", "кодом хоста", "без кода хоста"),
