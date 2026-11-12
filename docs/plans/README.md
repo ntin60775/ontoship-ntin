@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-11
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, chain-live-activity.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -120,6 +120,12 @@ links:
   20 — инициирующий промпт оркестратора (тикет 09), ask 2026-11-12;
   приписка 2026-11-12 — лёгкая живая панель как внешний плагин
   `ontoship-chain-board`).
+
+- [chain-live-activity.md](chain-live-activity.md) — живая активность
+  прогонов на доске цепочки: эфемерный реестр lease, два host-инструмента
+  плагина, правила истины (TTL/stale, конфликты), скиллы ship/chain;
+  draft, grilling-раунды 1–2 приняты оператором ask-ом 2026-11-12,
+  блокеры — тикеты 07 и 09 [standards-autoship](standards-autoship.md).
 
 Будущий юнит `chain-viz-panel` — живая панель DSH (ReactFlow+ELK,
 client-plugin) как интерактивный вид ticket-DAG; отмечен решением 19
