@@ -133,5 +133,5 @@ temp-проекте, артефакты в тикете; механически�
 пройдены (756 passed после rebase, `lint --strict` чисто,
 `install.sh --check` — `check: ok`, copy-установка в temp-проекте);
 механических гейтов пака нет — паков нет, ноль назван; точки остановки
-«Ограничений» пройдены. Merge ff в main — хеш фиксируется в абзаце
-юнита runbook.
+«Ограничений» пройдены. Merge ff в main = `3da1fe2`, worktree
+`ontoship-ntin-wt-sa09` и ветка `sa09-entry-prompt` снесены.
