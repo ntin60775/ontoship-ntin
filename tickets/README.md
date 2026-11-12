@@ -344,6 +344,22 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 |---|---|---|
 | 01 | [UTF-8 в выводе CLI](cli-utf8/01-cli-utf8.md) | — |
 
+Юнит [`chain-live-activity`](../docs/plans/chain-live-activity.md) открыт
+2026-11-12: спека утверждена на план-гейте ask-проходом (grilling-раунды
+1–2, решения 1–8), гейт проекций пройден (четыре среза, триаж, решение
+оператора «править всё» —
+[00-projection-report.md](chain-live-activity/00-projection-report.md));
+нарезка — четыре тикета приняты ask-ом со сверкой понимания 2026-11-12.
+Внешний блокер юнита — тикеты 07 и 09 `standards-autoship`; тикет 08
+этот юнит не ждёт.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [прогон виден на доске](chain-live-activity/01-lease-visible.md) | 07, 09 standards-autoship (внешний) |
+| 02 | [правила истины и поповер](chain-live-activity/02-truth-rules.md) | 01 |
+| 03 | [скиллы пишут lease](chain-live-activity/03-skills-lease.md) | 01 |
+| 04 | [документация и живая проба](chain-live-activity/04-docs-live-proof.md) | 01, 02, 03 |
+
 Юнит [`standards-autoship`](../docs/plans/standards-autoship.md) открыт
 2026-11-11: спека утверждена на план-гейте ask-проходом (решения 1–18),
 нарезка — восемь тикетов приняты со сверкой понимания того же дня;

@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "title": "OntoShip chain board",
+    "description": "Right-sidebar board of the current OntoShip unit: one ticket-DAG with a dependency graph and a Kanban whose blocked column is computed from edges and whose ready column is the computed frontier. Status colors follow the Temporal UI palette. Reads tickets and edges from tickets/<slug>/ and state from docs/ops/continue.md in the session working folder, refreshes on file changes, and stores nothing: every view is derived from markdown + git.",
+    "detail": "docs/DETAIL.md"
+  },
+  "tab": {
+    "title": "Chain board",
+    "description": "The current unit as one ticket-DAG: dependency graph and Kanban from tickets/ and continue.md."
+  },
+  "view": {
+    "graph": "Graph",
+    "kanban": "Kanban"
+  },
+  "status": {
+    "blocked": "Blocked",
+    "ready": "Ready",
+    "active": "In progress",
+    "review": "Awaiting acceptance",
+    "accepted": "Accepted"
+  },
+  "empty": {
+    "noContinue": "No docs/ops/continue.md in the working folder. The board shows OntoShip units only.",
+    "noUnit": "No open unit found in docs/ops/continue.md.",
+    "noDir": "Folder tickets/{slug} not found.",
+    "noTickets": "Unit {slug} has no tickets."
+  },
+  "error": {
+    "read": "Could not read the board data: {message}"
+  },
+  "action": {
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "openTicket": "Open ticket file"
+  },
+  "board": {
+    "loading": "Reading tickets…",
+    "unit": "Current unit",
+    "summary": "{count} tickets · frontier {frontier}",
+    "derived": "derived from markdown + git, live",
+    "legend": "Status colors: Temporal palette",
+    "criteria": "criteria {done}/{total}",
+    "blockedBy": "blocked by {list}",
+    "graphAria": "Ticket dependency graph of unit {slug}",
+    "kanbanAria": "Kanban of unit {slug}",
+    "noBlockers": "no blockers",
+    "dangling": "blocker {num} has no ticket file"
+  }
+}

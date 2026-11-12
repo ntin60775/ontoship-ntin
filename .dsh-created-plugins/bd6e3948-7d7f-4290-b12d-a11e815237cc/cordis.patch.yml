@@ -1,0 +1,4 @@
+- insert:
+    - id: '@dsh-local/view-bd6e3948-7d7f-4290-b12d-a11e815237cc:board'
+      name: '@dsh-local/view-bd6e3948-7d7f-4290-b12d-a11e815237cc'
+      config: {}

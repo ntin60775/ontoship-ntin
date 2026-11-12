@@ -1,0 +1,38 @@
+{
+  "name": "@dsh-local/view-bd6e3948-7d7f-4290-b12d-a11e815237cc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OntoShip chain board: the current unit as one ticket-DAG and Kanban in the right sidebar, derived from tickets/<slug>/ and docs/ops/continue.md.",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg",
+    "src",
+    "build.mjs",
+    "tests"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-session",
+        "@deepseek-ai/dsh-client-ui-sidebar-right",
+        "@deepseek-ai/dsh-api-workspace-files"
+      ]
+    }
+  }
+}

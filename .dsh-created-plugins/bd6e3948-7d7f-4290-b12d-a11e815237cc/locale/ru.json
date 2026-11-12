@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "title": "Доска цепочки OntoShip",
+    "description": "Доска текущего юнита OntoShip в правой панели: один ticket-DAG — граф зависимостей и Kanban, где колонка blocked вычисляется из рёбер, а ready — вычисляемый frontier. Цвета статусов — палитра Temporal UI. Читает тикеты и рёбра из tickets/<slug>/ и состояние из docs/ops/continue.md рабочей папки, обновляется при их изменении и ничего не хранит: все виды производные от markdown + git.",
+    "detail": "docs/DETAIL.md"
+  },
+  "tab": {
+    "title": "Доска цепочки",
+    "description": "Текущий юнит как один ticket-DAG: граф зависимостей и Kanban из tickets/ и continue.md."
+  },
+  "view": {
+    "graph": "Граф",
+    "kanban": "Kanban"
+  },
+  "status": {
+    "blocked": "Blocked",
+    "ready": "Ready",
+    "active": "В работе",
+    "review": "Ждёт приёмки",
+    "accepted": "Принят"
+  },
+  "empty": {
+    "noContinue": "В рабочей папке нет docs/ops/continue.md. Доска показывает только юниты OntoShip.",
+    "noUnit": "Открытый юнит не найден в docs/ops/continue.md.",
+    "noDir": "Папка tickets/{slug} не найдена.",
+    "noTickets": "В юните {slug} нет тикетов."
+  },
+  "error": {
+    "read": "Не удалось прочитать данные доски: {message}"
+  },
+  "action": {
+    "retry": "Повторить",
+    "refresh": "Обновить",
+    "openTicket": "Открыть файл тикета"
+  },
+  "board": {
+    "loading": "Чтение тикетов…",
+    "unit": "Текущий юнит",
+    "summary": "{count} тикетов · frontier {frontier}",
+    "derived": "производная от markdown + git, живая",
+    "legend": "Цвета статусов: палитра Temporal",
+    "criteria": "критерии {done}/{total}",
+    "blockedBy": "блокируется: {list}",
+    "graphAria": "Граф зависимостей тикетов юнита {slug}",
+    "kanbanAria": "Kanban юнита {slug}",
+    "noBlockers": "блокеров нет",
+    "dangling": "у блокера {num} нет файла тикета"
+  }
+}
