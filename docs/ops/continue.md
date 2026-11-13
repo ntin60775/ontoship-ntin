@@ -39,6 +39,9 @@ ask-ом, правки внесены; отчёт
 последовательный 01→02→03→04→05→06→07→08 (04 и 05 — в порядке
 публикации), производные виды — `tickets/team-profiles/dag.md` и
 `kanban.md`, доска открыта (`ontoship_board_open`). Тикет 01 в работе.
+Решение оператора 2026-11-13: исполнитель перезапущен на маршруте
+`deepseek-account/deepseek-flash` с `max` (первая сессия остановлена до
+шага 1 ship без write-действий, разведка передана handoff-промптом).
 Очередь: `chain-live-activity/01` свободен.
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
@@ -1841,9 +1844,10 @@ ask-ом), промпт сгенерирован после приёмки (`b8c
 
 ## Факты окружения
 
-- DSH 0.2.2-rc.1 запускается из
+- DSH запускается из
   `/home/prog7/home/dev/contrib/forks/deepseek-harness`; Web GUI —
-  `http://127.0.0.1:3080`. Рабочая сессия (2026-11-06…09) видит
+  `http://127.0.0.1:3080`. Версия на 2026-11-13 — **0.2.2-rc.2**
+  (сверено по package.json checkout; прежняя запись rc.1 устарела). Рабочая сессия (2026-11-06…09) видит
   project-local `.agents/skills` (ранг 200) и `AGENTS.md` с блоком `/ship`;
   каталог — восемь модельных скиллов (`kb-search`, `kb-curate`, `init`,
   `grilling`, `to-tickets`, `testing`, `critic`, `onto-doc`) и `ship` как
