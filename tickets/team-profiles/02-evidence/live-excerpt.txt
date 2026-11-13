@@ -1,0 +1,15 @@
+# Родитель: session-4c7b3d48-ed22-4910-b3ce-6a84e0031a6f
+{"id":"session-4c7b3d48-ed22-4910-b3ce-6a84e0031a6f","agentPreset":"orchestrator","delegationDepth":0,"origin":null}
+{"seq":4,"title":"Оркестратор","source":{"kind":"user"}}
+# Инструменты родителя:
+ask_user_question cordis_inspect_list cordis_inspect_query create_worktree glob grep list_agents list_subagent_models ontoship_board_open read read_image send_message skill subagent wait_agent working_directory 
+# allowlist subagent:
+[{"type":"string","description":"Agent preset for this child. Omit to use executor.","enum":["executor","1c-executor"]}]
+# чтение реестра:
+{"seq":17,"args":"{\"file_path\":\"/home/prog7/.dsh/profiles/web/ontoship/executors.json\"}"}
+# спавн:
+{"seq":22,"args":"{\"agent_preset\":\"executor\",\"name\":\"executor-02\",\"description\":\"Смоук-проверка исполнителя\",\"prompt\":\"Ответь одним словом: готово\",\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoning_effort\":\"max\"}"}
+{"seq":24,"text":"started subagent executor-02","meta":{"kind":"activation","name":"executor-02"}}
+# Дочерняя сессия:
+{"id":"b67d72f7-1e9e-4507-81c1-02366d2b63bb","agentPreset":"executor","parentSession":"session-4c7b3d48-ed22-4910-b3ce-6a84e0031a6f","origin":"subagent","delegationDepth":1}
+{"seq":17,"title":"Ответь одним словом: г","source":{"kind":"fallback"}}

@@ -1,0 +1,12 @@
+# plugin_manager list_plugins (offset 224..236) после переустановки бандла:
+include:ontoship-executors  module=ontoship-team/executors        enabled=true fiberPhase=active  patchId=ontoship-executors
+include:ontoship-team       module=ontoship-team                 enabled=true fiberPhase=active  patchId=ontoship-team
+include:preset-architect    module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active  patchId=preset-architect
+include:preset-orchestrator module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active  patchId=preset-orchestrator
+include:preset-executor     module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active  patchId=preset-executor
+include:1c-contour          module=dsh-1c-contour                 enabled=true fiberPhase=null    patchId=1c-contour
+
+# install_bundle (после remove): application=restart-required, restartReason=unmanaged-plugin;
+# единственное предупреждение — чужая строка 1c-contour (внешняя причина: её lib
+# пересобран после старта хоста, HMR отдаёт старый paths.js). Наши новые строки
+# (executors, orchestrator, executor) активны — пресет с !!js-allowlist смонтирован.
