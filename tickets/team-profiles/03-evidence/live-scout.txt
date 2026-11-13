@@ -1,0 +1,31 @@
+# Живая проба scout ролью (DSH 0.2.2-rc.2, профиль web, без рестарта)
+
+# Переустановка бандла: plugin_manager remove_bundle + install_bundle
+# (application=restart-required из-за чужой строки 1c-contour; новые строки активны).
+# Хост PID 3746641 не перезапускался, сессии живы.
+
+# Сессия оркестратора: session-8a224f20-db0c-4b0d-9ebc-787da7210891
+{"type":"session","version":4,"id":"session-8a224f20-db0c-4b0d-9ebc-787da7210891","createdAt":1794586417393,"cwd":"/tmp/tp03-live-scout","isSeeded":false,"delegationDepth":0,"agentPreset":"orchestrator"}
+
+# allowlist subagent (enum agent_preset из request/header):
+{"type": "string", "description": "Agent preset for this child. Omit to use executor.", "enum": ["executor", "1c-executor", "scout"]}
+
+# Спавн (tool/call):
+{"agent_preset":"scout","name":"scout-live","provider":"qwen-token-plan","model":"qwen3.8-flash","reasoning_effort":"medium","description":"Смоук-проверка scout-маршрута","prompt":"Ответь одним словом: готово"}
+
+# Сессия ребёнка: 37905736-c6bc-4a98-887d-de987cda3189
+{"type":"session","version":4,"id":"37905736-c6bc-4a98-887d-de987cda3189","createdAt":1794586436926,"cwd":"/tmp/tp03-live-scout","parentSession":"session-8a224f20-db0c-4b0d-9ebc-787da7210891","isSeeded":false,"origin":"subagent","delegationDepth":1,"agentPreset":"scout"}
+{"type":"agent-preset/selected","seq":0,"time":1794586436951,"data":{"agentPreset":"scout"}}
+{"type":"subagent/descriptor","seq":1,"time":1794586436952,"data":{"version":3,"mode":"continuable","provider":"spawn","label":"Смоук-проверка scout-маршрута","agentProvider":"qwen-token-plan","agentModel":"qwen3.8-flash","agentReasoningEffort":"medium"}}
+
+# request/header config ребёнка:
+{"provider": "qwen-token-plan", "model": "qwen3.8-flash", "reasoningEffort": "medium", "maxTokens": 131072}
+
+# Инструменты ребёнка (request/header):
+['cordis_inspect_list', 'cordis_inspect_query', 'create_worktree', 'glob', 'grep', 'ontoship_board_open', 'read', 'read_image', 'web_fetch', 'web_search', 'working_directory']
+
+# Ответ ребёнка:
+готово
+
+# Отчёт выбора оркестратора:
+Смоук-проверка закрыта: субагент `scout-live` (preset `scout`, маршрут `qwen-token-plan` / `qwen3.8-flash` / `medium`) завершился и вернул ровно ожидаемый ответ — **«готово»**. Маршрут из реестра [executors.json](</home/prog7/.dsh/profiles/web/ontoship/executors.json>) подтверждён живым прогоном; дальнейших действий не требуется.

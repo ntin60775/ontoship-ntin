@@ -1,14 +1,14 @@
-# plugin_manager list_plugins (offset 224..236), снято 2026-11-13 17:31 EET
-# после записи записи scout в <profile>/ontoship/executors.json:
+# plugin_manager list_plugins (offset 224..237), снято 2026-11-13 18:13 EET
+# после remove_bundle + install_bundle (link на team main a5b5b0c):
 include:ontoship-executors module=ontoship-team/executors        enabled=true fiberPhase=active patchId=ontoship-executors
 include:ontoship-team       module=ontoship-team                 enabled=true fiberPhase=active patchId=ontoship-team
 include:preset-architect    module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active patchId=preset-architect
 include:preset-orchestrator module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active patchId=preset-orchestrator
 include:preset-executor     module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active patchId=preset-executor
+include:preset-scout        module=@deepseek-ai/dsh-agent-preset  enabled=true fiberPhase=active patchId=preset-scout
 include:1c-contour          module=dsh-1c-contour                 enabled=true fiberPhase=null    patchId=1c-contour
 
-# preset-scout в списке отсутствует: строки бандла из коммита team 7346ade
-# не смонтированы в живом хосте (нужен reload/restart профиля).
-# Хост: PID 3746641, старт 2026-11-13 11:05:25, `node ... web --no-open`.
-# Реестр профиля записан 17:31:29 — позже apply плагина; allowlist заморожен
-# на значениях, вычисленных при apply: ["executor","1c-executor"].
+# install_bundle вернул application=restart-required (restartReason=unmanaged-plugin,
+# единственное предупреждение — чужая строка 1c-contour), но новые строки активны:
+# preset-scout смонтирован без рестарта, allowlist пересчитан из реестра
+# (enum subagent: ["executor","1c-executor","scout"]). Хост PID 3746641 не перезапускался.
