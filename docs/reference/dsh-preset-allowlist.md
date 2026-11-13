@@ -26,7 +26,7 @@ links:
 - `process` доступен, `require` — нет (Host ESM): `typeof require` даёт
   `"undefined"`.
 - `ctx.get(name)` доступен; provide-значение можно вызвать.
-- Композиции пресетов активируются эагерно на старте; выражение
+- Композиции пресетов активируются сразу на старте; выражение
   вычисляется один раз при монтировании.
 - В flow-последовательности YAML запятая внутри выражения ломает парсер
   (`missed comma between flow collection entries`) — выражение берётся
@@ -45,12 +45,16 @@ links:
 
 Хост-плагин реестра исполнителей в team-бандле, строка **до** деклараций
 пресетов: при apply читает манифест `executors.json` и отдаёт синхронный
-`executors()`. Пресет оркестратора:
+`executors()`. Пресет оркестратора (тикет 03, `scout` — литерал, потому
+что общий сборщик контекста доступен и на дефолтном реестре):
 
 ```yaml
-allowedAgentPresets: !!js "ctx.get('ontoshipExecutors').executors()"
+allowedAgentPresets: !!js "[...new Set([...ctx.get('ontoshipExecutors').executors(), 'scout'])]"
+agentPreset: executor
 ```
 
+У `architect` и `executor` тот же allowlist без `agentPreset`: ребёнок без
+явного `agent_preset` наследует пресет родителя (панель ship).
 Стеки и контурный раннер обновляют манифест, не пресет. Ограничения:
 строка реестра обязана быть раньше пресетов в том же слое; ошибка чтения
 манифеста — дефолт `["executor"]` и запись в лог; неизвестный id в

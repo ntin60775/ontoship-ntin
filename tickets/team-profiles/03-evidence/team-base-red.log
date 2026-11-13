@@ -1,0 +1,42 @@
+$ npx vitest run  (база 38a8f15 + новые тесты composition/routes, без нового cordis.patch.yml и executors.example.json)
+
+ RUN  v3.2.7 /tmp/tp03-base-team3
+
+ ✓ tests/unit/naming.spec.ts (19 tests) 10ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 11ms
+ ✓ tests/unit/manifest.spec.ts (4 tests) 7ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/composition.spec.ts [ tests/unit/composition.spec.ts ]
+Error: composition has no row "preset-scout"
+ ❯ rowOf tests/unit/composition.spec.ts:59:32
+     57| function rowOf(id: string): Row {
+     58|   const row = ROWS.find((candidate) => candidate.id === id)
+     59|   if (row === undefined) throw new Error(`composition has no row "${id…
+       |                                ^
+     60|   return row
+     61| }
+ ❯ presetOf tests/unit/composition.spec.ts:214:15
+ ❯ tests/unit/composition.spec.ts:221:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/routes.spec.ts [ tests/unit/routes.spec.ts ]
+Error: ENOENT: no such file or directory, open '/tmp/tp03-base-team3/executors.example.json'
+ ❯ tests/unit/routes.spec.ts:35:28
+     33| }
+     34| 
+     35| const EXAMPLE = JSON.parse(readFileSync(join(ROOT, 'executors.example.…
+       |                            ^
+     36| 
+     37| /** Запись по id или отказ: пропажа маршрута — находка, не пропуск. */
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 3 passed (5)
+      Tests  39 passed (39)
+   Start at  17:32:48
+   Duration  352ms (transform 188ms, setup 0ms, collect 224ms, tests 28ms, environment 1ms, prepare 399ms)
+

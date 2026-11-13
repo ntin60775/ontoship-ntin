@@ -19,17 +19,104 @@ write); `scout` в allowlist всех трёх ролей.
 
 **Критерии приёмки:**
 
-- [ ] Правило выбора — артефакт: текст chain + вывод контрактного теста
+- [x] Правило выбора — артефакт: текст chain + вывод контрактного теста
       (указатель, выбор при спавне/handoff, два кандидата 1C/не-1C,
       неоднозначность → стоп); ожидание: «Готово» 3; на базе chain без
       правила выбора (красная проба).
-- [ ] Маршруты — артефакт: схема реестра с provider, per-call read,
+- [x] Маршруты — артефакт: схема реестра с provider, per-call read,
       отчёт выбора; ожидание: исполнитель deepseek-flash/max, scout
       qwen3.8-flash/medium, полная форма provider/model+level;
       «Готово» 5; на базе нет.
-- [ ] Scout — артефакт: вывод контрактного теста композиции (scout:
+- [x] Scout — артефакт: вывод контрактного теста композиции (scout:
       read/grep/glob/web без write; scout в allowlist architect/
       orchestrator/executor); ожидание: «Готово» 1, scout у всех ролей;
       на базе пресета нет.
 - [ ] Live — артефакт: спавн с per-call маршрутом, спавн scout, отчёт
       выбора; ожидание: маршрут и выбор наблюдаемы; на базе нет.
+
+## Доказательства
+
+Срезы: `ontoship-ntin` — ветка `tp03-selection-routes-scout`, коммит
+`02a4c82` (раздел «Выбор исполнителя» в скилле chain, контрактные
+тесты); `ontoship-team` — ветка `tp03-scout-routes`, коммит `7346ade`
+(пресет scout, allowlist, `agentOptions`, образец реестра, тесты).
+Базы: ntin `dd372cf` (main на старте прохода), team `38a8f15`. Логи —
+`03-evidence/`.
+
+**Правило выбора (критерий 1).** `skills/chain/SKILL.md`, раздел
+«Выбор исполнителя»: указатель архитектора в спеке/continue.md
+(`Исполнитель: <id>`) → id из реестра
+`<profile>/ontoship/executors.json` → иначе дефолт `executor`;
+неоднозначность (id не из реестра или указатели расходятся) —
+остановка с вопросом; пресет и маршрут выбираются при спавне
+продолжаемой сессии и при пенсии/handoff, не на каждый тикет;
+маршрут — per-call через `read` реестра в полной форме
+`provider/model` + level; приоритет источников: проектный факт в
+continue.md главнее записи реестра, затем реестр, затем дефолт хоста;
+`agentOptions` — страховка; выбор называется в отчёте.
+`tests/test_skill_chain.py::test_executor_selection_rule` — 16 passed в
+файле, 757 passed в наборе (`core-tests.log`). Тест держит указатель,
+гранулярность, двух кандидатов (`executor`/`1c-executor`), дефолт,
+стоп при неоднозначности, отчёт выбора, полную форму маршрута,
+приоритет источников, `read` реестра, заморозку allowlist,
+`agentOptions` и реестр панели в `.agents/config.toml`; 16 мутаций
+краснят (`_body_mutated` проверяет, что замена изменила текст).
+Красная проба на базе `dd372cf` с новым тестовым файлом — 12 failed /
+4 passed; `test_executor_selection_rule` падает на
+`selection: missing section «выбор исполнителя»` —
+`core-base-red.log`, `core-base-red-selection.log`.
+
+**Маршруты (критерий 2).** `executors.example.json` — записи `executor`
+(`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`, `max`) и `scout`
+(`qwen-token-plan/qwen3.8-flash`, `medium`), полная форма
+`provider/model` + level. `tests/unit/routes.spec.ts` (6) проверяет
+схему, полную форму и оба маршрута; негативная проба «без provider» не
+проходит схему; реестр без записи `scout` валиден — allowlist ролей
+добавляет scout литералом. Схема `{id, provider, model, level}` и
+деградации — `executors.spec.ts` (16). Живой реестр профиля web:
+`executors.json` sha256 `c4a87eb1…`, запись scout
+`qwen-token-plan/qwen3.8-flash/medium`; бэкап `5c155543…` —
+`profile-registry.txt`. Per-call маршрут проверен живьём спавном:
+сессия ребёнка `session-a716c5db…`, дескриптор и `request/header`
+дали `qwen-token-plan/qwen3.8-flash` + `medium` —
+`live-route-probe.txt`. Отчёт выбора: кандидаты `executor`,
+`1c-executor`, `scout`; выбран маршрут scout-записи, причина —
+проверка per-call полей из реестра. `npm test` — 76 passed,
+`npm run build`/`typecheck` чисто — `team-tests.log`, `team-build.log`.
+Красная проба на базе `38a8f15`: composition падает на отсутствии
+`preset-scout`, routes — на отсутствии `executors.example.json` —
+`team-base-red.log`.
+
+**Scout (критерий 3).** `cordis.patch.yml`: `preset-scout` (id `scout`,
+order 31, персона на русском с секциями); инструменты `read`,
+`read_image`, `glob`, `grep`, `web_search`, `web_fetch`; нет `write`,
+`edit`, `apply_patch`, `bash`, `ask_user_question`, `subagent`,
+`subagent_fork`, `todo_write`. `scout` в allowlist spawn всех трёх
+ролей: `!!js` union реестра и литерала `'scout'` (Set снимает дубль,
+если запись scout есть в реестре); дефолт ребёнка у architect и
+executor не задан — пресет наследуется от родителя, поэтому панель ship
+не превращается в скаутов; у оркестратора дефолт `executor`.
+`agentOptions` несёт дефолтный маршрут ребёнка (страховка).
+`tests/unit/composition.spec.ts` — 31 passed: матрица scout, allowlist
+трёх ролей, отсутствие дефолта scout у architect/executor
+(`agentPreset` undefined), маршруты `agentOptions`, негативные пробы
+(удаление строки web, добавление write). README: таблица ролей,
+дельта, установка, границы.
+
+**Live (критерий 4) — частично, названная граница.** Per-call маршрут
+проверен живьём (выше). Спавн scout ролью в живом хосте не выполнен:
+`preset-scout` не смонтирован (новые строки бандла приезжают из
+link-каталога форка, нужен reload/restart); сессии оркестратора и
+исполнителя созданы до правки, их `subagent`-схема и allowlist
+заморожены при создании; новая сессия со свежей композицией — через
+GUI/API оператора (прямой `POST /api/session/create` без авторизации —
+401), рестарт DSH запрещён (убьёт живые сессии). Подробности —
+`03-evidence/live-gap.txt`, `plugin-rows.txt`. Перенос: спавн scout
+ролью с per-call маршрутом входит в живую пробу тикета 07 (после
+рестарта и новой композиции); норма chain и композиция закрыты
+контрактными тестами. Критерий 4 остаётся открытым до пробы тикета 07.
+
+**Разбор расхождений.** Ожидание/факт: живой спавн scout — ожидался,
+не выполнен (рестарт-граница, названа выше); остальные проверки
+совпали. Панель — один прогон, рассрочка 3+1; вердикты и судьба
+находок — ниже (после записи панели).

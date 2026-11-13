@@ -1,0 +1,31 @@
+$ python3 -m pytest tests/test_skill_chain.py -q -k executor_selection_rule  (база dd372cf)
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________________________ test_executor_selection_rule _________________________
+
+    def test_executor_selection_rule():
+        """spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (тикет 03):
+        сигнал стека — указатель архитектора в спеке/continue.md; оркестратор
+        читает указатель, берёт id из реестра, иначе дефолт executor; два
+        кандидата (универсальный executor и стековый 1c-executor) выбираются
+        указателем; неоднозначность — остановка с вопросом; пресет и маршрут
+        выбираются при спавне продолжаемой сессии и при пенсии/handoff, не на
+        каждый тикет; маршрут — per-call через read реестра в полной форме
+        provider/model плюс level для любого выбранного пресета, agentOptions —
+        страховка; приоритет проектного факта над реестром и фолбэк на дефолт
+        хоста названы; выбор называется в отчёте. Мутации: потеря указателя,
+        гранулярности, дефолта, остановки, отчёта, полной формы маршрута,
+        заморозки allowlist, приоритета источников и панельного реестра
+        краснят контракт; литерал scout в allowlist сторожит team-тест
+        composition.spec.ts."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:570: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_skill_chain.py::test_executor_selection_rule - AssertionErr...
+1 failed, 15 deselected in 0.03s

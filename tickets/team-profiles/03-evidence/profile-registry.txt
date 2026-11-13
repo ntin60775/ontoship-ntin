@@ -1,0 +1,14 @@
+# Реестр профиля web ДО (бэкап executors.json.bak-tp03):
+5c1555433f42ab83d726a2c33fc144b78dcbd93a3b374a0e5de33e9a526f53f8  /home/prog7/.dsh/profiles/web/ontoship/executors.json.bak-tp03
+[
+  { "id": "executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" },
+  { "id": "1c-executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" }
+]
+
+# Реестр профиля web ПОСЛЕ (тикет 03, запись scout):
+c4a87eb130807e72d351bb22aad3b069c18fa5b3e3621d7a8572800d4ddedbbc  /home/prog7/.dsh/profiles/web/ontoship/executors.json
+[
+  { "id": "executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" },
+  { "id": "1c-executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" },
+  { "id": "scout", "provider": "qwen-token-plan", "model": "qwen3.8-flash", "level": "medium" }
+]

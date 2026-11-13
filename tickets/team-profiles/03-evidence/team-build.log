@@ -1,0 +1,10 @@
+$ npm run build
+
+> ontoship-team@0.1.0 build
+> tsc -p tsconfig.json
+
+$ npm run typecheck
+
+> ontoship-team@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+

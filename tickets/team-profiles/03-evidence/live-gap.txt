@@ -1,0 +1,26 @@
+# Живой профиль web: что проверено и где граница
+1. Реестр профиля обновлён: запись scout
+   qwen-token-plan/qwen3.8-flash/medium; sha256 c4a87eb1… (profile-registry.txt).
+   Бэкап до правки: executors.json.bak-tp03, sha256 5c155543…
+2. Per-call маршрут проверен живьём: subagent с provider=qwen-token-plan,
+   model=qwen3.8-flash, reasoning_effort=medium; сессия ребёнка
+   session-a716c5db-ab77-4945-be65-34dd897a9ece, дескриптор
+   {"agentProvider":"qwen-token-plan","agentModel":"qwen3.8-flash",
+   "agentReasoningEffort":"medium"}, request/header config совпал
+   (live-route-probe.txt). Выбор назван: кандидаты executor, 1c-executor,
+   scout; для пробы выбран маршрут scout-записи, причина — проверка
+   per-call полей из реестра.
+3. Спавн scout ролью живьём НЕ выполнен — названная граница:
+   - preset-scout в живом хосте не смонтирован (plugin-rows.txt);
+   - новые строки бандла приезжают из установленного link-каталога
+     (~/.dsh/profiles/web/node_modules/ontoship-team → fork main), снимок
+     тикета живёт в worktree; после мержа нужен reload профиля;
+   - сессии оркестратора/исполнителя созданы до правки: их схема
+     subagent (agent_preset enum) и allowlist заморожены при создании;
+     новая сессия с свежей композицией — только через GUI/API оператора
+     (прямой POST /api/session/create без авторизации → 401
+     «dsh web authentication required»), а рестарт DSH запрещён
+     (убьёт живые сессии).
+   Перенос: спавн scout ролью с per-call маршрутом входит в живую пробу
+   тикета 07 (после рестарта/новой композиции); норма chain и композиция
+   закрыты контрактными тестами этого тикета.

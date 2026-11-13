@@ -1,0 +1,218 @@
+$ python3 -m pytest tests/test_skill_chain.py -q  (база dd372cf + контрактный тест тикета 03)
+F.FFFFFFFFFFF...                                                         [100%]
+=================================== FAILURES ===================================
+________________ test_skill_is_a_discoverable_directory_bundle _________________
+
+    def test_skill_is_a_discoverable_directory_bundle():
+        """spec: docs/plans/standards-autoship.md#готово — «Готово» 7: новый
+        модельный скилл-оркестратор, бандл chain."""
+        assert SKILL.is_file(), "the chain skill is missing"
+        fields, _ = _parse(SKILL.read_text("utf-8"))
+        assert fields["name"] == "chain"
+        assert SKILL.parent.name == fields["name"], \
+            "bundle directory must match the skill name"
+        assert 3 <= len(_unquote(fields["description"])) <= DESCRIPTION_MAX
+>       assert _contract_errors(SKILL.read_text("utf-8")) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:412: AssertionError
+________________ test_clean_session_start_and_operator_command _________________
+
+    def test_clean_session_start_and_operator_command():
+        """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 13:
+        оркестратор всегда в чистой сессии; старт по команде оператора после
+        нарезки и гейта проекций. Чистая сессия — корневая сессия хоста,
+        открытая оператором, не субагент планирования; планирование и
+        оркестратор связаны только файлами (вариант 1, решение 19)."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:434: AssertionError
+_________________________ test_prompt_source_is_named __________________________
+
+    def test_prompt_source_is_named():
+        """spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
+        решение 20): скилл называет источник инициирующего промпта — сессия
+        планирования пишет его в continue.md («Стартовый промпт») финальным
+        шагом to-tickets после приёмки нарезки и самопроверки или ручной
+        командой «орк-промт»; оператор переносит промпт в новую корневую
+        сессию оркестратора; промпт — команда «цепочка», адрес юнита и
+        указатель на состояние, не пересказ. Мутации: потеря источника,
+        переноса оператором, указателя и ручной команды краснят контракт."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:469: AssertionError
+_________________ test_entry_checks_projection_gate_and_edges __________________
+
+    def test_entry_checks_projection_gate_and_edges():
+        """spec: docs/plans/standards-autoship.md#готово — «Готово» 7: читает
+        continue.md, тикеты и спеку, ведёт тикеты в порядке рёбер; запись гейта
+        проекций и приёмка нарезки — входные гейты chain."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:501: AssertionError
+___________________ test_one_continuable_executor_sequential ___________________
+
+    def test_one_continuable_executor_sequential():
+        """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 13:
+        одна продолжаемая подчинённая сессия-исполнитель ведёт тикеты
+        последовательно; передача через send_message, новый исполнитель на
+        тикет не спавнится."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:526: AssertionError
+_________________________ test_executor_selection_rule _________________________
+
+    def test_executor_selection_rule():
+        """spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (тикет 03):
+        сигнал стека — указатель архитектора в спеке/continue.md; оркестратор
+        читает указатель, берёт id из реестра, иначе дефолт executor; два
+        кандидата (универсальный executor и стековый 1c-executor) выбираются
+        указателем; неоднозначность — остановка с вопросом; пресет и маршрут
+        выбираются при спавне продолжаемой сессии и при пенсии/handoff, не на
+        каждый тикет; маршрут — per-call через read реестра в полной форме
+        provider/model плюс level для любого выбранного пресета, agentOptions —
+        страховка; приоритет проектного факта над реестром и фолбэк на дефолт
+        хоста названы; выбор называется в отчёте. Мутации: потеря указателя,
+        гранулярности, дефолта, остановки, отчёта, полной формы маршрута,
+        заморозки allowlist, приоритета источников и панельного реестра
+        краснят контракт; литерал scout в allowlist сторожит team-тест
+        composition.spec.ts."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:570: AssertionError
+____________________ test_green_contour_and_auto_acceptance ____________________
+
+    def test_green_contour_and_auto_acceptance():
+        """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 10
+        в цепочке: оркестратор проверяет зелёные гейты по артефактам и фиксирует
+        автоприёмку; P3 — реестр зацепок, незакрытое или остановка — вопрос."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:631: AssertionError
+______________________ test_budget_guards_and_retirement _______________________
+
+    def test_budget_guards_and_retirement():
+        """spec: docs/plans/standards-autoship.md#готово — «Готово» 7: страж
+        бюджета оркестратора и исполнителя (оценка объёма, консервативный
+        порог, счётчик токенов недоступен — названный пробел); пенсия
+        исполнителя с handoff-промптом на границе тикета; компакта нет."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:664: AssertionError
+____________________ test_stop_transfers_state_to_continue _____________________
+
+    def test_stop_transfers_state_to_continue():
+        """spec: docs/plans/standards-autoship.md#готово — «Готово» 7: остановка
+        цепочки с передачей состояния в continue.md; исключение останавливает
+        цепочку вопросом, возобновление — в чистой сессии."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:699: AssertionError
+____________________ test_final_report_form_and_acceptance _____________________
+
+    def test_final_report_form_and_acceptance():
+        """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 14,
+        «Готово» 11: отчёт фактами (пункты «Готово» с доказательствами,
+        демо-пути, пробелы, реестр зацепок) + mermaid-диаграммы ключевых решений
+        и юз-кейсов + защита решения в сессии планирования; durable-копия
+        в папке тикетов юнита; приёмка — ask «принять/вернуть», возврат
+        открывает работу по находкам."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:725: AssertionError
+_____________________ test_viz_derived_views_from_one_dag ______________________
+
+    def test_viz_derived_views_from_one_dag():
+        """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 19:
+        один ticket-DAG (markdown+git) — источник истины; оркестратор
+        вычисляет два производных статических вида — граф (mermaid-блок)
+        и Kanban (markdown-таблица), файлы в папке юнита трекера; blocked
+        вычисляется из рёбер, ready-frontier читается колонкой ready
+        (отдельный третий блок не рендерится), цвета Temporal, без кода
+        хоста; живая панель DSH — внешний плагин, оркестратор роутится на
+        его инструмент один раз (приписка 2026-11-12), доска только
+        в сессии оркестратора."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:767: AssertionError
+_________________________ test_contract_check_can_fail _________________________
+
+    def test_contract_check_can_fail():
+        """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+        contract check rejects a restored invocation flag, a lost command, a
+        file:line anchor, a missing name, parallel tickets and a harness root."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['selection: ...исполнителя»'] == []
+E         
+E         Left contains one more item: 'selection: missing section «выбор исполнителя»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:807: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_skill_chain.py::test_skill_is_a_discoverable_directory_bundle
+FAILED tests/test_skill_chain.py::test_clean_session_start_and_operator_command
+FAILED tests/test_skill_chain.py::test_prompt_source_is_named - AssertionErro...
+FAILED tests/test_skill_chain.py::test_entry_checks_projection_gate_and_edges
+FAILED tests/test_skill_chain.py::test_one_continuable_executor_sequential - ...
+FAILED tests/test_skill_chain.py::test_executor_selection_rule - AssertionErr...
+FAILED tests/test_skill_chain.py::test_green_contour_and_auto_acceptance - As...
+FAILED tests/test_skill_chain.py::test_budget_guards_and_retirement - Asserti...
+FAILED tests/test_skill_chain.py::test_stop_transfers_state_to_continue - Ass...
+FAILED tests/test_skill_chain.py::test_final_report_form_and_acceptance - Ass...
+FAILED tests/test_skill_chain.py::test_viz_derived_views_from_one_dag - Asser...
+FAILED tests/test_skill_chain.py::test_contract_check_can_fail - AssertionErr...
+12 failed, 4 passed in 0.14s
