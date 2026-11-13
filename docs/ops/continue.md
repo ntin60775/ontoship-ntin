@@ -42,7 +42,15 @@ ask-ом, правки внесены; отчёт
 Решение оператора 2026-11-13: исполнитель перезапущен на маршруте
 `deepseek-account/deepseek-flash` с `max` (первая сессия остановлена до
 шага 1 ship без write-действий, разведка передана handoff-промптом).
-Очередь: `chain-live-activity/01` свободен.
+**Тикет 01 сделан, влит и принят автоприёмкой 2026-11-13** (merge ff
+`57e633f`, worktree `ontoship-ntin-wt-tp01` снесён): новое репо
+`ontoship-team` (`/home/prog7/home/dev/contrib/forks/ontoship-team`,
+коммиты `d69105c`…`7ff4570`, remote нет), пресет `architect` — копия
+`standard` с тремя дельтами, хост-плагин авто-имени, набор 38 passed,
+live-smoke новой сессией; панель — пять «принять с находками», 8 P2
+закрыты одним проходом, P3 — `tickets/team-profiles/leads.md`; пробелы:
+живая смена роли после рестарта DSH, PR-путь team-репо. Тикет 02 в
+работе. Очередь: `chain-live-activity/01` свободен.
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
 самодостаточен: база движка вендорена, тикеты отслеживаются; завершённые
