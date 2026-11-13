@@ -87,6 +87,9 @@ REQUIRED_PHRASES = (
 # «Вход и порядок рёбер»: the projection-gate record and the slicing
 # acceptance gate the entry, the blocking-edge order leads the tickets.
 ENTRY_PHRASES = (
+    "проверь метод-контракт (раздел «метод-контракт»)",
+    "остановка с вопросом оператору до чтения тикетов",
+    "бандла в профиле нет — проверки нет",
     "запись гейта проекций",
     "отчёт триажа",
     "записи нет — остановка и вопрос оператору",
@@ -564,6 +567,8 @@ def test_entry_checks_projection_gate_and_edges():
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
     for old, new, needle in (
+        ("Проверь метод-контракт (раздел «Метод-контракт»)",
+         "Проверь нарезку", "проверь метод-контракт"),
         ("Сверь запись гейта проекций", "Сверь отчёт критика",
          "запись гейта проекций"),
         ("Записи нет — остановка и вопрос оператору",

@@ -2,8 +2,10 @@
 
 ``docs/reference/harnesses.md`` carries the chain and projection ways per
 harness: the DSH way names the orchestrator's clean root session, the
-continuable executor fed via ``send_message`` and the ``[validation]`` pool
-of the registry; zcode is named retired, Qoder stays a named gap. The pack
+continuable executor fed via ``send_message``, the ``[validation]`` pool
+of the registry, the role-carrier team bundle with the method contract read
+through the plugin service and the dictated chain records; zcode is named
+retired, Qoder stays a named gap. The pack
 reference ``docs/reference/pack-contract.md`` exists with sound frontmatter,
 is linked from the folder index and names the ``--pack`` install channel.
 ``skills/README.md`` describes the critic bundle as projection validation
@@ -33,6 +35,11 @@ DSH_FLOW_NEEDLES = (
     "[validation]",
     "subagent",
     "list_subagent_models",
+    # team-profiles 04: the DSH way names the role-carrier bundle, the method
+    # contract read through the plugin service and the dictated chain records.
+    "team-бандла уровня профиля",
+    "methodcontract",
+    "по диктовке",
 )
 RETIRED_CRITIC_DESCRIPTION = "критика плана до первого ship"
 CRITIC_DESCRIPTION = "проекционная валидация спеки до нарезки"
