@@ -1,4 +1,19 @@
+# Снимок профиля ~/.dsh/profiles/web.
+# До remove/install бандла в проходе 02 (15:20):
 d722563036f5a9b0c5d4f26376adfd04b74db92e9f1c9ec64610bffe7e1d293c  package.json
 c2d162e8fd21bd2892563ae349fba70942b79228d440c4b3bd046f7b29774150  cordis.patch.yml
 d6d6e57ce415dd03726040fd5200d0f9f9a3a7bfc17c8bc99ef802c0cfca6efc  pnpm-lock.yaml
 5c1555433f42ab83d726a2c33fc144b78dcbd93a3b374a0e5de33e9a526f53f8  ontoship/executors.json
+
+# После установки и live-пробы (15:21) — побайтно те же:
+d722563036f5a9b0c5d4f26376adfd04b74db92e9f1c9ec64610bffe7e1d293c  package.json
+c2d162e8fd21bd2892563ae349fba70942b79228d440c4b3bd046f7b29774150  cordis.patch.yml
+d6d6e57ce415dd03726040fd5200d0f9f9a3a7bfc17c8bc99ef802c0cfca6efc  pnpm-lock.yaml
+5c1555433f42ab83d726a2c33fc144b78dcbd93a3b374a0e5de33e9a526f53f8  ontoship/executors.json
+
+# Дрейф между проходами (назван, причина не установлена): тикет 01-evidence
+# записал итогом своего remove/install хеш 3b93bb6fcaee… для cordis.patch.yml
+# (c2d162e8 + завершающий перевод строки, +1 байт, 4671 -> 4672). К началу
+# прохода 02 файл снова c2d162e8 (mtime 2026-11-13 15:07, размер 4671),
+# строковых изменений нет — разница только в EOF. Наши remove/install 02
+# файл не меняли: до и после — c2d162e8.

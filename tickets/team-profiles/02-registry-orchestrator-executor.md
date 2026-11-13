@@ -55,7 +55,7 @@ enum `agent_preset` показывает оба; битый файл → деф�
 схема, все деградации с маркером в логе, дубли с предупреждением,
 env-подмена при живом `profileContext`, read-once (правка файла после
 apply не меняет allowlist), `executors()` возвращает копию.
-`npm test` — **62 passed** (executors 15, composition 24, naming 19,
+`npm test` — **63 passed** (executors 16, composition 24, naming 19,
 manifest 4), `build` и `typecheck` чисто —
 `02-evidence/build-test.log`, `test-verbose.log`.
 
@@ -78,7 +78,7 @@ orchestrator — `read`, `read_image`, `glob`, `grep`, `subagent`,
 `send_message`, `ask_user_question`, `skill`, без `write`, `edit`,
 `apply_patch`, `bash`, fork; tool-fs с `write: false`, `edit: false`,
 `applyPatch: false`. Executor — `read`, `write`, `edit`, `bash`, `glob`,
-`grep`, веб, `skill`, `subagent`, `todo`, без `ask` и без
+`grep`, веб, `skill`, `subagent`, `todo_write`, без `ask` и без
 `allowedAgentPresets`. Персоны обеих ролей — русские с секциями,
 `{{model}}` — единственная переменная. Order-конвенция: корневые 20–29
 (architect 20, orchestrator 21), служебные 30–39 (executor 30) —
@@ -96,7 +96,10 @@ orchestrator — `read`, `read_image`, `glob`, `grep`, `subagent`,
 `/tmp/tp02-orchestrator-smoke`, создана через API живого хоста с
 `agentPreset: orchestrator`): заголовок «Оркестратор» (seq 4, source
 user), инструменты ask/read/read_image/glob/grep/skill/subagent/
-send_message/wait_agent/list_agents — без write/edit/bash. Один ход:
+send_message/wait_agent/list_agents — без write/edit/bash; глобальные
+строки хоста (`working_directory`, `create_worktree`, `cordis_inspect*`,
+`ontoship_board_open`) приходят не из композиции пресета, поэтому
+«read-only fs» — гарантия уровня бандла, а не всего процесса. Один ход:
 read `executors.json` → спавн `subagent` с `agent_preset: executor`,
 `name: executor-02` и маршрутом из файла; результат «started subagent
 executor-02» (`meta.name`); дочерняя сессия `b67d72f7-…`:
@@ -109,8 +112,13 @@ executor-02» (`meta.name`); дочерняя сессия `b67d72f7-…`:
 **Профиль и установка.** `remove_bundle` + `install_bundle` вернули
 `application: restart-required` (`unmanaged-plugin`), как в тикете 01;
 новые строки при этом активны, пресеты работают. Файлы профиля
-(`package.json`, `cordis.patch.yml`, `pnpm-lock.yaml`) побайтно не
-изменились — `02-evidence/profile-sha256.txt`. Чужая строка
+(`package.json`, `cordis.patch.yml`, `pnpm-lock.yaml`) в этом проходе
+побайтно не изменились — before/after в `02-evidence/profile-sha256.txt`.
+Названный дрейф между проходами: тикет 01-evidence записал итогом своего
+remove/install `cordis.patch.yml` = `3b93bb6f…` (+1 байт EOF); к началу
+прохода 02 файл снова `c2d162e8…` (mtime 15:07, 4671 байт) — строковых
+изменений нет, разница только в завершающем переводе строки; причина
+возврата не установлена, наш проход файл не менял. Чужая строка
 `1c-contour` по-прежнему неактивна по внешней причине (HMR отдаёт
 модуль из периода до пересборки её `lib`) — не наш дефект, не трогали.
 
@@ -130,4 +138,7 @@ continued/timed-вопрос; живой round-trip требует ответч�
 DSH; дефолты покрыты контрактными тестами; (3) оркестратор без
 `write`: обязанности chain «запись автоприёмки в тикет» и «состояние в
 continue.md» требуют write — композиция сделана по критерию тикета
-(read-only fs), конфликт норм назван, решение — тикет 06/оператор.
+(read-only fs), конфликт норм назван; его носитель — тикет 04
+(метод-носители, текст chain) и решение оператора, не тикет 06
+(релиз и поставка), а живая цепочка тикета 07 на этой композиции
+упрётся в него до правки нормы.
