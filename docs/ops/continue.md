@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-12
+updated: 2026-11-13
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -15,6 +15,20 @@ links:
 источник истины — этот runbook и тикеты, а не снимок.
 
 ## Где мы
+
+**Открыт юнит `team-profiles` (2026-11-13).** Личная команда агентов на
+нативных пресетах DSH: архитектор-аналитик, оркестратор, исполнитель,
+сборщик контекста; оператор выбирает архитектора и оркестратора,
+оркестратор сам выбирает исполнителя по реестру; стек-бандл (1C-DSH)
+добавляет своего исполнителя без оверрайда пресетов команды. Спека —
+[draft `team-profiles.md`](../plans/team-profiles.md); вход — концепт-основа
+сессии планирования и живая проба динамического allowlist
+([dsh-preset-allowlist.md](../reference/dsh-preset-allowlist.md): `!!js`
+вычисляется, реестр пресетов при монтировании пуст, рабочий механизм —
+хост-плагин реестра исполнителей). Решением оператора ask 2026-11-13
+**тикет 08 `standards-autoship` заморожен** до закрытия `team-profiles`:
+он вернётся пробой профильного потока. Очередь: `team-profiles` —
+grilling-раунды; `chain-live-activity/01` свободен.
 
 Репозиторий: `/home/prog7/home/dev/contrib/forks/ontoship-ntin` (git). Он
 самодостаточен: база движка вендорена, тикеты отслеживаются; завершённые
@@ -1614,6 +1628,13 @@ worktree создан запасным путём `git worktree`): полный 
 утверждена на план-гейте 2026-11-12 (решения 1–8), гейт проекций
 пройден, нарезка принята со сверкой понимания; доска показывает живую
 активность прогонов поверх plan-статусов.
+
+`team-profiles`: **состав и порядок тикетов нарезаются после план-гейта.**
+Спека [team-profiles.md](../plans/team-profiles.md) открыта draft-ом
+2026-11-13; идут раунды grilling. Решение 1 принято оператором ask
+2026-11-13: тикет 08 `standards-autoship` заморожен до закрытия юнита и
+возвращается пробой профильного потока. Внешние блокеры не заведены;
+`chain-live-activity/01` свободен и может идти параллельной сессией.
 
 `standards-autoship`: **01 бандл pack ∥ 04 проекционная валидация →
 02 канал паков (блокер 01) → 03 базовые стандарты (блокер 01) →

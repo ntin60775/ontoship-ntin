@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-12
 links:
   part_of: [../README.md]
-  relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, baseline-standards.md, pack-contract.md, ../decisions/ontoship-core.md]
+  relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, baseline-standards.md, pack-contract.md, dsh-preset-allowlist.md, ../decisions/ontoship-core.md]
 ---
 
 # Справочники
@@ -29,3 +29,7 @@ links:
   сообщения гейтов.
 - [baseline-standards.md](baseline-standards.md) — базовые стандарты инженерии
   и стека из знаний модели; нижний приоритет норм, утверждён оператором.
+
+- [dsh-preset-allowlist.md](dsh-preset-allowlist.md) — проба динамического
+  `allowedAgentPresets` DSH: `!!js` вычисляется, реестр пресетов при
+  монтировании пуст, рабочий механизм — хост-плагин реестра исполнителей.

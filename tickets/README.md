@@ -381,6 +381,10 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 08 | [живая проба и закрывающий набор](standards-autoship/08-live-proof.md) | 01–07, 09 |
 | 09 | [инициирующий промпт оркестратора](standards-autoship/09-orchestrator-entry-prompt.md) | 06 |
 
+Тикет 08 **заморожен** решением оператора ask 2026-11-13 до закрытия
+юнита [team-profiles](../docs/plans/team-profiles.md); вернётся пробой
+профильного потока.
+
 Тикет 06 сделан, влит и принят автоприёмкой 2026-11-12 (срез `590276b`,
 редизайн `4b32bd5`, правки панели `6cf039d`, проба `38f2436` в worktree
 `ontoship-ntin-wt-sa06`, ветка `sa06-chain` от `e2e151d`; merge ff =
