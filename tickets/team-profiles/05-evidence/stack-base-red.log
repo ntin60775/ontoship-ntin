@@ -1,0 +1,215 @@
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-1c
+
+ ❯ tests/parity.spec.ts (12 tests | 11 failed) 31ms
+   × паритет с team-бандлом > пин teamVersion и три пресета совпадают с team-артефактом 12ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × паритет с team-бандлом > composition побайтово равен team-копии во всех трёх ролях 3ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   ✓ паритет с team-бандлом > team-бандл резолвится из зависимостей, а не из литерала пути 3ms
+   × паритет с team-бандлом > стек не объявляет ни одного team-id и ни одной team-строки 2ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > пропажа строки composition краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > лишняя строка composition краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > подмена композиции на team-персону краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > сужение presetIds до одного id краснеет 2ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > подмена stack-строки на team-строку краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > четвёртый пресет в стеке краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > сдвиг пина teamVersion краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+   × негативные пробы паритета > появление чужой team-строки краснеет 1ms
+     → ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/composition.spec.ts [ tests/composition.spec.ts ]
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ tests/composition.spec.ts:20:26
+     18| 
+     19| /** Разобранный патч репозитория. */
+     20| const PATCH = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml'), …
+       |                          ^
+     21| 
+     22| /** Декларация пресета по id. */
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  tests/manifest.spec.ts [ tests/manifest.spec.ts ]
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ text tests/manifest.spec.ts:25:10
+     23| /** Прочитать текстовый артефакт репозитория. */
+     24| function text(name) {
+     25|   return readFileSync(join(ROOT, name), 'utf8')
+       |          ^
+     26| }
+     27| 
+ ❯ tests/manifest.spec.ts:48:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/parity.spec.ts > паритет с team-бандлом > пин teamVersion и три пресета совпадают с team-артефактом
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ checkThisRepo scripts/parity.mjs:198:40
+    196|   const team = loadTeamBundle()
+    197|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+    198|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                                        ^
+    199|   return checkParity({ stack, team: team.patch, stackManifest, teamMan…
+    200| }
+ ❯ tests/parity.spec.ts:63:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/13]⎯
+
+ FAIL  tests/parity.spec.ts > паритет с team-бандлом > composition побайтово равен team-копии во всех трёх ролях
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ checkThisRepo scripts/parity.mjs:198:40
+    196|   const team = loadTeamBundle()
+    197|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+    198|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                                        ^
+    199|   return checkParity({ stack, team: team.patch, stackManifest, teamMan…
+    200| }
+ ❯ tests/parity.spec.ts:70:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/13]⎯
+
+ FAIL  tests/parity.spec.ts > паритет с team-бандлом > стек не объявляет ни одного team-id и ни одной team-строки
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ tests/parity.spec.ts:86:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > пропажа строки composition краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:96:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > лишняя строка composition краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:104:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > подмена композиции на team-персону краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:111:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > сужение presetIds до одного id краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:119:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > подмена stack-строки на team-строку краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:129:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > четвёртый пресет в стеке краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:136:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > сдвиг пина teamVersion краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:143:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/13]⎯
+
+ FAIL  tests/parity.spec.ts > негативные пробы паритета > появление чужой team-строки краснеет
+Error: ENOENT: no such file or directory, open '/home/prog7/home/dev/contrib/forks/ontoship-team-1c/cordis.patch.yml'
+ ❯ fresh tests/parity.spec.ts:36:28
+     34|   const team = loadTeamBundle()
+     35|   const stackManifest = JSON.parse(readFileSync(join(ROOT, 'package.js…
+     36|   const stack = parsePatch(readFileSync(join(ROOT, 'cordis.patch.yml')…
+       |                            ^
+     37|   return { stack, team: team.patch, stackManifest, teamManifest: team.…
+     38| }
+ ❯ mutated tests/parity.spec.ts:56:33
+ ❯ tests/parity.spec.ts:150:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/13]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  11 failed | 1 passed (12)
+   Start at  20:05:31
+   Duration  325ms (transform 78ms, setup 0ms, collect 43ms, tests 31ms, environment 1ms, prepare 221ms)
+

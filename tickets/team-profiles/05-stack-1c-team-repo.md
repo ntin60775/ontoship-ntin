@@ -81,3 +81,58 @@ team-бандла (`84c0cf6`); решений оператора не требу
   требует перезапуска. Рестарт запрещён: если живая проба упрётся в
   него — стоп и отчёт оркестратору; изолированный хост — отдельный
   названный путь.
+## Доказательства
+
+**Адреса и коммиты.** Стек-репо
+`/home/prog7/home/dev/contrib/forks/ontoship-team-1c` (git init, коммит
+`af8d2b9`): `package.json` (`dsh.bundle.patch`, `engines.dsh`,
+`ontoship.teamVersion` 0.1.0), `cordis.patch.yml` — три пресета
+(`1c-architect` 22, `1c-orchestrator` 23, `1c-executor` 32),
+`executors.example.json` (запись `1c-executor`,
+`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`), README с
+порядком установки и судьбой `1c`, тесты и `scripts/parity.mjs`.
+Шов 1C-DSH (кросс-репо, свой тикет/спека/приёмка): коммит `0c94691`,
+влит в main 1C-DSH ff-merge; адрес —
+`src/preset/index.ts` + `src/preset/config.ts` (`apply(ctx, config)`,
+`presetIds`, `presetIdSet`), `cordis.patch.yml`, `docs/dsh-install.md`;
+спека `docs/plans/team-delivery-preset-ids.md`, тикет
+`tickets/team-profiles-1c/T1-delivery-preset-ids.md`; ребро зависимости —
+этот тикет ждёт мержа T1 (мерж есть, приёмка T1 — у оператора).
+
+**Критерий 1 (репо и паритет).** `npm test` в стек-репо — **24 passed**
+(3 файла), `stack-tests.log`. Паритет: `ontoship.teamVersion` = версия
+team-пакета `0.1.0` из `node_modules/ontoship-team`; composition трёх
+ролей равен team-копии, дельта — ровно персона 1С + строка
+`dsh-1c-contour/preset`; team-id и team-строки не пересекаются
+(`tests/parity.spec.ts`). Негативные пробы — 6 мутаций (пропажа и лишняя
+строка composition, подмена персоны, сужение `presetIds`, подмена строки
+на team, четвёртый пресет, сдвиг пина) краснят. Красная проба «базы»:
+патча нет — `stack-base-red.log` (тесты падают на отсутствии артефакта).
+
+**Критерий 2 (шов 1C-DSH).** В 1C-DSH новые тесты на базе `7d20ce8`:
+**2 failed / 8 passed**, после правки `tests/unit/preset-mount.spec.ts`
+— 10 passed, `tests/unit/preset.spec.ts` — 19 passed
+(`1c-base-red.log`, `1c-tests.log`). Полный контур 1C-DSH: **341
+pitest/ vitest passed** (19 файлов), typecheck чисто, python-набор
+**20/20**, линт скиллов 0, KB **0 ERR / 7 WARN** (145 файлов), проверка
+имён чисто (`1c-*.log` в `05-evidence/`).
+
+**Критерий 3 (реестр и legacy).** Живой профиль
+`~/.dsh/profiles/web/ontoship/executors.json` содержит `executor`,
+`1c-executor` (маршрут из образца), `scout`; allowlist оркестратора
+видит id (enum тикета 03). Судьба `1c` названа в README стека и в
+уточнении: остаётся дефолтом, снятие — после живой пробы 07.
+
+**Критерий 4 (live).** Живой GUI не перезапускался; в нём шов не виден:
+сессия `session-cef40a48…` с `agentPreset: 1c-executor` получила
+stack-персону, но 21 инструмент и 0 MCP (`live-livehost-1c-executor.*`) —
+модуль 1C-DSH держится от старта. Изолированный хост (копия профиля,
+`DSH_HOME=/tmp/tp05-live-home`, порт 3199, PID 335891, launch-токен →
+v2-cookie → API; живой GUI не тронут): `1c-executor`
+(`session-07150f30…`) — **46 инструментов, 22 MCP**, каталог 85 скиллов
+с контурными; `architect` (`session-7fd60c31…`) — **35 инструментов,
+0 MCP**, каталог 20 скиллов без контурных (`live-isolated.*`).
+Гейт `unica-source-gate` сработал в обеих сессиях (bash-запись в
+`src/cf` заблокирована, файл не изменён): гейты — хост-уровня, «нет у
+team-architect» доказано для скиллов/MCP, не для гейтов (граница
+дифференциации). Рестарт живого DSH запрещён — граница названа.
