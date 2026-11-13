@@ -361,6 +361,26 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 03 | [скиллы пишут lease](chain-live-activity/03-skills-lease.md) | 01 |
 | 04 | [документация и живая проба](chain-live-activity/04-docs-live-proof.md) | 01, 02, 03 |
 
+Юнит [`team-profiles`](../docs/plans/team-profiles.md) открыт 2026-11-13:
+спека утверждена на план-гейте ask-проходом после гейта проекций
+(grilling-раунды 1–5, решения 1–17; четыре среза проекций, 25 находок
+после дедупликации, триаж, спорное закрыто ask-ом —
+[00-projection-report.md](team-profiles/00-projection-report.md));
+нарезка — восемь тикетов приняты ask-ом со сверкой понимания 2026-11-13.
+Личная команда агентов на пресетах DSH; стек 1C — новое репо
+`ontoship-team-1c` с аддитивным швом 1C-DSH. Тикет 01 свободен.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [каркас team-бандла и architect](team-profiles/01-team-bundle-architect.md) | — |
+| 02 | [реестр и orchestrator/executor](team-profiles/02-registry-orchestrator-executor.md) | 01 |
+| 03 | [выбор, маршруты и scout](team-profiles/03-selection-routes-scout.md) | 02 |
+| 04 | [OntoShip-носители и метод-контракт](team-profiles/04-method-carriers-contract.md) | 02, 03 |
+| 05 | [стек 1C: ontoship-team-1c](team-profiles/05-stack-1c-team-repo.md) | 01, 02 |
+| 06 | [релиз и поставка](team-profiles/06-release-delivery.md) | 03, 04, 05 |
+| 07 | [живая проба на 1C-DSH](team-profiles/07-live-proof.md) | 06 |
+| 08 | [набор, KB и протокол 08](team-profiles/08-suite-kb-08-protocol.md) | 07 |
+
 Юнит [`standards-autoship`](../docs/plans/standards-autoship.md) открыт
 2026-11-11: спека утверждена на план-гейте ask-проходом (решения 1–18),
 нарезка — восемь тикетов приняты со сверкой понимания того же дня;
