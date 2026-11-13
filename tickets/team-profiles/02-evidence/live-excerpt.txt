@@ -13,3 +13,10 @@ ask_user_question cordis_inspect_list cordis_inspect_query create_worktree glob 
 # Дочерняя сессия:
 {"id":"b67d72f7-1e9e-4507-81c1-02366d2b63bb","agentPreset":"executor","parentSession":"session-4c7b3d48-ed22-4910-b3ce-6a84e0031a6f","origin":"subagent","delegationDepth":1}
 {"seq":17,"title":"Ответь одним словом: г","source":{"kind":"fallback"}}
+# Инструменты дочернего executor (live):
+bash cordis_inspect_list cordis_inspect_query create_worktree edit glob grep job_kill job_list job_output list_subagent_models ontoship_board_open read read_image skill subagent todo_write web_fetch web_search working_directory write 
+# ask_user_question у executor:
+0
+# Негативная проба allowlist:
+{"seq":42,"args":"{\"agent_preset\":\"1c-executor\",\"name\":\"stack-probe\",\"description\":\"Негативная проба реестра\",\"prompt\":\"Ответь одним словом: раз\",\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoning_effort\":\"max\"}"}
+{"seq":43,"text":"Error: Unknown agent preset: 1c-executor"}
