@@ -40,6 +40,12 @@ spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (ти
 выбор исполнителя по указателю стека и реестру, дефолт `executor`,
 неоднозначность — остановка с вопросом; маршрут per-call через `read`
 реестра в полной форме, `agentOptions` — страховка; решения 5 и 16.
+spec: docs/plans/team-profiles.md#готово — «Готово» 6, 9 (тикет 04):
+контекстный промпт юнита в промпте спавна; проверка `methodContract`
+(версия 1) через сервис плагина бандла с остановкой при mismatch или
+отсутствии; записи цепочки пишет исполнитель по диктовке read-only
+оркестратора, композиция пресетов не меняется; решение оператора
+ask 2026-11-13.
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
 contract check can fail (mutations redden)
@@ -99,6 +105,7 @@ EXECUTOR_PHRASES = (
     "`subagent`",
     "spawn, не `subagent_fork`",
     "`send_message`",
+    "передаёт тикеты по одному через `send_message`",
     "по одному",
     "новый исполнитель на каждый тикет не спавнится",
     "скиллом `ship`",
@@ -111,10 +118,28 @@ EXECUTOR_PHRASES = (
     "проверки dev/prod пройдены",
     "механические гейты пака зелёные",
     "точки остановки спеки пройдены",
-    "фиксирует автоприёмку записью в тикете трекера",
+    "полный зелёный контур даёт автоприёмку",
     "p3 уходят в реестр зацепок юнита",
     "незакрытое или остановка — вопрос оператору",
     "автоприёмка не делается, цепочка стоит",
+    # the context prompt of the unit: the spawn prompt points at files and
+    # carries the chosen preset/route and the contract version.
+    "промпт спавна — контекстный промпт юнита",
+    "адрес юнита (спека",
+    "выбранные пресет и маршрут",
+    "версия метод-контракта",
+    "пересказ спеки в промпт не кладётся",
+    # the dictation norm: the orchestrator composition is read-only; chain
+    # records are written by the executor by dictation and verified back.
+    "композиция оркестратора — read-only",
+    "записи цепочки",
+    "пишет исполнитель по диктовке",
+    "оркестратор проверяет гейты по артефактам, формирует текст записи",
+    "передаёт его `send_message`",
+    "исполнитель пишет и коммитит, оркестратор читает и сверяет",
+    "композиция пресетов при этом не меняется",
+    "гибель исполнителя",
+    "стоп-состояние передаётся через оператора или сессию планирования",
 )
 # «Стражи бюджета»: the named token-counter gap, volume estimate and the
 # conservative threshold, retirement with handoff at the ticket boundary,
@@ -142,6 +167,9 @@ STOP_PHRASES = (
     "останавливает цепочку",
     "«открытая работа»",
     "юнит, тикет, на чём остановились, что дальше",
+    "диктует её исполнителю",
+    "пишет исполнитель, оркестратор читает и сверяет",
+    "исполнителя нет — запись идёт через оператора или сессию планирования",
     "вопрос оператору",
     "возобновление — по команде оператора в чистой сессии",
     "тихое продолжение после исключения не делается",
@@ -158,7 +186,7 @@ REPORT_PHRASES = (
     "реестр зацепок юнита",
     "mermaid-диаграммы ключевых решений и юз-кейсов",
     "durable-копия отчёта",
-    "оркестратор фиксирует её и завершает цепочку",
+    "оркестратор фиксирует её записью исполнителя по диктовке",
     "презентацию, защиту решения и ask несёт агент сессии планирования",
     "оператор переносит отчёт в сессию планирования",
     "приёмка — ask «принять/вернуть»",
@@ -202,8 +230,12 @@ VIZ_PHRASES = (
 FORBIDDEN_PHRASES = (
     # the retired or rejected flows: a user-only orchestrator, compaction,
     # a fresh executor per ticket, parallel tickets, acceptance without the
-    # report, the retired critic gate.
+    # report, the retired critic gate, the orchestrator writing chain records
+    # itself (operator decision ask 2026-11-13: read-only composition, records
+    # are dictated to the executor).
     "disable-model-invocation",
+    "фиксирует автоприёмку записью в тикете трекера",
+    "оркестратор пишет записи",
     "компактируй",
     "сжимай контекст",
     "спавни нового исполнителя на каждый тикет",
@@ -266,8 +298,39 @@ SELECTION_PHRASES = (
     "дефолт хоста (наследование от оркестратора)",
     "`.agents/config.toml`",
 )
+# «Метод-контракт» (тикет 04 team-profiles, решения 9 и оператора
+# ask 2026-11-13): the contract carrier is the team bundle manifest; the
+# expected version is the method release (a literal in this skill); the check
+# runs through the plugin service (read-only inspect provider) and stops the
+# chain with a question on mismatch or absence; the version bumps with the
+# method release that changes the carrying norms.
+CONTRACT_PHRASES = (
+    "эталон — релиз метода",
+    "`ontoship.methodcontract`",
+    "(версия 1)",
+    "ожидаемую версию носит этот скилл",
+    "через сервис плагина бандла",
+    "`cordis_inspect_list`",
+    "провайдер `ontoshipteam`",
+    "метод `methodcontract`",
+    "`cordis_inspect_query`",
+    "`{\"expected\": 1}`",
+    "`compatible: true`",
+    "контракт совпал: цепочка продолжает",
+    "`compatible: false`",
+    "`reason: mismatch`",
+    "`reason: missing`",
+    "остановка с вопросом",
+    "тихий выбор и «договоримся по ходу» не делаются",
+    "провайдера нет",
+    "проверки нет",
+    "проект без team-бандла",
+    "поднимается вместе с релизом метода",
+    "bump манифеста бандла и ожидания скилла",
+)
 WHEN_HEADING = "когда использовать"
 ENTRY_HEADING = "вход и порядок рёбер"
+CONTRACT_HEADING = "метод-контракт"
 EXECUTOR_HEADING = "исполнитель"
 SELECTION_HEADING = "выбор исполнителя"
 BUDGET_HEADING = "стражи бюджета"
@@ -362,6 +425,7 @@ def _contract_errors(text: str) -> list[str]:
 
     for heading, label, phrases in (
         (ENTRY_HEADING, "entry", ENTRY_PHRASES),
+        (CONTRACT_HEADING, "contract", CONTRACT_PHRASES),
         (EXECUTOR_HEADING, "executor", EXECUTOR_PHRASES),
         (SELECTION_HEADING, "selection", SELECTION_PHRASES),
         (BUDGET_HEADING, "budget", BUDGET_PHRASES),
@@ -528,7 +592,9 @@ def test_one_continuable_executor_sequential():
         ("Одна продолжаемая подчинённая сессия-исполнитель",
          "Новая подчинённая сессия на каждый тикет",
          "одна продолжаемая подчинённая сессия-исполнитель"),
-        ("через `send_message`", "новым спавном", "`send_message`"),
+        ("передаёт тикеты по одному через `send_message`",
+         "передаёт тикеты новым спавном",
+         "передаёт тикеты по одному через `send_message`"),
         ("Новый исполнитель на каждый тикет не спавнится",
          "Новый исполнитель спавнится на каждый тикет",
          "новый исполнитель на каждый тикет не спавнится"),
@@ -623,6 +689,134 @@ def test_executor_selection_rule():
     assert any("неоднозначность: остановка с вопросом" in error for error in errors)
 
 
+def test_method_contract_check():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 6, 9 (тикет 04):
+    `methodContract` (версия 1) в манифесте team-бандла, эталон — релиз
+    метода; `chain` проверяет контракт через сервис плагина бандла
+    (`cordis_inspect_query`, провайдер `OntoShipTeam`, метод
+    `methodContract`) и останавливается с вопросом при mismatch или
+    отсутствии; версия поднимается вместе с релизом метода. Мутации:
+    потеря ожидания, ветки совпадения, стопа, ветки «провайдера нет»,
+    правила bump и самой секции краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    section = _section(_normalized_lower(_parse(text)[1]), CONTRACT_HEADING)
+    assert section, "the contract section is missing"
+    for phrase in CONTRACT_PHRASES:
+        assert phrase in section, f"the phrase {phrase!r} left «Метод-контракт»"
+
+    for old, new, needle in (
+        ("`ontoship.methodContract` (версия 1)",
+         "`ontoship.methodContract` (любая версия)", "(версия 1)"),
+        ("эталон — релиз метода", "эталон — скилл chain", "эталон — релиз метода"),
+        ("ожидаемую версию носит этот скилл",
+         "ожидаемую версию носит whoever", "ожидаемую версию носит этот скилл"),
+        ("через сервис плагина бандла", "через файл проекта",
+         "через сервис плагина бандла"),
+        ("`cordis_inspect_query` (platform `host`)",
+         "`bash` в исполнителе", "`cordis_inspect_query`"),
+        ("`compatible: true` — контракт совпал: цепочка продолжает",
+         "`compatible: true` — контракт не проверяется",
+         "контракт совпал: цепочка продолжает"),
+        ("`compatible: false`", "`compatible: unknown`", "`compatible: false`"),
+        ("остановка с вопросом оператору; тихий выбор",
+         "продолжение молча; тихий выбор", "остановка с вопросом"),
+        ("тихий выбор и «договоримся по ходу» не делаются",
+         "выбор по ходу допустим", "тихий выбор"),
+        ("провайдера нет", "провайдер есть", "провайдера нет"),
+        ("поднимается вместе с релизом метода",
+         "поднимается отдельно от релиза", "поднимается вместе с релизом метода"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    missing_section = _body_mutated(text, "## Метод-контракт", "## Служебное")
+    assert any("метод-контракт" in error
+               for error in _contract_errors(missing_section))
+
+
+def test_chain_records_are_dictated():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 6 (тикет 04),
+    решение оператора ask 2026-11-13: композиция orchestrator read-only;
+    записи цепочки (автоприёмка в тикете, continue.md, производные виды,
+    durable-копия отчёта) пишет исполнитель по диктовке оркестратора —
+    оркестратор проверяет гейты, формирует текст, передаёт `send_message`,
+    исполнитель пишет и коммитит, оркестратор сверяет; композиция пресетов
+    не меняется, гибель исполнителя — стоп через оператора/сессию
+    планирования. Мутации краснят: потеря read-only, диктовки, сверки и
+    возврат снятой нормы «оркестратор фиксирует автоприёмку»."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    lowered = _normalized_lower(_parse(text)[1])
+    executor = _section(lowered, EXECUTOR_HEADING)
+    assert "композиция оркестратора — read-only" in executor
+    assert "пишет исполнитель по диктовке" in executor
+    assert "исполнитель пишет и коммитит, оркестратор читает и сверяет" in executor
+    assert "композиция пресетов при этом не меняется" in executor
+    assert "стоп-состояние передаётся через оператора или сессию планирования" in executor
+    stop = _section(lowered, STOP_HEADING)
+    assert "диктует её исполнителю" in stop
+
+    for old, new, needle in (
+        ("Композиция оркестратора — read-only",
+         "Композиция оркестратора — с правкой файлов",
+         "композиция оркестратора — read-only"),
+        ("оркестратор читает и сверяет", "оркестратор не сверяет",
+         "оркестратор читает и сверяет"),
+        ("Композиция пресетов при этом не меняется",
+         "Композиция пресетов при этом меняется",
+         "композиция пресетов при этом не меняется"),
+        ("Гибель исполнителя — записи больше не диктуются",
+         "Сбой исполнителя — записи не диктуются", "гибель исполнителя"),
+        ("диктует её исполнителю", "передаёт её молча", "диктует её исполнителю"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    dictated = _body_mutated(text, "пишет исполнитель по диктовке",
+                             "пишет оркестратор сам", count=2)
+    assert any("пишет исполнитель по диктовке" in error
+               for error in _contract_errors(dictated)), _contract_errors(dictated)
+
+    restored = text + "\n\nОркестратор фиксирует автоприёмку записью в тикете трекера.\n"
+    errors = _contract_errors(restored)
+    assert any("фиксирует автоприёмку записью в тикете трекера" in error
+               for error in errors), errors
+
+
+def test_context_prompt_of_unit():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 6 (тикет 04):
+    контекстный промпт юнита в промпте спавна исполнителя: адрес юнита
+    (спека, тикеты), состояние continue.md, выбранные пресет и маршрут,
+    версия метод-контракта и норма отчёта; пересказ спеки не дублируется.
+    Мутации: потеря адреса, состояния, выбранных пресета/маршрута, версии
+    контракта и запрета пересказа краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    executor = _section(_normalized_lower(_parse(text)[1]), EXECUTOR_HEADING)
+    assert "промпт спавна — контекстный промпт юнита" in executor
+    for phrase in ("адрес юнита (спека", "тикеты `tickets/<slug>/`",
+                   "состояние\n`docs/ops/continue.md`".replace("\n", " "),
+                   "выбранные пресет и маршрут", "версия метод-контракта",
+                   "норма отчёта", "пересказ спеки в промпт не кладётся"):
+        assert phrase in executor, f"the phrase {phrase!r} left «Исполнитель»"
+
+    for old, new, needle in (
+        ("Промпт спавна — контекстный промпт юнита",
+         "Промпт спавна — короткая команда", "промпт спавна — контекстный промпт юнита"),
+        ("выбранные пресет и маршрут", "маршрут уточняется позже",
+         "выбранные пресет и маршрут"),
+        ("версия метод-контракта", "версия не нужна", "версия метод-контракта"),
+        ("Пересказ спеки в промпт не кладётся",
+         "Пересказ спеки в промпт кладётся", "пересказ спеки в промпт не кладётся"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+
 def test_green_contour_and_auto_acceptance():
     """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 10
     в цепочке: оркестратор проверяет зелёные гейты по артефактам и фиксирует
@@ -642,8 +836,14 @@ def test_green_contour_and_auto_acceptance():
          "механические гейты пака зелёные"),
         ("точки остановки спеки пройдены", "точки остановки не смотрятся",
          "точки остановки спеки пройдены"),
-        ("фиксирует автоприёмку записью в тикете трекера",
-         "принимает тикет словом", "фиксирует автоприёмку записью в тикете трекера"),
+        ("Композиция оркестратора — read-only",
+         "Композиция оркестратора — с правкой файлов",
+         "композиция оркестратора — read-only"),
+        ("Композиция пресетов при этом не меняется",
+         "Композиция пресетов при этом меняется",
+         "композиция пресетов при этом не меняется"),
+        ("оркестратор читает и сверяет", "оркестратор не сверяет",
+         "оркестратор читает и сверяет"),
         ("P3 уходят в реестр зацепок юнита", "P3 блокируют приёмку",
          "p3 уходят в реестр зацепок юнита"),
         ("Незакрытое или остановка — вопрос оператору",
@@ -735,9 +935,9 @@ def test_final_report_form_and_acceptance():
         ("Презентацию, защиту решения и ask несёт агент сессии планирования",
          "Презентацию несёт оркестратор",
          "презентацию, защиту решения и ask несёт агент сессии планирования"),
-        ("оркестратор фиксирует её и завершает цепочку",
-         "оркестратор продолжает цепочку",
-         "оркестратор фиксирует её и завершает цепочку"),
+        ("оркестратор фиксирует её записью исполнителя по диктовке",
+         "оркестратор фиксирует её сам",
+         "оркестратор фиксирует её записью исполнителя"),
         ("Приёмка — ask «принять/вернуть»", "Приёмка словом без отчёта",
          "приёмка — ask «принять/вернуть»"),
         ("Возврат открывает работу по находкам", "Возврат закрывает юнит",

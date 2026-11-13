@@ -1173,3 +1173,81 @@ def test_pack_discovery_contract_can_fail():
             f"the mutation must change the text: {needle!r}"
         mutated = head + marker + mutated_block
         assert needle in _pack_discovery_missing(mutated), needle
+
+
+# team-profiles 04 («Готово» 6, 15; решение 15 спеки team-profiles): init
+# называет team-бандл ссылкой в §5/отчёте — роли команды поставляет
+# DSH-бандл пресетов уровня профиля, не пак стандартов. Имени личного
+# репозитория и литералов маршрутов в навыке нет: init остаётся реестром
+# панели и куратора, а канал поставки бандла — профиль, не проект.
+TEAM_REFERENCE_NEEDLES = (
+    "**Роли команды.**",
+    "DSH-бандл пресетов уровня профиля, не пак стандартов",
+    "init бандл не устанавливает",
+    "назови его в отчёте ссылкой на установленный бандл профиля",
+    "без имени личного репозитория и без литералов маршрутов",
+)
+TEAM_REPORT_NEEDLE = (
+    "Для ролей команды назови team-бандл ссылкой на установленный бандл"
+)
+PERSONAL_REPO_NAME = "ontoship-team"
+ROUTE_TOKENS = ("qwen", "deepseek", "xhigh", "/max", "/medium")
+
+
+def _team_paragraph(text: str) -> str:
+    """Блок «Роли команды» в §5: до блока конфига или до конца шага."""
+    layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
+    marker = "**Роли команды.**"
+    if marker not in layout:
+        return ""
+    block = layout.split(marker, 1)[1]
+    return marker + block.split("**Конфиг существует.**", 1)[0]
+
+
+def _team_reference_missing(text: str) -> list[str]:
+    """Нарушения ссылки init на team-бандл; пусто — навык звучит верно."""
+    paragraph = _team_paragraph(text)
+    if not paragraph:
+        return ["team-bundle reference block missing"]
+    flat = re.sub(r"\s+", " ", paragraph)
+    missing = [needle for needle in TEAM_REFERENCE_NEEDLES if needle not in flat]
+    if PERSONAL_REPO_NAME in text.lower():
+        missing.append("personal repo name is named")
+    missing.extend(f"route literal {token!r}" for token in ROUTE_TOKENS
+                   if token in flat.lower())
+    report = re.sub(r"\s+", " ", text.split("## 7. Отчёт", 1)[-1])
+    if TEAM_REPORT_NEEDLE not in report:
+        missing.append("report line names the bundle by reference")
+    return missing
+
+
+def test_team_bundle_is_named_by_reference():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 6, 15 (тикет 04):
+    init называет team-бандл ссылкой в §5 и отчёте; роли команды — DSH-бандл
+    пресетов уровня профиля, не пак; имени личного репозитория и литералов
+    маршрутов нет. На базе секции нет — красная проба."""
+    text = SKILL.read_text("utf-8")
+    assert _team_reference_missing(text) == []
+
+
+def test_team_reference_contract_can_fail():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 6, 15 (тикет 04):
+    проверка ссылки init умеет падать — потеря каждого якоря, возврат имени
+    личного репозитория, литерала маршрута и потеря строки отчёта краснят
+    её. Ожидаемые значения — из решения 15 спеки, не из текста навыка."""
+    text = SKILL.read_text("utf-8")
+    assert _team_reference_missing(text) == []
+
+    for needle in TEAM_REFERENCE_NEEDLES:
+        pattern = re.escape(needle).replace("\\ ", r"\s+")
+        mutated = re.sub(pattern, "", text, count=1, flags=re.IGNORECASE)
+        assert mutated != text, f"the mutation must change the text: {needle!r}"
+        assert _team_reference_missing(mutated), needle
+
+    assert _team_reference_missing(
+        text.replace("**Роли команды.**", f"**Роли команды** `{PERSONAL_REPO_NAME}`.", 1))
+    assert _team_reference_missing(
+        text.replace("пакет и версия", "пакет, версия и маршрут "
+                     "`qwen-token-plan/qwen3.8-flash`/`medium`", 1))
+    assert _team_reference_missing(
+        text.replace(TEAM_REPORT_NEEDLE, "Для ролей команды назови бандл пакетом.", 1))

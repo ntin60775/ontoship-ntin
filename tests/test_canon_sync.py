@@ -18,8 +18,12 @@ Named carrier sets share the anchor mechanics:
 - ``method-phases`` — the canon's three-phase section: the canon and the
   bundle carrier (skills/ship/references/method-phases.md); the anchors carry
   the new flow (projection gate, slicing self-check, chain, auto-acceptance,
-  pack gates, standards priority), and the gate-shape test guards the manual
-  gate list and forbids the retired flow phrases;
+  pack gates, standards priority) and the role carriers with the method
+  contract (team-profiles ticket 04: profile-level presets bundle, init names
+  it by reference, `methodContract` version 1, the chain checks it through the
+  plugin service and stops on mismatch or absence, the version bumps with the
+  method release), and the gate-shape test guards the manual gate list and
+  forbids the retired flow phrases;
 - ``pack-contract`` — the pack contract API v1: the KB project carrier
   (docs/reference/pack-contract.md) and the bundle carrier
   (skills/pack/references/pack-contract.md);
@@ -154,6 +158,14 @@ METHOD_ANCHORS = (
     "`ship` вызывается моделью",
     "каждый пункт «Готово» спеки закрыт тикетом",
     "одной продолжаемой сессии-исполнителю",
+    "Роли команды — носитель профиля, не проекта",
+    "DSH-пресеты поставляет team-бандл уровня профиля",
+    "`init` называет его ссылкой",
+    "`methodContract` (версия 1) в манифесте бандла",
+    "эталон — релиз метода",
+    "проверяет контракт через сервис плагина",
+    "останавливается с вопросом при mismatch или отсутствии",
+    "поднимается вместе с релизом метода",
 )
 
 # The retired flow phrases must not return into the canon or the mirror. The
@@ -426,6 +438,24 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     missing = _missing_carriers("модель сессии с пометкой в отчёте",
                                 (ship, panel))
     assert missing == [panel.as_posix()], missing
+
+    # The team-carrier pair (team-profiles 04): the canon keeps the role
+    # carriers and the method contract while the bundle section loses the
+    # contract wording alone — the comparator names the mirror.
+    canon = seed("canon-team.md",
+                 "Роли команды — носитель профиля, не проекта: "
+                 "`methodContract` (версия 1) в манифесте бандла.")
+    mirror = seed("mirror-team.md",
+                  "Роли команды — носитель профиля, не проекта: "
+                  "`methodContract` (версия 1) в манифесте бандла.")
+    mutated_text = mirror.read_text("utf-8").replace(
+        "`methodContract` (версия 1) в манифесте бандла", "версия не нужна")
+    assert mutated_text != mirror.read_text("utf-8"), \
+        "the mutation must remove the anchor"
+    mirror.write_text(mutated_text, "utf-8")
+    missing = _missing_carriers("`methodContract` (версия 1) в манифесте бандла",
+                                (canon, mirror))
+    assert missing == [mirror.as_posix()], missing
 
     # The method-phases pair: an anchor dropped from the bundle section
     # alone reddens while the canon still holds it. The seed carries the

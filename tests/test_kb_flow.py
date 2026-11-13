@@ -183,7 +183,9 @@ def test_kb_flow_checks_can_fail():
     assert any("no chain-and-projections section" in error
                for error in _flow_errors(no_section))
 
-    no_send = harnesses.replace("send_message", "сообщения", 1)
+    # The DSH block carries the tool twice (handover and the dictated record
+    # write, team-profiles 04): the probe drops both, or the anchor survives.
+    no_send = harnesses.replace("send_message", "сообщения", 2)
     assert no_send != harnesses
     assert any("send_message" in error for error in _flow_errors(no_send))
 
