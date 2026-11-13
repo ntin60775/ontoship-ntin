@@ -33,14 +33,15 @@ flowchart TD
   classDef pending fill:#e2e3e5,stroke:#6c757d,color:#383d41;
   classDef waiting fill:#fff3cd,stroke:#ffc107,color:#856404;
 
-  class T01 done;
-  class T02 pending;
-  class T03,T04,T05,T06,T07,T08 waiting;
+  class T01,T02 done;
+  class T03,T05 pending;
+  class T04,T06,T07,T08 waiting;
 ```
 
 Порядок исполнения последовательный (параллельное исполнение веток
 отложено решением оператора 2026-11-11): после закрытия 03 готовы 04 и
 05, они идут в порядке публикации — 04, затем 05.
 
-Обновлено: 2026-11-13, тикет 01 принят автоприёмкой (merge `57e633f`),
-тикет 02 свободен.
+Обновлено: 2026-11-13, тикеты 01–02 приняты автоприёмкой (merge
+`57e633f`, `622d0bd`); ready-frontier: 03 и 05, порядок по публикации —
+03, 04, 05.
