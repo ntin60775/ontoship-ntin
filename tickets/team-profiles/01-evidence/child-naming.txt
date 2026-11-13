@@ -1,0 +1,8 @@
+# Родительская сессия live-smoke: session-175835d2-0d1d-4737-9c1f-2d7e2ea81626
+# turn 2: tool/call subagent name=scout-tp01, tool/result "started subagent scout-tp01", meta {kind: activation, name: scout-tp01}
+{"seq":25,"args":"{\"name\":\"scout-tp01\",\"description\":\"Тестовый субагент scout\",\"prompt\":\"Ответь одним словом: готово\"}"}
+{"seq":27,"text":"started subagent scout-tp01","meta":{"kind":"activation","name":"scout-tp01"}}
+# Дочерняя сессия live-smoke: 4e70a652-1fe8-410d-9fdf-8b6e7050cba4
+{"id":"4e70a652-1fe8-410d-9fdf-8b6e7050cba4","parentSession":"session-175835d2-0d1d-4737-9c1f-2d7e2ea81626","origin":"subagent","delegationDepth":1,"agentPreset":"architect"}
+{"seq":16,"title":"Ответь одним словом: г","source":{"kind":"fallback"}}
+{"seq":18,"title":"Ответ одним словом: готово","source":{"kind":"provider","provider":"session-title-all-prompts-llm","model":{"provider":"qwen-token-plan-max","model":"qwen4-max-preview"}}}

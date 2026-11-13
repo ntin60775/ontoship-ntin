@@ -35,78 +35,180 @@ fs-write для спек), `modelSelection: true` на spawn-инструмен�
 
 Срез — отдельный репозиторий (спека, решение 3):
 `/home/prog7/home/dev/contrib/forks/ontoship-team`, ветка `main`,
-коммит `d69105c` (12 файлов, 3576 строк). Worktree
+коммиты `d69105c` (каркас), `e37babe`, `ac00df2`, `7ff4570` (правки
+панели). Worktree
 `ontoship-ntin-wt-tp01` (ветка `tp01-team-bundle-architect`, база
-`8cb6b20`) несёт только запись доказательств этого тикета; код юнита
-живёт в новом репозитории. Вывод сборки, набор и логи:
-`/tmp/tp01-evidence/{build-test.log,test-verbose.log}`.
+`8cb6b20`) несёт только запись доказательств; код юнита живёт в новом
+репозитории. Логи прогонов и живого лога — в `01-evidence/` этого
+тикета.
 
 **Каркас (критерий 1).** `package.json`: `ontoship-team@0.1.0`,
 `dsh.bundle.patch` → `./cordis.patch.yml`, `engines.dsh`
-`>=0.2.2-rc.2 <0.3.0`; `main`/`types` — в `lib`, сборка `tsc`,
-`lib` в `.gitignore` (как у `dsh-1c-contour`), тестовый контур `vitest`.
-`npm run typecheck` и `npm run build` — чисто; `npm test` — **30
-passed** (3 файла). Диапазон `engines.dsh` проверен тем же вызовом, что
-у DSH (`semver.satisfies(..., { includePrerelease: true })`):
-`0.2.2-rc.2` admitted, `0.2.2-rc.1` и `0.3.0` отсечены.
+`>=0.2.2-rc.2 <0.3.0`; `main`/`types` — в `lib`, сборка `tsc`, `lib`
+в `.gitignore` (как у `dsh-1c-contour`), тестовый контур `vitest`.
+Вывод — `01-evidence/build-test.log`: `typecheck` и `build` чисто,
+`npm test` — **38 passed** (3 файла; `test-verbose.log`). Диапазон
+`engines.dsh` проверен тем же вызовом, что у DSH
+(`semver.satisfies(..., { includePrerelease: true })`): `0.2.2-rc.2`
+admitted, `0.2.2-rc.1` и `0.3.0` отсечены.
 
 **Композиция (критерий 2).** `cordis.patch.yml`: строка
 `preset-architect` (`@deepseek-ai/dsh-agent-preset`, `id: architect`,
 имя «Архитектор», `order: 20`, описание) — копия `standard` из
-`@deepseek-ai/dsh-web-app` без группы `planning` и строк
-`workflow-ptc`/`tool-workflow`. Контрактный тест
-`tests/unit/composition.spec.ts` (11 tests): матрица инструментов из
-строк композиции по каталогу DSH 0.2.2-rc.2 — `ask_user_question`,
-`read`, `read_image`, `write`, `edit`, `glob`, `grep`, `web_search`,
-`web_fetch`, `skill`, `subagent`/`subagent_fork`; `modelSelection` и
-`modelDiscovery` на spawn; отсутствие план-мода и workflow; негативные
-пробы (удаление строк ask/subagent, добавление plan-mode); русская
-персона с секциями и единственной переменной `{{model}}`. Живой набор
-инструментов сессии (ниже) совпал с матрицей.
+`@deepseek-ai/dsh-web-app` с тремя дельтами: нет группы `planning`
+(режим плана харнесса в методе не используется), нет строк workflow
+(`workflow-ptc`, `tool-workflow`), у группы `delegation` снят
+`isolate: workflowEngine` (изолировать нечего). Набор инструментов
+копии — 35 в живой сессии; требуемое тикетом подмножество (`ask`,
+`read`, `write`, `edit`, веб, `skill`, `subagent`) подтверждено и
+контрактным тестом, и живым `request/header`; строки `bash`, `jobs`,
+`schedule`, `goal`, `todo`, `present`, `office`, `plugin_manager` —
+часть полной копии `standard`, а не отдельный набор тикета.
+Контрактный тест `tests/unit/composition.spec.ts` (16 tests): матрица
+инструментов из строк по каталогу DSH 0.2.2-rc.2, `modelSelection` и
+`modelDiscovery` на spawn, отсутствие план-мода и workflow, негативные
+пробы (удаление строк ask/subagent, добавление plan-mode), русская
+персона с секциями и единственной переменной `{{model}}`, инвариант
+«каждый id роли имеет декларацию пресета». `scout` в allowlist spawn —
+тикет 03: пресета `scout` ещё нет, enum на необъявленный пресет не
+ставится; `executor`/`orchestrator`/`scout` — тикеты 02–03.
 
 **Авто-имя (критерий 3).** Хост-плагин `ontoship-team` — корневой
-экспорт бандла, строка ДО декларации пресета. Подписан на
+экспорт бандла, строка ДО декларации пресета. Подписан глобально на
 `agent/created` (основной путь: свежая сессия с пресетом не пишет
-`agent-preset/selected`, пресет лежит в заголовке) и
-`agent-preset/selected` (выбор в пустой сессии); имя —
-`sessionTitle.rename` в `name` декларации пресета (источник `user` —
-заголовок закреплён); детей не переименовывает: имя ребёнка задаёт
-нативный аргумент `name` спавна. Тесты `tests/unit/naming.spec.ts`
-(16): корень именуется; ребёнок, чужая роль и закреплённый заголовок —
-нет; отказ реестра пресетов даёт id пресета; отказ `rename` не валит
-создание агента; пустой/кривой конфиг ролей громко выключает авто-имя.
+`agent-preset/selected`, пресет лежит в заголовке; событие serial —
+имя стоит в логе до возврата создания) и `agent-preset/selected`
+(выбор в пустой сессии); имя — `sessionTitle.rename` в `name`
+декларации пресета (источник `user` — заголовок закреплён); детей не
+переименовывает: имя ребёнка задаёт нативный аргумент `name` спавна.
+Заголовок, выданный плагином, плагин помнит по тексту и перезаписывает
+при смене роли; любой другой заголовок не трогает; повтор события с тем
+же именем второго заголовка не пишет. Тесты
+`tests/unit/naming.spec.ts` (19): корень именуется; ребёнок, чужая
+роль, пользовательский заголовок (в т. ч. поставленный после выданного)
+— нет; смена роли перезаписывает выданный заголовок; отказ реестра
+пресетов даёт id пресета; отказ `rename` не валит создание агента;
+не-live сессия и пустой/кривой конфиг звучат в лог.
 
 **Live-smoke (критерий 4).** Dev-канал `link:`:
 `plugin_manager install_bundle` с target — каталог клона; профиль
-`~/.dsh/profiles/web`. Состояние до/после — sha256
-`/tmp/tp01-profile-before.sha256` / `/tmp/tp01-profile-after.sha256`;
-`package.json` профиля получил зависимость
+`~/.dsh/profiles/web`. Состояние до/после —
+`01-evidence/profile-sha256.txt`: `package.json` получил зависимость
 `"ontoship-team": "link:/home/prog7/home/dev/contrib/forks/ontoship-team"`
-и бандл в `dsh.profile.bundles`; `cordis.patch.yml` профиля не тронут
-(sha совпал). Строки профиля: `include:ontoship-team` — `active`,
-`include:preset-architect` — `active` (`/tmp/tp01-evidence/plugin-rows.txt`).
-Диагностика установки назвала неактивной чужую строку `1c-contour`;
-причина внешняя (её `lib` пересобран после старта хоста, HMR отдал
-старый модуль `paths.js`), наши строки активны — зацепка в отчёте.
+и бандл в `dsh.profile.bundles`; профильный `cordis.patch.yml`
+перезаписан plugin_manager с нормализацией EOF (+1 байт), строковых
+изменений нет. Строки профиля — `01-evidence/plugin-rows.txt`:
+`include:ontoship-team` и `include:preset-architect` — `active`.
+Диагностика установки назвала неактивной чужую строку `1c-contour` по
+внешней причине (её `lib` пересобран после старта хоста, HMR отдал
+старый модуль `paths.js`) — зацепка в отчёте, не дефект бандла.
 
-Сессия `session-da5ed40c-0eae-456b-8f55-bc56a5900ca7`, cwd
+Сессия `session-175835d2-0d1d-4737-9c1f-2d7e2ea81626`, cwd
 `/tmp/tp01-architect-smoke`, создана через API живого хоста
-(`session/create`, `agentPreset: architect`). Лог:
-`/tmp/tp01-evidence/live-session.jsonl`, системный промпт —
-`system-prompt.txt`:
+(`session/create`, `agentPreset: architect`); лог —
+`01-evidence/live-session.jsonl`, системный промпт —
+`01-evidence/system-prompt.txt`:
 
-- заголовок сессии `agentPreset: architect`, `parentSession: null`;
+- заголовок сессии `agentPreset: architect`, `delegationDepth: 0`,
+  родителя нет;
 - `session/title` seq 4 = «Архитектор», `source: {kind: user}`,
   `messageSeqs: []` — имя стоит до первого сообщения, модель его не
   перегенерирует;
 - персона в `system/message`: секции «## Роль», «## Команда»,
   «## Как писать», «## Границы»; `{{model}}` отрендерен в
   `qwen4-max-preview`; английской дефолтной персоны нет;
-- инструменты `request/header`: `ask_user_question`, `read`,
-  `read_image`, `write`, `edit`, `glob`, `grep`, `web_search`,
-  `web_fetch`, `skill`, `subagent`, `subagent_fork`, `send_message`;
-  `exit_plan_mode` и `workflow` отсутствуют — дельта копии видна живьём;
+- инструменты `request/header` (35): требуемые тикетом на месте, в т. ч.
+  `ask_user_question`, `read`, `write`, `edit`, `web_search`,
+  `web_fetch`, `skill`, `subagent`; `exit_plan_mode` и `workflow`
+  отсутствуют — дельта копии видна живьём;
 - маршрут — дефолт профиля `qwen-token-plan-max/qwen4-max-preview`
   (пресет модель на верхнем уровне не несёт, «Ограничения»);
-- ответ модели: «Я архитектор OntoShip — аналитик-планировщик…» — роль
-  работает.
+- ответ модели: «Я архитектор OntoShip — аналитик и планировщик…» —
+  роль работает;
+- имя ребёнка — нативный `name` спавна: turn 2, `tool/call subagent`
+  с `name: scout-tp01`, результат «started subagent scout-tp01» и
+  `meta.name: scout-tp01`; дочерняя сессия `4e70a652-…` с
+  `parentSession`, `origin: subagent`, `agentPreset: architect`;
+  заголовки ребёнка — fallback/provider по его промпту, не роль:
+  плагин детей не переименовывает (`01-evidence/child-naming.txt`,
+  `live-child-session.jsonl`).
+
+Живая проба создана на работающем хосте, чей модуль хост-плагина —
+первая сборка `d69105c`; переустановка после правок (`e37babe`,
+`ac00df2`, `7ff4570`) вернула `restart-required`, `unmanaged-plugin`.
+Правки панели меняют ветку смены роли и заголовки — они покрыты
+юнит-тестами; живая перепроверка смены роли — после рестарта DSH,
+названный пробел, не блокирует критерии тикета.
+`ask_user_question` наблюдаем в схеме; round-trip вызова (вопрос/ответ)
+не делался и переносится в живую пробу тикета 02 — P3.
+
+**Точки остановки «Ограничений».** Пресет не несёт модель на верхнем
+уровне; `executors.json` и реестр не тронуты (тикет 02); `!!js` без
+`require`, путь профиля не используется; панель — 4 роли, глубина 2,
+лимит детей 4 соблюдён (рассрочка 3+1); межсессионного messaging нет;
+правок 1C-DSH нет; проба — один игрушечный тикет; бюджет не превышен.
+Механических гейтов пака нет — `.agents/packs/` пуст, ноль назван.
+
+**Расхождения ожидание/факт.** Не было; две неточности доказательств
+(цитата `parentSession: null` из синтеза jq; «набор совпал с матрицей»
+вместо «требуемое подмножество») исправлены этим же проходом.
+
+## Ревью-панель
+
+Один прогон, роли ядра из `.agents/config.toml`: `reviewer-spec`,
+`reviewer-tests`, `reviewer-code`, `reviewer-kb` — маршрут
+`qwen-token-plan/qwen3.8-flash`, уровень `xhigh`, сверен живым
+`list_subagent_models`; модель сессии — `deepseek-account/deepseek-flash`,
+независимость соблюдена, фолбэков нет. Лимит детей хоста 4: три роли
+стартовали в одном сообщении, четвёртая (`reviewer-kb`) — по
+освободившемуся слоту; прогон остался одним. Первая проба
+`reviewer-tests` вернула вердикт после часа ожидания; на время ожидания
+запущена повторная проба `reviewer-tests-2` по правилу «одна повторная
+проба», её результат сведён в тот же отчёт.
+
+Вердикты: пять (четыре роли + повторная проба) — «принять с
+находками»; P1 нет. После дедупликации 8 P2 и 19 P3; 7 P2 закрыты
+одним проходом правок (`e37babe`, `ac00df2`, `7ff4570`), один P2 снят
+чтением актуального файла (раздел расхождений уже есть), 11 P3 закрыты
+проходом, 8 открытых — в `leads.md`.
+
+- **Поверхность инструментов описана неточно** (spec, kb): «набор
+  совпал с матрицей» заменено на «требуемое подмножество подтверждено,
+  копия `standard` — 35 инструментов», дельты названы; добавлено
+  `scout`-граница тикета 03.
+- **Доказательства в `/tmp` эфемерны** (spec, kb): логи и живой лог
+  перенесены в `tickets/team-profiles/01-evidence/` и названы ссылками;
+  sha профиля — `01-evidence/profile-sha256.txt`.
+- **Смена роли в пустой сессии оставляла имя прежней роли** (code):
+  плагин помнит выданный им заголовок по тексту и перезаписывает только
+  его; пользовательский не трогает; добавлены in-flight-защита, дедуп по
+  равенству имени и лог не-live сессии.
+- **Матрица тестов уже доказательства** (tests): `REQUIRED_TOOLS`
+  доведён до названной поверхности (`glob`, `grep`, `read_image`,
+  `subagent`, `subagent_fork`), добавлены пробы на удаление строк
+  fs-search/fork и на `disabled: !!js`.
+- **`disabled`-выражение не снимало строку с матрицы** (tests): строка с
+  любым `disabled`, кроме `false`, выпадает; проба с `!!js` на ask.
+- **Имя ребёнка не наблюдалось живьём** (spec, tests): live-smoke turn 2
+  спавнит ребёнка с `name: scout-tp01`, результат и `meta.name`
+  совпадают; дочерняя сессия не переименована ролью.
+- **Раздел разбора расхождений** (tests): раздел «Расхождения
+  ожидание/факт» в доказательствах есть, строка «не было» названа
+  (замечание снято чтением актуального файла).
+- **Трассировка версии DSH в manifest.spec** (tests-2): источник —
+  `docs/ops/continue.md`, «Факты окружения», а не раздел тикета,
+  которого нет.
+
+P3 закрыты этим проходом: третья дельта копии (`isolate`), английский
+комментарий `tool-fs`, описание пакета и README под поставленное,
+`global: true` под тестом, `applyPatch: false` под якорем, цитата
+`parentSession: null` заменена артефактным полем, `invariant:`-маркеры,
+запрет план-мода и workflow прямым списком, паритет fork-строки
+(`toolName subagent_fork` без route-полей), лог не-live сессии и
+in-flight-защита. Открытые P3 — `tickets/team-profiles/leads.md`: имя
+ребёнка у ролей 02–03, живой round-trip ask, конвенция `order`,
+`tool-plugin-manager` у планирующих ролей, необъявленная зависимость
+`skill-filesystem`, сторож дрейфа против `standard` (включая привязку
+фикстурного имени к декларации), живая смена роли после рестарта,
+чистый зелёный install/remove. `scout` в allowlist — названная граница
+тикета 03, тест-заглушка не ставится до его пресета.

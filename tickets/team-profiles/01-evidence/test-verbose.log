@@ -1,0 +1,47 @@
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
+
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > id, имя, описание и порядок — команда ролей 1ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > строка хост-плагина называет пакет и покрывает роль 1ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > каждый id роли имеет декларацию пресета — дрейф конфига ловится 1ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > даёт ask, чтение, веб, скиллы и правку файлов 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > spawn-инструмент несёт выбор маршрута и discovery 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > не монтирует режим плана и workflow 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > fork-инструмент не включает выбор маршрута — паритет с upstream 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > tool-fs не включает apply_patch: маппинг не обещает лишнего 0ms
+ ✓ tests/unit/composition.spec.ts > персона > русская, с именованными секциями 0ms
+ ✓ tests/unit/composition.spec.ts > персона > шаблонные переменные — только известная {{model}} 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки ask снимает инструмент из набора 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > добавление строки plan-mode ломает запрет 1ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки subagent снимает spawn-инструмент 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fs-search снимает glob и grep 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fork снимает subagent_fork 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > disabled-выражение !!js у строки снимает её инструмент 0ms
+ ✓ tests/unit/naming.spec.ts > разводка плагина > объявляет имя и сервисы хоста 2ms
+ ✓ tests/unit/naming.spec.ts > разводка плагина > подписан на создание агента и выбор пресета глобально 1ms
+ ✓ tests/unit/naming.spec.ts > агент создан > корневая сессия роли получает имя из декларации пресета 1ms
+ ✓ tests/unit/naming.spec.ts > агент создан > ребёнок не переименовывается: имя задаёт спавн 0ms
+ ✓ tests/unit/naming.spec.ts > агент создан > чужая роль не переименовывается 0ms
+ ✓ tests/unit/naming.spec.ts > агент создан > закреплённый заголовок не перетирается 0ms
+ ✓ tests/unit/naming.spec.ts > агент создан > отказ реестра пресетов: имя = id пресета и предупреждение 0ms
+ ✓ tests/unit/naming.spec.ts > агент создан > отказ rename не валит создание агента 1ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > корневая сессия получает имя роли 0ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > сессии нет в сторе — переименования нет, предупреждение 0ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > смена роли перезаписывает выданный плагином заголовок 0ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > пользовательский заголовок после выданного не перетирается 1ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > повтор события с тем же именем не пишет второй заголовок 0ms
+ ✓ tests/unit/naming.spec.ts > пресет выбран в пустой сессии > ребёнок не переименовывается 0ms
+ ✓ tests/unit/naming.spec.ts > конфиг ролей > пустой список выключает авто-имя громко 0ms
+ ✓ tests/unit/naming.spec.ts > конфиг ролей > не-массив звучит и выключает авто-имя 0ms
+ ✓ tests/unit/naming.spec.ts > чистые правила > корень отличается от ребёнка 0ms
+ ✓ tests/unit/naming.spec.ts > чистые правила > имя: декларация, иначе id 0ms
+ ✓ tests/unit/naming.spec.ts > чистые правила > набор ролей: мусор звучит, дубли схлопываются 0ms
+ ✓ tests/unit/manifest.spec.ts > манифест > объявляет пакет, точку входа и патч бандла 2ms
+ ✓ tests/unit/manifest.spec.ts > манифест > экспорт корня совпадает с точкой входа сборки 1ms
+ ✓ tests/unit/manifest.spec.ts > манифест > engines.dsh принимает живой DSH и отсекает следующий минор 3ms
+
+ Test Files  3 passed (3)
+      Tests  38 passed (38)
+   Start at  15:12:23
+   Duration  369ms (transform 158ms, setup 0ms, collect 194ms, tests 24ms, environment 0ms, prepare 317ms)
+

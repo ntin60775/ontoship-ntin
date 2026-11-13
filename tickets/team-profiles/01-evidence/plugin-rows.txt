@@ -1,0 +1,24 @@
+# Состояние профиля после установки link:-бандла (~/.dsh/profiles/web).
+# plugin_manager list_plugins (offset 224..233), 2026-11-13:
+include:ontoship-team     module=ontoship-team                  enabled=true fiberPhase=active  patchId=ontoship-team
+include:preset-architect  module=@deepseek-ai/dsh-agent-preset   enabled=true fiberPhase=active  patchId=preset-architect
+include:1c-contour        module=dsh-1c-contour                  enabled=true fiberPhase=null    patchId=1c-contour
+
+# Диагностика install_bundle (первая установка): application=failed,
+# единственная причина — чужая строка:
+#   1c-contour (dsh-1c-contour): failed to import: SyntaxError: The requested
+#   module '../paths.js' does not provide an export named 'BSL_SCAN_PREFIXES'
+# Причина внешняя: lib пакета 1C-DSH пересобран 12:53 (хост стартовал 11:05),
+# HMR-перезагрузка слоя профиля отдала Node старый кеш paths.js; наши строки
+# (ontoship-team, preset-architect) активны.
+
+# Переустановка после правок панели (сборка e37babe): remove_bundle и
+# install_bundle вернули application=restart-required, restartReason=
+# unmanaged-plugin: код хост-плагина остаётся в старом модуле процесса до
+# рестарта DSH. Профиль восстановлен: зависимость link: и бандл в
+# dsh.profile.bundles на месте; новая сессия с пресетом architect работает
+# (session-175835d2-0d1d-4737-9c1f-2d7e2ea81626, заголовок «Архитектор»).
+
+# Профильный cordis.patch.yml перезаписан plugin_manager при remove/install:
+# добавлен завершающий перевод строки (+1 байт, 4671 -> 4672), строковых
+# изменений нет — ни наших, ни чужих записей не добавлено.
