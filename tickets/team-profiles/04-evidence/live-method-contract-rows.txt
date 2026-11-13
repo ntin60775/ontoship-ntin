@@ -1,0 +1,14 @@
+# Живые строки бандла после reinstall (plugin_manager list_plugins, offset 200)
+# и провайдер в cordis_inspect_list — снято в проходе тикета 04.
+include:ontoship-executors  module ontoship-team/executors  enabled true  fiberPhase active  patchId ontoship-executors
+include:ontoship-contract   module ontoship-team/contract   enabled true  fiberPhase active  patchId ontoship-contract
+include:ontoship-team       module ontoship-team            enabled true  fiberPhase active  patchId ontoship-team
+include:preset-architect    module @deepseek-ai/dsh-agent-preset  enabled true  fiberPhase active
+include:preset-orchestrator module @deepseek-ai/dsh-agent-preset  enabled true  fiberPhase active
+include:preset-executor     module @deepseek-ai/dsh-agent-preset  enabled true  fiberPhase active
+include:preset-scout        module @deepseek-ai/dsh-agent-preset  enabled true  fiberPhase active
+
+host inspect provider: id OntoShipTeam
+  description: Метод-контракт team-бандла OntoShip: … Read-only: без записи и правок.
+  method methodContract, inputSchema {type object, properties {}, additionalProperties false},
+  outputSchema {contract integer, absent boolean}

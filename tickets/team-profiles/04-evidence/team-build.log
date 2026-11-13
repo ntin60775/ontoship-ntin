@@ -1,0 +1,7 @@
+# тикет 04 team-profiles — сборка и типы team-бандла (main 84c0cf6)
+# команды: npm run build; npm run typecheck
+
+> tsc -p tsconfig.json
+
+> tsc -p tsconfig.json --noEmit
+

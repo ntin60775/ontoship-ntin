@@ -1,0 +1,49 @@
+# тикет 04 team-profiles — красная проба на базе ntin 363504b (финальные тесты)
+# новые/правленые тесты скопированы на базу: test_skill_chain.py, test_skill_init.py, test_canon_sync.py, test_kb_flow.py
+# команда: python3 -m pytest tests/test_skill_chain.py tests/test_skill_init.py tests/test_canon_sync.py tests/test_kb_flow.py -q
+
+tests/test_kb_flow.py:161: AssertionError
+_________________________ test_kb_flow_checks_can_fail _________________________
+
+    def test_kb_flow_checks_can_fail():
+        """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+        the checks redden on a lost flow section, a lost DSH needle, an
+        unretired zcode way, a lost Qoder gap, an unlinked pack reference, a
+        lost --pack channel and a returned plan-critique description."""
+        harnesses = HARNESSES.read_text("utf-8")
+>       assert _flow_errors(harnesses) == []
+E       assert ["the DSH way...по диктовке'"] == []
+E         
+E         Left contains 4 more items, first extra item: "the DSH way lost 'team-бандла уровня профиля'"
+E         Use -v to get more diff
+
+tests/test_kb_flow.py:187: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_skill_chain.py::test_skill_is_a_discoverable_directory_bundle
+FAILED tests/test_skill_chain.py::test_clean_session_start_and_operator_command
+FAILED tests/test_skill_chain.py::test_prompt_source_is_named - assert ["entr...
+FAILED tests/test_skill_chain.py::test_entry_checks_projection_gate_and_edges
+FAILED tests/test_skill_chain.py::test_one_continuable_executor_sequential - ...
+FAILED tests/test_skill_chain.py::test_executor_selection_rule - assert ["ent...
+FAILED tests/test_skill_chain.py::test_method_contract_check - assert ["entry...
+FAILED tests/test_skill_chain.py::test_chain_records_are_dictated - assert ["...
+FAILED tests/test_skill_chain.py::test_context_prompt_of_unit - assert ["entr...
+FAILED tests/test_skill_chain.py::test_green_contour_and_auto_acceptance - as...
+FAILED tests/test_skill_chain.py::test_budget_guards_and_retirement - assert ...
+FAILED tests/test_skill_chain.py::test_stop_transfers_state_to_continue - ass...
+FAILED tests/test_skill_chain.py::test_final_report_form_and_acceptance - ass...
+FAILED tests/test_skill_chain.py::test_viz_derived_views_from_one_dag - asser...
+FAILED tests/test_skill_chain.py::test_contract_check_can_fail - assert ["ent...
+FAILED tests/test_skill_init.py::test_team_bundle_is_named_by_reference - Ass...
+FAILED tests/test_skill_init.py::test_team_reference_contract_can_fail - Asse...
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u0420\u043e\u043b\u0438 \u043a\u043e\u043c\u0430\u043d\u0434\u044b \u2014 \u043d\u043e\u0441\u0438\u0442]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:DSH-\u043f\u0440\u0435\u0441\u0435\u0442\u044b \u043f\u043e\u0441\u0442\u0430\u0432\u043b\u044f]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:`init` \u043d\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u0435\u0433\u043e ]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:`methodContract` (\u0432\u0435]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u044d\u0442\u0430\u043b\u043e\u043d \u2014 \u0440\u0435\u043b\u0438\u0437 \u043c\u0435\u0442\u043e\u0434]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u0442 \u043a\u043e\u043d\u0442\u0440\u0430\u043a\u0442 \u0447]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043e\u0441\u0442\u0430\u043d\u0430\u0432\u043b\u0438\u0432\u0430\u0435\u0442\u0441\u044f \u0441 \u0432\u043e]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043f\u043e\u0434\u043d\u0438\u043c\u0430\u0435\u0442\u0441\u044f \u0432\u043c\u0435\u0441\u0442\u0435 \u0441]
+FAILED tests/test_kb_flow.py::test_harnesses_carry_the_chain_and_projections
+FAILED tests/test_kb_flow.py::test_kb_flow_checks_can_fail - assert ["the DSH...
+27 failed, 97 passed in 1.25s

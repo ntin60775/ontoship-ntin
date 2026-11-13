@@ -1,0 +1,20 @@
+# тикет 04 team-profiles — красная проба на базе team a5b5b0c (финальные тесты)
+# новые/правленые тесты скопированы на базу: contract.spec.ts, manifest.spec.ts, composition.spec.ts
+# команда: npx vitest run tests/unit/contract.spec.ts tests/unit/manifest.spec.ts tests/unit/composition.spec.ts
+
+   × манифест > экспорт контракта указывает на lib-сборку 5ms
+   × манифест > манифест объявляет метод-контракт версии 1 0ms
+   × декларация пресета architect > строка контракта называет пакет и метод-контракт без конфига 4ms
+ FAIL  tests/unit/contract.spec.ts [ tests/unit/contract.spec.ts ]
+Error: Cannot find module '../../src/contract-config.js' imported from '/tmp/tp04-team-base/tests/unit/contract.spec.ts'
+Caused by: Error: Failed to load url ../../src/contract-config.js (resolved id: ../../src/contract-config.js) in /tmp/tp04-team-base/tests/unit/contract.spec.ts. Does the file exist?
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/unit/composition.spec.ts > декларация пресета architect > строка контракта называет пакет и метод-контракт без конфига
+Error: composition has no row "ontoship-contract"
+     66|   if (row === undefined) throw new Error(`composition has no row "${id…
+ FAIL  tests/unit/manifest.spec.ts > манифест > экспорт контракта указывает на lib-сборку
+AssertionError: expected undefined to deeply equal { …(2) }
+ FAIL  tests/unit/manifest.spec.ts > манифест > манифест объявляет метод-контракт версии 1
+TypeError: Cannot read properties of undefined (reading 'methodContract')
+ Test Files  3 failed (3)
+      Tests  3 failed | 35 passed (38)

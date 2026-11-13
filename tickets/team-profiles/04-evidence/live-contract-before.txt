@@ -1,0 +1,13 @@
+# Живая проба methodContract — контроль ДО переустановки бандла (тикет 04)
+# DSH 0.2.2-rc.2, профиль web, хост PID 3746641 не перезапускался.
+# Сессия оркестратора session-2161b3e8-08a6-4f97-b914-3b0c9881341b,
+# cwd /tmp/tp04-live-contract, создана через API живого хоста
+# (launch-токен из /run/user/1000/dsh-web.log, v2-cookie, /connect).
+# Вопрос: перечислить id провайдеров cordis_inspect_list.
+
+# Ответ модели (seq 21):
+Видимые провайдеры — host: Service, Event, Config, Tool; client: Service,
+Event, Builtin, Slots, Theme (ничего не менял).
+
+# Провайдера OntoShipTeam в списке нет: старый модуль бандла, контроль
+# «на базе проверки нет». Полный журнал — live-contract-before.jsonl.

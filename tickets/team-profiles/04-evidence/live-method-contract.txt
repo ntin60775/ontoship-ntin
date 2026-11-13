@@ -1,0 +1,45 @@
+# Живая проба methodContract (тикет 04) — DSH 0.2.2-rc.2, профиль web
+# Хост PID 3746641 не перезапускался. Переустановка бандла: plugin_manager
+# remove_bundle + install_bundle (application=restart-required из-за чужой
+# строки 1c-contour; наши строки активны).
+
+# Строка и провайдер живьём (plugin_manager list_plugins, offset 200):
+# include:ontoship-contract — module ontoship-team/contract — enabled true —
+# fiberPhase active (новая строка и новый модуль активированы reinstall-ом).
+# cordis_inspect_list: host-провайдер OntoShipTeam, описание
+# «Метод-контракт team-бандла OntoShip … Read-only: без записи и правок»,
+# метод methodContract, inputSchema — пустой объект.
+
+# Прямое чтение сервиса из живой сессии (cordis_inspect_query, без входа):
+{"contract": 1, "absent": false}
+
+# СЦЕНАРИЙ «совпадение»: сессия оркестратора
+# session-20678f5f-44b0-46d1-8de3-dd8819ade5a5, cwd
+# /home/prog7/home/dev/contrib/forks/ontoship-ntin (пресет orchestrator),
+# создана через API живого хоста. Модель загрузила скилл chain и выполнила
+# шаг 1 входа:
+#   skill {"name":"chain"}
+#   cordis_inspect_list {}
+#   cordis_inspect_query {"platform":"host","provider":"OntoShipTeam","method":"methodContract"}
+#   -> {"contract":1,"absent":false}
+# Вердикт модели: «Шаг 1 входа выполнен — вердикт: контракт совпал»;
+# ожидание релиза — версия 1, цепочка продолжает. Полный журнал —
+# live-method-contract.jsonl.
+
+# СЦЕНАРИЙ «mismatch»: сессия оркестратора
+# session-c56cdbb1-3008-4d60-95a9-2c0403abc4e4, cwd
+# /tmp/tp04-live-mismatch — проект с копией скилла chain, где ожидание
+# релиза метода = версия 2 (проба ветки; норма берёт ожидание из релиза
+# метода, здесь оно сдвинуто намеренно). Модель:
+#   skill {"name":"chain"}
+#   cordis_inspect_list {} -> провайдер OntoShipTeam на месте
+#   cordis_inspect_query {"platform":"host","provider":"OntoShipTeam","method":"methodContract"}
+#   -> {"contract":1,"absent":false}
+# Вердикт модели: «по норме раздела «Метод-контракт» это mismatch —
+# цепочка останавливается до чтения тикетов», затем вызов
+# ask_user_question (blocking, вопрос оператору «Как разрешаем mismatch?»).
+# Полный журнал — live-method-contract-mismatch.jsonl.
+
+# ДО переустановки (контроль): провайдера OntoShipTeam в списке не было,
+# сессия оркестратора видела только host Service/Event/Config/Tool —
+# live-contract-before.txt/.jsonl.

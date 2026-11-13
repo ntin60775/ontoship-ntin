@@ -1,0 +1,13 @@
+# тикет 04 team-profiles — dev-набор team (main после merge: 84c0cf6)
+# команда: npx vitest run
+
+ ✓ tests/unit/naming.spec.ts (19 tests) 11ms
+ ✓ tests/unit/manifest.spec.ts (6 tests) 9ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 13ms
+ ✓ tests/unit/composition.spec.ts (32 tests) 20ms
+
+ Test Files  6 passed (6)
+      Tests  91 passed (91)
+   Start at  19:50:38
+   Duration  382ms (transform 335ms, setup 0ms, collect 572ms, tests 73ms, environment 1ms, prepare 505ms)
+

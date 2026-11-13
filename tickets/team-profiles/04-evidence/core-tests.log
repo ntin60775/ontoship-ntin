@@ -1,0 +1,5 @@
+# тикет 04 team-profiles — dev-набор core (main после merge: 6801f60)
+# команда: python3 -m pytest tests/ -q
+
+..................................................                       [100%]
+770 passed in 11.12s

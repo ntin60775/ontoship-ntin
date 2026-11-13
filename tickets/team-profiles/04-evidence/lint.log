@@ -1,0 +1,7 @@
+# тикет 04 team-profiles — KB-линт (main 6801f60)
+# команда: python3 skills/kb-search/gitmark.py index && gitmark.py lint --strict
+
+✓ index: 60 файлов · 473 чанков · 172 ссылок · trigram=on → .gitmark/index.db
+
+scope: 91 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)

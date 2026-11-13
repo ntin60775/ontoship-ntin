@@ -1,0 +1,9 @@
+# тикет 04 team-profiles — install.sh --check (main 6801f60, установленный канал .agents/skills)
+# команда: bash scripts/install.sh --check .
+
+ok testing (link)
+ok critic (link)
+ok onto-doc (link)
+ok pack (link)
+ok chain (link)
+check: ok
