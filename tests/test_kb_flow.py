@@ -38,6 +38,7 @@ DSH_FLOW_NEEDLES = (
     # team-profiles 04: the DSH way names the role-carrier bundle, the method
     # contract read through the plugin service and the dictated chain records.
     "team-бандла уровня профиля",
+    "ontoshipteam",
     "methodcontract",
     "по диктовке",
 )
