@@ -36,6 +36,10 @@ spec: docs/plans/standards-autoship.md#решения план-гейта — р
 приёмка с отчётом и защитой решения
 spec: docs/plans/standards-autoship.md#ограничения — компакта нет, счётчик
 токенов недоступен, живая проба в temp-проекте
+spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (тикет 03):
+выбор исполнителя по указателю стека и реестру, дефолт `executor`,
+неоднозначность — остановка с вопросом; маршрут per-call через `read`
+реестра в полной форме, `agentOptions` — страховка; решения 5 и 16.
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
 contract check can fail (mutations redden)
@@ -227,9 +231,41 @@ SOURCE_PHRASES = (
     "указатель на состояние",
     "не пересказ",
 )
+# «Выбор исполнителя» (тикет 03 team-profiles): preset and route are chosen
+# once per continuable session — at spawn and at retirement/handoff, not per
+# ticket; the stack signal is the architect's pointer in the spec/continue.md;
+# the registry route is read per-call in full provider/model+level form;
+# ambiguity stops the chain with a question; the selection is named in the
+# report (candidates, id, reason); agentOptions is the fallback, not the
+# source; the reviewer panel registry stays in .agents/config.toml.
+SELECTION_PHRASES = (
+    "указатель архитектора",
+    "спеке юнита или `continue.md`",
+    "`исполнитель: <id>`",
+    "`<profile>/ontoship/executors.json`",
+    "`{id, provider, model, level}`",
+    "allowlist заморожен при apply",
+    "маршруты читаются live",
+    "id из реестра",
+    "кандидаты — универсальный `executor` и стековый `1c-executor`",
+    "дефолт `executor`",
+    "неоднозначность: остановка с вопросом",
+    "тихий выбор не делается",
+    "при спавне сессии-исполнителя и при пенсии/handoff",
+    "не на каждый тикет",
+    "per-call",
+    "`read` реестра",
+    "`provider/model` плюс level",
+    "полями вызова",
+    "`agentoptions`",
+    "страховка, не источник маршрута",
+    "выбор называется в отчёте: кандидаты, выбранный id и причина",
+    "`.agents/config.toml`",
+)
 WHEN_HEADING = "когда использовать"
 ENTRY_HEADING = "вход и порядок рёбер"
 EXECUTOR_HEADING = "исполнитель"
+SELECTION_HEADING = "выбор исполнителя"
 BUDGET_HEADING = "стражи бюджета"
 STOP_HEADING = "остановка цепочки"
 REPORT_HEADING = "финальный отчёт и приёмка"
@@ -323,6 +359,7 @@ def _contract_errors(text: str) -> list[str]:
     for heading, label, phrases in (
         (ENTRY_HEADING, "entry", ENTRY_PHRASES),
         (EXECUTOR_HEADING, "executor", EXECUTOR_PHRASES),
+        (SELECTION_HEADING, "selection", SELECTION_PHRASES),
         (BUDGET_HEADING, "budget", BUDGET_PHRASES),
         (STOP_HEADING, "stop", STOP_PHRASES),
         (REPORT_HEADING, "report", REPORT_PHRASES),
@@ -508,6 +545,66 @@ def test_one_continuable_executor_sequential():
     errors = _contract_errors(per_ticket)
     assert any("спавни нового исполнителя на каждый тикет" in error
                for error in errors)
+
+
+def test_executor_selection_rule():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (тикет 03):
+    сигнал стека — указатель архитектора в спеке/continue.md; оркестратор
+    читает указатель, берёт id из реестра, иначе дефолт executor; два
+    кандидата (универсальный executor и стековый 1c-executor) выбираются
+    указателем; неоднозначность — остановка с вопросом; пресет и маршрут
+    выбираются при спавне продолжаемой сессии и при пенсии/handoff, не на
+    каждый тикет; маршрут — per-call через read реестра в полной форме
+    provider/model плюс level, agentOptions — страховка; выбор называется
+    в отчёте. Мутации: потеря указателя, гранулярности, дефолта, остановки,
+    отчёта, полной формы маршрута, заморозки allowlist и литерала scout
+    краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    selection = _section(_normalized_lower(_parse(text)[1]), SELECTION_HEADING)
+    assert selection, "the selection section is missing"
+    for phrase in SELECTION_PHRASES:
+        assert phrase in selection, f"the phrase {phrase!r} left «Выбор исполнителя»"
+
+    for old, new, needle in (
+        ("Указатель архитектора", "Указатель оркестратора",
+         "указатель архитектора"),
+        ("при спавне сессии-исполнителя и при пенсии/handoff",
+         "на каждый тикет", "при спавне сессии-исполнителя"),
+        ("не на каждый тикет", "на каждый тикет", "не на каждый тикет"),
+        ("указателя нет — дефолт `executor`",
+         "указателя нет — дефолт `1c-executor`", "дефолт `executor`"),
+        ("неоднозначность: остановка с вопросом",
+         "неоднозначность решается выбором",
+         "неоднозначность: остановка с вопросом"),
+        ("тихий выбор не делается", "выбор делается молча",
+         "тихий выбор не делается"),
+        ("кандидаты — универсальный `executor` и стековый `1c-executor`",
+         "кандидаты — один `executor`", "1c-executor"),
+        ("Выбор называется в отчёте: кандидаты, выбранный id и причина",
+         "Выбор называется в отчёте одним id",
+         "выбор называется в отчёте: кандидаты"),
+        ("`provider/model` плюс level", "одна model", "`provider/model` плюс level"),
+        ("`read` реестра", "пересказ реестра", "`read` реестра"),
+        ("allowlist заморожен при apply", "allowlist читается при вызове",
+         "allowlist заморожен при apply"),
+        ("`agentOptions` строки spawn — страховка, не источник маршрута",
+         "дефолт в профиле — страховка, не источник маршрута", "`agentoptions`"),
+        ("Реестр панели ревьюеров остаётся в `.agents/config.toml`",
+         "Реестр панели переезжает в скилл", "`.agents/config.toml`"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_pointer = _body_mutated(text, "Указатель архитектора", "")
+    errors = _contract_errors(no_pointer)
+    assert any("указатель архитектора" in error for error in errors)
+
+    no_ambiguity = _body_mutated(
+        text, "неоднозначность: остановка с вопросом", "")
+    errors = _contract_errors(no_ambiguity)
+    assert any("неоднозначность: остановка с вопросом" in error for error in errors)
 
 
 def test_green_contour_and_auto_acceptance():
