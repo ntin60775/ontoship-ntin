@@ -1,46 +1,6 @@
 
  RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
 
- ✓ tests/unit/composition.spec.ts > декларация пресета architect > id, имя, описание и порядок — команда ролей 2ms
- ✓ tests/unit/composition.spec.ts > декларация пресета architect > строка хост-плагина называет пакет и покрывает роль 1ms
- ✓ tests/unit/composition.spec.ts > декларация пресета architect > реестр исполнителей стоит до деклараций пресетов 0ms
- ✓ tests/unit/composition.spec.ts > декларация пресета architect > order — конвенция ростера: корневые 20–29, служебные 30–39 0ms
- ✓ tests/unit/composition.spec.ts > декларация пресета architect > каждый id роли имеет декларацию пресета — дрейф конфига ловится 1ms
- ✓ tests/unit/composition.spec.ts > набор инструментов > даёт ask, чтение, веб, скиллы и правку файлов 1ms
- ✓ tests/unit/composition.spec.ts > набор инструментов > spawn-инструмент несёт выбор маршрута и discovery 0ms
- ✓ tests/unit/composition.spec.ts > набор инструментов > не монтирует режим плана и workflow 1ms
- ✓ tests/unit/composition.spec.ts > набор инструментов > fork-инструмент не включает выбор маршрута — паритет с upstream 0ms
- ✓ tests/unit/composition.spec.ts > набор инструментов > tool-fs не включает apply_patch: маппинг не обещает лишнего 0ms
- ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > orchestrator: read-only fs, subagent с allowlist, send_message и ask 2ms
- ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > orchestrator: spawn несёт agentPreset: executor и allowlist из реестра 0ms
- ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > executor: рабочие инструменты есть, ask нет, запасного allowlist нет 1ms
- ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > дублирование композиции поймано: удаление ask у архитектора краснит 0ms
- ✓ tests/unit/composition.spec.ts > персона > architect: русская, с именованными секциями 0ms
- ✓ tests/unit/composition.spec.ts > персона > orchestrator: русская, с именованными секциями 0ms
- ✓ tests/unit/composition.spec.ts > персона > executor: русская, с именованными секциями 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки ask снимает инструмент из набора 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > добавление строки plan-mode ломает запрет 1ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки subagent снимает spawn-инструмент 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fs-search снимает glob и grep 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fork снимает subagent_fork 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > добавление ask исполнителю выдаёт инструмент: запрет не декоративен 0ms
- ✓ tests/unit/composition.spec.ts > негативная проба матрицы > disabled-выражение !!js у строки снимает её инструмент 1ms
- ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > путь — <profile>/ontoship/executors.json 2ms
- ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > валидный манифест: порядок файла и полная схема 1ms
- ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > поля записи обрезаются по краям при сохранении 0ms
- ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > битый JSON, не массив, пустой массив, не объект, пустое поле — ошибка 0ms
- ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > дубли id схлопываются с предупреждением, порядок первого вхождения 1ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > файла нет — дефолт ["executor"] и предупреждение 1ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > битый JSON — дефолт ["executor"] и предупреждение 0ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > пустой массив — дефолт ["executor"] и предупреждение 0ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > без executor — дефолт ["executor"] и предупреждение 0ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > запись не по схеме — дефолт ["executor"] и предупреждение 0ms
- ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > неизвестный id допустим до вызова: реестр его не фильтрует 0ms
- ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > объявляет имя плагина 0ms
- ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > читает <profileContext.dir>/ontoship/executors.json, не переменную окружения 1ms
- ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > файл читается один раз: правка после apply не меняет allowlist 0ms
- ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > без profileContext — дефолт и предупреждение, сервис всё равно есть 0ms
- ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > executors() отдаёт копию: порча результата не меняет allowlist 0ms
  ✓ tests/unit/manifest.spec.ts > манифест > объявляет пакет, точку входа и патч бандла 2ms
  ✓ tests/unit/manifest.spec.ts > манифест > экспорт корня совпадает с точкой входа сборки 1ms
  ✓ tests/unit/manifest.spec.ts > манифест > экспорт реестра исполнителей указывает на lib-сборку 0ms
@@ -64,9 +24,50 @@
  ✓ tests/unit/naming.spec.ts > чистые правила > корень отличается от ребёнка 0ms
  ✓ tests/unit/naming.spec.ts > чистые правила > имя: декларация, иначе id 0ms
  ✓ tests/unit/naming.spec.ts > чистые правила > набор ролей: мусор звучит, дубли схлопываются 0ms
+ ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > путь — <profile>/ontoship/executors.json 2ms
+ ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > валидный манифест: порядок файла и полная схема 0ms
+ ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > поля записи обрезаются по краям при сохранении 0ms
+ ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > битый JSON, не массив, пустой массив, не объект, пустое поле — ошибка 0ms
+ ✓ tests/unit/executors.spec.ts > путь и разбор манифеста > дубли id схлопываются с предупреждением, порядок первого вхождения 1ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > файла нет — дефолт ["executor"] и предупреждение 1ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > битый JSON — дефолт ["executor"] и предупреждение 0ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > пустой массив — дефолт ["executor"] и предупреждение 0ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > без executor — дефолт ["executor"] и предупреждение 0ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > запись не по схеме — дефолт ["executor"] и предупреждение 0ms
+ ✓ tests/unit/executors.spec.ts > loadExecutors: громкая деградация > id не сверяется с декларациями пресетов: реестр ничего не фильтрует 0ms
+ ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > объявляет имя плагина 0ms
+ ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > читает <profileContext.dir>/ontoship/executors.json, не переменную окружения 1ms
+ ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > файл читается один раз: правка после apply не меняет allowlist 0ms
+ ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > без profileContext — дефолт и предупреждение, сервис всё равно есть 0ms
+ ✓ tests/unit/executors.spec.ts > apply: profileContext и чтение один раз > executors() отдаёт копию: порча результата не меняет allowlist 0ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > id, имя, описание и порядок — команда ролей 1ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > строка хост-плагина называет пакет и покрывает роль 1ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > реестр исполнителей стоит до деклараций пресетов 0ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > order — конвенция ростера: корневые 20–29, служебные 30–39 0ms
+ ✓ tests/unit/composition.spec.ts > декларация пресета architect > каждый id роли имеет декларацию пресета — дрейф конфига ловится 1ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > даёт ask, чтение, веб, скиллы и правку файлов 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > spawn-инструмент несёт выбор маршрута и discovery 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > не монтирует режим плана и workflow 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > fork-инструмент не включает выбор маршрута — паритет с upstream 0ms
+ ✓ tests/unit/composition.spec.ts > набор инструментов > tool-fs не включает apply_patch: маппинг не обещает лишнего 0ms
+ ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > orchestrator: read-only fs, subagent с allowlist, send_message и ask 2ms
+ ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > orchestrator: spawn несёт agentPreset: executor и allowlist из реестра 0ms
+ ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > executor: рабочие инструменты есть, ask нет, запасного allowlist нет 1ms
+ ✓ tests/unit/composition.spec.ts > роли orchestrator и executor > дублирование композиции поймано: удаление ask у архитектора краснит 0ms
+ ✓ tests/unit/composition.spec.ts > персона > architect: русская, с именованными секциями 0ms
+ ✓ tests/unit/composition.spec.ts > персона > orchestrator: русская, с именованными секциями 0ms
+ ✓ tests/unit/composition.spec.ts > персона > executor: русская, с именованными секциями 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки ask снимает инструмент из набора 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > добавление строки plan-mode ломает запрет 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки subagent снимает spawn-инструмент 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fs-search снимает glob и grep 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > удаление строки fork снимает subagent_fork 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > добавление ask исполнителю выдаёт инструмент: запрет не декоративен 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > disabled-выражение !!js на группе снимает всех детей 0ms
+ ✓ tests/unit/composition.spec.ts > негативная проба матрицы > disabled-выражение !!js у строки снимает её инструмент 0ms
 
  Test Files  4 passed (4)
-      Tests  63 passed (63)
-   Start at  15:43:48
-   Duration  421ms (transform 197ms, setup 0ms, collect 321ms, tests 41ms, environment 1ms, prepare 348ms)
+      Tests  64 passed (64)
+   Start at  15:48:57
+   Duration  343ms (transform 192ms, setup 0ms, collect 324ms, tests 36ms, environment 1ms, prepare 305ms)
 
