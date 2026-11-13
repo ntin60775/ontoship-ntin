@@ -60,13 +60,16 @@ description: "Автономная цепочка OntoShip: оркестрато
 `ontoship.methodContract` (версия 1). Ожидаемую версию носит этот скилл.
 
 Проверка идёт через сервис плагина бандла: `cordis_inspect_list` →
-провайдер `OntoShipTeam`, метод `methodContract`;
-`cordis_inspect_query` (platform `host`) с входом `{"expected": 1}`.
+провайдер `OntoShipTeam`, метод `methodContract`; вызов
+`cordis_inspect_query` (platform `host`) без входных параметров — ответ
+несёт `contract` (версия бандла; 0 — контракта нет) и `absent`. Сверку
+с ожиданием релиза ведёт цепочка: у неё эталон, у бандла объявление.
 
-- `compatible: true` — контракт совпал: цепочка продолжает.
-- `compatible: false` — `reason: mismatch` (версии разошлись) или
-  `reason: missing` (контракта в бандле нет): остановка с вопросом
-  оператору; тихий выбор и «договоримся по ходу» не делаются.
+- `contract` равен ожиданию версии 1 и `absent: false` — контракт
+  совпал: цепочка продолжает.
+- `contract` не равен 1 или `absent: true` (контракта в бандле нет) —
+  остановка с вопросом оператору; тихий выбор и «договоримся по ходу»
+  не делаются.
 - провайдера нет — проверь, не установлен ли team-бандл без строки
   контракта: `cordis_inspect_query` (platform `host`, провайдер `Config`,
   метод `listConfigs`) с входом `{"entry": "ontoship-contract"}`. Запись
