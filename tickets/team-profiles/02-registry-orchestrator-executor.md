@@ -86,7 +86,8 @@ orchestrator — `read`, `read_image`, `glob`, `grep`, `subagent`,
 пресета (инвариант «каждый id роли имеет декларацию»).
 
 **Live (критерий 4).** Профиль `~/.dsh/profiles/web`, dev-канал `link:`.
-Файл реестра `ontoship/executors.json` (sha256 `5c1555…`) — `executor` и `1c-executor` с маршрутом
+Файл реестра `ontoship/executors.json` (sha256 `5c1555…`) —
+записи `executor` и `1c-executor` с маршрутом
 `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`. Строки профиля
 (`02-evidence/plugin-rows.txt`): `ontoship-executors`, `ontoship-team`,
 `preset-orchestrator`, `preset-executor` — `active` (пресет с
