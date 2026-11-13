@@ -1,0 +1,20 @@
+$ python3 skills/kb-search/gitmark.py --root <worktree> index
+✓ index: 60 файлов · 472 чанков · 171 ссылок · trigram=on → .gitmark/index.db
+
+$ python3 skills/kb-search/gitmark.py --root <worktree> lint --strict
+
+scope: 91 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
+
+$ bash scripts/install.sh --check <main checkout>
+ok pack (link)
+ok chain (link)
+check: ok
+
+# паки: .agents/packs отсутствует — механических гейтов пака ноль
+ls: невозможно получить доступ к '.agents/packs': Нет такого файла или каталога
+
+# remote:
+origin	git@github.com:ntin60775/ontoship-ntin.git (fetch)
+origin	git@github.com:ntin60775/ontoship-ntin.git (push)
+(team: remote пуст)
