@@ -1,14 +1,37 @@
 # Живая проба доставки контура стековым id (изолированный хост)
 
-- Хост: DSH 0.2.2-rc.2, профиль web-копия, DSH_HOME=/tmp/tp05-live-home, порт 3199, PID 335891, launch-токен из /tmp/tp05-live-host.log (v2-cookie, /connect).
-- Живой GUI (127.0.0.1:3080) не перезапускался: новая ревизия dsh-1c-contour в нём не загружена (см. live-livehost-1c-executor.txt), поэтому проба на отдельном хосте с новым поколением модулей.
-- Сессия 1c-executor: session-07150f30-9ff2-48b7-9921-4c03feccfa5b, cwd /home/prog7/home/dev/work/erp-mini, agentPreset=1c-executor.
-  request/header: 46 инструментов, 22 MCP (mcp__1c-testpilot__..., mcp__unica__..., mcp__1c-db__..., mcp__1c-kd__...); каталог скиллов 85, из них контурные: 1c-contour, 1c-bsl-review-standards, 1c-db-data, 1c-ibcmd-delivery, 1c-ibsrv-publish, 1c-kd-rules, 1c-project-bootstrap, 1c-project-layout, 1c-test-contour, 1c-testpilot, 1c-unica-artifacts, 1c-unica-worktree.
+- Хост: DSH 0.2.2-rc.2, профиль web (копия), DSH_HOME=/tmp/tp05-live-home,
+  порт 3199, PID 335891; launch-токен из /tmp/tp05-live-host.log →
+  v2-cookie → API. Живой GUI 127.0.0.1:3080 не перезапускался.
+- Почему отдельный хост: профиль web держит поколение модулей от старта;
+  новая ревизия dsh-1c-contour в живом GUI не видна (см.
+  live-livehost-1c-executor.txt). Изолированный хост загружает новый код;
+  графический интерфейс оператора не тронут.
+- Сессия 1c-executor: session-07150f30-9ff2-48b7-9921-4c03feccfa5b,
+  cwd /home/prog7/home/dev/work/erp-mini, agentPreset=1c-executor.
+  request/header хода 1: 46 инструментов, из них 22 MCP = 11
+  mcp__1c-testpilot__* + 11 mcp__unica__*; 1c-kd и 1c-db в этом заголовке
+  ещё не дали инструментов. Каталог скиллов 85, контурные:
+  1c-contour, 1c-bsl-review-standards, 1c-db-data, 1c-ibcmd-delivery,
+  1c-ibsrv-publish, 1c-kd-rules, 1c-project-bootstrap, 1c-project-layout,
+  1c-test-contour, 1c-testpilot, 1c-unica-artifacts, 1c-unica-worktree.
   Персона: «Ты — 1С-исполнитель команды OntoShip…» (stack-копия).
   Ответ: «готово».
-- Сессия team-architect: session-7fd60c31-60dc-4c7e-96b0-08e7c7789db8, cwd тот же, agentPreset=architect.
-  request/header: 35 инструментов, 0 MCP; каталог скиллов 20, контурных 0.
-  Персона: «Ты — архитектор команды OntoShip…» (team-копия).
+  request/header хода 2: 114 инструментов, 90 MCP = 68 mcp__1c-kd__* +
+  11 mcp__1c-testpilot__* + 11 mcp__unica__* — станция kd поднялась
+  позже; в первом заголовке её инструментов не было.
+- Инструментов mcp__1c-db__* нет ни в одном заголовке: сервер числится
+  смонтированным в списке ресурсов сессии, но стенд 1c-db не поднят —
+  это граница окружения, а не доставки. Строка 1c-db доказана юнит-маунтом
+  (5 mounts в preset-mount.spec.ts), не живым заголовком.
+- Сессия team-architect: session-7fd60c31-60dc-4c7e-96b0-08e7c7789db8,
+  cwd тот же, agentPreset=architect. request/header: 35 инструментов,
+  0 MCP; каталог скиллов 20, контурных 0. Персона team-копии.
   Ответ: «готово».
-- Гейт (оба хода): bash-запись в src/cf/.../CommandModule.bsl заблокирована гейтом unica-source-gate (текст «Запись в исходники 1С через bash заблокирована»), файл не изменён. Гейты — хост-плагин, пресетом не ограничены: у architect сработал так же. Это названная граница: «нет у team-architect» доказано для скиллов/MCP и не доказано для гейтов.
-- Вторые ходы сессий — по одному bash-вызову (turn 2); логи целиком: live-isolated-*.jsonl.
+- Гейт (оба хода): bash-запись в src/cf/.../CommandModule.bsl
+  заблокирована гейтом unica-source-gate («Запись в исходники 1С через
+  bash заблокирована»), файл не изменён. Гейты — хост-плагин, пресетом
+  не ограничены: у architect сработал так же. Граница: «нет у
+  team-architect» доказано для скиллов и MCP, не для гейтов.
+- Логи целиком: live-isolated-1c-executor.jsonl,
+  live-isolated-architect.jsonl (по два хода).

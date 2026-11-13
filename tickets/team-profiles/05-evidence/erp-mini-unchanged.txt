@@ -1,0 +1,4 @@
+# Файл erp-mini, в который пытались писать сессии живой пробы
+c36af3dc70d93e003bb7ae92119aaa1360e5ff4272cc6f681c22c06450ae3686  /home/prog7/home/dev/work/erp-mini/src/cf/FilterCriteria/ЗадачиПоЭкземпляруБюджета/Commands/БюджетныеЗадачи/Ext/CommandModule.bsl
+git-status-exit=0
+# Пустой вывод git status = файл не изменён; изменения проекта от миграции Т6 не в счёте.

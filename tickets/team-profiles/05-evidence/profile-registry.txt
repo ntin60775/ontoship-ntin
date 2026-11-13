@@ -1,0 +1,13 @@
+# Реестр исполнителей живого профиля web (до/после не менялся этим тикетом)
+c4a87eb130807e72d351bb22aad3b069c18fa5b3e3621d7a8572800d4ddedbbc  /home/prog7/.dsh/profiles/web/ontoship/executors.json
+[
+  { "id": "executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" },
+  { "id": "1c-executor", "provider": "qwen-token-plan-deepseek", "model": "deepseek-v4.1-flash-1017", "level": "max" },
+  { "id": "scout", "provider": "qwen-token-plan", "model": "qwen3.8-flash", "level": "medium" }
+]
+
+# 1C-DSH: ветка и merge
+0c94691 feat(preset): конфигурируемый набор пресетов доставки (presetIds) — тикет team-profiles-1c/T1
+7d20ce8 docs/ops: Т6 (#56) слит (232e4d4), работа 4269250 + правки панели 9f3253e; приёмка у оператора
+232e4d4 merge ship/t6-status-diagnostics: Т6 диагностика таймаута и --status юнита #56
++ tp05-delivery-preset-ids
