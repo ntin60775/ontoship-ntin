@@ -1,4 +1,6 @@
+$ npm run build
 
 > ontoship-team@0.1.0 build
 > tsc -p tsconfig.json
 
+ИТОГ: build ok (exit 0)

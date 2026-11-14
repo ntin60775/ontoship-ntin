@@ -1,0 +1,20 @@
+
+> ontoship-team@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
+
+ ✓ tests/unit/routes.spec.ts (6 tests) 7ms
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 11ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 17ms
+ ✓ tests/unit/manifest.spec.ts (7 tests) 10ms
+ ✓ tests/unit/composition.spec.ts (34 tests) 21ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 15ms
+ ✓ tests/unit/names.spec.ts (19 tests) 25ms
+
+ Test Files  7 passed (7)
+      Tests  100 passed (100)
+   Start at  16:07:53
+   Duration  440ms (transform 321ms, setup 0ms, collect 741ms, tests 107ms, environment 1ms, prepare 629ms)
+

@@ -1,20 +1,22 @@
+$ npx vitest run
 
 > ontoship-team@0.1.0 test
 > vitest run
 
 
- RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09
 
- ✓ tests/unit/names.generator.spec.ts (6 tests) 8ms
- ✓ tests/unit/routes.spec.ts (6 tests) 7ms
- ✓ tests/unit/executors.spec.ts (16 tests) 12ms
- ✓ tests/unit/names.spec.ts (17 tests) 13ms
- ✓ tests/unit/contract.spec.ts (12 tests) 12ms
- ✓ tests/unit/composition.spec.ts (34 tests) 23ms
- ✓ tests/unit/manifest.spec.ts (7 tests) 8ms
+ ✓ tests/unit/routes.spec.ts (6 tests) 8ms
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 10ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 10ms
+ ✓ tests/unit/manifest.spec.ts (7 tests) 9ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 9ms
+ ✓ tests/unit/names.spec.ts (19 tests) 21ms
+ ✓ tests/unit/composition.spec.ts (34 tests) 22ms
 
  Test Files  7 passed (7)
-      Tests  98 passed (98)
-   Start at  15:33:36
-   Duration  406ms (transform 386ms, setup 0ms, collect 684ms, tests 83ms, environment 1ms, prepare 617ms)
+      Tests  100 passed (100)
+   Start at  16:06:18
+   Duration  422ms (transform 330ms, setup 0ms, collect 688ms, tests 88ms, environment 2ms, prepare 667ms)
 
+ИТОГ: exit 0

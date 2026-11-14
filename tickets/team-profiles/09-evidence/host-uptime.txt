@@ -1,0 +1,2 @@
+# Живой хост: не перезапускался
+3746641 Пт ноя 13 11:05:25 2026 1-04:54:55 /home/prog7/.local/share/node-lts/bin/node --import tsx/esm apps/cli/src/bin.ts web --no-ope
