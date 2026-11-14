@@ -1,0 +1,6 @@
+# Тикет 10 — lint --strict после правки скилла и тестов
+# команда: python3 skills/kb-search/gitmark.py lint --strict
+
+
+scope: 92 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
