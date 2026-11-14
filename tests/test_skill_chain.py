@@ -46,6 +46,12 @@ spec: docs/plans/team-profiles.md#готово — «Готово» 6, 9 (тик
 отсутствии; записи цепочки пишет исполнитель по диктовке read-only
 оркестратора, композиция пресетов не меняется; решение оператора
 ask 2026-11-13.
+spec: docs/plans/team-profiles.md#готово — «Готово» 10 (тикет 10,
+решение 19): опрос исполнителя по таймеру — норма chain: таймер при
+старте/возобновлении цепочки (каждые 5 минут, доставка в сессию
+оркестратора), по тику — статус-запрос, сверка артефактов, todo и
+корректировка; ответ исполнителя одной строкой; пауза при
+остановке/финале; оператору — только отклонения и остановки.
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
 contract check can fail (mutations redden)
@@ -143,6 +149,40 @@ EXECUTOR_PHRASES = (
     "композиция пресетов при этом не меняется",
     "гибель исполнителя",
     "стоп-состояние передаётся через оператора или сессию планирования",
+    # the polling norm: the executor answers a status request in one line.
+    "статус-запрос оркестратора не остаётся без ответа",
+    "отвечает одной строкой",
+    "текущий шаг ship, что делает, блокировки",
+)
+# «Опрос исполнителя по таймеру» (тикет 10 team-profiles, решение 19):
+# the timer is a chain norm, not one session's practice — created at chain
+# start and at resume (schedule_create, every 5 minutes, delivery into the
+# orchestrator session; a resumed session creates it anew); each tick is a
+# one-line status request, artifact verification without waiting for the
+# answer, todo update and a correction message on deviation; an exception
+# stops the chain by the stop norms; at stop/final the timer is paused
+# (schedule_edit active false); the operator sees only deviations and stops.
+TIMER_PHRASES = (
+    "оркестратор заводит таймер опроса при старте цепочки",
+    "при возобновлении",
+    "`schedule_create`",
+    "доставка в сессию оркестратора",
+    "каждые 5 минут",
+    "при возобновлении в новой сессии таймер создаётся заново",
+    "по каждому тику",
+    "статус-запрос `send_message`",
+    "одна строка",
+    "сверяет артефакты, не дожидаясь ответа",
+    "`git log` и `git status`",
+    "worktree тикета и основного checkout",
+    "прогресс-файл тикета",
+    "состав панели",
+    "обновляет свой `todo`",
+    "корректирует исполнителя",
+    "оператору — только отклонения и остановки",
+    "останавливает цепочку по нормам раздела",
+    "при остановке и при финале цепочки оркестратор приостанавливает таймер",
+    "`schedule_edit` с `active: false`",
 )
 # «Стражи бюджета»: the named token-counter gap, volume estimate and the
 # conservative threshold, retirement with handoff at the ticket boundary,
@@ -345,6 +385,7 @@ BUDGET_HEADING = "стражи бюджета"
 STOP_HEADING = "остановка цепочки"
 REPORT_HEADING = "финальный отчёт и приёмка"
 VIZ_HEADING = "визуализация: один dag — производные виды"
+TIMER_HEADING = "опрос исполнителя по таймеру"
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -440,6 +481,7 @@ def _contract_errors(text: str) -> list[str]:
         (STOP_HEADING, "stop", STOP_PHRASES),
         (REPORT_HEADING, "report", REPORT_PHRASES),
         (VIZ_HEADING, "viz", VIZ_PHRASES),
+        (TIMER_HEADING, "timer", TIMER_PHRASES),
     ):
         section = _section(lowered, heading)
         if not section:
@@ -827,6 +869,108 @@ def test_context_prompt_of_unit():
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \
             (old, _contract_errors(mutated))
+
+
+def test_polling_timer_norm():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 10 (тикет 10,
+    решение 19): опрос исполнителя по таймеру — норма chain, а не практика
+    одной сессии: оркестратор заводит таймер при старте/возобновлении
+    цепочки (`schedule_create`, каждые 5 минут, доставка в сессию
+    оркестратора); при возобновлении в новой сессии таймер создаётся
+    заново; по каждому тику — статус-запрос одной строкой, сверка
+    артефактов без ожидания ответа (git log/status worktree и основного
+    checkout, прогресс-файл, состав панели), обновление своего todo и
+    корректировка при отклонении; исключение или точка остановки —
+    остановка по нормам chain; при остановке/финале таймер
+    приостанавливается; оператору — только отклонения и остановки.
+    Мутации: потеря старта/возобновления, интервала, доставки, состава
+    тика и паузы краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    lowered = _normalized_lower(_parse(text)[1])
+    timer = _section(lowered, TIMER_HEADING)
+    assert timer, "the polling-timer section is missing"
+    for phrase in TIMER_PHRASES:
+        assert phrase in timer, \
+            f"the phrase {phrase!r} left «Опрос исполнителя по таймеру»"
+
+    for old, new, needle in (
+        ("Оркестратор заводит таймер опроса при старте цепочки",
+         "Оркестратор не заводит таймер опроса при старте цепочки",
+         "заводит таймер опроса при старте цепочки"),
+        ("при возобновлении в новой сессии таймер создаётся заново",
+         "при возобновлении в новой сессии таймер наследуется",
+         "таймер создаётся заново"),
+        ("каждые 5 минут", "каждые 30 минут", "каждые 5 минут"),
+        ("доставка в сессию оркестратора", "доставка в сессию исполнителя",
+         "доставка в сессию оркестратора"),
+        ("шлёт исполнителю статус-запрос `send_message`",
+         "шлёт исполнителю статус-запрос голосом",
+         "статус-запрос `send_message`"),
+        ("сверяет артефакты, не дожидаясь ответа",
+         "сверяет артефакты после ответа", "сверяет артефакты"),
+        ("обновляет свой `todo`", "свой `todo` не обновляет",
+         "обновляет свой `todo`"),
+        ("корректирует исполнителя", "корректировку откладывает",
+         "корректирует исполнителя"),
+        ("оператору — только отклонения и остановки",
+         "оператору — каждый тик",
+         "оператору — только отклонения и остановки"),
+        ("при остановке и при финале цепочки оркестратор "
+         "приостанавливает таймер",
+         "при остановке и при финале цепочки таймер продолжает идти",
+         "при остановке и при финале цепочки оркестратор"),
+        ("`schedule_edit` с `active: false`", "`schedule_edit` с `active: true`",
+         "`schedule_edit` с `active: false`"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_interval = _body_mutated(text, "каждые 5 минут", "")
+    assert any("каждые 5 минут" in error
+               for error in _contract_errors(no_interval))
+
+    no_pause = _body_mutated(text, "оркестратор приостанавливает таймер", "")
+    assert any("при остановке и при финале цепочки" in error
+               for error in _contract_errors(no_pause))
+
+    missing_section = _body_mutated(
+        text, "## Опрос исполнителя по таймеру", "## Служебное")
+    assert any("опрос исполнителя по таймеру" in error
+               for error in _contract_errors(missing_section))
+
+
+def test_executor_answers_status_request():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 10 (тикет 10,
+    решение 19): исполнитель отвечает на статус-запрос оркестратора одной
+    строкой — текущий шаг ship, что делает, блокировки; статус-запрос не
+    остаётся без ответа. Мутации: рассказ вместо строки, пропущенный ответ
+    и потеря состава строки краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    executor = _section(_normalized_lower(_parse(text)[1]), EXECUTOR_HEADING)
+    assert "статус-запрос оркестратора не остаётся без ответа" in executor
+    assert "отвечает одной строкой" in executor
+    assert "текущий шаг ship, что делает, блокировки" in executor
+
+    for old, new, needle in (
+        ("Статус-запрос оркестратора не остаётся без ответа",
+         "Статус-запрос оркестратора можно пропустить",
+         "статус-запрос оркестратора не остаётся без ответа"),
+        ("отвечает одной строкой", "отвечает подробным рассказом",
+         "отвечает одной строкой"),
+        ("текущий шаг ship, что делает, блокировки",
+         "текущий шаг ship и всё",
+         "текущий шаг ship, что делает, блокировки"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+    no_answer = _body_mutated(text, "отвечает одной строкой", "")
+    errors = _contract_errors(no_answer)
+    assert any("отвечает одной строкой" in error for error in errors)
 
 
 def test_green_contour_and_auto_acceptance():
