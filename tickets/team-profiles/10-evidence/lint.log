@@ -1,4 +1,4 @@
-# Тикет 10 — lint --strict после правки скилла и тестов
+# Тикет 10 — lint --strict после одного прохода правок
 # команда: python3 skills/kb-search/gitmark.py lint --strict
 
 

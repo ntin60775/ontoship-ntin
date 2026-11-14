@@ -105,6 +105,7 @@ ENTRY_PHRASES = (
     "после всех своих блокеров",
     "в порядке публикации",
     "последовательный порядок сохраняется",
+    "заведи таймер опроса исполнителя",
 )
 # «Исполнитель»: one continuable session, sequential handover, compact fact
 # reports, the green contour verified on artifacts, recorded auto-acceptance.
@@ -164,11 +165,14 @@ EXECUTOR_PHRASES = (
 # (schedule_edit active false); the operator sees only deviations and stops.
 TIMER_PHRASES = (
     "оркестратор заводит таймер опроса при старте цепочки",
-    "при возобновлении",
+    "заводит таймер опроса при старте цепочки и при возобновлении",
     "`schedule_create`",
     "доставка в сессию оркестратора",
     "каждые 5 минут",
     "при возобновлении в новой сессии таймер создаётся заново",
+    "таймер погибшей сессии новая сессия находит и гасит",
+    "планировщика в сессии нет",
+    "опрос идёт вручную на границах шагов ship",
     "по каждому тику",
     "статус-запрос `send_message`",
     "одна строка",
@@ -176,9 +180,12 @@ TIMER_PHRASES = (
     "`git log` и `git status`",
     "worktree тикета и основного checkout",
     "прогресс-файл тикета",
+    "`tickets/<slug>/<nn>-progress.md`",
     "состав панели",
     "обновляет свой `todo`",
     "корректирует исполнителя",
+    "ответа к следующему тику нет",
+    "тишина нормой не считается",
     "оператору — только отклонения и остановки",
     "останавливает цепочку по нормам раздела",
     "при остановке и при финале цепочки оркестратор приостанавливает таймер",
@@ -202,6 +209,7 @@ BUDGET_PHRASES = (
     "страж оркестратора",
     "остановка цепочки с передачей состояния в continue.md",
     "замена оркестратора — новая чистая сессия по команде оператора",
+    "тики опроса входят в оценку объёма оркестратора",
 )
 # «Остановка цепочки»: an exception stops the chain, the state goes to
 # continue.md, the operator gets the question, resuming is a clean session.
@@ -216,6 +224,7 @@ STOP_PHRASES = (
     "вопрос оператору",
     "возобновление — по команде оператора в чистой сессии",
     "тихое продолжение после исключения не делается",
+    "таймер опроса оркестратор приостанавливает",
 )
 # «Финальный отчёт и приёмка»: the report form of decision 14 — an
 # independent pin of the required items, not a re-extraction from the skill.
@@ -237,6 +246,7 @@ REPORT_PHRASES = (
     "в описаниях вариантов — следствия выбора",
     "возврат открывает работу по находкам",
     "отчёт фактами стоит в чате перед вызовом",
+    "приостанавливает таймер опроса",
 )
 # «Визуализация»: one ticket-DAG is the source of truth; the orchestrator
 # computes TWO derived static views (decision 19) and keeps them in the unit's
@@ -627,6 +637,8 @@ def test_entry_checks_projection_gate_and_edges():
         ("по блокирующим рёбрам", "по алфавиту", "по блокирующим рёбрам"),
         ("после всех своих блокеров", "до своих блокеров",
          "после всех своих блокеров"),
+        ("Заведи таймер опроса исполнителя", "Заведи панель ревью",
+         "таймер опроса исполнителя"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \
@@ -922,6 +934,18 @@ def test_polling_timer_norm():
          "при остановке и при финале цепочки оркестратор"),
         ("`schedule_edit` с `active: false`", "`schedule_edit` с `active: true`",
          "`schedule_edit` с `active: false`"),
+        ("и при возобновлении — `schedule_create`",
+         "и при старте — `schedule_create`", "и при возобновлении"),
+        ("`tickets/<slug>/<NN>-progress.md`", "`progress.md`",
+         "`tickets/<slug>/<nn>-progress.md`"),
+        ("таймер погибшей сессии новая сессия находит и гасит",
+         "таймер погибшей сессии остаётся активным", "погибшей сессии"),
+        ("опрос идёт вручную на границах шагов ship", "опрос не ведётся",
+         "опрос идёт вручную на границах шагов ship"),
+        ("Ответа к следующему тику нет", "Ответа ждать не нужно",
+         "ответа к следующему тику нет"),
+        ("тишина нормой не считается", "тишина допустима",
+         "тишина нормой не считается"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \
@@ -1036,6 +1060,8 @@ def test_budget_guards_and_retirement():
         ("замена оркестратора — новая чистая сессия по команде оператора",
          "оркестратор продолжает сам",
          "замена оркестратора — новая чистая сессия по команде оператора"),
+        ("Тики опроса входят в оценку объёма оркестратора",
+         "Тики опроса не считаются", "тики опроса входят"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \
@@ -1064,6 +1090,8 @@ def test_stop_transfers_state_to_continue():
         ("Тихое продолжение после исключения не делается",
          "После исключения продолжай тихо",
          "тихое продолжение после исключения не делается"),
+        ("Таймер опроса оркестратор приостанавливает",
+         "Таймер опроса не трогается", "таймер опроса оркестратор"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \
@@ -1098,6 +1126,8 @@ def test_final_report_form_and_acceptance():
          "приёмка — ask «принять/вернуть»"),
         ("Возврат открывает работу по находкам", "Возврат закрывает юнит",
          "возврат открывает работу по находкам"),
+        ("приостанавливает таймер опроса", "оставляет таймер опроса",
+         "приостанавливает таймер опроса"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \

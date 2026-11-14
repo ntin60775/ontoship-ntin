@@ -1,5 +1,5 @@
-# Тикет 10 — контракт chain отдельно
+# Тикет 10 — контракт chain отдельно (финальный)
 # команда: python3 -m pytest tests/test_skill_chain.py -q
 
 .....................                                                    [100%]
-21 passed in 0.35s
+21 passed in 0.40s
