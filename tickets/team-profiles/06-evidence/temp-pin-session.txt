@@ -1,7 +1,0 @@
-# Установка из git-пина в temp-профиль
-
-- Профиль: /tmp/tp06-home (копия web), DSH_HOME=/tmp/tp06-home, порт 3270, PID 1261581; launch-токен из /tmp/tp06-host.log → v2-cookie → API.
-- Зависимость профиля: ontoship-team = git+file:///home/prog7/home/dev/contrib/forks/ontoship-team#d3592f4f9dbe403efd9861daee1a30360b492db9 (temporary worktree path; after merge — main repo path).
-- Пакет из пина: version 0.1.0, lib/names на месте; установка прошла без build-скриптов.
-- Новая сессия architect (session-5f4f20ad-dc7d-4578-9091-d90c287e686b): персона «Ты — архитектор команды OntoShip…», секция «Тебя зовут Родион…», заголовок «Родион · Архитектор», ответ «готово» — композиция пресета и строка имён смонтированы из пина.
-- Живой GUI 3080 не тронут; рестарта не было.

@@ -1,4 +1,4 @@
-$ npm run build
+$ npm run build (team main b3102215f66435e1c467bb48adb52d2f4cddebb6)
 
 > ontoship-team@0.1.0 build
 > tsc -p tsconfig.json

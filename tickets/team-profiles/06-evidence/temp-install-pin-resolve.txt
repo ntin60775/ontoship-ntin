@@ -1,0 +1,28 @@
+# Резолвинг финального пина в temp-профиле
+$ grep -A 4 ontoship-team pnpm-lock.yaml
+      ontoship-team:
+        specifier: git+file:///home/prog7/home/dev/contrib/forks/ontoship-team#c58afe1e05d9414953660c5c847e2441dd55f5af
+        version: git+file:///home/prog7/home/dev/contrib/forks/ontoship-team#c58afe1e05d9414953660c5c847e2441dd55f5af
+      ontoship-team-1c:
+        specifier: link:/home/prog7/home/dev/contrib/forks/ontoship-team-1c
+        version: link:../../../../home/prog7/home/dev/contrib/forks/ontoship-team-1c
+
+packages:
+
+  ontoship-team@git+file:///home/prog7/home/dev/contrib/forks/ontoship-team#c58afe1e05d9414953660c5c847e2441dd55f5af:
+
+$ pnpm list ontoship-team --depth 0
+│   dependencies:
+└── ontoship-team@0.1.0
+
+1 package
+
+$ ls node_modules/ontoship-team/lib/names
+index.js
+pool.js
+
+$ node -p require(...).version
+0.1.0
+
+$ git -C team cat-file -t c58afe1e05d9414953660c5c847e2441dd55f5af
+commit

@@ -1,0 +1,6 @@
+# Установка из финального git-пина c58afe1 в temp-профиль
+
+- Профиль /tmp/tp06-home (копия web), DSH_HOME temp, порт 3272, PID 1315030; launch-токен → v2-cookie → API; живой GUI 3080 не тронут, рестарта не было.
+- Зависимость: ontoship-team = git+file:///home/prog7/home/dev/contrib/forks/ontoship-team#c58afe1e05d9414953660c5c847e2441dd55f5af; pnpm-lock: resolution {commit: c58afe1e…, repo: file:///…, type: git}, version 0.1.0.
+- Пакет из пина: 0.1.0, lib/names на месте; установка без build-скриптов.
+- Новая сессия architect: персона «Ты — архитектор команды OntoShip…», секция «Тебя зовут …», заголовок «Имя · Архитектор», ответ «готово» — composition и строка имён смонтированы из финального пина.

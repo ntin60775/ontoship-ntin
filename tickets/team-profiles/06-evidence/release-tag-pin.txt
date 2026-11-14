@@ -1,4 +1,7 @@
+# team: релиз и пин
 tag: v0.1.0
-commit: d3592f4f9dbe403efd9861daee1a30360b492db9
-tag_commit: d3592f4f9dbe403efd9861daee1a30360b492db9
+commit: c58afe1e05d9414953660c5c847e2441dd55f5af
+tag_commit: c58afe1e05d9414953660c5c847e2441dd55f5af
 lib tracked files: 14
+tracked node_modules: 0
+remote: 0 строк

@@ -1,10 +1,16 @@
-$ pnpm list ontoship-team (temp profile /tmp/tp06-home/profiles/web)
-│   dependencies:
-└── ontoship-team@0.1.0
+$ pnpm install (temp profile; зависимость из git-пина c58afe1e05d9414953660c5c847e2441dd55f5af)
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1
++
+Progress: resolved 1, reused 0, downloaded 0, added 1, done
 
-1 package
-$ node -e require(...).version
-0.1.0
-$ pnpm install (install from git-pin)
-Already up to date
-Done in 2ms using pnpm v12.4.2
+dependencies:
++ @dsh-local/view-bd6e3948-7d7f-4290-b12d-a11e815237cc link:../../../../home/prog7/.dsh/profiles/web/created-plugins/bd6e3948-7d7f-4290-b12d-a11e815237cc
++ @local/dsh-omp-demo-panel link:../../../../home/prog7/home/dev/dsh-plugins/omp-demo-panel
++ @local/dsh-omp-theme link:../../../../home/prog7/home/dev/dsh-plugins/theme-omp
++ @local/dsh-ui-refinement link:../../../../home/prog7/home/dev/dsh-plugins/ui-refinement
++ dsh-1c-contour link:../../../../home/prog7/home/dev/personal/1C-DSH
++ ontoship-team-1c link:../../../../home/prog7/home/dev/contrib/forks/ontoship-team-1c
+
+Done in 84ms using pnpm v12.4.2
+ИТОГ: exit 0

@@ -1,4 +1,4 @@
-$ npm test (stack main 795aa50)
+$ npm test (stack master 027c0649addcf59bf74c5f86bac6c44ffd576dfe, pin c58afe1e05d9414953660c5c847e2441dd55f5af)
 
 > ontoship-team-1c@0.1.0 test
 > vitest run
@@ -6,13 +6,13 @@ $ npm test (stack main 795aa50)
 
  RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-1c
 
+ ✓ tests/manifest.spec.ts (6 tests) 9ms
  ✓ tests/composition.spec.ts (6 tests) 7ms
- ✓ tests/manifest.spec.ts (6 tests) 6ms
- ✓ tests/parity.spec.ts (13 tests) 110ms
+ ✓ tests/parity.spec.ts (13 tests) 251ms
 
  Test Files  3 passed (3)
       Tests  25 passed (25)
-   Start at  16:14:52
-   Duration  421ms (transform 100ms, setup 0ms, collect 187ms, tests 122ms, environment 1ms, prepare 237ms)
+   Start at  16:39:44
+   Duration  678ms (transform 100ms, setup 0ms, collect 171ms, tests 267ms, environment 1ms, prepare 284ms)
 
 ИТОГ: exit 0

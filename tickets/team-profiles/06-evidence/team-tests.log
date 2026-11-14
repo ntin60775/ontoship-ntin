@@ -1,4 +1,4 @@
-$ npm test (release v0.1.0, commit d3592f4)
+$ npm test (team main c58afe1e05d9414953660c5c847e2441dd55f5af, tag v0.1.0)
 
 > ontoship-team@0.1.0 test
 > vitest run
@@ -6,17 +6,19 @@ $ npm test (release v0.1.0, commit d3592f4)
 
  RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
 
- ✓ tests/unit/manifest.spec.ts (7 tests) 10ms
- ✓ tests/unit/routes.spec.ts (6 tests) 7ms
- ✓ tests/unit/names.generator.spec.ts (6 tests) 8ms
- ✓ tests/unit/executors.spec.ts (16 tests) 13ms
+ ✓ tests/unit/routes.spec.ts (6 tests) 9ms
  ✓ tests/unit/contract.spec.ts (12 tests) 11ms
- ✓ tests/unit/names.spec.ts (19 tests) 24ms
- ✓ tests/unit/composition.spec.ts (34 tests) 21ms
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 27ms
+ ✓ tests/unit/composition.spec.ts (34 tests) 39ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 23ms
+ ✓ tests/unit/manifest.spec.ts (7 tests) 11ms
+ ✓ tests/unit/names.spec.ts (19 tests) 62ms
+ ✓ tests/unit/lib.spec.ts (2 tests) 1098ms
+   ✓ собранный lib > lib совпадает с детерминированной сборкой src  1093ms
 
- Test Files  7 passed (7)
-      Tests  100 passed (100)
-   Start at  16:14:50
-   Duration  402ms (transform 288ms, setup 0ms, collect 626ms, tests 94ms, environment 1ms, prepare 578ms)
+ Test Files  8 passed (8)
+      Tests  102 passed (102)
+   Start at  16:39:36
+   Duration  1.63s (transform 511ms, setup 0ms, collect 1.12s, tests 1.28s, environment 2ms, prepare 923ms)
 
 ИТОГ: exit 0

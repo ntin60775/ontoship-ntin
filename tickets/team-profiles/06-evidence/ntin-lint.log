@@ -1,0 +1,5 @@
+$ python3 .agents/skills/kb-search/gitmark.py lint --strict
+
+scope: 91 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
+ИТОГ: exit 0
