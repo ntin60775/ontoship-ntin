@@ -39,8 +39,8 @@ flowchart TD
   classDef pending fill:#e2e3e5,stroke:#6c757d,color:#383d41;
   classDef waiting fill:#fff3cd,stroke:#ffc107,color:#856404;
 
-  class T01,T02,T03,T04,T05,T09 done;
-  class T06,T10 pending;
+  class T01,T02,T03,T04,T05,T06,T09 done;
+  class T10 pending;
   class T07,T08 waiting;
 ```
 
@@ -50,6 +50,6 @@ flowchart TD
 ask 2026-11-13, блокер 02) исполняется после 05 и до релиза 06; тикет
 10 (принят ask 2026-11-13, блокер 04) — после 06 и до живой пробы 07.
 
-Обновлено: 2026-11-14, тикет 09 принят автоприёмкой (merge `c4b1a0e`,
-team `2da1f0e`); ready-frontier: 06, 10; последовательный порядок —
-06, 10, 07, 08. Цепочка в авторежиме.
+Обновлено: 2026-11-14, тикет 06 принят автоприёмкой (тег v0.1.0, пин
+c58afe1); ready-frontier: 10; последовательный порядок — 10, 07, 08.
+Цепочка в авторежиме.
