@@ -1,0 +1,42 @@
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09
+
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/names.generator.spec.ts [ tests/unit/names.generator.spec.ts ]
+Error: Cannot find module '../../src/names/pool.js' imported from '/home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09/tests/unit/names.generator.spec.ts'
+ ❯ tests/unit/names.generator.spec.ts:13:1
+     11| import { describe, expect, it } from 'vitest'
+     12| 
+     13| import { NAME_POOL, nameHash, nameRandom, pickName } from '../../src/n…
+       | ^
+     14| 
+     15| describe('пул личных имён', () => {
+
+Caused by: Error: Failed to load url ../../src/names/pool.js (resolved id: ../../src/names/pool.js) in /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09/tests/unit/names.generator.spec.ts. Does the file exist?
+ ❯ loadAndTransform ../ontoship-team/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/names.spec.ts [ tests/unit/names.spec.ts ]
+Error: Cannot find module '../../src/names/index.js' imported from '/home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09/tests/unit/names.spec.ts'
+ ❯ tests/unit/names.spec.ts:14:1
+     12| import { describe, expect, it } from 'vitest'
+     13| 
+     14| import { apply, inject, name } from '../../src/names/index.js'
+       | ^
+     15| import { pickName } from '../../src/names/pool.js'
+     16| import { roleSet } from '../../src/naming.js'
+
+Caused by: Error: Failed to load url ../../src/names/index.js (resolved id: ../../src/names/index.js) in /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp09/tests/unit/names.spec.ts. Does the file exist?
+ ❯ loadAndTransform ../ontoship-team/node_modules/vite/dist/node/chunks/config.js:22907:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  no tests
+   Start at  15:31:25
+   Duration  360ms (transform 215ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 152ms)
+
