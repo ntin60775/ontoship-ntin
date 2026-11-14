@@ -1,0 +1,7 @@
+# Тикет 10 — prod после merge (main 353ca97): установка из репозитория
+# команда: bash scripts/install.sh --check .
+
+ok onto-doc (link)
+ok pack (link)
+ok chain (link)
+check: ok

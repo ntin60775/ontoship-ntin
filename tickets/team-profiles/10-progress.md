@@ -10,6 +10,6 @@
       todo, пауза пробы (`10-evidence/timer-create.txt`,
       `10-evidence/live-tick.txt`, `10-evidence/toy-executor.txt`)
 - [x] ревью-панель, один проход правок
-- [ ] dev/prod, merge
+- [x] dev/prod, merge (`353ca97`)
 
-Обновлено: 2026-11-14, шаг — dev/prod и merge.
+Обновлено: 2026-11-14, проход завершён merge; ждёт автоприёмки.

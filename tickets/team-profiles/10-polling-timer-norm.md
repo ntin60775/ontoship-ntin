@@ -77,7 +77,10 @@ methodContract — норма опроса ложится на финальны�
 контракт skill-текста. Полный набор — **772 passed**
 (`10-evidence/core-tests.log`), контракт chain — **21 passed**
 (`10-evidence/chain-tests.log`), `lint --strict` чист
-(`10-evidence/lint.log`).
+(`10-evidence/lint.log`); prod после merge — набор в main **772 passed**
+(`10-evidence/prod-main.log`), `install.sh --check` — `check: ok`
+(`10-evidence/install-check.log`), установленный `link`-бандл читает
+новую норму (`10-evidence/prod-install.txt`).
 
 **Критерий 2 (ответ исполнителя).** Раздел «Исполнитель»: «Статус-запрос
 оркестратора не остаётся без ответа: исполнитель отвечает одной
