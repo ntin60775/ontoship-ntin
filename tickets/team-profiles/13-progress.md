@@ -10,8 +10,9 @@
 - [x] Team v0.2.1 `eea68d1`: `tool-schedule` у orchestrator, контрактный
       тест, релиз/тег; **124 passed**, build зелёный;
       красная проба на базе v0.2.0 — 1 failed / 35 passed.
-- [x] Стек `e64f52a`: строка tool-schedule у 1c-orchestrator, пин v0.2.1,
-      паритет **25 passed** (dev через team-worktree до merge).
+- [x] Стек `5915b9a`: строка tool-schedule у 1c-orchestrator, пин v0.2.1,
+      паритет **25 passed** (dev через team-worktree до merge); P1 панели —
+      закоммиченный симлинк `node_modules` убран, `.gitignore` — без слэша.
 - [x] Live-проба на изолированном хосте 3093: listTools содержит
       schedule_*, `schedule_create`/`view`/`delete` живые; task
       `schedule-bbdc964e…` снята; 4 пробные сессии удалены.
