@@ -42,7 +42,7 @@ spec: docs/plans/team-profiles.md#готово — «Готово» 3 и 5 (ти
 реестра в полной форме, `agentOptions` — страховка; решения 5 и 16.
 spec: docs/plans/team-profiles.md#готово — «Готово» 6, 9 (тикет 04):
 контекстный промпт юнита в промпте спавна; проверка `methodContract`
-(версия 1) через сервис плагина бандла с остановкой при mismatch или
+(версия 2) через сервис плагина бандла с остановкой при mismatch или
 отсутствии; записи цепочки пишет исполнитель по диктовке read-only
 оркестратора, композиция пресетов не меняется; решение оператора
 ask 2026-11-13.
@@ -154,6 +154,8 @@ EXECUTOR_PHRASES = (
     "статус-запрос оркестратора не остаётся без ответа",
     "отвечает одной строкой",
     "текущий шаг ship, что делает, блокировки",
+    "чтением хода из durable log",
+    "не только уведомлением о завершении",
 )
 # «Опрос исполнителя по таймеру» (тикет 10 team-profiles, решение 19):
 # the timer is a chain norm, not one session's practice — created at chain
@@ -190,6 +192,15 @@ TIMER_PHRASES = (
     "останавливает цепочку по нормам раздела",
     "при остановке и при финале цепочки оркестратор приостанавливает таймер",
     "`schedule_edit` с `active: false`",
+    "делает api-снимок `session_read`",
+    "tokenusage",
+    "полные ходы — при подозрении или на приёмке",
+    "отказ инструмента — деградация с названным пробелом",
+    "трёх явных состояний: исполнитель работает",
+    "простой исполнителя без сообщения оператору",
+    "коррекция текущей задачи — `steer`",
+    "независимая задача — на границу тикета (queue)",
+    "напоминания без новой информации не шлются",
 )
 # «Стражи бюджета»: the named token-counter gap, volume estimate and the
 # conservative threshold, retirement with handoff at the ticket boundary,
@@ -210,6 +221,12 @@ BUDGET_PHRASES = (
     "остановка цепочки с передачей состояния в continue.md",
     "замена оркестратора — новая чистая сессия по команде оператора",
     "тики опроса входят в оценку объёма оркестратора",
+    "кумулятивный tokenusage",
+    "500k",
+    "оценка и подготовка handoff",
+    "600k",
+    "фолбэк при отказе read",
+    "семантика метрики сверяется",
 )
 # «Остановка цепочки»: an exception stops the chain, the state goes to
 # continue.md, the operator gets the question, resuming is a clean session.
@@ -360,7 +377,7 @@ SELECTION_PHRASES = (
 CONTRACT_PHRASES = (
     "эталон — релиз метода",
     "`ontoship.methodcontract`",
-    "(версия 1)",
+    "(версия 2)",
     "ожидаемую версию носит этот скилл",
     "через сервис плагина бандла",
     "`cordis_inspect_list`",
@@ -370,9 +387,9 @@ CONTRACT_PHRASES = (
     "без входных параметров",
     "`contract` (версия бандла; 0 — контракта нет)",
     "`absent`",
-    "равен ожиданию версии 1 и `absent: false`",
+    "равен ожиданию версии 2 и `absent: false`",
     "контракт совпал: цепочка продолжает",
-    "не равен 1 или `absent: true`",
+    "не равен 2 или `absent: true`",
     "остановка с вопросом",
     "тихий выбор и «договоримся по ходу» не делаются",
     "провайдера нет",
@@ -385,6 +402,21 @@ CONTRACT_PHRASES = (
     "проект без team-бандла",
     "поднимается вместе с релизом метода",
     "bump манифеста бандла и ожидания скилла",
+    "обязательные механизмы ведения",
+)
+HYBRID_HEADING = "гибридный read-канал"
+# «Гибридный READ-канал»: read-only instrument, credential inside, child address,
+# degradation and no second lifecycle.
+HYBRID_PHRASES = (
+    "`session_read`",
+    "методы `wait`, `events`, `projections`, `list`",
+    "в коде недостижимы",
+    "живут внутри плагина",
+    "в контекст модели и артефакты не",
+    "отказ инструмента — деградация с названным пробелом",
+    "родительская сессия плюс имя/метка",
+    "неоднозначность — остановка с вопросом",
+    "зрение, а не второй способ запуска",
 )
 WHEN_HEADING = "когда использовать"
 ENTRY_HEADING = "вход и порядок рёбер"
@@ -492,6 +524,7 @@ def _contract_errors(text: str) -> list[str]:
         (REPORT_HEADING, "report", REPORT_PHRASES),
         (VIZ_HEADING, "viz", VIZ_PHRASES),
         (TIMER_HEADING, "timer", TIMER_PHRASES),
+        (HYBRID_HEADING, "hybrid", HYBRID_PHRASES),
     ):
         section = _section(lowered, heading)
         if not section:
@@ -546,6 +579,91 @@ def test_skill_is_model_invoked():
     lowered = _normalized_lower(body)
     assert "скилл вызывает модель" in lowered
     assert "ручной вызов `/ship`" in lowered
+
+
+
+
+def test_hybrid_read_channel_norms():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 12 (тикет 12,
+    решение 21): гибридный READ-канал — read-only инструмент `session_read`
+    у orchestrator, credential внутри плагина, адресация ребёнка по
+    родителю и метке, деградация с названным пробелом; старт/steer/уборка
+    сессий инструментом не делаются. Мутации: потеря инструмента,
+    read-only границы, сокрытия credential и остановки на неоднозначности
+    краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    lower = _normalized_lower(_parse(text)[1])
+    hybrid = _section(lower, HYBRID_HEADING)
+    assert hybrid, "the hybrid READ-channel section is missing"
+    for phrase in HYBRID_PHRASES:
+        assert phrase in hybrid, f"the phrase {phrase!r} left «Гибридный READ-канал»"
+
+    for old, new, needle in (
+        ("`session_read`", "`session_edit`", "`session_read`"),
+        ("в коде недостижимы", "в коде доступны", "в коде недостижимы"),
+        ("живут внутри плагина", "попадают в контекст модели", "живут внутри плагина"),
+        ("неоднозначность — остановка с вопросом", "неоднозначность — выбор по вкусу",
+         "неоднозначность — остановка с вопросом"),
+        ("зрение, а не второй способ запуска", "второй способ запуска",
+         "зрение, а не второй способ запуска"),
+        ("отказ инструмента — деградация с названным пробелом",
+         "отказ инструмента — тихий обход", "отказ инструмента — деградация"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+
+def test_budget_tokenusage_norms():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 12 (тикет 12,
+    решение 21): пенсия исполнителя по кумулятивному tokenUsage из
+    READ-канала, два порога — проектный факт continue.md (500k оценка,
+    600k обязательная пенсия), литералы в скилл не носятся, фолбэк по
+    ходам — названный пробел. Мутации: потеря метрики, порогов и фолбэка
+    краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    budget = _section(_normalized_lower(_parse(text)[1]), BUDGET_HEADING)
+    for phrase in BUDGET_PHRASES:
+        assert phrase in budget, f"the phrase {phrase!r} left «Стражи бюджета»"
+    for old, new, needle in (
+        ("500k — оценка и подготовка handoff", "500k — сразу пенсия", "оценка и подготовка handoff"),
+        ("600k —", "400k —", "600k"),
+        ("фолбэк при отказе READ", "тихий обход отказа READ", "фолбэк при отказе read"),
+        ("семантика метрики сверяется", "семантика не важна", "семантика метрики сверяется"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
+
+
+def test_timer_read_snapshot_silence_and_steer():
+    """spec: docs/plans/team-profiles.md#готово — «Готово» 12: тик опроса
+    включает API-снимок READ-канала (tokenUsage/running/очередь), полные
+    ходы — при подозрении или на приёмке; тик заканчивается одним из трёх
+    явных состояний; коррекция текущей задачи — сразу/steer, независимая —
+    на границу; напоминания без новой информации не шлются."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    timer = _section(_normalized_lower(_parse(text)[1]), TIMER_HEADING)
+    for phrase in ("делает api-снимок `session_read`", "полные ходы — при подозрении или на приёмке",
+                   "трёх явных состояний", "коррекция текущей задачи — `steer`",
+                   "независимая задача — на границу тикета (queue)",
+                   "напоминания без новой информации не шлются"):
+        assert phrase in timer, f"the phrase {phrase!r} left «Опрос исполнителя по таймеру»"
+    for old, new, needle in (
+        ("делает API-снимок `session_read`", "API-снимок не делает", "api-снимок `session_read`"),
+        ("трёх явных состояний", "два состояния", "трёх явных состояний"),
+        ("Коррекция текущей задачи — `steer`", "Коррекция позже", "коррекция текущей задачи"),
+        ("независимая задача — на границу тикета (queue)", "все задачи сразу",
+         "независимая задача — на границу тикета"),
+        ("Напоминания без новой информации не шлются", "Напоминай на каждом тике",
+         "напоминания без новой информации не шлются"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        assert any(needle in error for error in _contract_errors(mutated)), \
+            (old, _contract_errors(mutated))
 
 
 def test_clean_session_start_and_operator_command():
@@ -770,8 +888,8 @@ def test_method_contract_check():
         assert phrase in section, f"the phrase {phrase!r} left «Метод-контракт»"
 
     for old, new, needle in (
-        ("`ontoship.methodContract` (версия 1)",
-         "`ontoship.methodContract` (любая версия)", "(версия 1)"),
+        ("`ontoship.methodContract` (версия 2)",
+         "`ontoship.methodContract` (любая версия)", "(версия 2)"),
         ("эталон — релиз метода", "эталон — скилл chain", "эталон — релиз метода"),
         ("ожидаемую версию носит этот скилл",
          "ожидаемую версию носит whoever", "ожидаемую версию носит этот скилл"),
@@ -779,11 +897,11 @@ def test_method_contract_check():
          "через сервис плагина бандла"),
         ("без входных параметров", "с ожиданием",
          "без входных параметров"),
-        ("`contract` равен ожиданию версии 1 и `absent: false`",
+        ("`contract` равен ожиданию версии 2 и `absent: false`",
          "`contract` не проверяется",
-         "равен ожиданию версии 1"),
-        ("не равен 1 или `absent: true`", "любое значение подходит",
-         "не равен 1 или `absent: true`"),
+         "равен ожиданию версии 2"),
+        ("не равен 2 или `absent: true`", "любое значение подходит",
+         "не равен 2 или `absent: true`"),
         ("тихий выбор и «договоримся по ходу» не делаются",
          "выбор по ходу допустим", "тихий выбор"),
         ("провайдера нет", "провайдер есть", "провайдера нет"),

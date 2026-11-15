@@ -1,0 +1,20 @@
+# Метод-контракт: match на изолированном хосте и mismatch на живом
+
+Ожидание скилла chain — версия 2 (см. skills/chain/SKILL.md, раздел
+«Метод-контракт»).
+
+Изолированный хост 3092 (team-бандл v0.2.0 из worktree):
+  cordis_inspect_query platform=host provider=OntoShipTeam method=methodContract
+  → {"contract":2,"absent":false}
+  match: цепочка продолжает.
+
+Живой хост 3080 (установлен team v0.1.0):
+  cordis_inspect_query platform=host provider=OntoShipTeam method=methodContract
+  → {"contract":1,"absent":false}
+  mismatch к ожиданию 2: цепочка стоит с вопросом оператору до
+  переустановки бандла v0.2.0 (обновление живого профиля — за тикетом 07
+  по решению оператора).
+
+Команды — из сессии исполнителя (cordis_inspect_query) и из
+orchestrator-сессии на изолированном хосте; сырые tool-записи —
+01-live-tool-records-*.json.

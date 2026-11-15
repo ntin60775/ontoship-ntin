@@ -20,7 +20,7 @@ Named carrier sets share the anchor mechanics:
   the new flow (projection gate, slicing self-check, chain, auto-acceptance,
   pack gates, standards priority) and the role carriers with the method
   contract (team-profiles ticket 04: profile-level presets bundle, init names
-  it by reference, `methodContract` version 1, the chain checks it through the
+  it by reference, `methodContract` version 2, the chain checks it through the
   plugin service and stops on mismatch or absence, the version bumps with the
   method release), and the gate-shape test guards the manual gate list and
   forbids the retired flow phrases;
@@ -161,11 +161,12 @@ METHOD_ANCHORS = (
     "Роли команды — носитель профиля, не проекта",
     "DSH-пресеты поставляет team-бандл уровня профиля",
     "`init` называет его ссылкой",
-    "`methodContract` (версия 1) в манифесте бандла",
+    "`methodContract` (версия 2) в манифесте бандла",
     "эталон — релиз метода",
     "проверяет контракт через сервис плагина",
     "останавливается с вопросом при mismatch или отсутствии",
     "поднимается вместе с релизом метода",
+    "обязательные механизмы ведения",
 )
 
 # The retired flow phrases must not return into the canon or the mirror. The
@@ -444,16 +445,16 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     # contract wording alone — the comparator names the mirror.
     canon = seed("canon-team.md",
                  "Роли команды — носитель профиля, не проекта: "
-                 "`methodContract` (версия 1) в манифесте бандла.")
+                 "`methodContract` (версия 2) в манифесте бандла.")
     mirror = seed("mirror-team.md",
                   "Роли команды — носитель профиля, не проекта: "
-                  "`methodContract` (версия 1) в манифесте бандла.")
+                  "`methodContract` (версия 2) в манифесте бандла.")
     mutated_text = mirror.read_text("utf-8").replace(
-        "`methodContract` (версия 1) в манифесте бандла", "версия не нужна")
+        "`methodContract` (версия 2) в манифесте бандла", "версия не нужна")
     assert mutated_text != mirror.read_text("utf-8"), \
         "the mutation must remove the anchor"
     mirror.write_text(mutated_text, "utf-8")
-    missing = _missing_carriers("`methodContract` (версия 1) в манифесте бандла",
+    missing = _missing_carriers("`methodContract` (версия 2) в манифесте бандла",
                                 (canon, mirror))
     assert missing == [mirror.as_posix()], missing
 

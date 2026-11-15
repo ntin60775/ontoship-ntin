@@ -1,0 +1,178 @@
+[
+ {
+  "seq": 18,
+  "type": "tool/call",
+  "name": "subagent",
+  "callId": "call_a2e99092a1974133b501ce44",
+  "arguments": "{\"agent_preset\":\"executor\",\"description\":\"sleep 25 then answer\",\"name\":\"tp12-child\",\"prompt\":\"Выполни инструментом bash команду sleep 25, затем ответь ровно: child-done\"}",
+  "result": "None"
+ },
+ {
+  "seq": 20,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 24,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_e99eeb6934e84f12bde428b5",
+  "arguments": "{\"method\":\"list\",\"name\":\"tp12-child\"}",
+  "result": "None"
+ },
+ {
+  "seq": 25,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 29,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_7b40d7445a9044fb8324af28",
+  "arguments": "{\"limit\":50,\"method\":\"list\"}",
+  "result": "None"
+ },
+ {
+  "seq": 30,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 34,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_4a7ab5404e2747b88754a1dd",
+  "arguments": "{\"method\":\"projections\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"name\":\"tp12-child\"}",
+  "result": "None"
+ },
+ {
+  "seq": 35,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 39,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_085b8b9114c4474ea72d7884",
+  "arguments": "{\"method\":\"projections\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
+  "result": "None"
+ },
+ {
+  "seq": 40,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 44,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_d8b166d345d344ce8302e367",
+  "arguments": "{\"method\":\"events\",\"maxMessages\":10,\"name\":\"tp12-child\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
+  "result": "None"
+ },
+ {
+  "seq": 45,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 49,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_c2affe15aee44f38b1e879a3",
+  "arguments": "{\"maxMessages\":10,\"method\":\"events\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
+  "result": "None"
+ },
+ {
+  "seq": 50,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 54,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_10b3544732b7467e8f2b2e9c",
+  "arguments": "{\"maxMessages\":10,\"method\":\"events\",\"name\":\"Рада · Исполнитель\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
+  "result": "None"
+ },
+ {
+  "seq": 55,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 59,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_92aec9a23b8b4df99dad0407",
+  "arguments": "{\"method\":\"delete\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
+  "result": "None"
+ },
+ {
+  "seq": 60,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 64,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_18a17cfd1e2d48be941b3863",
+  "arguments": "{\"method\":\"wait\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"timeoutMs\":60000}",
+  "result": "None"
+ },
+ {
+  "seq": 65,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ },
+ {
+  "seq": 70,
+  "type": "tool/call",
+  "name": "session_read",
+  "callId": "call_fe362031cb7d44049a546715",
+  "arguments": "{\"method\":\"list\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
+  "result": "None"
+ },
+ {
+  "seq": 71,
+  "type": "tool/result",
+  "name": null,
+  "callId": null,
+  "arguments": null,
+  "result": "None"
+ }
+]
