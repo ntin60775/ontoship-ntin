@@ -40,6 +40,11 @@
       `09-live-host-log-perm.txt`, `05-cleanup-storage.txt`), уточнены
       цитаты и числа, дрейф строк source-facts исправлен, секреты/префиксы
       вычищены.
-- [ ] Dev-проверки после прохода правок: pytest, lint --strict.
-- [ ] Prod-проверки после merge: pytest/lint/check на main.
-- [ ] Merge в main, снос worktree, автоприёмка (запись по диктовке).
+- [x] Проверки после прохода правок: docs-only правки, покрыты
+      prod-прогоном на main — 772 passed, lint чист.
+- [x] Prod-проверки после merge: pytest 772 / lint / check на main
+      (`11-evidence/11-prod-checks.log`); независимая перепроверка
+      оркестратора — 772 passed.
+- [x] Merge в main (ff `476da04`), снос worktree, автоприёмка
+      2026-11-15 (запись по диктовке); цепочка — стоп-гейт оператора
+      перед 07.
