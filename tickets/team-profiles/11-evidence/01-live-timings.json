@@ -1,0 +1,38 @@
+{
+ "startedAt": 1794705385.5728295,
+ "sessionId": "session-b14cd099-ed18-43cf-86ec-31939a5de08f",
+ "create": {
+  "type": "server-response",
+  "rpcId": "tp11-0b1db20e-80fc-4503-b4be-ccd0a3c063d8",
+  "result": {
+   "ok": true,
+   "value": {
+    "sessionId": "session-b14cd099-ed18-43cf-86ec-31939a5de08f",
+    "agentPreset": "executor"
+   }
+  }
+ },
+ "promptAcceptedMs": 97,
+ "waitMs": 9115,
+ "waitReason": "idle",
+ "answers": [
+  {
+   "seq": 24,
+   "text": "timing-done"
+  }
+ ],
+ "secondPromptAcceptedMs": 31,
+ "secondWaitMs": 1758,
+ "secondReason": "idle",
+ "secondAnswers": [
+  {
+   "seq": 32,
+   "text": "timing-two"
+  },
+  {
+   "seq": 24,
+   "text": "timing-done"
+  }
+ ],
+ "deleted": true
+}

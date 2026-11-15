@@ -88,14 +88,18 @@ Launch-токены, cookie и ключи в артефактах вырезан
 
 - `POST /api/session/prompt` unary: `{requestId, sessionId, mode:'queue'|'steer',
   content:[{type:'text',text}]}` → `{accepted:true}`. Ответа модели в квитанции нет;
-  ход исполняется хостом. Живой замер: prompt принят за **70 мс**; 5 сессий —
-  6–226 мс на квитанцию (`01-live-prompt-first.txt`, `06-limits-multi-session.log`).
+  ход исполняется хостом. Живой замер (клиентские метки, `01-live-timings.json`):
+  квитанция **97 мс** на первом prompt и **31 мс** на продолжении; 5 сессий —
+  6–226 мс на квитанцию (`06-limits-multi-session.log`).
 - Продолжаемая сессия: несколько prompt подряд работают. Пока ход идёт, второй
   prompt с `mode:'queue'` лежит в `session/state.queue` (`placement:'queued'`,
   `rpcId` = requestId) и исполняется после текущего хода; `mode:'steer'` — ветка
-  вмешательства. Живой прогон: prompt 2 (`bash sleep 5`) + prompt 3 в очередь;
-  `wait` через 7,3 с отдал оба ответа в порядке ходов — «slow-done» (seq 33),
-  «queued-done» (seq 40) (`01-live-prompt-queue.txt`, `02-live-wait-two-turns.json`).
+  вмешательства. Живые снимки: непустая очередь с `placement:'queued'` и
+  `rpcId` запроса — `01-live-queue-state.json`; ход с двумя prompt подряд отдал
+  оба ответа в порядке ходов — «slow-done» (seq 33), «queued-done» (seq 40)
+  (`01-live-prompt-queue.txt`, `02-live-wait-two-turns.json`). Живой замер
+  ожидания: 9,1 с на ходе `sleep 4` + ответ, 1,8 с на продолжении
+  (`01-live-timings.json`).
 - Ход/очередь читаются пассивно: `GET`-метод `session/state` →
   `{cursor, active, running, queue, pendingInput}`; у неживой сессии `queue: null`.
 - Отмена хода — отдельный `session/cancel`; в разведке не проверялась (пробел).
@@ -107,9 +111,10 @@ Launch-токены, cookie и ключи в артефактах вырезан
   возвращает `{reason, state, output:{records, truncated}}`. `records` —
   `assistant/message` **newest-first**, полное событие (текст, reasoning, usage,
   `stream`-трасса). На idle-сессии возвращается сразу; `afterSeq` отдаёт только
-  новые записи (проверено: `afterSeq:27` → одна запись seq 28).
-  Логи: `01-live-wait-first.json`, `02-live-wait-two-turns.json`,
-  `04-live-wait-subagent.json`, `09-iso2-s1-wait-after-restart.json`.
+  новые записи (проверено: `afterSeq=16` → одна запись seq 17,
+  `01-live-afterseq.json`). Логи: `01-live-wait-first.json`,
+  `02-live-wait-two-turns.json`, `04-live-wait-subagent.json`,
+  `01-live-timings.json`, `09-iso2-s1-wait-after-restart.json`.
 - `session/events` — страницы всей истории назад: `{address, maxMessages,
   beforeSeq?, throughSeq?, turnWindow?}` → `{records, cursor, hasMore}`;
   `address` = `{kind:'session', sessionId}` либо `kind:'subagent'`.
@@ -150,7 +155,8 @@ Launch-токены, cookie и ключи в артефактах вырезан
   При истечении/недействительности — 401 `dsh web authentication required; reopen
   the URL printed by dsh web.` Токен берётся из лога хоста (в разведке —
   `/run/user/1000/dsh-web.log`) — внешний по отношению к API источник; лог живой
-  установки **world-readable** (0664), то есть owner-доступ любого локального
+  установки **world-readable** (0664: `stat -c '%a' /run/user/1000/dsh-web.log`
+  → `09-live-host-log-perm.txt`), то есть owner-доступ любого локального
   читателя. Это ограничение развёртывания, не API.
 
 ### 4. Лимиты сессий
@@ -173,13 +179,16 @@ Launch-токены, cookie и ключи в артефактах вырезан
   `«…is open or still running work…»`, `activity:[{kind:'turn'}]`, `closable:true`;
   с `stopActivity:true` — удаление и остановка хода/фоновой job
   (`05-cleanup-delete-without-stop.json`, `05-cleanup-delete-with-stop.json`).
-  Фоновая job (`kind:'job'`) блокирует так же — живьём видели на bash-ребёнке.
+  Фоновая job (`kind:'job'`) блокирует так же — сырой отказ на bash-ребёнке:
+  `08-hybrid-delete-job-block.json`; после завершения job ребёнок удалён
+  (raw успешного повтора не сохранён — названный пробел).
 - Идемпотентности-успеха нет: повторное удаление → `session/not-found`; остатка
   нет (`05-cleanup-delete-second.json`, `05-cleanup-storage.txt`).
 - Дети удаляются **отдельно**: удаление родителя не трогает детей; в пробном цикле
   ребёнок снят своим вызовом (иначе остаётся в списке и на диске).
-- Что остаётся: пустой project-каталог `~/.dsh/sessions/<hash>/` (снимается
-  вручную), строка в логе хоста; в GUI — ничего.
+- Что остаётся: пустой project-каталог `~/.dsh/sessions/<hash>/` (финальная
+  уборка снимает его: `05-cleanup-storage.txt`), строка в логе хоста; в GUI —
+  ничего.
 
 ### 6. Планировщик в корневой API-сессии
 
@@ -204,17 +213,24 @@ Launch-токены, cookie и ключи в артефактах вырезан
 - `session/create {cwd, agentPreset}` → `{sessionId, agentPreset}`; пресет
   применяется сразу. Событие `session/title` пишется при создании: у API-сессии
   executor-пресета — «Игнат · Исполнитель» (`03-live-events-page.json`, seq 4),
-  у ребёнка scout — «Аким · Скаут» (`04-live-wait-subagent.json`); плагин имён
-  тикета 09 работает и для API-корней.
+  у ребёнка scout — «Аким · Скаут» (строка `session/list`:
+  `04-live-child-row.json`; `childId`+`mode:'continuable'` —
+  `03-live-events-page.json`, seq 50); плагин имён тикета 09 работает и для
+  API-корней.
 - Маршрут: `session/selectModel {provider, model, reasoningEffort}` после создания
-  (в пробе — `qwen-token-plan/qwen3.8-flash/medium`); дефолт без вызова — профильный
-  `agent-default-model` (`qwen-token-plan-max/qwen4-max-preview/xhigh`).
+  (в пробе — `qwen-token-plan/qwen3.8-flash/medium`;
+  `05-cleanup-selectModel.json`, `07-sched-selectModel.json`). Без вызова маршрут
+  берётся из профильного `agent-default-model`: на момент проверки (03:15,
+  факт окружения) живой профиль нёс `qwen-token-plan/qwen3.8-flash/medium`
+  (`~/.dsh/profiles/web/cordis.patch.yml:96–101`); файл профиля менялся во время
+  прогона и источником истины репозитория не является.
 - API-корень спавнит детей штатным `subagent`: родитель (executor) вызвал
   `agent_preset=scout`; ребёнок `533d2cd0-4b8a-44f5-9b3d-491f00e32f8b`,
   `origin=subagent`, `parentSessionId` = родитель, режим `continuable`, пресет
   `scout`, ответ «scout-ok»; родитель отдал «tp11-scout · scout-ok · scout-ok»
-  (`04-live-wait-subagent.json`). Глубина: корень 0 → ребёнок 1; живой `maxDepth`
-  профиля — 3.
+  (`04-live-wait-subagent.json`; строка ребёнка в `session/list` —
+  `04-live-child-row.json`, `childId`+`mode:'continuable'` — `03` seq 50).
+  Глубина: корень 0 → ребёнок 1; живой `maxDepth` профиля — 3.
 
 ### 8. Надёжность ведения
 
@@ -236,17 +252,26 @@ Launch-токены, cookie и ключи в артефактах вырезан
 - Не проверено: сетевой обрыв без рестарта хоста, `session/cancel`, повторный
   `steer`, реконнект WS-потока, длинные ходы сверх дефолтных 30 с `wait`
   (использовали явные `timeoutMs` до 240 с), `ask_user_question` из API-сессии.
+- **Инцидент доставки вердиктов панели (факт этого прогона):** четыре роли
+  панели (03:00–03:15) завершились, но вердикты reviewer-spec / reviewer-kb /
+  reviewer-code не дошли до родителя уведомлением о завершении (вердикт
+  reviewer-tests дошёл). Извлечение — повторный `send_message` тем же ролям
+  (один повторный запрос, не второй прогон панели): все три роли вернули
+  вердикты; reviewer-spec «проснулся» и ответил, kb/code ответили тоже. Для
+  решения о потоке это факт надёжности субагентного канала: финальный
+  результат ребёнка может не дойти при завершении, и оркестратору нужен
+  явный опрос/чтение артефактов, а не только уведомления.
 
 ### Пробный цикл (оркестратор→сессия→субагент→отчёт→уборка)
 
 | шаг | артефакт |
 |---|---|
 | create executor, cwd `/tmp/tp11-probe` | `session-60f6f2cc-1bd9-405e-b31b-cfd8975158aa`, заголовок «Игнат · Исполнитель» |
-| selectModel → prompt → wait | «recon-ready», seq 17; квитанция 70 мс; `wait` idle |
-| prompt с `sleep 5` + очередь | «slow-done» seq 33, «queued-done» seq 40; wait 7,3 с |
-| prompt «спавни scout» | ребёнок `533d2cd0-…` «Аким · Скаут», ответ «scout-ok» |
+| selectModel → prompt → wait | «recon-ready», seq 17; `wait` idle; клиентский замер — `01-live-timings.json` |
+| prompt с `sleep 5` + очередь | «slow-done» seq 33, «queued-done» seq 40; непустая очередь — `01-live-queue-state.json` |
+| prompt «спавни scout» | ребёнок `533d2cd0-…` «Аким · Скаут», ответ «scout-ok» (`04-live-child-row.json`) |
 | чтение хода | `session/events` 70 записей, cursor 69 |
-| уборка | оба `session/delete` → `{deleted:true}`, список GUI 371, каталог пуст |
+| уборка | сессии главного цикла удалены (сырой ответ удаления не сохранён — пробел); форма удаления — `05-cleanup-delete-*.json`, `07-sched-delete-*.json`, `09-iso2-delete-s2.json`; после уборки список 371, каталог снят (`05-cleanup-storage.txt`) |
 
 Дополнительные прогоны: 5 одновременных сессий (лимиты), scheduler-проба
 (корень/ребёнок), hybrid-проба (чтение хода работающего ребёнка:
@@ -286,6 +311,12 @@ owner-токен и world-readable лог — вопрос развёртыва�
 - Провенанс launch-токена: путь и права лога — факт окружения; API-эндпоинта
   выдачи токена нет.
 - Пул личных имён дерева (тикет 09) при рестарте не перепроверялся.
+- Сырой ответ удаления сессий главного цикла (`60f6f2cc`, `533d2cd0`) и
+  S1 изолированного прогона (`3438ba39`) не сохранён; форма удаления доказана
+  другими сырыми ответами (см. выше).
+- Исходные клиентские тайминги первого цикла (70 мс / 7,3 с) в артефакты не
+  попали; в отчёте стоят заново измеренные значения с сырым логом
+  (`01-live-timings.json`).
 
 ### Артефакты
 
@@ -293,5 +324,8 @@ owner-токен и world-readable лог — вопрос развёртыва�
 - `11-evidence/source-facts.md` — источники кода по каждому факту.
 - `11-evidence/10-storage-format.md` — формат файлов сессии.
 - `11-evidence/01…09-*` — сырые логи прогонов (живой хост, лимиты, scheduler,
-  гибрид, изолированный рестарт, cookie-lifecycle).
+  гибрид, изолированный рестарт, cookie-lifecycle); новые точечные снимки —
+  `01-live-queue-state.json`, `01-live-afterseq.json`, `01-live-timings.json`,
+  `04-live-child-row.json`, `08-hybrid-delete-job-block.json`,
+  `07-sched-catalog-final.json`, `09-live-host-log-perm.txt`.
 - `11-progress.md` — чек-лист прохода ship.

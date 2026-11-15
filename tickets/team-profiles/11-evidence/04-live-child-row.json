@@ -1,0 +1,16 @@
+[
+ {
+  "sessionId": "533d2cd0-4b8a-44f5-9b3d-491f00e32f8b",
+  "parentSessionId": "session-60f6f2cc-1bd9-405e-b31b-cfd8975158aa",
+  "origin": "subagent",
+  "running": false,
+  "cwd": "/tmp/tp11-probe",
+  "agentPreset": "scout",
+  "title": "Аким · Скаут",
+  "subagent": {
+   "mode": "continuable",
+   "label": "Scout one-word reply",
+   "seq": 1
+  }
+ }
+]

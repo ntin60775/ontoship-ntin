@@ -6,16 +6,17 @@
 
 ## API и транспорт
 
-- Префикс API: `packages/client/connection/src/api-path.ts:6` — `/api`.
-- Конверт запроса: `packages/sdk/protocol/src/types.ts` — `client-request`
-  `{type, rpcId, method, payload:{args}}`; ответ — `server-response`
-  `{result:{ok, value|error}}`. Живой пример клиента —
+- Префикс API: `packages/client/connection/src/api-path.ts:7` — `/api`.
+- Конверт запроса: `packages/client/connection/src/rpc.ts:81`
+  (`ClientRequest`), схема — `packages/client/connection/src/rpc-schema.ts:36`:
+  `client-request {type, rpcId, method, payload:{args}}`; ответ —
+  `server-response {result:{ok, value|error}}`. Живой пример клиента —
   `apps/web/tests/smoke-real.e2e.ts:93` (`remoteRpc`).
 - Методы сессий (Remote-имена = путь `/api/session/<имя>`):
   `packages/api/session-controller/src/index.ts`:
-  `create` — 309, `selectModel` — 319, `delete` — 453, `prompt` — 484,
-  `events` — 559, `state` — 592, `wait` — 614, `follow` — 626
-  (stream, WebSocket-носитель `/api/remote.mux`), `projections` — 637.
+  `create` — 310, `selectModel` — 320, `delete` — 454, `prompt` — 485,
+  `events` — 560, `state` — 593, `wait` — 615, `follow` — 627
+  (stream, WebSocket-носитель `/api/remote.mux`), `projections` — 638.
 - Типы запросов/ответов: `packages/api/session-controller/src/types.ts`:
   `SessionCreateRequest` — 279, `SessionDeleteRequest` — 321,
   `SessionPromptRequest` — 351, `SessionAddress` — 434,
@@ -23,6 +24,9 @@
   `SessionState` — 638, `SessionEventsPage` — 682.
 - `session/prompt` возвращает `SessionPromptValue {accepted:true}`
   (`types.ts:362`); запись в inbox — `commands.prompt` (`index.ts:484`).
+- Очередь входа: `SessionQueuedItem` (`placement:'queued'|'steering'|'context'`,
+  `rpcId`) — `types.ts:629`; пассивный снимок `session/state` собирается в
+  `src/state/controller.ts:218`.
 - `session/wait`: таймаут по умолчанию **30 000 мс** — `src/state/controller.ts:18`;
   `afterSeq`/`maxMessages` — 57–58; ожидание не отменяет ход — 50–52.
 - `session/events`: страница назад по `address`, `cursor`, `records`,
@@ -40,7 +44,7 @@
 
 - Launch-токен: 32 случайных байта base64url (43 симв.), один на
   процесс (`PROCESS_LAUNCH_TOKENS` WeakMap по корневому контексту) —
-  `packages/client/connection/src/browser-auth.ts:70–76`; печать URL —
+  `packages/client/connection/src/browser-auth.ts:22, 61–68`; печать URL —
   `rpc-host.ts:197` и старт `dsh web`.
 - `/connect?token=…&interactions=none|answer` → 302 на
   `./api/remote.mux` + **v2-cookie** `{version:2, authority, id:PeerId,
@@ -68,6 +72,15 @@
   `packages/schedule/schedule/src/index.ts:655–671`
   (`delegationDepthOf(agent) > 0` → `subagent_session`), то же в
   `packages/schedule/tool-schedule/src/index.ts:299–309`.
+- Инструмент планировщика виден только пресетам, где объявлен
+  `tool-schedule`: в team-бандле это `preset-architect`
+  (`/home/prog7/home/dev/contrib/forks/ontoship-team/cordis.patch.yml`, блок
+  `preset-architect`); у `preset-orchestrator`/`preset-executor` строки нет —
+  это факт композиции, не политики.
+- Маршрут по умолчанию — профильный `agent-default-model`; на 03:15
+  2026-11-15 живой профиль нёс `qwen-token-plan/qwen3.8-flash/medium`
+  (`~/.dsh/profiles/web/cordis.patch.yml:96–101`, факт окружения; файл
+  менялся во время разведки — репозиторий на него не опирается).
 - Лимиты субагентов: `maxActiveSubagents` (дефолт 8) и `maxDepth`
   (дефолт 1) — `packages/subagent/subagent/src/index.ts:188–197`;
   лимит активных детей проверяется при спавне

@@ -1,0 +1,9 @@
+# Финальная уборка каталога хранилища (2026-11-15 03:16)
+$ ls -la ~/.dsh/sessions/--tmp-tp11-probe--/
+итого 8
+drwx------  2 prog7 prog7 4096 ноя 15 03:16 .
+drwx------ 27 prog7 prog7 4096 ноя 15 02:51 ..
+
+$ rmdir ~/.dsh/sessions/--tmp-tp11-probe--   # exit 0
+$ ls -ld ~/.dsh/sessions/--tmp-tp11-probe--
+ls: невозможно получить доступ к '/home/prog7/.dsh/sessions/--tmp-tp11-probe--': Нет такого файла или каталога

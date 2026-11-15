@@ -1,0 +1,202 @@
+{
+ "status": 200,
+ "method": "session/wait",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-adb52c87-fb1c-4fe1-bac0-fbde87784810\", \"method\": \"session/wait\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-4074620c-8c03-4a30-b694-3946d15fe6e8\", \"timeoutMs\": 5000, \"afterSeq\": 16}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-adb52c87-fb1c-4fe1-bac0-fbde87784810",
+  "result": {
+   "ok": true,
+   "value": {
+    "reason": "idle",
+    "state": {
+     "cursor": 19,
+     "active": true,
+     "running": false,
+     "queue": [],
+     "pendingInput": []
+    },
+    "output": {
+     "records": [
+      {
+       "type": "event",
+       "event": {
+        "type": "assistant/message",
+        "seq": 17,
+        "time": 1794705350268,
+        "data": {
+         "turn": 1,
+         "step": 1,
+         "message": {
+          "role": "assistant",
+          "content": [
+           {
+            "type": "reasoning",
+            "text": "The user just says reply exactly. This looks like a probe. Just answer."
+           },
+           {
+            "type": "text",
+            "text": "after-seq-one"
+           }
+          ],
+          "source": {
+           "kind": "model",
+           "provider": "qwen-token-plan",
+           "model": "qwen3.8-flash",
+           "replayState": {
+            "response": {
+             "kind": "pi-ai",
+             "version": 2,
+             "api": "openai-completions",
+             "provider": "qwen-token-plan",
+             "model": "qwen3.8-flash",
+             "responseId": "chatcmpl-0fa77282-0a56-4612-8662-5efdd2ee9d85",
+             "stopReason": "stop"
+            },
+            "blocks": [
+             {
+              "type": "reasoning",
+              "thinkingSignature": "reasoning_content"
+             },
+             {
+              "type": "text"
+             }
+            ]
+           }
+          },
+          "id": "f0eed420-5e22-47af-8588-79939ca2034a"
+         },
+         "usage": {
+          "inputTokens": 7288,
+          "outputTokens": 23,
+          "totalTokens": 7311
+         },
+         "stream": [
+          {
+           "type": "chunk",
+           "time": 1794705349813,
+           "chunk": {
+            "type": "block-start",
+            "index": 0,
+            "blockType": "reasoning"
+           }
+          },
+          {
+           "type": "reasoning-chunks",
+           "time0": 1794705349813,
+           "index": 0,
+           "dt": [
+            38,
+            43,
+            123,
+            93,
+            79
+           ],
+           "texts": [
+            "The",
+            " user just",
+            " says",
+            " reply exactly. This",
+            " looks like a probe",
+            ". Just answer."
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794705350218,
+           "chunk": {
+            "type": "block-start",
+            "index": 1,
+            "blockType": "text"
+           }
+          },
+          {
+           "type": "text-chunks",
+           "time0": 1794705350218,
+           "index": 1,
+           "dt": [
+            0
+           ],
+           "texts": [
+            "after",
+            "-seq-one"
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794705350266,
+           "chunk": {
+            "type": "block-end",
+            "index": 0,
+            "block": {
+             "type": "reasoning",
+             "text": "The user just says reply exactly. This looks like a probe. Just answer."
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794705350266,
+           "chunk": {
+            "type": "block-end",
+            "index": 1,
+            "block": {
+             "type": "text",
+             "text": "after-seq-one"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794705350267,
+           "chunk": {
+            "type": "usage",
+            "usage": {
+             "inputTokens": 7288,
+             "outputTokens": 23,
+             "totalTokens": 7311
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794705350267,
+           "chunk": {
+            "type": "finish",
+            "reason": {
+             "kind": "stop"
+            },
+            "replayState": {
+             "response": {
+              "kind": "pi-ai",
+              "version": 2,
+              "api": "openai-completions",
+              "provider": "qwen-token-plan",
+              "model": "qwen3.8-flash",
+              "responseId": "chatcmpl-0fa77282-0a56-4612-8662-5efdd2ee9d85",
+              "stopReason": "stop"
+             },
+             "blocks": [
+              {
+               "type": "reasoning",
+               "thinkingSignature": "reasoning_content"
+              },
+              {
+               "type": "text"
+              }
+             ]
+            }
+           }
+          }
+         ]
+        },
+        "surfaceOp": "append"
+       }
+      }
+     ],
+     "truncated": false
+    }
+   }
+  }
+ }
+}

@@ -1,8 +1,8 @@
 # Изолированный хост: launch tokens и cookie (значения вырезаны)
 
-token1: len=43 prefix=L83SGM… (redacted)
-token2: len=43 prefix=EggJn0… (redacted)
-token3: len=43 prefix=u_x33z… (redacted)
+token1: len=43 (redacted)
+token2: len=43 (redacted)
+token3: len=43 (redacted)
 tp11-iso-cookie.txt: cookie=dsh-auth-<REDACTED-cookie> payload={"version": 2, "authority": "127.0.0.1:3091", "id": "20f48cbf-9999-4a57-9102-b9c97ee40969", "issuedAt": 1794703602685, "expiresAt": 1797295602685}
 tp11-iso-cookie2.txt: cookie=dsh-auth-<REDACTED-cookie> payload={"version": 2, "authority": "127.0.0.1:3091", "id": "ded29d3b-ee84-4d0b-8e67-b94a55117583", "issuedAt": 1794703661097, "expiresAt": 1797295661097}
 tp11-iso-cookie3.txt: cookie=dsh-auth-<REDACTED-cookie> payload={"version": 2, "authority": "127.0.0.1:3091", "id": "135c502f-a0a6-4795-9882-60b9658718a1", "issuedAt": 1794703699559, "expiresAt": 1797295699559}

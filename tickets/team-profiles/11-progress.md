@@ -30,6 +30,16 @@
 - [x] Dev-проверки worktree: pytest **772 passed**, `gitmark lint
       --strict` чист, `install.sh --check` (основной checkout) `check: ok`;
       паков нет — механических гейтов ноль.
-- [ ] Один прогон ревью-панели (4 роли) + один проход правок.
+- [x] Один прогон ревью-панели (4 роли: spec, tests, code, kb) — все
+      «принять с находками», P1 нет; инцидент доставки вердиктов записан
+      в отчёт.
+- [x] Один проход правок по находкам: точечные сырые снимки
+      (`01-live-queue-state.json`, `01-live-afterseq.json`,
+      `01-live-timings.json`, `04-live-child-row.json`,
+      `08-hybrid-delete-job-block.json`, `07-sched-catalog-final.json`,
+      `09-live-host-log-perm.txt`, `05-cleanup-storage.txt`), уточнены
+      цитаты и числа, дрейф строк source-facts исправлен, секреты/префиксы
+      вычищены.
+- [ ] Dev-проверки после прохода правок: pytest, lint --strict.
 - [ ] Prod-проверки после merge: pytest/lint/check на main.
 - [ ] Merge в main, снос worktree, автоприёмка (запись по диктовке).

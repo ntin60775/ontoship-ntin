@@ -1,0 +1,31 @@
+{
+ "status": 200,
+ "method": "session/state",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-e959e11f-df44-4da0-ba88-b6f1ac8d5d52\", \"method\": \"session/state\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-858c3f18-e8fb-45c4-8744-439dd9dda510\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-e959e11f-df44-4da0-ba88-b6f1ac8d5d52",
+  "result": {
+   "ok": true,
+   "value": {
+    "cursor": 17,
+    "active": true,
+    "running": true,
+    "queue": [
+     {
+      "id": "183a6c0d-feca-432f-adbf-d0d40bcc154c",
+      "placement": "queued",
+      "rpcId": "2d735f3f-00f6-4f7f-bb5e-472548b31214",
+      "content": [
+       {
+        "type": "text",
+        "text": "Ответь ровно: queue-probe"
+       }
+      ]
+     }
+    ],
+    "pendingInput": []
+   }
+  }
+ }
+}
