@@ -1,0 +1,61 @@
+
+ RUN  v3.2.7 /tmp/tp12-team-base
+
+ ❯ tests/unit/composition.spec.ts (35 tests | 1 failed) 22ms
+   ✓ декларация пресета architect > id, имя, описание и порядок — команда ролей 1ms
+   ✓ декларация пресета architect > строка личных имён называет subpath и покрывает все роли 1ms
+   ✓ декларация пресета architect > прежней строки корневого модуля в патче нет 0ms
+   ✓ декларация пресета architect > строка личных имён стоит до деклараций пресетов 0ms
+   ✓ декларация пресета architect > реестр исполнителей стоит до деклараций пресетов 0ms
+   ✓ декларация пресета architect > строка контракта называет пакет и метод-контракт без конфига 0ms
+   ✓ декларация пресета architect > order — конвенция ростера: корневые 20–29, служебные 30–39 0ms
+   ✓ декларация пресета architect > каждый id роли имеет декларацию пресета и наоборот — дрейф ловится 1ms
+   ✓ набор инструментов > даёт ask, чтение, веб, скиллы и правку файлов 1ms
+   ✓ набор инструментов > spawn-инструмент несёт выбор маршрута и discovery 0ms
+   ✓ набор инструментов > не монтирует режим плана и workflow 0ms
+   ✓ набор инструментов > fork-инструмент не включает выбор маршрута — паритет с upstream 0ms
+   ✓ набор инструментов > tool-fs не включает apply_patch: маппинг не обещает лишнего 0ms
+   ✓ роли orchestrator и executor > orchestrator: read-only fs, subagent с allowlist, send_message и ask 2ms
+   × роли orchestrator и executor > orchestrator: spawn несёт agentPreset: executor и allowlist реестра со scout 5ms
+     → expected undefined to be defined
+   ✓ роли orchestrator и executor > READ-канал не протекает к executor/architect/scout: строка только у orchestrator 0ms
+   ✓ роли orchestrator и executor > executor: рабочие инструменты есть, ask нет, allowlist — реестр плюс scout 1ms
+   ✓ роли orchestrator и executor > дублирование композиции поймано: удаление ask у архитектора краснит 0ms
+   ✓ scout и выбор ребёнка > scout: чтение, поиск и веб — без write/edit/bash/ask и без детей 1ms
+   ✓ scout и выбор ребёнка > scout в allowlist каждой из трёх ролей, дефолт панели не сломан 1ms
+   ✓ scout и выбор ребёнка > agentOptions несёт дефолтный маршрут ребёнка в полной форме 0ms
+   ✓ scout и выбор ребёнка > allowlist: реестр заморожен, scout добавлен литералом 0ms
+   ✓ scout и выбор ребёнка > негативная проба: scout без web и с write краснеет 0ms
+   ✓ персона > architect: русская, с именованными секциями 0ms
+   ✓ персона > orchestrator: русская, с именованными секциями 0ms
+   ✓ персона > executor: русская, с именованными секциями 0ms
+   ✓ персона > scout: русская, с именованными секциями 0ms
+   ✓ негативная проба матрицы > удаление строки ask снимает инструмент из набора 0ms
+   ✓ негативная проба матрицы > добавление строки plan-mode ломает запрет 0ms
+   ✓ негативная проба матрицы > удаление строки subagent снимает spawn-инструмент 0ms
+   ✓ негативная проба матрицы > удаление строки fs-search снимает glob и grep 0ms
+   ✓ негативная проба матрицы > удаление строки fork снимает subagent_fork 0ms
+   ✓ негативная проба матрицы > добавление ask исполнителю выдаёт инструмент: запрет не декоративен 0ms
+   ✓ негативная проба матрицы > disabled-выражение !!js на группе снимает всех детей 0ms
+   ✓ негативная проба матрицы > disabled-выражение !!js у строки снимает её инструмент 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/composition.spec.ts > роли orchestrator и executor > orchestrator: spawn несёт agentPreset: executor и allowlist реестра со scout
+AssertionError: expected undefined to be defined
+ ❯ tests/unit/composition.spec.ts:380:18
+    378|     expect(flatten(ORCHESTRATOR.plugins).some((row) => row.id === 'too…
+    379|     const read = flatten(ORCHESTRATOR.plugins).find((row) => row.id ==…
+    380|     expect(read).toBeDefined()
+       |                  ^
+    381|     expect((read as Row).name).toBe('ontoship-team/session-read')
+    382|     expect((read as Row).config).toBeUndefined()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 34 passed (35)
+   Start at  15:32:24
+   Duration  335ms (transform 55ms, setup 0ms, collect 63ms, tests 22ms, environment 0ms, prepare 72ms)
+

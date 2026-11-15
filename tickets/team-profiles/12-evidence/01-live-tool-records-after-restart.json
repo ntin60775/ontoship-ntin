@@ -4,223 +4,223 @@
   "type": "tool/call",
   "name": "subagent",
   "arguments": "{\"agent_preset\":\"executor\",\"description\":\"sleep 25 then answer\",\"name\":\"tp12-child\",\"prompt\":\"Выполни инструментом bash команду sleep 25, затем ответь ровно: child-done\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 20,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "started subagent tp12-child"
+  "result": "started subagent tp12-child"
  },
  {
   "seq": 24,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"list\",\"name\":\"tp12-child\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 25,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"list\",\"ok\":true,\"value\":[]}"
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[]}"
  },
  {
   "seq": 29,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"limit\":50,\"method\":\"list\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 30,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":true,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165},{\"id\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"running\":true,\"preset\":\"orchestrator\",\"title\":\"Лев · Оркестратор\",\"updatedAt\":1794748360443}]}"
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":true,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165},{\"id\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"running\":true,\"preset\":\"orchestrator\",\"title\":\"Лев · Оркестратор\",\"updatedAt\":1794748360443}]}"
  },
  {
   "seq": 34,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"projections\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"name\":\"tp12-child\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 35,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"projections\",\"ok\":false,\"error\":{\"code\":\"session-read/child-not-found\",\"message\":\"no child of session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb matches tp12-child\"}}"
+  "result": "{\"method\":\"projections\",\"ok\":false,\"error\":{\"code\":\"session-read/child-not-found\",\"message\":\"no child of session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb matches tp12-child\"}}"
  },
  {
   "seq": 39,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"projections\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 40,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"projections\",\"ok\":true,\"value\":{\"asOfSeq\":20,\"agentPreset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"modelSelection\":{\"lastUsed\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"},\"next\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"}},\"tokenUsage\":{\"uncachedInputTokens\":7316,\"outputTokens\":160,\"cacheReadTokens\":0,\"cacheWriteTokens\":0},\"workingDirectory\":\"/tmp/tp12-live-work\",\"subagent\":{\"mode\":\"continuable\",\"label\":\"sleep 25 then answer\",\"seq\":1},\"inbox\":{\"next-turn\":[],\"next-step\":[]},\"todos\":null}}"
+  "result": "{\"method\":\"projections\",\"ok\":true,\"value\":{\"asOfSeq\":20,\"agentPreset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"modelSelection\":{\"lastUsed\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"},\"next\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"}},\"tokenUsage\":{\"uncachedInputTokens\":7316,\"outputTokens\":160,\"cacheReadTokens\":0,\"cacheWriteTokens\":0},\"workingDirectory\":\"/tmp/tp12-live-work\",\"subagent\":{\"mode\":\"continuable\",\"label\":\"sleep 25 then answer\",\"seq\":1},\"inbox\":{\"next-turn\":[],\"next-step\":[]},\"todos\":null}}"
  },
  {
   "seq": 44,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"events\",\"maxMessages\":10,\"name\":\"tp12-child\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 45,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/child-not-found\",\"message\":\"no child of session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb matches tp12-child\"}}"
+  "result": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/child-not-found\",\"message\":\"no child of session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb matches tp12-child\"}}"
  },
  {
   "seq": 49,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"maxMessages\":10,\"method\":\"events\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 50,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/http\",\"message\":\"session/events: session/agent-busy: subagent Sessions require their durable parent address\"}}"
+  "result": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/http\",\"message\":\"session/events: session/agent-busy: subagent Sessions require their durable parent address\"}}"
  },
  {
   "seq": 54,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"maxMessages\":10,\"method\":\"events\",\"name\":\"Рада · Исполнитель\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 55,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"events\",\"ok\":true,\"value\":{\"cursor\":20,\"hasMore\":false,\"records\":[{\"seq\":9,\"type\":\"agent/inbox/spliced\",\"time\":1794748364109},{\"seq\":8,\"type\":\"turn/start\",\"time\":1794748364109,\"turn\":1},{\"seq\":7,\"type\":\"agent/inbox/spliced\",\"time\":1794748364108},{\"seq\":6,\"type\":\"session/title\",\"time\":1794748364105},{\"seq\":5,\"type\":\"subagent/model-selection-policy\",\"time\":1794748364083},{\"seq\":4,\"type\":\"permission/preset\",\"time\":1794748364082},{\"seq\":3,\"type\":\"approval/policy\",\"time\":1794748364082},{\"seq\":2,\"type\":\"sandbox/mode\",\"time\":1794748364082},{\"seq\":1,\"type\":\"subagent/descriptor\",\"time\":1794748364081},{\"seq\":0,\"type\":\"agent-preset/selected\",\"time\":1794748364080}]}}"
+  "result": "{\"method\":\"events\",\"ok\":true,\"value\":{\"cursor\":20,\"hasMore\":false,\"records\":[{\"seq\":9,\"type\":\"agent/inbox/spliced\",\"time\":1794748364109},{\"seq\":8,\"type\":\"turn/start\",\"time\":1794748364109,\"turn\":1},{\"seq\":7,\"type\":\"agent/inbox/spliced\",\"time\":1794748364108},{\"seq\":6,\"type\":\"session/title\",\"time\":1794748364105},{\"seq\":5,\"type\":\"subagent/model-selection-policy\",\"time\":1794748364083},{\"seq\":4,\"type\":\"permission/preset\",\"time\":1794748364082},{\"seq\":3,\"type\":\"approval/policy\",\"time\":1794748364082},{\"seq\":2,\"type\":\"sandbox/mode\",\"time\":1794748364082},{\"seq\":1,\"type\":\"subagent/descriptor\",\"time\":1794748364081},{\"seq\":0,\"type\":\"agent-preset/selected\",\"time\":1794748364080}]}}"
  },
  {
   "seq": 59,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"delete\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 60,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "Error: invalid arguments: \"method\" must be one of [\"list\",\"wait\",\"events\",\"projections\"]"
+  "result": "Error: invalid arguments: \"method\" must be one of [\"list\",\"wait\",\"events\",\"projections\"]"
  },
  {
   "seq": 64,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"wait\",\"sessionId\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"timeoutMs\":60000}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 65,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"wait\",\"ok\":true,\"value\":{\"reason\":\"idle\",\"state\":{\"cursor\":27,\"active\":true,\"running\":false,\"queue\":[],\"pendingInput\":[]},\"truncated\":false,\"records\":[{\"seq\":18,\"type\":\"assistant/message\",\"time\":1794748366269,\"turn\":1,\"step\":1,\"tools\":[\"bash\"],\"usage\":{\"inputTokens\":7316,\"outputTokens\":160,\"totalTokens\":7476}},{\"seq\":25,\"type\":\"assistant/message\",\"time\":1794748392556,\"turn\":1,\"step\":2,\"text\":\"child-done\",\"usage\":{\"inputTokens\":323,\"outputTokens\":5,\"totalTokens\":7496,\"cacheReadTokens\":7168}}]}}"
+  "result": "{\"method\":\"wait\",\"ok\":true,\"value\":{\"reason\":\"idle\",\"state\":{\"cursor\":27,\"active\":true,\"running\":false,\"queue\":[],\"pendingInput\":[]},\"truncated\":false,\"records\":[{\"seq\":18,\"type\":\"assistant/message\",\"time\":1794748366269,\"turn\":1,\"step\":1,\"tools\":[\"bash\"],\"usage\":{\"inputTokens\":7316,\"outputTokens\":160,\"totalTokens\":7476}},{\"seq\":25,\"type\":\"assistant/message\",\"time\":1794748392556,\"turn\":1,\"step\":2,\"text\":\"child-done\",\"usage\":{\"inputTokens\":323,\"outputTokens\":5,\"totalTokens\":7496,\"cacheReadTokens\":7168}}]}}"
  },
  {
   "seq": 70,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"list\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 71,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
  },
  {
   "seq": 88,
   "type": "tool/call",
   "name": "subagent",
   "arguments": "{\"agent_preset\":\"executor\",\"description\":\"sleep 5 then answer\",\"name\":\"tp12-child2\",\"prompt\":\"Выполни инструментом bash команду sleep 5, затем ответь ровно: child2-done\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 90,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "started subagent tp12-child2"
+  "result": "started subagent tp12-child2"
  },
  {
   "seq": 94,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"limit\":50,\"method\":\"list\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 95,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"07e4a2cb-511f-44a9-ab02-10b315c044b8\",\"running\":true,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"label\":\"sleep 5 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748485675},{\"id\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"running\":true,\"preset\":\"orchestrator\",\"title\":\"Лев · Оркестратор\",\"updatedAt\":1794748480871},{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"07e4a2cb-511f-44a9-ab02-10b315c044b8\",\"running\":true,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"label\":\"sleep 5 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748485675},{\"id\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"running\":true,\"preset\":\"orchestrator\",\"title\":\"Лев · Оркестратор\",\"updatedAt\":1794748480871},{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
  },
  {
   "seq": 99,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"maxMessages\":5,\"method\":\"events\",\"name\":\"tp12-child2\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 100,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"events\",\"ok\":true,\"value\":{\"cursor\":20,\"hasMore\":true,\"records\":[{\"seq\":16,\"type\":\"request/header\",\"time\":1794748485677},{\"seq\":15,\"type\":\"user/message\",\"time\":1794748485676},{\"seq\":14,\"type\":\"user/message\",\"time\":1794748485676},{\"seq\":13,\"type\":\"user/message\",\"time\":1794748485675},{\"seq\":12,\"type\":\"user/message\",\"time\":1794748485675}]}}"
+  "result": "{\"method\":\"events\",\"ok\":true,\"value\":{\"cursor\":20,\"hasMore\":true,\"records\":[{\"seq\":16,\"type\":\"request/header\",\"time\":1794748485677},{\"seq\":15,\"type\":\"user/message\",\"time\":1794748485676},{\"seq\":14,\"type\":\"user/message\",\"time\":1794748485676},{\"seq\":13,\"type\":\"user/message\",\"time\":1794748485675},{\"seq\":12,\"type\":\"user/message\",\"time\":1794748485675}]}}"
  },
  {
   "seq": 105,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"projections\",\"name\":\"tp12-child2\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 106,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"projections\",\"ok\":true,\"value\":{\"asOfSeq\":27,\"agentPreset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"modelSelection\":{\"lastUsed\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"},\"next\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"}},\"tokenUsage\":{\"uncachedInputTokens\":7034,\"outputTokens\":66,\"cacheReadTokens\":7680,\"cacheWriteTokens\":0},\"workingDirectory\":\"/tmp/tp12-live-work\",\"subagent\":{\"mode\":\"continuable\",\"label\":\"sleep 5 then answer\",\"seq\":1},\"inbox\":{\"next-turn\":[],\"next-step\":[]},\"todos\":null}}"
+  "result": "{\"method\":\"projections\",\"ok\":true,\"value\":{\"asOfSeq\":27,\"agentPreset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"modelSelection\":{\"lastUsed\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"},\"next\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"}},\"tokenUsage\":{\"uncachedInputTokens\":7034,\"outputTokens\":66,\"cacheReadTokens\":7680,\"cacheWriteTokens\":0},\"workingDirectory\":\"/tmp/tp12-live-work\",\"subagent\":{\"mode\":\"continuable\",\"label\":\"sleep 5 then answer\",\"seq\":1},\"inbox\":{\"next-turn\":[],\"next-step\":[]},\"todos\":null}}"
  },
  {
   "seq": 112,
   "type": "tool/call",
   "name": "session_read",
   "arguments": "{\"method\":\"list\",\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\"}",
-  "text": ""
+  "result": ""
  },
  {
   "seq": 113,
   "type": "tool/result",
   "name": null,
   "arguments": null,
-  "text": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"07e4a2cb-511f-44a9-ab02-10b315c044b8\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"label\":\"sleep 5 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748485675},{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"07e4a2cb-511f-44a9-ab02-10b315c044b8\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Ульяна · Исполнитель\",\"label\":\"sleep 5 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748485675},{\"id\":\"90dd7ca8-648d-408d-a638-ff9de7f53a52\",\"running\":false,\"parentSessionId\":\"session-008281f9-2dcd-4bb7-a6a0-3495d9648ebb\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Рада · Исполнитель\",\"label\":\"sleep 25 then answer\",\"mode\":\"continuable\",\"updatedAt\":1794748364165}]}"
  }
 ]

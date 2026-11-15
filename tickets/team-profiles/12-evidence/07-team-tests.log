@@ -3,21 +3,21 @@
 > vitest run
 
 
- RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp12
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team
 
  ✓ tests/unit/names.generator.spec.ts (6 tests) 9ms
- ✓ tests/unit/routes.spec.ts (6 tests) 9ms
- ✓ tests/unit/executors.spec.ts (16 tests) 11ms
- ✓ tests/unit/contract.spec.ts (12 tests) 11ms
  ✓ tests/unit/manifest.spec.ts (8 tests) 11ms
- ✓ tests/unit/composition.spec.ts (35 tests) 26ms
+ ✓ tests/unit/routes.spec.ts (6 tests) 7ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 11ms
+ ✓ tests/unit/composition.spec.ts (35 tests) 24ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 12ms
  ✓ tests/unit/names.spec.ts (19 tests) 21ms
- ✓ tests/unit/session-read.spec.ts (14 tests) 19ms
- ✓ tests/unit/lib.spec.ts (2 tests) 1066ms
-   ✓ собранный lib > lib совпадает с детерминированной сборкой src  1063ms
+ ✓ tests/unit/session-read.spec.ts (19 tests) 31ms
+ ✓ tests/unit/lib.spec.ts (2 tests) 986ms
+   ✓ собранный lib > lib совпадает с детерминированной сборкой src  983ms
 
  Test Files  9 passed (9)
-      Tests  118 passed (118)
-   Start at  15:14:15
-   Duration  1.44s (transform 521ms, setup 0ms, collect 996ms, tests 1.18s, environment 2ms, prepare 880ms)
+      Tests  123 passed (123)
+   Start at  15:37:40
+   Duration  1.36s (transform 726ms, setup 0ms, collect 1.20s, tests 1.11s, environment 2ms, prepare 829ms)
 

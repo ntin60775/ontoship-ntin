@@ -1,0 +1,86 @@
+[
+ {
+  "seq": 18,
+  "type": "tool/call",
+  "name": "subagent",
+  "arguments": "{\"name\":\"tp12-fix\",\"agent_preset\":\"executor\",\"description\":\"sleep 3 test\",\"prompt\":\"Выполни инструментом bash команду sleep 3, затем ответь ровно: child-fix-done\"}",
+  "result": ""
+ },
+ {
+  "seq": 20,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "started subagent tp12-fix"
+ },
+ {
+  "seq": 24,
+  "type": "tool/call",
+  "name": "session_read",
+  "arguments": "{\"method\":\"events\",\"name\":\"tp12-fix\",\"maxMessages\":10}",
+  "result": ""
+ },
+ {
+  "seq": 25,
+  "type": "tool/call",
+  "name": "session_read",
+  "arguments": "{\"method\":\"projections\",\"name\":\"tp12-fix\"}",
+  "result": ""
+ },
+ {
+  "seq": 26,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/arguments\",\"message\":\"sessionId or parentSessionId is required\"}}"
+ },
+ {
+  "seq": 27,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"method\":\"projections\",\"ok\":true,\"value\":{\"asOfSeq\":20,\"agentPreset\":\"executor\",\"title\":\"Кузьма · Исполнитель\",\"modelSelection\":{\"lastUsed\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"},\"next\":{\"provider\":\"qwen-token-plan-deepseek\",\"model\":\"deepseek-v4.1-flash-1017\",\"reasoningEffort\":\"max\"}},\"tokenUsage\":{\"uncachedInputTokens\":6809,\"outputTokens\":90,\"cacheReadTokens\":512,\"cacheWriteTokens\":0},\"workingDirectory\":\"/tmp/tp12-live-work\",\"subagent\":{\"mode\":\"continuable\",\"label\":\"sleep 3 test\",\"seq\":1},\"inbox\":{\"next-turn\":[],\"next-step\":[]},\"todos\":null}}"
+ },
+ {
+  "seq": 32,
+  "type": "tool/call",
+  "name": "session_read",
+  "arguments": "{\"method\":\"list\",\"name\":\"tp12-fix\"}",
+  "result": ""
+ },
+ {
+  "seq": 33,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"method\":\"list\",\"ok\":true,\"value\":[{\"id\":\"6dfc472c-6dca-43c2-87a4-7102906a4d80\",\"running\":false,\"parentSessionId\":\"session-45724c4e-a7c1-4f2f-8d67-81b75e791671\",\"origin\":\"subagent\",\"preset\":\"executor\",\"title\":\"Кузьма · Исполнитель\",\"label\":\"sleep 3 test\",\"mode\":\"continuable\",\"updatedAt\":1794749589699}]}"
+ },
+ {
+  "seq": 39,
+  "type": "tool/call",
+  "name": "session_read",
+  "arguments": "{\"maxMessages\":10,\"method\":\"events\",\"sessionId\":\"6dfc472c-6dca-43c2-87a4-7102906a4d80\"}",
+  "result": ""
+ },
+ {
+  "seq": 40,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"method\":\"events\",\"ok\":false,\"error\":{\"code\":\"session-read/http\",\"message\":\"session/events: session/agent-busy: subagent Sessions require their durable parent address\"}}"
+ },
+ {
+  "seq": 44,
+  "type": "tool/call",
+  "name": "session_read",
+  "arguments": "{\"method\":\"events\",\"name\":\"tp12-fix\",\"parentSessionId\":\"session-45724c4e-a7c1-4f2f-8d67-81b75e791671\",\"maxMessages\":10}",
+  "result": ""
+ },
+ {
+  "seq": 45,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"method\":\"events\",\"ok\":true,\"value\":{\"cursor\":27,\"hasMore\":false,\"records\":[{\"seq\":18,\"type\":\"assistant/message\",\"time\":1794749591935,\"turn\":1,\"step\":1,\"tools\":[\"bash\"],\"usage\":{\"inputTokens\":6809,\"outputTokens\":90,\"totalTokens\":7411,\"cacheReadTokens\":512}},{\"seq\":19,\"type\":\"tool/call\",\"time\":1794749591939,\"turn\":1,\"step\":1,\"tools\":[\"bash\"]},{\"seq\":20,\"type\":\"job/registered\",\"time\":1794749591976},{\"seq\":21,\"type\":\"job/settled\",\"time\":1794749595201},{\"seq\":22,\"type\":\"tool/result\",\"time\":1794749595207,\"turn\":1,\"step\":1,\"text\":\"(no output)\"},{\"seq\":23,\"type\":\"step/end\",\"time\":1794749595208,\"turn\":1,\"step\":1},{\"seq\":24,\"type\":\"step/start\",\"time\":1794749595218,\"turn\":1,\"step\":2},{\"seq\":25,\"type\":\"assistant/message\",\"time\":1794749596270,\"turn\":1,\"step\":2,\"text\":\"child-fix-done\\n\\nEvidence: `bash` issued `sleep 3` in `/tmp/tp12-live-work`; exit code 0, no output.\",\"usage\":{\"inputTokens\":256,\"outputTokens\":38,\"totalTokens\":7462,\"cacheReadTokens\":7168}},{\"seq\":26,\"type\":\"step/end\",\"time\":1794749596271,\"turn\":1,\"step\":2},{\"seq\":27,\"type\":\"turn/end\",\"time\":1794749596272,\"turn\":1}]}}"
+ }
+]

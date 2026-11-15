@@ -2070,7 +2070,7 @@ vitest + 22 python, запушен). Пути: team и team-1c —
 `/home/prog7/home/dev/personal/1C-DSH`.
 
 **Нормы chain (уже в скилле, читать перед работой):** проверка
-methodContract (версия 1) через inspect-провайдер `OntoShipTeam`
+methodContract (версия 2) через inspect-провайдер `OntoShipTeam`
 (mismatch/отсутствие → стоп с вопросом); записи chain (автоприёмка,
 continue.md, виды) пишет ИСПОЛНИТЕЛЬ по диктовке оркестратора;
 оркестратор проверяет гейты по артефактам и сверяет запись; таймер
