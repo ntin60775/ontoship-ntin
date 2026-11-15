@@ -1,0 +1,19 @@
+# Prod-проверки после merge (2026-11-15)
+
+main = 476da04 (тикет 11 влит ff); worktree tp11-session-recon.
+
+$ python3 -m pytest -q
+772 passed in 11.97s
+
+$ python3 skills/kb-search/gitmark.py index
+✓ index: 60 файлов · 475 чанков · 172 ссылок · trigram=on → .gitmark/index.db
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+scope: 97 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
+
+$ bash scripts/install.sh --check /home/prog7/home/dev/contrib/forks/ontoship-ntin
+ok chain (link)
+check: ok
+
+Паков в профиле нет — механических гейтов пака ноль.
