@@ -1,0 +1,4 @@
+
+> ontoship-team@0.2.1 build
+> tsc -p tsconfig.json
+

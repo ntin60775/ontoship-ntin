@@ -1,0 +1,23 @@
+
+> ontoship-team@0.2.1 test
+> vitest run
+
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-wt-tp13
+
+ ✓ tests/unit/routes.spec.ts (6 tests) 7ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 14ms
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 16ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 16ms
+ ✓ tests/unit/manifest.spec.ts (8 tests) 11ms
+ ✓ tests/unit/composition.spec.ts (36 tests) 33ms
+ ✓ tests/unit/names.spec.ts (19 tests) 36ms
+ ✓ tests/unit/session-read.spec.ts (19 tests) 30ms
+ ✓ tests/unit/lib.spec.ts (2 tests) 1035ms
+   ✓ собранный lib > lib совпадает с детерминированной сборкой src  1030ms
+
+ Test Files  9 passed (9)
+      Tests  124 passed (124)
+   Start at  19:52:10
+   Duration  1.45s (transform 664ms, setup 0ms, collect 1.31s, tests 1.20s, environment 2ms, prepare 965ms)
+

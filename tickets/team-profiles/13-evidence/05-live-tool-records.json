@@ -1,0 +1,72 @@
+[
+ {
+  "seq": 20,
+  "type": "tool/call",
+  "name": "cordis_inspect_query",
+  "arguments": "{\"platform\":\"host\",\"provider\":\"Tool\",\"method\":\"listTools\"}",
+  "result": ""
+ },
+ {
+  "seq": 21,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\n  \"platform\": \"host\",\n  \"provider\": \"Tool\",\n  \"method\": \"listTools\",\n  \"data\": {\n    \"tools\": [\n      {\n        \"name\": \"cordis_inspect_list\",\n        \"description\": \"List every Cordis Inspect Provider currently known to the Host, including local Host Providers and the latest manifests synchronized from the Client. Each entry includes its platform, purpose, read-only methods, and input/output schemas. Call this Tool before writing or configuring a plugin, then select the provider and method for cordis_inspect_query from its result. Do not guess names or treat an Inspect method as a business Service that Plugin code can call.\",\n        \"parameters\": {\n          \"type\": \"object\",\n          \"properties\": {}\n        }\n      },\n      {\n        \"name\": \"cordis_inspect_query\",\n        \"description\": \"Run a read-only query declared by an Inspect Provider. platform, provider, and method must come from cordis_inspect_list, and input must satisfy that method's schema. Use this Tool before writing plugin code to read exact Service methods, Event modes, plugin Config schemas, Tool schemas, theme tokens, or live Slot trees and props. Host queries run locally. A Client query waits for the first"
+ },
+ {
+  "seq": 28,
+  "type": "tool/call",
+  "name": "grep",
+  "arguments": "{\"pattern\":\"\\\"name\\\": \\\"schedule_(create|list|edit|view)\\\"\",\"path\":\"/tmp/dsh-spill-zuROOP/session-181c48061b1b/64fdc2e6930c-cordis_inspect_query.txt\"}",
+  "result": ""
+ },
+ {
+  "seq": 29,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "Found 4 matches\n\n/tmp/dsh-spill-zuROOP/session-181c48061b1b/64fdc2e6930c-cordis_inspect_query.txt\nLine 593:         \"name\": \"schedule_create\",\nLine 629:         \"name\": \"schedule_list\",\nLine 650:         \"name\": \"schedule_view\",\nLine 666:         \"name\": \"schedule_edit\","
+ },
+ {
+  "seq": 33,
+  "type": "tool/call",
+  "name": "schedule_create",
+  "arguments": "{\"title\":\"tp13 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"target\":\"this_session\"}",
+  "result": ""
+ },
+ {
+  "seq": 34,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"id\":\"schedule-bbdc964e-9ae5-47cb-942d-2f06b7b550d3\",\"kind\":\"rrule\",\"title\":\"tp13 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"scheduledAt\":\"2026-11-16T12:00:00.000Z\",\"target\":{\"kind\":\"session\",\"sessionId\":\"session-2d0ed734-e054-4909-b909-8857b47219a9\"},\"status\":\"active\",\"updatedAt\":\"2026-11-15T17:51:30.546Z\",\"scheduledAtLocal\":\"2026-11-16T12:00:00+00:00\"}"
+ },
+ {
+  "seq": 38,
+  "type": "tool/call",
+  "name": "schedule_view",
+  "arguments": "{\"id\":\"schedule-bbdc964e-9ae5-47cb-942d-2f06b7b550d3\"}",
+  "result": ""
+ },
+ {
+  "seq": 39,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"id\":\"schedule-bbdc964e-9ae5-47cb-942d-2f06b7b550d3\",\"kind\":\"rrule\",\"title\":\"tp13 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"scheduledAt\":\"2026-11-16T12:00:00.000Z\",\"target\":{\"kind\":\"session\",\"sessionId\":\"session-2d0ed734-e054-4909-b909-8857b47219a9\"},\"status\":\"active\",\"updatedAt\":\"2026-11-15T17:51:30.546Z\",\"scheduledAtLocal\":\"2026-11-16T12:00:00+00:00\"}"
+ },
+ {
+  "seq": 43,
+  "type": "tool/call",
+  "name": "schedule_edit",
+  "arguments": "{\"id\":\"schedule-bbdc964e-9ae5-47cb-942d-2f06b7b550d3\",\"action\":\"delete\"}",
+  "result": ""
+ },
+ {
+  "seq": 44,
+  "type": "tool/result",
+  "name": null,
+  "arguments": null,
+  "result": "{\"id\":\"schedule-bbdc964e-9ae5-47cb-942d-2f06b7b550d3\",\"deleted\":true}"
+ }
+]

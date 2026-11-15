@@ -1,0 +1,16 @@
+
+> ontoship-team-1c@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-1c-wt-tp13
+
+ ✓ tests/manifest.spec.ts (6 tests) 8ms
+ ✓ tests/composition.spec.ts (6 tests) 9ms
+ ✓ tests/parity.spec.ts (13 tests) 170ms
+
+ Test Files  3 passed (3)
+      Tests  25 passed (25)
+   Start at  19:52:29
+   Duration  480ms (transform 80ms, setup 0ms, collect 166ms, tests 187ms, environment 1ms, prepare 221ms)
+
