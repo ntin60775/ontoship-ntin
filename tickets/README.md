@@ -366,9 +366,12 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 (grilling-раунды 1–5, решения 1–17; четыре среза проекций, 25 находок
 после дедупликации, триаж, спорное закрыто ask-ом —
 [00-projection-report.md](team-profiles/00-projection-report.md));
-нарезка — восемь тикетов приняты ask-ом со сверкой понимания 2026-11-13.
+нарезка — двенадцать тикетов: 01–08 приняты ask-ом со сверкой понимания
+2026-11-13, 09 и 10 приняты ask 2026-11-13, 11 принят ask 2026-11-15
+(разведка), 12 принят ask 2026-11-15 (гибридный READ-канал, решение 21).
 Личная команда агентов на пресетах DSH; стек 1C — новое репо
-`ontoship-team-1c` с аддитивным швом 1C-DSH. Тикет 01 свободен.
+`ontoship-team-1c` с аддитивным швом 1C-DSH. Тикеты 01–06, 09–11 сделаны,
+влиты и приняты автоприёмкой; тикет 12 в работе.
 
 | # | тикет | блокируется |
 |---|---|---|
@@ -377,9 +380,13 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 03 | [выбор, маршруты и scout](team-profiles/03-selection-routes-scout.md) | 02 |
 | 04 | [OntoShip-носители и метод-контракт](team-profiles/04-method-carriers-contract.md) | 02, 03 |
 | 05 | [стек 1C: ontoship-team-1c](team-profiles/05-stack-1c-team-repo.md) | 01, 02 |
-| 06 | [релиз и поставка](team-profiles/06-release-delivery.md) | 03, 04, 05 |
-| 07 | [живая проба на 1C-DSH](team-profiles/07-live-proof.md) | 06 |
+| 06 | [релиз и поставка](team-profiles/06-release-delivery.md) | 03, 04, 05, 09 |
+| 07 | [живая проба на 1C-DSH](team-profiles/07-live-proof.md) | 06, 10, 11, 12 |
 | 08 | [набор, KB и протокол 08](team-profiles/08-suite-kb-08-protocol.md) | 07 |
+| 09 | [личные имена агентов](team-profiles/09-personal-names.md) | 02 |
+| 10 | [таймер опроса — норма chain](team-profiles/10-polling-timer-norm.md) | 04 |
+| 11 | [разведка API-ведения сессий](team-profiles/11-session-flow.md) | 10 |
+| 12 | [гибридный READ-канал](team-profiles/12-hybrid-read-channel.md) | 11 |
 
 Юнит [`standards-autoship`](../docs/plans/standards-autoship.md) открыт
 2026-11-11: спека утверждена на план-гейте ask-проходом (решения 1–18),
