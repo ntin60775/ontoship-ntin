@@ -22,6 +22,7 @@ flowchart TD
   T10["10 таймер опроса — норма chain"]
   T11["11 разведка API-ведения сессий"]
   T12["12 гибридный READ-канал"]
+  T13["13 tool-schedule у orchestrator"]
 
   T01 --> T02
   T02 --> T03
@@ -35,7 +36,8 @@ flowchart TD
   T06 --> T07
   T10 --> T11
   T11 --> T12
-  T12 --> T07
+  T12 --> T13
+  T13 --> T07
   T07 --> T08
 
   classDef done fill:#d4edda,stroke:#28a745,color:#155724;
@@ -44,7 +46,8 @@ flowchart TD
   classDef waiting fill:#fff3cd,stroke:#ffc107,color:#856404;
 
   class T01,T02,T03,T04,T05,T06,T09,T10,T11,T12 done;
-  class T07 running;
+  class T13 running;
+  class T07 waiting;
   class T08 waiting;
 ```
 
@@ -53,4 +56,6 @@ flowchart TD
 READ-канал (решение 21), встал между 11 и 07 и принят автоприёмкой
 2026-11-15; 07 свободен (активация READ-канала — точка решения оператора).
 
-Обновлено: 2026-11-15, тикет 07 в работе (исполнитель-8, изолированный хост); ready-frontier: нет; последовательный порядок — 07, 08.
+Обновлено: 2026-11-15, тикет 13 в работе (исполнитель-8); проба 07
+приостановлена на S2 до фикса 13; ready-frontier: нет;
+последовательный порядок — 13, 07, 08.
