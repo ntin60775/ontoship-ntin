@@ -15,7 +15,7 @@ orchestrator не несёт `tool-schedule`, норма таймера chain н
    tool-schedule; architect уже несёт; executor/scout не меняются —
    делегированным планировщик запрещён по глубине); релиз v0.2.1
    (patch), тег. methodContract остаётся 2 — нормы метода не меняются,
-   полнота композиции, bump не требуется.
+   полнота композиции, повышения methodContract не требуется.
 2. стек: копия 1c-orchestrator получает tool-schedule, перепин
    teamCommit на v0.2.1, паритетный тест зелёный.
 3. ntin: нормы chain не правятся; записи тикета/видов/continue.
@@ -24,6 +24,9 @@ orchestrator не несёт `tool-schedule`, норма таймера chain н
    schedule_create на глубине 0 создаёт задачу, задача снимается;
    артефакты — 13-evidence/. Таймер в полном потоке доказывает S4
    пробы 07.
+
+**Артефакты прохода:** [13-progress.md](13-progress.md) — чек-лист ship;
+[13-evidence/README.md](13-evidence/README.md) — карта сырых логов.
 
 **Демо-путь:** композиционный тест красен на базе v0.2.0 (строки нет)
 → зелен на v0.2.1; live-проба schedule_create оркестраторской

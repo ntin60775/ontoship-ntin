@@ -5,12 +5,12 @@
 
  RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-1c-wt-tp13
 
- ✓ tests/manifest.spec.ts (6 tests) 8ms
- ✓ tests/composition.spec.ts (6 tests) 9ms
- ✓ tests/parity.spec.ts (13 tests) 199ms
+ ✓ tests/manifest.spec.ts (6 tests) 7ms
+ ✓ tests/composition.spec.ts (6 tests) 8ms
+ ✓ tests/parity.spec.ts (13 tests) 169ms
 
  Test Files  3 passed (3)
       Tests  25 passed (25)
-   Start at  20:00:55
-   Duration  512ms (transform 82ms, setup 0ms, collect 160ms, tests 216ms, environment 1ms, prepare 229ms)
+   Start at  20:03:46
+   Duration  475ms (transform 79ms, setup 0ms, collect 167ms, tests 183ms, environment 1ms, prepare 243ms)
 

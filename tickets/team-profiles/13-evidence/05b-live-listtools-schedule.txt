@@ -1,0 +1,60 @@
+# listTools оркестраторской API-сессии (изолированный хост 3093): schedule_*
+
+Источник: сырой вывод cordis_inspect_query Tool.listTools (DSH spill сессии),
+в events seq21 результат обрезан харнессом; вырезка имён пакета schedule:
+
+587-            "description",
+588-            "prompt"
+589-          ]
+590-        }
+591-      },
+592-      {
+593:        "name": "schedule_create",
+594-        "description": "Create a scheduled task. At each occurrence of rrule, prompt is delivered to the target session as a scheduled message from the user. The result includes the task id and the next occurrence as scheduledAt in UTC and scheduledAtLocal in the zone of rrule. After downtime, only the latest missed occurrence is delivered. Delivery can repeat after a crash.",
+595-        "parameters": {
+596-          "type": "object",
+597-          "properties": {
+598-            "title": {
+599-              "type": "string",
+--
+623-            "rrule",
+624-            "target"
+625-          ]
+626-        }
+627-      },
+628-      {
+629:        "name": "schedule_list",
+630-        "description": "List scheduled tasks, including tasks created from other sessions. Active tasks come first, ordered by scheduledAt.",
+631-        "parameters": {
+632-          "type": "object",
+633-          "properties": {
+634-            "active": {
+635-              "type": "boolean",
+--
+644-              "description": "Number of tasks to skip; defaults to 0."
+645-            }
+646-          }
+647-        }
+648-      },
+649-      {
+650:        "name": "schedule_view",
+651-        "description": "View one scheduled task by id.",
+652-        "parameters": {
+653-          "type": "object",
+654-          "properties": {
+655-            "id": {
+656-              "type": "string",
+--
+660-          "required": [
+661-            "id"
+662-          ]
+663-        }
+664-      },
+665-      {
+666:        "name": "schedule_edit",
+667-        "description": "Update, pause, resume, or delete one scheduled task by id. Deleting does not retract queued messages.",
+668-        "parameters": {
+669-          "type": "object",
+670-          "properties": {
+671-            "id": {
+672-              "type": "string",
