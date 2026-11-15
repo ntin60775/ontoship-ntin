@@ -1,0 +1,23 @@
+# Prod-проверки после merge (2026-11-15)
+
+ntin main = c8c5257; team = eea68d1 (v0.2.1, тег);
+stack = fc645f1 (пин eea68d1). Живой GUI PID 3746641 не перезапускался.
+
+$ python3 -m pytest -q   # ntin main
+776 passed in 11.80s
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+scope: 104 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
+
+$ bash scripts/install.sh --check /home/prog7/home/dev/contrib/forks/ontoship-ntin
+ok chain (link)
+check: ok
+
+$ npm run build && npm test   # team main
+124 passed
+
+$ npm test   # stack main
+25 passed
+
+Паков в профиле нет — механических гейтов пака ноль.
