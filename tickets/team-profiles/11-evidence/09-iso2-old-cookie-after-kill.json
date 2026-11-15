@@ -1,0 +1,154 @@
+{
+ "status": 200,
+ "method": "session/list",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-c69b7479-512d-4f16-af05-d70a6479f00a\", \"method\": \"session/list\", \"payload\": {\"args\": {\"_request\": {}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-c69b7479-512d-4f16-af05-d70a6479f00a",
+  "result": {
+   "ok": true,
+   "value": {
+    "items": [
+     {
+      "sessionId": "session-9ad61977-f27b-4fa7-94db-9a3518da8d64",
+      "updatedAt": 1794703962885,
+      "agentAvailable": false,
+      "formatStatus": "current",
+      "running": false,
+      "blank": false,
+      "cwd": "/tmp/tp11-iso-probe",
+      "projections": {
+       "kind": "cached",
+       "asOfSeq": 19,
+       "values": {
+        "forgeChangeRequests": [],
+        "userQuestions": {
+         "active": [],
+         "settled": []
+        },
+        "tokenUsage": {
+         "uncachedInputTokens": 3207,
+         "outputTokens": 97,
+         "cacheReadTokens": 4096,
+         "cacheWriteTokens": 0
+        },
+        "title": "Ольга · Исполнитель",
+        "goal": null,
+        "modelSelection": {
+         "lastUsed": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         },
+         "next": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         }
+        },
+        "agentPreset": "executor",
+        "workingDirectory": "/tmp/tp11-iso-probe",
+        "inbox": {
+         "next-turn": [],
+         "next-step": []
+        },
+        "permissions": {
+         "currentValue": "danger-full-access"
+        },
+        "subagentCatalog": [],
+        "worktree": [],
+        "forgeWorktree": null,
+        "subagentTiming": {
+         "settledMs": 0
+        },
+        "subagent": null,
+        "agentTeam": {
+         "enabled": false,
+         "tasks": []
+        },
+        "plan": {
+         "active": false,
+         "pending": false
+        },
+        "conversationContinuation": null,
+        "sessionListMetadata": {
+         "blank": false,
+         "lastPromptAt": 1794703962885
+        }
+       }
+      }
+     },
+     {
+      "sessionId": "session-3438ba39-0923-4245-81af-76c4915fbaba",
+      "updatedAt": 1794703960305,
+      "agentAvailable": false,
+      "formatStatus": "current",
+      "running": false,
+      "blank": false,
+      "cwd": "/tmp/tp11-iso-probe",
+      "projections": {
+       "kind": "cached",
+       "asOfSeq": 30,
+       "values": {
+        "forgeChangeRequests": [],
+        "userQuestions": {
+         "active": [],
+         "settled": []
+        },
+        "tokenUsage": {
+         "uncachedInputTokens": 6430,
+         "outputTokens": 42,
+         "cacheReadTokens": 8192,
+         "cacheWriteTokens": 0
+        },
+        "title": "Ульяна · Исполнитель",
+        "goal": null,
+        "modelSelection": {
+         "lastUsed": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         },
+         "next": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         }
+        },
+        "agentPreset": "executor",
+        "workingDirectory": "/tmp/tp11-iso-probe",
+        "inbox": {
+         "next-turn": [],
+         "next-step": []
+        },
+        "permissions": {
+         "currentValue": "danger-full-access"
+        },
+        "subagentCatalog": [],
+        "worktree": [],
+        "forgeWorktree": null,
+        "subagentTiming": {
+         "settledMs": 0
+        },
+        "subagent": null,
+        "agentTeam": {
+         "enabled": false,
+         "tasks": []
+        },
+        "plan": {
+         "active": false,
+         "pending": false
+        },
+        "conversationContinuation": null,
+        "sessionListMetadata": {
+         "blank": false,
+         "lastPromptAt": 1794703960305
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ }
+}

@@ -67,3 +67,231 @@ agentPreset), видны в GUI и спавнят субагентов. Неиз
 - [ ] Оценка вариантов — артефакт: раздел отчёта (сессионный/субагентный/
       гибрид, плюсы-минусы, цена, рекомендация агента); ожидание:
       оператору есть из чего выбирать; решение НЕ принимается тикетом.
+
+## Отчёт разведки (2026-11-15)
+
+Разведка выполнена на DSH **0.2.2-rc.2** (`/home/prog7/home/dev/contrib/forks/deepseek-harness`).
+Живой хост — `http://127.0.0.1:3080`, launch-токен из `/run/user/1000/dsh-web.log`;
+изолированный хост — копия `DSH_HOME` на порту 3091 (живой GUI не перезапускался).
+Каждый факт ниже проверен прогоном; сырые логи — `11-evidence/`, индекс и карта
+вопросов — `11-evidence/README.md`, источники кода — `11-evidence/source-facts.md`.
+Launch-токены, cookie и ключи в артефактах вырезаны.
+
+**Вердикт агента:** ведение API-сессии оркестратором возможно и воспроизводимо:
+создание с пресетом, prompt, чтение хода, спавн ребёнка, планировщик в корне,
+уборка и продолжение после рестарта хоста работают живыми вызовами. Неразрешимых
+блокеров нет; названы ограничения (owner-токен из лога, v2-cookie не переживает
+рестарт, чтение — polling `wait`/`events`, WS-поток не проверен, `ask_user_question`
+живьём не проверен). Решение о переделке потока тикет не принимает.
+
+### 1. Семантика `session/prompt`
+
+- `POST /api/session/prompt` unary: `{requestId, sessionId, mode:'queue'|'steer',
+  content:[{type:'text',text}]}` → `{accepted:true}`. Ответа модели в квитанции нет;
+  ход исполняется хостом. Живой замер: prompt принят за **70 мс**; 5 сессий —
+  6–226 мс на квитанцию (`01-live-prompt-first.txt`, `06-limits-multi-session.log`).
+- Продолжаемая сессия: несколько prompt подряд работают. Пока ход идёт, второй
+  prompt с `mode:'queue'` лежит в `session/state.queue` (`placement:'queued'`,
+  `rpcId` = requestId) и исполняется после текущего хода; `mode:'steer'` — ветка
+  вмешательства. Живой прогон: prompt 2 (`bash sleep 5`) + prompt 3 в очередь;
+  `wait` через 7,3 с отдал оба ответа в порядке ходов — «slow-done» (seq 33),
+  «queued-done» (seq 40) (`01-live-prompt-queue.txt`, `02-live-wait-two-turns.json`).
+- Ход/очередь читаются пассивно: `GET`-метод `session/state` →
+  `{cursor, active, running, queue, pendingInput}`; у неживой сессии `queue: null`.
+- Отмена хода — отдельный `session/cancel`; в разведке не проверялась (пробел).
+
+### 2. Чтение вывода сессии
+
+- `session/wait` — основной канал ведения: `{sessionId, timeoutMs?, afterSeq?,
+  maxMessages?}` ждёт quiescence/`input-required`/timeout (дефолт **30 000 мс**) и
+  возвращает `{reason, state, output:{records, truncated}}`. `records` —
+  `assistant/message` **newest-first**, полное событие (текст, reasoning, usage,
+  `stream`-трасса). На idle-сессии возвращается сразу; `afterSeq` отдаёт только
+  новые записи (проверено: `afterSeq:27` → одна запись seq 28).
+  Логи: `01-live-wait-first.json`, `02-live-wait-two-turns.json`,
+  `04-live-wait-subagent.json`, `09-iso2-s1-wait-after-restart.json`.
+- `session/events` — страницы всей истории назад: `{address, maxMessages,
+  beforeSeq?, throughSeq?, turnWindow?}` → `{records, cursor, hasMore}`;
+  `address` = `{kind:'session', sessionId}` либо `kind:'subagent'`.
+  Живая страница — 70 записей: `session/title`, `user/message`,
+  `assistant/message`, `tool/call`, `tool/result`, `step/end`, `turn/end`
+  (`03-live-events-page.json`). Эндпоинт читает и историю сабагента
+  (см. вариант «гибрид»).
+- `session/projections` — снимок без активации агента: `title`, `agentPreset`,
+  `modelSelection`, `tokenUsage`, `blank` (`05-cleanup-projections.json`).
+- Файлы: `~/.dsh/sessions/<projectKey(cwd)>/<sessionId>/session.v4.jsonl.zstd` —
+  zstd-JSONL, первая строка-заголовок (`delegationDepth`, `agentPreset`), далее
+  по событию на строку с тем же `seq`, что отдаёт API. Годятся для forensic-чтения
+  (`zstd -dc`), не для подписки; формат и сэмпл — `11-evidence/10-storage-format.md`.
+- Поток `session/follow` (`@Remote({mode:'stream'})`, WebSocket `/api/remote.mux`)
+  — канал GUI; оркестратору для чтения хватило unary-методов. Поток не проверялся —
+  названный пробел, не блокер.
+
+### 3. Время жизни launch-токена и cookie
+
+- Launch-токен: 32 случайных байта base64url (43 симв.), один на процесс; печатается
+  в stdout/лог строкой `dsh web: http://host:port/?token=…`. Живёт жизнь процесса:
+  после рестарта новый токен, старый → **401** (изолированный хост:
+  `09-iso3-old-launch-token-after-restart.json`; токены A/B различны —
+  `09-iso3-token-a-after-restart.json`).
+- Две куки:
+  - **v2** — `GET /connect?token=…&interactions=none|answer` → 302 +
+    `{version:2, authority, id:PeerId, issuedAt, expiresAt}`; срок 30 дней
+    (`Max-Age=2592000`, `cookieMaxAgeDays`); `id` — peer в памяти процесса, поэтому
+    после рестарта v2 → **401** (`09-iso3-v2-after-restart.json`); свежая v2 по
+    новому токену → 200 (`09-iso3-v2-fresh-after-restart.json`).
+  - **v1** — `GET /?token=…` → 303 + stateless-HMAC `{version:1, authority,
+    issuedAt, expiresAt}`, секрет — в `$DSH_HOME/.credentials.yaml`; после рестарта
+    продолжает работать: **200** (`09-iso3-v1-after-restart.json`,
+    `09-iso2-old-cookie-after-restart.json`, `09-iso2-old-cookie-after-kill.json`).
+    На живом хосте v1-кука тоже открывает API: `POST /api/session/list` → 200
+    (`09-live-index-cookie-api.json`).
+- Перевыпуск — повторный обмен `token` → `/` или `/connect`; refresh-эндпоинта нет.
+  При истечении/недействительности — 401 `dsh web authentication required; reopen
+  the URL printed by dsh web.` Токен берётся из лога хоста (в разведке —
+  `/run/user/1000/dsh-web.log`) — внешний по отношению к API источник; лог живой
+  установки **world-readable** (0664), то есть owner-доступ любого локального
+  читателя. Это ограничение развёртывания, не API.
+
+### 4. Лимиты сессий
+
+- Кэпа числа сессий (всего/одновременных) в `session-controller` нет; живой хост
+  держит **371** сессию. Проба: **5** сессий созданы за 240 мс, у всех prompt
+  принят, все 5 ходов шли одновременно и ответили (`multi-1`…`multi-5`), отказа
+  нет (`06-limits-multi-session.log`). Лимит субагентов — отдельный:
+  `maxActiveSubagents: 4`, `maxDepth: 3` в живом профиле; сверх лимита — отказ,
+  не очередь (норма тикета 05, source-facts). API-сессия — не субагент и слот
+  панели/детей не занимает.
+- Практический предел — внешние лимиты провайдера моделей и память хоста; в
+  источнике кэпа нет.
+
+### 5. Уборка и завершение
+
+- `session/delete {sessionId, stopActivity?}` → `{deleted:true}`; удаляет лог-каталог,
+  запись в списке GUI (`api-session/removed`), сессия исчезает из `session/list`.
+- Идущая работа блокирует удаление: без `stopActivity` — `session/live`
+  `«…is open or still running work…»`, `activity:[{kind:'turn'}]`, `closable:true`;
+  с `stopActivity:true` — удаление и остановка хода/фоновой job
+  (`05-cleanup-delete-without-stop.json`, `05-cleanup-delete-with-stop.json`).
+  Фоновая job (`kind:'job'`) блокирует так же — живьём видели на bash-ребёнке.
+- Идемпотентности-успеха нет: повторное удаление → `session/not-found`; остатка
+  нет (`05-cleanup-delete-second.json`, `05-cleanup-storage.txt`).
+- Дети удаляются **отдельно**: удаление родителя не трогает детей; в пробном цикле
+  ребёнок снят своим вызовом (иначе остаётся в списке и на диске).
+- Что остаётся: пустой project-каталог `~/.dsh/sessions/<hash>/` (снимается
+  вручную), строка в логе хоста; в GUI — ничего.
+
+### 6. Планировщик в корневой API-сессии
+
+- Запрет планировщика — по **глубине делегирования**, не по способу создания:
+  `delegationDepthOf(agent) > 0` → `{code:'subagent_session', message:'A delegated
+  subagent cannot use scheduled tasks.'}` (source-facts). API-корень пишет в лог
+  `delegationDepth: 0`, поэтому `schedule_create` доступен.
+- Живая проба (architect-пресет, у него есть `tool-schedule`): задача
+  `schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961` создана (`status:active`,
+  `scheduledAt 2026-11-16T12:00:00Z`, target `this_session`); делегированный
+  ребёнок (глубина 1, пресет architect) получил ровно `subagent_session`; задача
+  снята `schedule/edit {action:'delete'}`, каталог после — без неё
+  (`07-sched-wait.json`, `07-sched-catalog-after-create.json`,
+  `07-sched-delete-task.json`, `07-sched-catalog-after-delete.json`). Прежний
+  прогон с ребёнком-архитектором дал тот же отказ (`07-live-wait-scheduler.json`).
+- Важно: инструмент виден только пресетам, у которых объявлен `tool-schedule`
+  (в team-бандле — architect; у orchestrator/executor строки нет). Это факт
+  композиции, не политики.
+
+### 7. Пресет, личное имя, спавн
+
+- `session/create {cwd, agentPreset}` → `{sessionId, agentPreset}`; пресет
+  применяется сразу. Событие `session/title` пишется при создании: у API-сессии
+  executor-пресета — «Игнат · Исполнитель» (`03-live-events-page.json`, seq 4),
+  у ребёнка scout — «Аким · Скаут» (`04-live-wait-subagent.json`); плагин имён
+  тикета 09 работает и для API-корней.
+- Маршрут: `session/selectModel {provider, model, reasoningEffort}` после создания
+  (в пробе — `qwen-token-plan/qwen3.8-flash/medium`); дефолт без вызова — профильный
+  `agent-default-model` (`qwen-token-plan-max/qwen4-max-preview/xhigh`).
+- API-корень спавнит детей штатным `subagent`: родитель (executor) вызвал
+  `agent_preset=scout`; ребёнок `533d2cd0-4b8a-44f5-9b3d-491f00e32f8b`,
+  `origin=subagent`, `parentSessionId` = родитель, режим `continuable`, пресет
+  `scout`, ответ «scout-ok»; родитель отдал «tp11-scout · scout-ok · scout-ok»
+  (`04-live-wait-subagent.json`). Глубина: корень 0 → ребёнок 1; живой `maxDepth`
+  профиля — 3.
+
+### 8. Надёжность ведения
+
+- **Обрыв связи клиента** не отменяет ход: `prompt` — unary-квитанция, исполнение
+  идёт в хосте и пишется в durable log; все вызовы разведки шли отдельными
+  HTTP-соединениями, ход дочитан `wait`/`events` после разрыва. Поток `follow`
+  не проверялся.
+- **Чистый рестарт хоста**: persisted-сессия остаётся в `session/list`,
+  продолжается новым prompt; история прежних ходов видна в `wait`/`events`
+  (`09-iso2-s1-wait-after-restart.json`: «iso2-two» и прежний «iso2-one»).
+- **Kill хоста посреди хода**: после рестарта сессия в списке, `active:false`,
+  история заканчивается `turn/end` с `{kind:'aborted', reason:{kind:'disposed'}}`
+  (`09-iso2-s2-events-after-kill.json`); новый prompt принят и отвечен
+  «iso2-after-crash» (`09-iso2-s2-wait-after-crash.json`). Прерванный ход ответа
+  не имеет — решение о повторе за оркестратором.
+- **Авторизация после рестарта**: v2-cookie мертва, v1 — жива, токен обязателен
+  новый (раздел 3). Для долгой цепочки это значит: держать путь к логу хоста и
+  перевыпускать credential после рестарта; либо использовать v1-куку.
+- Не проверено: сетевой обрыв без рестарта хоста, `session/cancel`, повторный
+  `steer`, реконнект WS-потока, длинные ходы сверх дефолтных 30 с `wait`
+  (использовали явные `timeoutMs` до 240 с), `ask_user_question` из API-сессии.
+
+### Пробный цикл (оркестратор→сессия→субагент→отчёт→уборка)
+
+| шаг | артефакт |
+|---|---|
+| create executor, cwd `/tmp/tp11-probe` | `session-60f6f2cc-1bd9-405e-b31b-cfd8975158aa`, заголовок «Игнат · Исполнитель» |
+| selectModel → prompt → wait | «recon-ready», seq 17; квитанция 70 мс; `wait` idle |
+| prompt с `sleep 5` + очередь | «slow-done» seq 33, «queued-done» seq 40; wait 7,3 с |
+| prompt «спавни scout» | ребёнок `533d2cd0-…` «Аким · Скаут», ответ «scout-ok» |
+| чтение хода | `session/events` 70 записей, cursor 69 |
+| уборка | оба `session/delete` → `{deleted:true}`, список GUI 371, каталог пуст |
+
+Дополнительные прогоны: 5 одновременных сессий (лимиты), scheduler-проба
+(корень/ребёнок), hybrid-проба (чтение хода работающего ребёнка:
+`08-hybrid-child-rows.json` — `running:true`, `mode:continuable`; `session/events`
+с `address.kind='subagent'` отдал 17+ записей, `mode:'one-shot'` отвергнут
+`subagent/unauthorized` — `08-hybrid-child-events*.json`).
+
+### Оценка вариантов потока
+
+Решение НЕ принимается этим тикетом; ниже — варианты и цена, выбор за оператором.
+
+| вариант | суть | плюсы | минусы | цена |
+|---|---|---|---|---|
+| A. Сессионный | оркестратор через HTTP API создаёт executor-сессии, ведёт prompt/wait, читает events, удаляет | настоящие корневые сессии: не занимают слот субагентов, планировщик разрешён, видны в GUI, durable-история, свой маршрут через selectModel, число не ограничено; переживают смерть оркестратора | нужен HTTP-клиент и owner-credential (launch-токен из лога; лог world-readable), v2-кука умирает на рестарте, чтение — polling, ручная уборка сессий/детей, обработка прерванных ходов, аудит дублируется | ~1 тикет: клиент + lifecycle + credential + обработка сбоев |
+| B. Субагентный (текущий) | оркестратор спавнит продолжаемого executor'а инструментом `subagent` | нативный lifecycle и уведомления, без credential и HTTP, уже доказан всем юнитом, handoff и нормы chain | прогресс не виден (опрос по таймеру), глубина 1 занимает слот (max 4), планировщик ребёнку запрещён, транскрипт оркестратору недоступен без API | 0 (работает) |
+| C. Гибрид | спавн executor'а инструментом `subagent` (нативный lifecycle) + чтение его хода через API (`session/events` с `address.kind='subagent'`, `mode:'continuable'`) и/или `session/wait` для контроля | нативный спавн и уведомления; видимость хода ребёнка в реальном времени (доказано на работающем ребёнке); не нужен lifecycle чужих сессий; credential — только на чтение | всё ещё глубина 1 (слот, планировщик ребёнку нельзя); нужен credential для чтения; дублирование каналов (файлы/API) | ~½ тикета: READ-клиент + норма гибридного чтения |
+
+Рекомендация агента (не решение): **C — гибрид** как минимальный шаг, закрывающий
+главную боль оператора (видимость прогресса и хода исполнителя) без цены
+полного сессионного lifecycle; A — кандидат следующего шага, если оператор хочет
+executor'ов-корней (планировщик, независимость от слотов, параллельные
+исполнители); B остаётся рабочим и единственным до решения. Замечание для A:
+owner-токен и world-readable лог — вопрос развёртывания, его надо решать в тикете
+переделки, а не в разведке.
+
+### Названные пробелы
+
+- WS-поток `session/follow` и реконнект не проверены (для чтения хватает
+  unary-методов; GUI использует поток).
+- `ask_user_question` живьём из API-сессии не проверен (вопрос/ответ через
+  interactions); прежний пробел тикета 02 остаётся — важен, если оркестраторская
+  сессия должна спрашивать оператора.
+- `session/cancel`, `steer`, сетевой обрыв без рестарта, длинные ходы и
+  поведение дефолтного `wait` 30 с на длинном ходе — не проверялись.
+- Лимиты числа сессий сверх 5 и поведение при нехватке памяти/квоты провайдера
+  не измерялись (кэпа в коде нет).
+- Провенанс launch-токена: путь и права лога — факт окружения; API-эндпоинта
+  выдачи токена нет.
+- Пул личных имён дерева (тикет 09) при рестарте не перепроверялся.
+
+### Артефакты
+
+- `11-evidence/README.md` — индекс, карта вопросов, очистка, воспроизведение.
+- `11-evidence/source-facts.md` — источники кода по каждому факту.
+- `11-evidence/10-storage-format.md` — формат файлов сессии.
+- `11-evidence/01…09-*` — сырые логи прогонов (живой хост, лимиты, scheduler,
+  гибрид, изолированный рестарт, cookie-lifecycle).
+- `11-progress.md` — чек-лист прохода ship.

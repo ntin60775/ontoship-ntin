@@ -1,0 +1,191 @@
+{
+ "reason": "idle",
+ "state": {
+  "cursor": 19,
+  "active": true,
+  "running": false,
+  "queue": [],
+  "pendingInput": []
+ },
+ "output": {
+  "records": [
+   {
+    "type": "event",
+    "event": {
+     "type": "assistant/message",
+     "seq": 17,
+     "time": 1794703956076,
+     "data": {
+      "turn": 1,
+      "step": 1,
+      "message": {
+       "role": "assistant",
+       "content": [
+        {
+         "type": "reasoning",
+         "text": "The user is asking to respond with exactly one word: \"iso2-one\". Just output that.\n"
+        },
+        {
+         "type": "text",
+         "text": "iso2-one"
+        }
+       ],
+       "source": {
+        "kind": "model",
+        "provider": "qwen-token-plan",
+        "model": "qwen3.8-flash",
+        "replayState": {
+         "response": {
+          "kind": "pi-ai",
+          "version": 2,
+          "api": "openai-completions",
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "responseId": "chatcmpl-6aa9cc55-51b9-4574-b16c-ed265bf2dae8",
+          "stopReason": "stop"
+         },
+         "blocks": [
+          {
+           "type": "reasoning",
+           "thinkingSignature": "reasoning_content"
+          },
+          {
+           "type": "text"
+          }
+         ]
+        }
+       },
+       "id": "2658565b-ed6e-4a7e-a3e3-5e17d0413c3f"
+      },
+      "usage": {
+       "inputTokens": 3196,
+       "outputTokens": 26,
+       "totalTokens": 7318,
+       "cacheReadTokens": 4096
+      },
+      "stream": [
+       {
+        "type": "chunk",
+        "time": 1794703955549,
+        "chunk": {
+         "type": "block-start",
+         "index": 0,
+         "blockType": "reasoning"
+        }
+       },
+       {
+        "type": "reasoning-chunks",
+        "time0": 1794703955550,
+        "index": 0,
+        "dt": [
+         57,
+         61,
+         50,
+         56,
+         103,
+         102
+        ],
+        "texts": [
+         "The",
+         " user is",
+         " asking to",
+         " respond with exactly one",
+         " word: \"iso",
+         "2-one\". Just",
+         " output that.\n"
+        ]
+       },
+       {
+        "type": "chunk",
+        "time": 1794703956032,
+        "chunk": {
+         "type": "block-start",
+         "index": 1,
+         "blockType": "text"
+        }
+       },
+       {
+        "type": "text-chunks",
+        "time0": 1794703956033,
+        "index": 1,
+        "dt": [],
+        "texts": [
+         "iso2-one"
+        ]
+       },
+       {
+        "type": "chunk",
+        "time": 1794703956073,
+        "chunk": {
+         "type": "block-end",
+         "index": 0,
+         "block": {
+          "type": "reasoning",
+          "text": "The user is asking to respond with exactly one word: \"iso2-one\". Just output that.\n"
+         }
+        }
+       },
+       {
+        "type": "chunk",
+        "time": 1794703956073,
+        "chunk": {
+         "type": "block-end",
+         "index": 1,
+         "block": {
+          "type": "text",
+          "text": "iso2-one"
+         }
+        }
+       },
+       {
+        "type": "chunk",
+        "time": 1794703956073,
+        "chunk": {
+         "type": "usage",
+         "usage": {
+          "inputTokens": 3196,
+          "outputTokens": 26,
+          "totalTokens": 7318,
+          "cacheReadTokens": 4096
+         }
+        }
+       },
+       {
+        "type": "chunk",
+        "time": 1794703956074,
+        "chunk": {
+         "type": "finish",
+         "reason": {
+          "kind": "stop"
+         },
+         "replayState": {
+          "response": {
+           "kind": "pi-ai",
+           "version": 2,
+           "api": "openai-completions",
+           "provider": "qwen-token-plan",
+           "model": "qwen3.8-flash",
+           "responseId": "chatcmpl-6aa9cc55-51b9-4574-b16c-ed265bf2dae8",
+           "stopReason": "stop"
+          },
+          "blocks": [
+           {
+            "type": "reasoning",
+            "thinkingSignature": "reasoning_content"
+           },
+           {
+            "type": "text"
+           }
+          ]
+         }
+        }
+       }
+      ]
+     },
+     "surfaceOp": "append"
+    }
+   }
+  ],
+  "truncated": false
+ }
+}

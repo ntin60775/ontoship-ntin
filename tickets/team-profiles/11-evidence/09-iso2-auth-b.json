@@ -1,0 +1,11 @@
+{
+ "tokenLength": 43,
+ "tokenPrefix": "t3FW5F",
+ "redirect": 303,
+ "cookiePayload": {
+  "version": 1,
+  "authority": "127.0.0.1:3091",
+  "issuedAt": 1794703960031,
+  "expiresAt": 1797295960031
+ }
+}

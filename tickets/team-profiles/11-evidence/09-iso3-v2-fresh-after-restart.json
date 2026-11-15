@@ -1,0 +1,14 @@
+{
+ "status": 200,
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-ab8e834c-d875-4b34-8e13-680a501c48e3\", \"method\": \"session/list\", \"payload\": {\"args\": {\"_request\": {}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-ab8e834c-d875-4b34-8e13-680a501c48e3",
+  "result": {
+   "ok": true,
+   "value": {
+    "items": []
+   }
+  }
+ }
+}

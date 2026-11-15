@@ -1,0 +1,81 @@
+[
+ {
+  "sessionId": "8ad06199-a793-4801-9ab8-d4b765ddc0a3",
+  "updatedAt": 1794703810178,
+  "agentAvailable": true,
+  "formatStatus": "current",
+  "running": true,
+  "blank": false,
+  "parentSessionId": "session-51119c0a-1bee-431d-8a66-53df55a5b3b4",
+  "origin": "subagent",
+  "cwd": "/tmp/tp11-probe",
+  "projections": {
+   "kind": "sequenced",
+   "asOfSeq": 17,
+   "values": {
+    "forgeChangeRequests": [],
+    "userQuestions": {
+     "active": [],
+     "settled": []
+    },
+    "tokenUsage": {
+     "uncachedInputTokens": 0,
+     "outputTokens": 0,
+     "cacheReadTokens": 0,
+     "cacheWriteTokens": 0
+    },
+    "title": "Матвей · Исполнитель",
+    "goal": null,
+    "modelSelection": {
+     "lastUsed": {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash",
+      "reasoningEffort": "medium"
+     },
+     "next": {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash",
+      "reasoningEffort": "medium"
+     }
+    },
+    "agentPreset": "executor",
+    "workingDirectory": "/tmp/tp11-probe",
+    "inbox": {
+     "next-turn": [],
+     "next-step": []
+    },
+    "permissions": {
+     "currentValue": "danger-full-access"
+    },
+    "subagentCatalog": [],
+    "worktree": [],
+    "forgeWorktree": null,
+    "subagentTiming": {
+     "settledMs": 0,
+     "active": {
+      "since": 1794703810141,
+      "through": 1794703810179
+     }
+    },
+    "subagent": {
+     "mode": "continuable",
+     "label": "Sleep then reply hybrid2-ok",
+     "seq": 1
+    },
+    "agentTeam": {
+     "enabled": false,
+     "tasks": []
+    },
+    "plan": {
+     "active": false,
+     "pending": false
+    },
+    "conversationContinuation": null,
+    "sessionListMetadata": {
+     "blank": false,
+     "lastPromptAt": 1794703810178
+    }
+   }
+  }
+ }
+]

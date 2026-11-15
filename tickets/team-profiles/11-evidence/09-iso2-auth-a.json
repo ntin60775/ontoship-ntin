@@ -1,0 +1,11 @@
+{
+ "tokenLength": 43,
+ "tokenPrefix": "Rn7x3a",
+ "redirect": 303,
+ "cookiePayload": {
+  "version": 1,
+  "authority": "127.0.0.1:3091",
+  "issuedAt": 1794703953109,
+  "expiresAt": 1797295953109
+ }
+}

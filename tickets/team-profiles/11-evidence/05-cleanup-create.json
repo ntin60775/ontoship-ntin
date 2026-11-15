@@ -1,0 +1,16 @@
+{
+ "status": 200,
+ "method": "session/create",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-b6875744-69c1-45c0-bb53-4eb0d2a2a8c0\", \"method\": \"session/create\", \"payload\": {\"args\": {\"request\": {\"cwd\": \"/tmp/tp11-probe\", \"agentPreset\": \"executor\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-b6875744-69c1-45c0-bb53-4eb0d2a2a8c0",
+  "result": {
+   "ok": true,
+   "value": {
+    "sessionId": "session-45ca02e6-10ac-4fc1-a703-5b117b47cbef",
+    "agentPreset": "executor"
+   }
+  }
+ }
+}

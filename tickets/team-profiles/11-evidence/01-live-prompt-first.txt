@@ -1,0 +1,2 @@
+HTTP 200
+{"type":"server-response","rpcId":"tp11-4a4a84bf-5fd0-4492-bd3b-6855e0712e56","result":{"ok":true,"value":{"accepted":true}}}

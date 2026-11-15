@@ -1,0 +1,85 @@
+{
+ "status": 200,
+ "method": "session/list",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-8afa5b17-0123-49d8-9097-aaee1f026672\", \"method\": \"session/list\", \"payload\": {\"args\": {\"_request\": {}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-8afa5b17-0123-49d8-9097-aaee1f026672",
+  "result": {
+   "ok": true,
+   "value": {
+    "items": [
+     {
+      "sessionId": "session-3438ba39-0923-4245-81af-76c4915fbaba",
+      "updatedAt": 1794703953479,
+      "agentAvailable": false,
+      "formatStatus": "current",
+      "running": false,
+      "blank": false,
+      "cwd": "/tmp/tp11-iso-probe",
+      "projections": {
+       "kind": "cached",
+       "asOfSeq": 19,
+       "values": {
+        "forgeChangeRequests": [],
+        "userQuestions": {
+         "active": [],
+         "settled": []
+        },
+        "tokenUsage": {
+         "uncachedInputTokens": 3196,
+         "outputTokens": 26,
+         "cacheReadTokens": 4096,
+         "cacheWriteTokens": 0
+        },
+        "title": "Ульяна · Исполнитель",
+        "goal": null,
+        "modelSelection": {
+         "lastUsed": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         },
+         "next": {
+          "provider": "qwen-token-plan",
+          "model": "qwen3.8-flash",
+          "reasoningEffort": "medium"
+         }
+        },
+        "agentPreset": "executor",
+        "workingDirectory": "/tmp/tp11-iso-probe",
+        "inbox": {
+         "next-turn": [],
+         "next-step": []
+        },
+        "permissions": {
+         "currentValue": "danger-full-access"
+        },
+        "subagentCatalog": [],
+        "worktree": [],
+        "forgeWorktree": null,
+        "subagentTiming": {
+         "settledMs": 0
+        },
+        "subagent": null,
+        "agentTeam": {
+         "enabled": false,
+         "tasks": []
+        },
+        "plan": {
+         "active": false,
+         "pending": false
+        },
+        "conversationContinuation": null,
+        "sessionListMetadata": {
+         "blank": false,
+         "lastPromptAt": 1794703953479
+        }
+       }
+      }
+     }
+    ]
+   }
+  }
+ }
+}

@@ -1,0 +1,78 @@
+[
+ {
+  "sessionId": "2e13dce7-e9f2-4aa7-b7d3-cf3504e2a9af",
+  "updatedAt": 1794703911421,
+  "agentAvailable": false,
+  "formatStatus": "current",
+  "running": false,
+  "blank": false,
+  "parentSessionId": "session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279",
+  "origin": "subagent",
+  "cwd": "/tmp/tp11-probe",
+  "projections": {
+   "kind": "cached",
+   "asOfSeq": 24,
+   "values": {
+    "forgeChangeRequests": [],
+    "userQuestions": {
+     "active": [],
+     "settled": []
+    },
+    "tokenUsage": {
+     "uncachedInputTokens": 3701,
+     "outputTokens": 147,
+     "cacheReadTokens": 19456,
+     "cacheWriteTokens": 0
+    },
+    "title": "Лада · Архитектор",
+    "goal": null,
+    "modelSelection": {
+     "lastUsed": {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash",
+      "reasoningEffort": "medium"
+     },
+     "next": {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash",
+      "reasoningEffort": "medium"
+     }
+    },
+    "agentPreset": "architect",
+    "workingDirectory": "/tmp/tp11-probe",
+    "inbox": {
+     "next-turn": [],
+     "next-step": []
+    },
+    "permissions": {
+     "currentValue": "danger-full-access"
+    },
+    "subagentCatalog": [],
+    "worktree": [],
+    "forgeWorktree": null,
+    "subagentTiming": {
+     "settledMs": 5101,
+     "lastTurnCompleted": true
+    },
+    "subagent": {
+     "mode": "continuable",
+     "label": "Child schedule_create probe",
+     "seq": 0
+    },
+    "agentTeam": {
+     "enabled": false,
+     "tasks": []
+    },
+    "plan": {
+     "active": false,
+     "pending": false
+    },
+    "conversationContinuation": null,
+    "sessionListMetadata": {
+     "blank": false,
+     "lastPromptAt": 1794703911421
+    }
+   }
+  }
+ }
+]

@@ -1,0 +1,129 @@
+{
+ "status": 200,
+ "method": "schedule/catalog",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-0e659b1f-55a8-42bf-bb74-5ec535560b30\", \"method\": \"schedule/catalog\", \"payload\": {\"args\": {}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-0e659b1f-55a8-42bf-bb74-5ec535560b30",
+  "result": {
+   "ok": true,
+   "value": [
+    {
+     "id": "schedule-69e5aa15-0495-4146-9f81-cb10b7c410c7",
+     "kind": "rrule",
+     "title": "Опрос исполнителя цепочки team-profiles",
+     "prompt": "Таймер оркестратора цепочки team-profiles (норма скилла chain, решение оператора: опрос исполнителя каждые 5 минут). Если цепочка идёт (активный исполнитель-субагент executor-8 или его преемник): 1) отправь исполнителю send_message с запросом короткого статуса — текущий шаг ship, что делает, блокировки (одна строка); 2) не дожидаясь ответа, сверь артефакты: git log и git status worktree тикета и основного checkout /home/prog7/home/dev/contrib/forks/ontoship-ntin, прогресс-файл tickets/team-profiles/<NN>-progress.md, состав панели через list_agents; 3) обнови свой todo фактами; 4) при отклонении от тикета/спеки корректируй исполнителя сообщением; при исключении или точке остановки останови цепочку по скиллу chain (запись состояния по диктовке исполнителю, вопрос оператору). Ответа к следующему тику нет — отклонение, сообщи оператору. Если цепочка остановлена или завершена — приостанови эту задачу (schedule_edit active: false) и не опрашивай. Отчёт оператору — только при отклонении или остановке, штатный статус молча уходит в todo.",
+     "rrule": "DTSTART:20261115T004000Z\nRRULE:FREQ=MINUTELY;INTERVAL=5",
+     "scheduledAt": "2026-11-15T00:55:00.000Z",
+     "target": {
+      "kind": "session",
+      "sessionId": "session-693c4a04-db32-42ee-9154-627756467e01"
+     },
+     "involvedSessionIds": [
+      "session-693c4a04-db32-42ee-9154-627756467e01"
+     ],
+     "status": "active",
+     "createdAt": "2026-11-15T00:38:22.525Z",
+     "updatedAt": "2026-11-15T00:50:00.070Z",
+     "lastDelivery": {
+      "scheduledAt": "2026-11-15T00:50:00.000Z",
+      "deliveredAt": "2026-11-15T00:50:00.070Z",
+      "messageId": "d3b6e2d2-6c8e-4878-bfa8-375122e336a2",
+      "targetSessionId": "session-693c4a04-db32-42ee-9154-627756467e01"
+     }
+    },
+    {
+     "id": "schedule-5b993fdd-1a08-46d2-a58c-e438b5ca1532",
+     "kind": "rrule",
+     "title": "Проверка обновлений апстрима dsh",
+     "prompt": "Проверь обновления апстрима DeepSeek Harness: сделай `git fetch upstream --prune` в /home/prog7/home/dev/contrib/forks/deepseek-harness, сравни `master` с `upstream/master` (git rev-list --count HEAD..upstream/master, новые теги). Если есть новые коммиты — кратко перечисли ключевые изменения (feat/важные fix) и предложи запустить scripts/fork-merge-ritual.sh. Если изменений нет — сообщи одной строкой, что апстрим не двигался с прошлой проверки. Не запускай ритуал и не пуш без явного подтверждения пользователя.",
+     "rrule": "DTSTART;TZID=Europe/Kaliningrad:20261109T070000\nRRULE:FREQ=DAILY;BYHOUR=7;BYMINUTE=0;BYSECOND=0",
+     "scheduledAt": "2026-11-15T05:00:00.000Z",
+     "target": {
+      "kind": "session",
+      "sessionId": "session-0860ef68-2219-4036-a63d-2e7810439472"
+     },
+     "involvedSessionIds": [
+      "session-c32e2cf1-763d-467d-8c7e-e940ab9897b1",
+      "session-0860ef68-2219-4036-a63d-2e7810439472"
+     ],
+     "status": "active",
+     "createdAt": "2026-11-08T23:34:32.115Z",
+     "updatedAt": "2026-11-14T05:00:00.194Z",
+     "lastDelivery": {
+      "scheduledAt": "2026-11-14T05:00:00.000Z",
+      "deliveredAt": "2026-11-14T05:00:00.194Z",
+      "messageId": "0f1ddd71-250e-4af1-aeba-fa118bf88056",
+      "targetSessionId": "session-0860ef68-2219-4036-a63d-2e7810439472"
+     }
+    },
+    {
+     "id": "schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961",
+     "kind": "rrule",
+     "title": "tp11 probe",
+     "prompt": "ping",
+     "rrule": "DTSTART:20261116T120000Z\nRRULE:FREQ=DAILY;COUNT=1",
+     "scheduledAt": "2026-11-16T12:00:00.000Z",
+     "target": {
+      "kind": "session",
+      "sessionId": "session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279"
+     },
+     "involvedSessionIds": [
+      "session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279"
+     ],
+     "status": "active",
+     "createdAt": "2026-11-15T00:51:51.276Z",
+     "updatedAt": "2026-11-15T00:51:51.276Z"
+    },
+    {
+     "id": "schedule-1ea454b9-fb22-42bf-a54c-706efb2f173a",
+     "kind": "rrule",
+     "title": "Опрос исполнителя цепочки team-profiles",
+     "prompt": "Таймер оркестратора цепочки team-profiles (решение оператора 2026-11-13: опрос исполнителя каждые 5 минут). Если цепочка идёт (есть активный исполнитель-субагент): 1) отправь исполнителю send_message с запросом короткого статуса — текущий шаг ship, что делает, есть ли блокировки (одна строка); 2) не дожидаясь ответа, сверь артефакты: git log и status в worktree и основном checkout, прогресс-файл тикета, состав панели через list_agents; 3) обнови свой todo фактами; 4) если исполнитель отклонился от тикета/спеки, завис или нарушает правила прохода — корректируй сообщением; при исключении или точке остановки останови цепочку по скиллу chain (состояние в continue.md, вопрос оператору). Если цепочка остановлена или завершена — приостанови эту задачу (schedule_edit active: false) и не опрашивай. Отчёт оператору — только при отклонении или остановке, штатный статус молча уходит в todo.",
+     "rrule": "DTSTART:20261113T145500Z\nRRULE:FREQ=MINUTELY;INTERVAL=5",
+     "scheduledAt": "2026-11-14T15:30:00.000Z",
+     "target": {
+      "kind": "session",
+      "sessionId": "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     },
+     "involvedSessionIds": [
+      "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     ],
+     "status": "paused",
+     "createdAt": "2026-11-13T14:48:51.971Z",
+     "updatedAt": "2026-11-14T15:27:46.729Z",
+     "lastDelivery": {
+      "scheduledAt": "2026-11-14T15:25:00.000Z",
+      "deliveredAt": "2026-11-14T15:25:00.052Z",
+      "messageId": "9ffcfed8-68ce-405b-a3de-8adcfe1f5de0",
+      "targetSessionId": "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     }
+    },
+    {
+     "id": "schedule-859397ad-1c63-4275-9a80-254ad2004720",
+     "kind": "rrule",
+     "title": "Мини-проба таймера опроса — тикет 10",
+     "prompt": "Тик мини-пробы таймера опроса (тикет 10 team-profiles, оркестраторская половина). Действия оркестратора: 1) обнови свой todo фактом доставки тика; 2) отправь исполнителю-7 статус-запрос одной строкой (текущий шаг ship тикета 10) и дождись его ответа одной строкой; 3) приостанови ЭТУ задачу-пробу (schedule_edit active: false, id из контекста задачи); 4) собери факты: id задачи, scheduledAt, фактическое время доставки тика, состояние active до и после паузы — и отправь их исполнителю-7 сообщением для 10-evidence. Рабочий таймер цепочки schedule-1ea454b9-fb22-42bf-a54c-706efb2f173a НЕ трогай.",
+     "rrule": "DTSTART:20261114T145200Z\nRRULE:FREQ=MINUTELY;INTERVAL=5",
+     "scheduledAt": "2026-11-14T14:57:00.000Z",
+     "target": {
+      "kind": "session",
+      "sessionId": "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     },
+     "involvedSessionIds": [
+      "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     ],
+     "status": "paused",
+     "createdAt": "2026-11-14T14:49:48.757Z",
+     "updatedAt": "2026-11-14T14:52:33.288Z",
+     "lastDelivery": {
+      "scheduledAt": "2026-11-14T14:52:00.000Z",
+      "deliveredAt": "2026-11-14T14:52:00.048Z",
+      "messageId": "13279a37-d3aa-4482-856f-d908bd77359b",
+      "targetSessionId": "session-dc60cb58-ab58-4a01-9072-b2e7b9b2d8a2"
+     }
+    }
+   ]
+  }
+ }
+}

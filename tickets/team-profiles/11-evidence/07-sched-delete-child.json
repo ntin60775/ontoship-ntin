@@ -1,0 +1,15 @@
+{
+ "status": 200,
+ "method": "session/delete",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-2a748b6e-095b-4380-8aff-2bc2d0289dd6\", \"method\": \"session/delete\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"2e13dce7-e9f2-4aa7-b7d3-cf3504e2a9af\", \"stopActivity\": true}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-2a748b6e-095b-4380-8aff-2bc2d0289dd6",
+  "result": {
+   "ok": true,
+   "value": {
+    "deleted": true
+   }
+  }
+ }
+}

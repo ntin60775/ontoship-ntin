@@ -1,0 +1,23 @@
+{
+ "connect": {
+  "status": 302,
+  "cookieType": "v2",
+  "payload": {
+   "version": 2,
+   "authority": "127.0.0.1:3091",
+   "id": "d4e2488d-8ac6-4051-b7cb-cc4a149405b2",
+   "issuedAt": 1794704065272,
+   "expiresAt": 1797296065272
+  }
+ },
+ "index": {
+  "status": 303,
+  "cookieType": "v1",
+  "payload": {
+   "version": 1,
+   "authority": "127.0.0.1:3091",
+   "issuedAt": 1794704065295,
+   "expiresAt": 1797296065295
+  }
+ }
+}

@@ -1,0 +1,18 @@
+{
+ "status": 200,
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-5113a618-0c82-478f-98c0-545a40755d88\", \"method\": \"session/events\", \"payload\": {\"args\": {\"request\": {\"address\": {\"kind\": \"subagent\", \"parentSessionId\": \"session-51119c0a-1bee-431d-8a66-53df55a5b3b4\", \"childSessionId\": \"8ad06199-a793-4801-9ab8-d4b765ddc0a3\", \"mode\": \"one-shot\"}, \"maxMessages\": 40}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-5113a618-0c82-478f-98c0-545a40755d88",
+  "result": {
+   "ok": false,
+   "error": {
+    "code": "subagent/unauthorized",
+    "message": "subagent mode does not match the supplied address",
+    "details": {
+     "childSessionId": "8ad06199-a793-4801-9ab8-d4b765ddc0a3"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,35 @@
+# Тикет 11 — прогресс ship
+
+Тикет: [11-session-flow.md](11-session-flow.md). Спека:
+[team-profiles.md](../../docs/plans/team-profiles.md), «Готово» 11, решение 20.
+
+- [x] Статусная запись цепочки (основной checkout, `dc5c4c1`): continue,
+      kanban, dag — тикет 11 в работе.
+- [x] Решение оператора о стопе после отчёта (основной checkout,
+      `aaecc89`): continue.md «Где мы» и «Порядок тикетов».
+- [x] Worktree `ontoship-ntin-wt-tp11`, ветка `tp11-session-recon` от
+      `dc5c4c1` (`create_worktree` упал без node в PATH — запасной
+      `git worktree`).
+- [x] Разведка 8 вопросов: живые логи в `11-evidence/`: пробный цикл
+      02:42–02:43, лимиты 02:44, scheduler 02:51, гибрид 02:50,
+      изолированный хост 02:46–02:48 и фокусная cookie-проба.
+- [x] Живой пробный цикл: сессия `executor` «Игнат · Исполнитель» →
+      prompt/wait/state/events → спавн scout «Аким · Скаут» → удаление;
+      5 одновременных сессий; планировщик в корневой API-сессии создал
+      задачу, делегированный ребёнок получил `subagent_session`; гибрид —
+      чтение хода работающего ребёнка через `session/events`
+      (`mode: continuable`). Пробные сессии удалены, GUI-список вернулся
+      к 371, задача снята, пустой каталог хранилища удалён.
+- [x] Изолированный хост (копия `DSH_HOME`, порт 3091): v2-cookie
+      умирает на рестарте, v1-cookie живёт; продолжение persisted-сессии;
+      обрыв хода на kill хоста (`turn/end aborted/disposed`), повторный
+      prompt после рестарта.
+- [x] Curated-сводка evidence: `11-evidence/README.md`, `source-facts.md`,
+      `10-storage-format.md`.
+- [x] Отчёт фактов и оценка вариантов — раздел «Отчёт разведки» в тикете 11.
+- [x] Dev-проверки worktree: pytest **772 passed**, `gitmark lint
+      --strict` чист, `install.sh --check` (основной checkout) `check: ok`;
+      паков нет — механических гейтов ноль.
+- [ ] Один прогон ревью-панели (4 роли) + один проход правок.
+- [ ] Prod-проверки после merge: pytest/lint/check на main.
+- [ ] Merge в main, снос worktree, автоприёмка (запись по диктовке).

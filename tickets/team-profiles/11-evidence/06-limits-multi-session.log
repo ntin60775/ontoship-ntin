@@ -1,0 +1,23 @@
+2026-11-15T02:44:01,649573065+02:00
+{"t": 1794703441744, "step": "create", "index": 1, "sessionId": "session-119e2ae7-ee6e-4769-9dcd-84967fd1df7d", "agentPreset": "executor"}
+{"t": 1794703441810, "step": "create", "index": 2, "sessionId": "session-1466dcf8-7886-442c-b4e3-ba8c60df2fec", "agentPreset": "executor"}
+{"t": 1794703441881, "step": "create", "index": 3, "sessionId": "session-f2fcb270-23af-4a31-ac78-4c664935dc47", "agentPreset": "executor"}
+{"t": 1794703441932, "step": "create", "index": 4, "sessionId": "session-23bd7881-5c28-4b3b-ae92-4478fa6014d3", "agentPreset": "executor"}
+{"t": 1794703441984, "step": "create", "index": 5, "sessionId": "session-78aa972e-b96c-4e58-8abb-3c6f9872cbc6", "agentPreset": "executor"}
+{"t": 1794703442186, "step": "prompt", "index": 1, "accepted": true, "elapsedMs": 6}
+{"t": 1794703442198, "step": "prompt", "index": 2, "accepted": true, "elapsedMs": 18}
+{"t": 1794703442326, "step": "prompt", "index": 3, "accepted": true, "elapsedMs": 146}
+{"t": 1794703442355, "step": "prompt", "index": 4, "accepted": true, "elapsedMs": 175}
+{"t": 1794703442406, "step": "prompt", "index": 5, "accepted": true, "elapsedMs": 226}
+{"t": 1794703445759, "step": "wait", "index": 1, "reason": "idle", "elapsedMs": 3352, "answers": ["multi-1"]}
+{"t": 1794703445840, "step": "wait", "index": 2, "reason": "idle", "elapsedMs": 82, "answers": ["multi-2"]}
+{"t": 1794703445843, "step": "wait", "index": 3, "reason": "idle", "elapsedMs": 2, "answers": ["multi-3"]}
+{"t": 1794703445845, "step": "wait", "index": 4, "reason": "idle", "elapsedMs": 2, "answers": ["multi-4"]}
+{"t": 1794703446370, "step": "wait", "index": 5, "reason": "idle", "elapsedMs": 525, "answers": ["multi-5"]}
+{"t": 1794703446422, "step": "delete", "sessionId": "session-119e2ae7-ee6e-4769-9dcd-84967fd1df7d", "deleted": true}
+{"t": 1794703446458, "step": "delete", "sessionId": "session-1466dcf8-7886-442c-b4e3-ba8c60df2fec", "deleted": true}
+{"t": 1794703446494, "step": "delete", "sessionId": "session-f2fcb270-23af-4a31-ac78-4c664935dc47", "deleted": true}
+{"t": 1794703446525, "step": "delete", "sessionId": "session-23bd7881-5c28-4b3b-ae92-4478fa6014d3", "deleted": true}
+{"t": 1794703446556, "step": "delete", "sessionId": "session-78aa972e-b96c-4e58-8abb-3c6f9872cbc6", "deleted": true}
+exit=0
+2026-11-15T02:44:06,566496997+02:00

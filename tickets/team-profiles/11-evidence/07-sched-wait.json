@@ -1,0 +1,913 @@
+{
+ "status": 200,
+ "method": "session/wait",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-ec05ce50-4dad-4677-837b-020763475275\", \"method\": \"session/wait\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279\", \"timeoutMs\": 240000}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-ec05ce50-4dad-4677-837b-020763475275",
+  "result": {
+   "ok": true,
+   "value": {
+    "reason": "idle",
+    "state": {
+     "cursor": 35,
+     "active": true,
+     "running": false,
+     "queue": [],
+     "pendingInput": []
+    },
+    "output": {
+     "records": [
+      {
+       "type": "event",
+       "event": {
+        "type": "assistant/message",
+        "seq": 33,
+        "time": 1794703921676,
+        "data": {
+         "turn": 1,
+         "step": 3,
+         "message": {
+          "role": "assistant",
+          "content": [
+           {
+            "type": "reasoning",
+            "text": "I've captured the child result and now I'm formatting everything as a single-line JSON output.\n"
+           },
+           {
+            "type": "text",
+            "text": "{\"taskId\":\"schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961\",\"createResult\":{\"id\":\"schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961\",\"kind\":\"rrule\",\"title\":\"tp11 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"scheduledAt\":\"2026-11-16T12:00:00.000Z\",\"target\":{\"kind\":\"session\",\"sessionId\":\"session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279\"},\"status\":\"active\",\"updatedAt\":\"2026-11-15T00:51:51.276Z\",\"scheduledAtLocal\":\"2026-11-16T12:00:00+00:00\"},\"childResult\":{\"code\":\"subagent_session\",\"message\":\"A delegated subagent cannot use scheduled tasks.\"}}"
+           }
+          ],
+          "source": {
+           "kind": "model",
+           "provider": "qwen-token-plan",
+           "model": "qwen3.8-flash",
+           "replayState": {
+            "response": {
+             "kind": "pi-ai",
+             "version": 2,
+             "api": "openai-completions",
+             "provider": "qwen-token-plan",
+             "model": "qwen3.8-flash",
+             "responseId": "chatcmpl-8595c285-9dcf-4328-83e8-2bcf7aff52c2",
+             "stopReason": "stop"
+            },
+            "blocks": [
+             {
+              "type": "reasoning",
+              "thinkingSignature": "reasoning_content"
+             },
+             {
+              "type": "text"
+             }
+            ]
+           }
+          },
+          "id": "613240f9-de7d-44a6-8ac9-6c79093e7bdb"
+         },
+         "usage": {
+          "inputTokens": 933,
+          "outputTokens": 301,
+          "totalTokens": 12498,
+          "cacheReadTokens": 11264
+         },
+         "stream": [
+          {
+           "type": "chunk",
+           "time": 1794703918000,
+           "chunk": {
+            "type": "block-start",
+            "index": 0,
+            "blockType": "reasoning"
+           }
+          },
+          {
+           "type": "reasoning-chunks",
+           "time0": 1794703918004,
+           "index": 0,
+           "dt": [
+            32,
+            33,
+            80,
+            3,
+            72,
+            79,
+            74
+           ],
+           "texts": [
+            "I",
+            "'ve",
+            " captured",
+            " the child result and",
+            " now",
+            " I'm formatting everything",
+            " as a single-line",
+            " JSON output.\n"
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703918455,
+           "chunk": {
+            "type": "block-start",
+            "index": 1,
+            "blockType": "text"
+           }
+          },
+          {
+           "type": "text-chunks",
+           "time0": 1794703918455,
+           "index": 1,
+           "dt": [
+            78,
+            1,
+            34,
+            77,
+            1,
+            119,
+            1,
+            0,
+            84,
+            107,
+            1,
+            73,
+            1,
+            3,
+            104,
+            1,
+            2,
+            73,
+            2,
+            141,
+            1,
+            2,
+            33,
+            107,
+            2,
+            70,
+            43,
+            1,
+            3,
+            99,
+            1,
+            3,
+            33,
+            150,
+            1,
+            33,
+            1,
+            4,
+            105,
+            1,
+            3,
+            28,
+            34,
+            108,
+            1,
+            34,
+            77,
+            1,
+            138,
+            1,
+            3,
+            65,
+            1,
+            75,
+            1,
+            138,
+            2,
+            0,
+            37,
+            74,
+            1,
+            3,
+            32,
+            76,
+            1,
+            123,
+            1,
+            36,
+            3,
+            34,
+            76,
+            3,
+            176,
+            0,
+            0,
+            0,
+            129,
+            0,
+            3,
+            28,
+            78,
+            0
+           ],
+           "texts": [
+            "{\"taskId\":\"schedule",
+            "-",
+            "44fdcf",
+            "3b-8",
+            "8c5-",
+            "49",
+            "a0-b6",
+            "21-",
+            "6c9abd",
+            "2c19",
+            "61\",\"create",
+            "Result\":{\"",
+            "id\":\"schedule-",
+            "44fdcf",
+            "3b-8",
+            "8c5-",
+            "49a0",
+            "-b",
+            "621-",
+            "6",
+            "c9abd2",
+            "c",
+            "1961",
+            "\",\"kind\":\"rr",
+            "ule\",\"title\":\"",
+            "tp11",
+            " probe\",\"prompt\":\"",
+            "ping\",\"rrule",
+            "\":\"DT",
+            "START:20",
+            "2611",
+            "16",
+            "T120",
+            "000Z",
+            "\\nRRULE:F",
+            "REQ=DAILY;",
+            "COUNT=1\",\"",
+            "scheduledAt",
+            "\":\"202",
+            "6-11",
+            "-16",
+            "T12:",
+            "00:0",
+            "0.00",
+            "0Z\",\"target",
+            "\":{\"kind",
+            "\":\"session\",\"sessionId",
+            "\":\"session-4",
+            "c7ae5",
+            "bd-33",
+            "a",
+            "8-4f",
+            "52-9",
+            "9",
+            "45-a7",
+            "c",
+            "36edf",
+            "42",
+            "79\"},\"status",
+            "\":\"active",
+            "\",\"updatedAt\":\"2",
+            "026-",
+            "11-",
+            "15T0",
+            "0:51",
+            ":5",
+            "1.27",
+            "6Z",
+            "\",\"scheduledAtLocal",
+            "\":\"202",
+            "6-11",
+            "-16T",
+            "12:",
+            "00:0",
+            "0+",
+            "00:0",
+            "0\"},\"child",
+            "Result\":{\"code\":\"",
+            "subagent",
+            "_session\",\"message\":\"",
+            "A delegated subagent",
+            " cannot use scheduled tasks",
+            ".\"}}"
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703921676,
+           "chunk": {
+            "type": "block-end",
+            "index": 0,
+            "block": {
+             "type": "reasoning",
+             "text": "I've captured the child result and now I'm formatting everything as a single-line JSON output.\n"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703921676,
+           "chunk": {
+            "type": "block-end",
+            "index": 1,
+            "block": {
+             "type": "text",
+             "text": "{\"taskId\":\"schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961\",\"createResult\":{\"id\":\"schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961\",\"kind\":\"rrule\",\"title\":\"tp11 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"scheduledAt\":\"2026-11-16T12:00:00.000Z\",\"target\":{\"kind\":\"session\",\"sessionId\":\"session-4c7ae5bd-33a8-4f52-9945-a7c36edf4279\"},\"status\":\"active\",\"updatedAt\":\"2026-11-15T00:51:51.276Z\",\"scheduledAtLocal\":\"2026-11-16T12:00:00+00:00\"},\"childResult\":{\"code\":\"subagent_session\",\"message\":\"A delegated subagent cannot use scheduled tasks.\"}}"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703921676,
+           "chunk": {
+            "type": "usage",
+            "usage": {
+             "inputTokens": 933,
+             "outputTokens": 301,
+             "totalTokens": 12498,
+             "cacheReadTokens": 11264
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703921676,
+           "chunk": {
+            "type": "finish",
+            "reason": {
+             "kind": "stop"
+            },
+            "replayState": {
+             "response": {
+              "kind": "pi-ai",
+              "version": 2,
+              "api": "openai-completions",
+              "provider": "qwen-token-plan",
+              "model": "qwen3.8-flash",
+              "responseId": "chatcmpl-8595c285-9dcf-4328-83e8-2bcf7aff52c2",
+              "stopReason": "stop"
+             },
+             "blocks": [
+              {
+               "type": "reasoning",
+               "thinkingSignature": "reasoning_content"
+              },
+              {
+               "type": "text"
+              }
+             ]
+            }
+           }
+          }
+         ]
+        },
+        "surfaceOp": "append"
+       }
+      },
+      {
+       "type": "event",
+       "event": {
+        "type": "assistant/message",
+        "seq": 25,
+        "time": 1794703914501,
+        "data": {
+         "turn": 1,
+         "step": 2,
+         "message": {
+          "role": "assistant",
+          "content": [
+           {
+            "type": "reasoning",
+            "text": "I'm waiting for the child process to complete since I need its result, and the instructions say to end my turn if only waiting remains—the result will come through in the next turn. But I should probably call wait_agent to properly block until I have what I need."
+           },
+           {
+            "type": "tool-call",
+            "id": "call_43e14001f7ea416082f28ddf",
+            "name": "wait_agent",
+            "arguments": "{\"timeout_ms\":120000}"
+           }
+          ],
+          "source": {
+           "kind": "model",
+           "provider": "qwen-token-plan",
+           "model": "qwen3.8-flash",
+           "replayState": {
+            "response": {
+             "kind": "pi-ai",
+             "version": 2,
+             "api": "openai-completions",
+             "provider": "qwen-token-plan",
+             "model": "qwen3.8-flash",
+             "responseId": "chatcmpl-b279cc6e-1938-4c5d-8797-d012c59bec15",
+             "stopReason": "toolUse"
+            },
+            "blocks": [
+             {
+              "type": "reasoning",
+              "thinkingSignature": "reasoning_content"
+             },
+             {
+              "type": "tool-call"
+             }
+            ]
+           }
+          },
+          "id": "43d2374a-f494-423c-8421-0b62d61c4c72"
+         },
+         "usage": {
+          "inputTokens": 771,
+          "outputTokens": 89,
+          "totalTokens": 12124,
+          "cacheReadTokens": 11264
+         },
+         "stream": [
+          {
+           "type": "chunk",
+           "time": 1794703912939,
+           "chunk": {
+            "type": "block-start",
+            "index": 0,
+            "blockType": "reasoning"
+           }
+          },
+          {
+           "type": "reasoning-chunks",
+           "time0": 1794703912939,
+           "index": 0,
+           "dt": [
+            37,
+            42,
+            87,
+            121,
+            101,
+            2,
+            78,
+            1,
+            125,
+            117,
+            38,
+            114,
+            120,
+            112,
+            76,
+            1,
+            35
+           ],
+           "texts": [
+            "I",
+            "'m",
+            " waiting for the child",
+            " process to complete since",
+            " I need its result",
+            ", and the instructions",
+            " say",
+            " to end my turn",
+            " if",
+            " only waiting remains—the",
+            " result will come through",
+            " in the next turn",
+            ". But I should",
+            " probably call wait_agent",
+            " to properly block until",
+            " I have what I",
+            " need",
+            "."
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703914269,
+           "chunk": {
+            "type": "block-start",
+            "index": 1,
+            "blockType": "tool-call"
+           }
+          },
+          {
+           "type": "tool-call-chunks",
+           "time0": 1794703914269,
+           "index": 1,
+           "dt": [
+            107,
+            1,
+            72,
+            38,
+            1
+           ],
+           "id": "call_43e14001f7ea416082f28ddf",
+           "name": "wait_agent",
+           "args": [
+            "",
+            "{\"timeout_ms\": 12",
+            "000",
+            "0",
+            "}",
+            ""
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703914499,
+           "chunk": {
+            "type": "block-end",
+            "index": 0,
+            "block": {
+             "type": "reasoning",
+             "text": "I'm waiting for the child process to complete since I need its result, and the instructions say to end my turn if only waiting remains—the result will come through in the next turn. But I should probably call wait_agent to properly block until I have what I need."
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703914499,
+           "chunk": {
+            "type": "block-end",
+            "index": 1,
+            "block": {
+             "type": "tool-call",
+             "id": "call_43e14001f7ea416082f28ddf",
+             "name": "wait_agent",
+             "arguments": "{\"timeout_ms\":120000}"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703914499,
+           "chunk": {
+            "type": "usage",
+            "usage": {
+             "inputTokens": 771,
+             "outputTokens": 89,
+             "totalTokens": 12124,
+             "cacheReadTokens": 11264
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703914499,
+           "chunk": {
+            "type": "finish",
+            "reason": {
+             "kind": "tool-calls"
+            },
+            "replayState": {
+             "response": {
+              "kind": "pi-ai",
+              "version": 2,
+              "api": "openai-completions",
+              "provider": "qwen-token-plan",
+              "model": "qwen3.8-flash",
+              "responseId": "chatcmpl-b279cc6e-1938-4c5d-8797-d012c59bec15",
+              "stopReason": "toolUse"
+             },
+             "blocks": [
+              {
+               "type": "reasoning",
+               "thinkingSignature": "reasoning_content"
+              },
+              {
+               "type": "tool-call"
+              }
+             ]
+            }
+           }
+          }
+         ]
+        },
+        "surfaceOp": "append"
+       }
+      },
+      {
+       "type": "event",
+       "event": {
+        "type": "assistant/message",
+        "seq": 17,
+        "time": 1794703911272,
+        "data": {
+         "turn": 1,
+         "step": 1,
+         "message": {
+          "role": "assistant",
+          "content": [
+           {
+            "type": "reasoning",
+            "text": "I'll execute two independent calls simultaneously since step 2 just requires spawning the subagent and waiting for its response."
+           },
+           {
+            "type": "tool-call",
+            "id": "call_7ee1ffa66dcf432a8d2946a4",
+            "name": "schedule_create",
+            "arguments": "{\"title\":\"tp11 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"target\":\"this_session\"}"
+           },
+           {
+            "type": "tool-call",
+            "id": "call_b6134135623142738b8737aa",
+            "name": "subagent",
+            "arguments": "{\"name\":\"tp11-sched-child\",\"prompt\":\"Вызови инструмент schedule_create с title=child, prompt=ping, rrule=DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1, target=this_session и верни ровно JSON результата.\",\"description\":\"Child schedule_create probe\"}"
+           }
+          ],
+          "source": {
+           "kind": "model",
+           "provider": "qwen-token-plan",
+           "model": "qwen3.8-flash",
+           "replayState": {
+            "response": {
+             "kind": "pi-ai",
+             "version": 2,
+             "api": "openai-completions",
+             "provider": "qwen-token-plan",
+             "model": "qwen3.8-flash",
+             "responseId": "chatcmpl-931a30e5-fcf4-4f64-ab0e-416a8b04f65c",
+             "stopReason": "toolUse"
+            },
+            "blocks": [
+             {
+              "type": "reasoning",
+              "thinkingSignature": "reasoning_content"
+             },
+             {
+              "type": "tool-call"
+             },
+             {
+              "type": "tool-call"
+             }
+            ]
+           }
+          },
+          "id": "17e9b1dc-def0-4c54-81c8-3d514c6dd4fc"
+         },
+         "usage": {
+          "inputTokens": 11551,
+          "outputTokens": 235,
+          "totalTokens": 11786
+         },
+         "stream": [
+          {
+           "type": "chunk",
+           "time": 1794703908762,
+           "chunk": {
+            "type": "block-start",
+            "index": 0,
+            "blockType": "reasoning"
+           }
+          },
+          {
+           "type": "reasoning-chunks",
+           "time0": 1794703908763,
+           "index": 0,
+           "dt": [
+            33,
+            47,
+            73,
+            1,
+            112,
+            2,
+            73
+           ],
+           "texts": [
+            "I",
+            "'ll execute two",
+            " independent calls simultaneously",
+            " since step 2",
+            " just",
+            " requires spawning the sub",
+            "agent and waiting",
+            " for its response."
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703909180,
+           "chunk": {
+            "type": "block-start",
+            "index": 1,
+            "blockType": "tool-call"
+           }
+          },
+          {
+           "type": "tool-call-chunks",
+           "time0": 1794703909181,
+           "index": 1,
+           "dt": [
+            79,
+            39,
+            45,
+            37,
+            38,
+            38,
+            81,
+            36,
+            42,
+            73,
+            2,
+            37,
+            42,
+            38,
+            36,
+            37,
+            37,
+            35,
+            37,
+            39
+           ],
+           "id": "call_7ee1ffa66dcf432a8d2946a4",
+           "name": "schedule_create",
+           "args": [
+            "",
+            "{\"title\": \"tp1",
+            "1 probe",
+            "\"",
+            ", \"prompt\": ",
+            "\"ping",
+            "\"",
+            ", \"rrule\": \"DTSTART",
+            ":202",
+            "6111",
+            "6T12",
+            "000",
+            "0Z\\nRR",
+            "ULE:FREQ=D",
+            "AILY;COUNT=",
+            "1",
+            "\"",
+            ", \"target\": \"this",
+            "_session",
+            "\"",
+            "}"
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703910102,
+           "chunk": {
+            "type": "block-start",
+            "index": 2,
+            "blockType": "tool-call"
+           }
+          },
+          {
+           "type": "tool-call-chunks",
+           "time0": 1794703910102,
+           "index": 2,
+           "dt": [
+            38,
+            37,
+            38,
+            38,
+            77,
+            75,
+            1,
+            39,
+            35,
+            38,
+            38,
+            37,
+            77,
+            74,
+            5,
+            30,
+            39,
+            71,
+            2,
+            70,
+            24,
+            49,
+            110,
+            0,
+            37,
+            2,
+            36,
+            38,
+            2
+           ],
+           "id": "call_b6134135623142738b8737aa",
+           "name": "subagent",
+           "args": [
+            "",
+            "{\"name\": ",
+            "\"tp11",
+            "-sched-child",
+            "\"",
+            ", \"prompt\": \"Вы",
+            "зови инструмент schedule",
+            "_create с",
+            " title=child,",
+            " prompt=ping,",
+            " rrule=DT",
+            "START:20",
+            "2611",
+            "16T1",
+            "2000",
+            "0Z",
+            "\\nRRULE:F",
+            "REQ=DAILY;",
+            "COUNT=1,",
+            " target=this",
+            "_session и верни",
+            " ровно",
+            " JSON результата.",
+            "\"",
+            ", \"description\": ",
+            "\"Child schedule_create",
+            " probe",
+            "\"",
+            "}",
+            ""
+           ]
+          },
+          {
+           "type": "chunk",
+           "time": 1794703911271,
+           "chunk": {
+            "type": "block-end",
+            "index": 0,
+            "block": {
+             "type": "reasoning",
+             "text": "I'll execute two independent calls simultaneously since step 2 just requires spawning the subagent and waiting for its response."
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703911271,
+           "chunk": {
+            "type": "block-end",
+            "index": 1,
+            "block": {
+             "type": "tool-call",
+             "id": "call_7ee1ffa66dcf432a8d2946a4",
+             "name": "schedule_create",
+             "arguments": "{\"title\":\"tp11 probe\",\"prompt\":\"ping\",\"rrule\":\"DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1\",\"target\":\"this_session\"}"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703911271,
+           "chunk": {
+            "type": "block-end",
+            "index": 2,
+            "block": {
+             "type": "tool-call",
+             "id": "call_b6134135623142738b8737aa",
+             "name": "subagent",
+             "arguments": "{\"name\":\"tp11-sched-child\",\"prompt\":\"Вызови инструмент schedule_create с title=child, prompt=ping, rrule=DTSTART:20261116T120000Z\\nRRULE:FREQ=DAILY;COUNT=1, target=this_session и верни ровно JSON результата.\",\"description\":\"Child schedule_create probe\"}"
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703911271,
+           "chunk": {
+            "type": "usage",
+            "usage": {
+             "inputTokens": 11551,
+             "outputTokens": 235,
+             "totalTokens": 11786
+            }
+           }
+          },
+          {
+           "type": "chunk",
+           "time": 1794703911271,
+           "chunk": {
+            "type": "finish",
+            "reason": {
+             "kind": "tool-calls"
+            },
+            "replayState": {
+             "response": {
+              "kind": "pi-ai",
+              "version": 2,
+              "api": "openai-completions",
+              "provider": "qwen-token-plan",
+              "model": "qwen3.8-flash",
+              "responseId": "chatcmpl-931a30e5-fcf4-4f64-ab0e-416a8b04f65c",
+              "stopReason": "toolUse"
+             },
+             "blocks": [
+              {
+               "type": "reasoning",
+               "thinkingSignature": "reasoning_content"
+              },
+              {
+               "type": "tool-call"
+              },
+              {
+               "type": "tool-call"
+              }
+             ]
+            }
+           }
+          }
+         ]
+        },
+        "surfaceOp": "append"
+       }
+      }
+     ],
+     "truncated": false
+    }
+   }
+  }
+ }
+}

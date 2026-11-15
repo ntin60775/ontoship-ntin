@@ -1,0 +1,19 @@
+{
+ "status": 200,
+ "method": "session/selectModel",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-79278a75-d0c2-4a10-ae01-4ac813c21f9d\", \"method\": \"session/selectModel\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-45ca02e6-10ac-4fc1-a703-5b117b47cbef\", \"provider\": \"qwen-token-plan\", \"model\": \"qwen3.8-flash\", \"reasoningEffort\": \"medium\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-79278a75-d0c2-4a10-ae01-4ac813c21f9d",
+  "result": {
+   "ok": true,
+   "value": {
+    "selected": {
+     "provider": "qwen-token-plan",
+     "model": "qwen3.8-flash",
+     "reasoningEffort": "medium"
+    }
+   }
+  }
+ }
+}

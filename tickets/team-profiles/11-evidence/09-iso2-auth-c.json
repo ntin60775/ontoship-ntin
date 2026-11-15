@@ -1,0 +1,11 @@
+{
+ "tokenLength": 43,
+ "tokenPrefix": "5B0-pe",
+ "redirect": 303,
+ "cookiePayload": {
+  "version": 1,
+  "authority": "127.0.0.1:3091",
+  "issuedAt": 1794703969795,
+  "expiresAt": 1797295969795
+ }
+}

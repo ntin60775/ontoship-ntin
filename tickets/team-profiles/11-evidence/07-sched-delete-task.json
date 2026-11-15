@@ -1,0 +1,16 @@
+{
+ "status": 200,
+ "method": "schedule/edit",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-03f1f5ca-3bd7-447d-a3f4-2cbf9e1ef1f9\", \"method\": \"schedule/edit\", \"payload\": {\"args\": {\"request\": {\"id\": \"schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961\", \"action\": \"delete\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-03f1f5ca-3bd7-447d-a3f4-2cbf9e1ef1f9",
+  "result": {
+   "ok": true,
+   "value": {
+    "id": "schedule-44fdcf3b-88c5-49a0-b621-6c9abd2c1961",
+    "deleted": true
+   }
+  }
+ }
+}

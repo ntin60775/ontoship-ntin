@@ -1,0 +1,11 @@
+{
+ "status": 302,
+ "cookieType": "v2",
+ "payload": {
+  "version": 2,
+  "authority": "127.0.0.1:3091",
+  "id": "6e4e7910-e1fd-402d-b138-0c5e3f83317b",
+  "issuedAt": 1794704069320,
+  "expiresAt": 1797296069320
+ }
+}

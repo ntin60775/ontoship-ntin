@@ -1,0 +1,19 @@
+{
+ "status": 200,
+ "method": "session/delete",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-28359ec2-ee7c-4ff4-a5cd-d44b31ff4db9\", \"method\": \"session/delete\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-45ca02e6-10ac-4fc1-a703-5b117b47cbef\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-28359ec2-ee7c-4ff4-a5cd-d44b31ff4db9",
+  "result": {
+   "ok": false,
+   "error": {
+    "code": "session/not-found",
+    "message": "session \"session-45ca02e6-10ac-4fc1-a703-5b117b47cbef\" not found",
+    "details": {
+     "sessionId": "session-45ca02e6-10ac-4fc1-a703-5b117b47cbef"
+    }
+   }
+  }
+ }
+}

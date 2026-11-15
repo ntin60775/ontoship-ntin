@@ -1,0 +1,7 @@
+{
+ "status": 401,
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-5dbc510a-a261-4700-9297-45ab6ca2119f\", \"method\": \"session/list\", \"payload\": {\"args\": {\"_request\": {}}}}",
+ "response": {
+  "raw": "unauthorized"
+ }
+}

@@ -1,0 +1,99 @@
+{
+ "status": 200,
+ "method": "session/projections",
+ "requestBody": "{\"type\": \"client-request\", \"rpcId\": \"tp11-a4149305-337d-494b-ba1c-83808bf69b8b\", \"method\": \"session/projections\", \"payload\": {\"args\": {\"request\": {\"sessionId\": \"session-45ca02e6-10ac-4fc1-a703-5b117b47cbef\"}}}}",
+ "response": {
+  "type": "server-response",
+  "rpcId": "tp11-a4149305-337d-494b-ba1c-83808bf69b8b",
+  "result": {
+   "ok": true,
+   "value": {
+    "kind": "sequenced",
+    "asOfSeq": 4,
+    "values": {
+     "forgeChangeRequests": [],
+     "userQuestions": {
+      "active": [],
+      "settled": []
+     },
+     "turnOutline": [],
+     "tokenUsage": {
+      "uncachedInputTokens": 0,
+      "outputTokens": 0,
+      "cacheReadTokens": 0,
+      "cacheWriteTokens": 0
+     },
+     "sessionStats": {
+      "turns": 0,
+      "steps": 0,
+      "llmMs": 0,
+      "toolMs": 0,
+      "ttftMs": 0,
+      "ttftSteps": 0,
+      "decodeMs": 0,
+      "decodeTokens": 0
+     },
+     "contextPressure": {},
+     "title": "Милана · Исполнитель",
+     "goal": null,
+     "actionCards": {
+      "proposals": {},
+      "decisions": {}
+     },
+     "modelSelection": {
+      "lastUsed": null,
+      "next": null
+     },
+     "agentPreset": "executor",
+     "workingDirectory": "/tmp/tp11-probe",
+     "contextBreakdown": {
+      "systemTokens": 0,
+      "toolsTokens": 0,
+      "messageTokens": 0
+     },
+     "inbox": {
+      "next-turn": [],
+      "next-step": []
+     },
+     "permissions": {
+      "currentValue": "danger-full-access"
+     },
+     "subagentCatalog": [],
+     "worktree": [],
+     "forgeWorktree": null,
+     "subagentTiming": {
+      "settledMs": 0
+     },
+     "subagent": null,
+     "agentTeam": {
+      "enabled": false,
+      "tasks": []
+     },
+     "todos": null,
+     "plan": {
+      "active": false,
+      "pending": false
+     },
+     "conversationContinuation": null,
+     "sessionListMetadata": {
+      "blank": true,
+      "lastPromptAt": null
+     },
+     "imageLimits": {
+      "maxImageBytes": 52428800,
+      "maxImagesPerMessage": 20,
+      "maxMessageImageBytes": 209715200,
+      "maxImagePixels": 64000000,
+      "maxImageDimension": 65535,
+      "mediaTypes": [
+       "image/png",
+       "image/jpeg",
+       "image/webp",
+       "image/gif"
+      ]
+     }
+    }
+   }
+  }
+ }
+}

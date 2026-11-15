@@ -1,0 +1,2 @@
+HTTP 200
+{"type":"server-response","rpcId":"tp11-edd787c6-239e-4f55-ab6b-0b38d34b188d","result":{"ok":true,"value":{"sessionId":"session-60f6f2cc-1bd9-405e-b31b-cfd8975158aa","agentPreset":"executor"}}}
