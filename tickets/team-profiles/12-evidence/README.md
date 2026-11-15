@@ -4,7 +4,7 @@
 (копия `DSH_HOME`, порт 3092, лог `/tmp/tp12-live.log`); живой GUI
 (PID 3746641) не перезапускался. Team-бандл в профиле — worktree
 `ontoship-team-wt-tp12` (v0.2.0, финальный коммит `d36d483`, тег
-`v0.2.0`, `methodContract: 2`; стек `15c4287`), строка
+`v0.2.0`, `methodContract: 2`; стек `ce613af`), строка
 `tool-session-read` с конфигом пробы (`url` 3092, `logPath` — лог хоста).
 Launch-токены и cookie в артефактах вырезаны.
 
@@ -51,7 +51,7 @@ Launch-токены и cookie в артефактах вырезаны.
 - `06-team-build.log`, `07-team-tests.log` — сборка и тесты team-бандла
   (123 passed, v0.2.0, финальный `d36d483`);
 - `08-stack-tests.log` — тесты стека от финального пина `d36d483`
-  (25 passed, коммит стека `15c4287`);
+  (25 passed, коммит стека `ce613af`);
 - `09-chain-tests.log` — контракт chain (24 passed);
 - `10-canon-sync-tests.log` — паритет канона (75 passed);
 - `11-ntin-dev-pytest.log` — полный набор ntin в worktree (776 passed);

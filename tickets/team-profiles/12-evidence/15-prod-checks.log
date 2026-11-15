@@ -1,0 +1,24 @@
+# Prod-проверки после merge (2026-11-15)
+
+ntin main = f3f8b43 (тикет 12 влит ff); team = d36d483 (v0.2.0, тег);
+stack = ce613af (пин d36d483). Живой GUI (PID 3746641) не перезапускался;
+установка team v0.2.0 в живой профиль — тикет 07 (точка решения оператора).
+
+$ python3 -m pytest -q   # ntin main
+776 passed in 11.94s
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+scope: 100 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
+
+$ bash scripts/install.sh --check /home/prog7/home/dev/contrib/forks/ontoship-ntin
+ok chain (link)
+check: ok
+
+$ npm run build && npm test   # team main
+123 passed
+
+$ npm test   # stack main
+25 passed
+
+Паков в профиле нет — механических гейтов пака ноль.
