@@ -12,15 +12,18 @@
 # checks without writing. --pack <source> installs a standards pack into
 # <project>/.agents/packs/<name> after the pack contract validator passes; the
 # pack name comes from the manifest. Legacy harness roots
-# (.dsh, .zcode, .qoder) are reported as warnings
+# (.dsh, .zcode, .qoder) and retired bundles (chain) are reported as warnings
 # and never written or deleted. The install is idempotent and writes only under
 # <project>/.agents (skills and packs). It links the skills; it does not run the
 # init skill.
 
 set -euo pipefail
 
-readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack chain)
+readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack)
 readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
+# Bundles the core no longer ships. An old install may still carry one; like
+# legacy roots, a retired entry is reported by --check and never touched.
+readonly RETIRED_SKILLS=(chain)
 readonly EXCLUDES=(-x __pycache__ -x '*.pyc')
 
 here=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
@@ -36,13 +39,13 @@ shared by zcode, DSH and Qoder.
 
   (default)  symlink the skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing,
-             critic, onto-doc, pack, chain
+             critic, onto-doc, pack
   --dry-run  print the planned links (or copies with --copy) and run the same
              preflight checks without writing; cannot be combined with --check
   --copy     copy the skill directories instead (detached install)
   --check    verify the install and validate installed packs; warn about legacy
-             .dsh/.zcode/.qoder entries; exit 1 and name each missing or drifted
-             skill and each invalid pack
+             .dsh/.zcode/.qoder entries and retired bundles (chain); exit 1 and
+             name each missing or drifted skill and each invalid pack
   --pack <source>
              install a standards pack into <project>/.agents/packs/<name>; the
              source must pass the pack contract validator, the name comes from
@@ -207,9 +210,23 @@ legacy_warnings() {
   done
 }
 
+# Retired bundles: the core stopped shipping them, but an old install may
+# still carry one (a link now dangling, or a detached copy with local edits).
+# The finding follows legacy_warnings: report, never delete — removal is the
+# operator's decision.
+retired_warnings() {
+  local name path
+  for name in "${RETIRED_SKILLS[@]}"; do
+    path=$dest/$name
+    [[ -e $path || -L $path ]] || continue
+    printf 'warning: %s выведен — удали вручную: %s\n' "$name" "$path" >&2
+  done
+}
+
 check() {
   local drift=0 pack_drift=0 name path entry reason
   legacy_warnings
+  retired_warnings
   for name in "${SKILLS[@]}"; do
     path=$dest/$name
     if is_link_to "$path" "$REPO/skills/$name"; then

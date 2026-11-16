@@ -15,7 +15,11 @@ anywhere in the skill file, frontmatter included.
 
 standards-autoship ticket 05 (decisions 10, 11, 15) flips the executor:
 the frontmatter drops ``disable-model-invocation`` — the model invokes the
-skill in the autonomous chain, the manual ``/ship`` survives; ticket
+skill in the autonomous chain, the manual ``/ship`` survives;
+core-team-boundaries ticket 03 (decision 3) removes the driver context
+lines: the chain mechanism lives in the team bundle, the core names the
+manual ``/ship`` channel, model invocation stays open via the absent flag;
+ticket
 acceptance is automatic on the fully green contour (criteria proven, panel
 after one fix pass without open P1/P2, dev/prod passed, pack gates green,
 stop points passed), P3 goes to the leads register, anything open or a stop
@@ -42,6 +46,9 @@ model invocation, auto-acceptance, pack gates, core+pack panel, independence
 spec: docs/plans/standards-autoship.md#решения план-гейта — решения 10, 11,
 15, 16: зелёный контур автоприёмки, ship вызывает модель, независимость по
 умолчанию, гейт проекций вместо критик-гейта
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
+контекстные строки ship о драйвере сняты, ручной канал /ship назван,
+снятые формулировки драйвера под запретом
 spec: docs/decisions/ontoship-core.md#три фазы — one pass, stop points from
 «Ограничения», review gives leads
 spec: docs/plans/review-config.md#готово — ship ведёт ревью панелью
@@ -94,9 +101,8 @@ REQUIRED_PHRASES = (
     "docs/plans/<slug>.md",
     "references/method-phases.md",
     "три фазы",
-    "скилл вызывает модель",
-    "ручной вызов `/ship` сохраняется",
-    "в автономной цепочке",
+    "вызов — ручная команда `/ship`",
+    "один тикет за запуск",
 )
 FORBIDDEN_PHRASES = (
     "повторяй прогоны ревью",
@@ -113,6 +119,14 @@ FORBIDDEN_PHRASES = (
     "не запускай самостоятельно",
     "приёмка тикета идёт отдельным ask-вопросом",
     "критик-гейт",
+    # core-team-boundaries 03 («Готово» 3, decision 3): the driver context
+    # lines left the core — the chain mechanism lives in the team bundle;
+    # ship names the manual channel, model invocation stays open via the
+    # absent disable-model-invocation flag.
+    "в автономной цепочке",
+    "оркестратор передаёт тикет",
+    "оркестратор ведёт тикеты",
+    "скилл вызывает модель",
 )
 PANEL_PHRASES = (
     "ревью-панель",
@@ -330,8 +344,9 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("frontmatter: description contains ': ' and must be quoted")
     if "disable-model-invocation" in fields:
         errors.append("frontmatter: disable-model-invocation must be absent — "
-                      "the model invokes ship in the autonomous chain "
-                      "(standards-autoship decision 11)")
+                      "ship stays model-invocable (the team chain drives it) "
+                      "alongside the manual /ship channel "
+                      "(core-team-boundaries decision 3)")
 
     lowered = _normalized_lower(body)
     for phrase in REQUIRED_PHRASES:
@@ -409,20 +424,25 @@ def test_skill_is_a_discoverable_directory_bundle():
     assert _contract_errors(SKILL.read_text("utf-8")) == []
 
 
-def test_skill_is_model_invoked_and_manual_ship_survives():
-    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 11:
-    frontmatter снимает disable-model-invocation, скилл вызывает модель в
-    автономной цепочке; ручной вызов `/ship` на один тикет сохраняется."""
+def test_manual_ship_is_the_core_channel():
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
+    контекстные строки о драйвере сняты — цепочку ведёт team-бандл, ядро
+    называет ручной канал `/ship` на один тикет; frontmatter без
+    disable-model-invocation (модельный вызов остаётся открытым), скилл
+    зовёт модельные скиллы, но не другой пользовательский."""
     text = SKILL.read_text("utf-8")
     fields, body = _parse(text)
     assert "disable-model-invocation" not in fields
     lowered = _normalized_lower(body)
-    assert "скилл вызывает модель" in lowered
-    assert "в автономной цепочке" in lowered
-    assert "ручной вызов `/ship` сохраняется" in lowered
+    assert "вызов — ручная команда `/ship`" in lowered
     assert "один тикет за запуск" in lowered
     assert "может звать модельные скиллы" in lowered
     assert "не другой пользовательский" in lowered
+    full = _normalized_lower(text)
+    for phrase in ("в автономной цепочке", "оркестратор передаёт тикет",
+                   "оркестратор ведёт тикеты", "скилл вызывает модель"):
+        assert phrase not in full, \
+            f"the retired driver phrase {phrase!r} survives in ship"
 
 
 def test_skill_carries_the_single_pass():
@@ -666,17 +686,23 @@ def test_contract_check_can_fail():
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
 
-    user_only = text.replace("Скилл вызывает\nмодель",
-                             "Скилл вызывает только пользователь", 1)
-    if user_only == text:
-        user_only = text.replace("Скилл вызывает модель",
-                                 "Скилл вызывает только пользователь", 1)
-    user_only = user_only.replace("В автономной цепочке скилл вызывает модель",
-                                  "В автономной цепочке скилл вызывает пользователь", 1)
+    # The carrier wraps the phrase at 80 columns; the probe tolerates the
+    # wrap so a reflow does not hide the mutation.
+    user_only = re.sub(r"Вызов\s+—\s+ручная\s+команда\s+`/ship`",
+                       "Скилл вызывает только пользователь", text, count=1)
     assert user_only != text
     errors = _contract_errors(user_only)
-    assert any("скилл вызывает модель" in error for error in errors)
     assert any("скилл вызывает только пользователь" in error for error in errors)
+    assert any("вызов — ручная команда `/ship`" in error for error in errors)
+
+    driver_back = text.replace(
+        "- Проход один:",
+        "- В автономной цепочке оркестратор передаёт тикет исполнителю.\n"
+        "- Проход один:", 1)
+    assert driver_back != text
+    errors = _contract_errors(driver_back)
+    assert any("в автономной цепочке" in error for error in errors)
+    assert any("оркестратор передаёт тикет" in error for error in errors)
 
     ask_back = text.replace("Незакрытое или остановка — вопрос оператору",
                             "Приёмка тикета идёт отдельным ask-вопросом", 1)

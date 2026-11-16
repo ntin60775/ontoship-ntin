@@ -17,11 +17,13 @@ spec: docs/plans/canon-section-in-bundles.md#готово — link и copy ст�
       method-phases.md, ссылки скиллов на секции резолвятся в дереве
       установки
 spec: docs/plans/standards-autoship.md#готово — «Готово» 7, рамки: состав
-      бандлов выводится из массива SKILLS, chain joins the rest; the parity
-      guards the names
+      бандлов выводится из массива SKILLS; the parity guards the names
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, триаж G17:
       число бандлов выводится из SKILLS, носители счётчика не хардкодят
       снятое число
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, триаж G10/S3:
+      chain выведен из ядра (SKILLS без chain, skills/chain снят); --check
+      находит выведенный бандл по образцу legacy_warnings и не удаляет его
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -37,7 +39,8 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack", "chain")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack")
+RETIRED = ("chain",)
 
 # Method-section files shipped inside the bundles (bundle-references 01);
 # listed from disk, so a new references/ file joins this check by itself.
@@ -532,6 +535,94 @@ def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
     for path, state in before.items():
         assert after[path] == state, f"install touched legacy {path}"
     assert legacy.is_symlink() and legacy.resolve() == (REPO / "skills" / "kb-search").resolve()
+
+
+def test_chain_is_retired_from_the_core() -> None:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, критерий 1:
+    ядро не поставляет chain: каталога skills/chain нет, массив установщика и
+    кортеж этого файла его не несут; паритет носителей сторожит _parity_errors,
+    уникальная часть — отсутствие каталога и имя в машинном источнике."""
+    assert not (REPO / "skills" / "chain").exists(), \
+        "skills/chain must be removed from the core"
+    source = INSTALL.read_text("utf-8")
+    match = re.search(r"^readonly SKILLS=\(([^)]*)\)", source, re.MULTILINE)
+    assert match, "install.sh carries no readonly SKILLS array"
+    for name in RETIRED:
+        assert name not in match.group(1).split(), \
+            f"the installer array still ships {name}"
+        assert name not in SKILLS, f"the test tuple still ships {name}"
+        assert name not in _usage_listing(source), \
+            f"the usage listing still ships {name}"
+    assert _parity_errors(REPO) == []
+
+
+def test_check_names_a_retired_bundle_without_deleting_it(project: Path) -> None:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, критерий 3,
+    триаж G10/S3: --check находит выведенный бандл по образцу legacy_warnings —
+    находка «chain выведен — удали вручную», exit 0, запись не тронута; обе
+    формы старой установки: висящий после снятия link и detached-копия."""
+    install = run(project)
+    assert install.returncode == 0, output(install)
+    clean = run(project, "--check")
+    assert clean.returncode == 0, output(clean)
+    assert "выведен — удали вручную" not in output(clean), \
+        "a clean install must not warn about a retired bundle"
+    dest = project / ".agents" / "skills"
+
+    # A link install of the old generation: the source is gone, the link dangles.
+    os.symlink(REPO / "skills" / "chain", dest / "chain")
+    before = tree(project)
+    result = run(project, "--check")
+    assert result.returncode == 0, output(result)
+    assert "check: ok" in result.stdout
+    assert "warning: chain выведен — удали вручную" in result.stderr
+    assert tree(project) == before, "--check must not touch a retired entry"
+    (dest / "chain").unlink()
+
+    # A detached copy of the old generation: a real directory with content.
+    (dest / "chain").mkdir()
+    (dest / "chain" / "SKILL.md").write_text("# old chain\n", encoding="utf-8")
+    before = tree(project)
+    result = run(project, "--check")
+    assert result.returncode == 0, output(result)
+    assert "warning: chain выведен — удали вручную" in result.stderr
+    assert tree(project) == before, "--check must not delete a retired copy"
+
+
+def test_install_does_not_touch_a_retired_entry(project: Path, tmp_path: Path) -> None:
+    """invariant: docs/plans/core-team-boundaries.md#готово — «Готово» 3,
+    триаж G10: delete-пути нет — link- и copy-установка не трогают выведенный
+    бандл; запись только под .agents сохраняется."""
+    dest = project / ".agents" / "skills"
+    dest.mkdir(parents=True)
+    (dest / "chain").mkdir()
+    (dest / "chain" / "SKILL.md").write_text("# local edits\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project)
+    assert result.returncode == 0, output(result)
+    after = tree(project)
+    assert after[".agents/skills/chain/SKILL.md"] == before[".agents/skills/chain/SKILL.md"]
+    assert (dest / "chain" / "SKILL.md").read_text("utf-8") == "# local edits\n"
+
+    copied = tmp_path / "copied"
+    copied.mkdir()
+    copy_dest = copied / ".agents" / "skills"
+    copy_dest.mkdir(parents=True)
+    (copy_dest / "chain").mkdir()
+    (copy_dest / "chain" / "SKILL.md").write_text("# local edits\n", encoding="utf-8")
+    before = tree(copied)
+    result = run(copied, "--copy")
+    assert result.returncode == 0, output(result)
+    after = tree(copied)
+    assert after[".agents/skills/chain/SKILL.md"] == before[".agents/skills/chain/SKILL.md"]
+    added = set(after) - set(before)
+    assert all(path == ".agents" or path.startswith(".agents/") for path in added), added
+    for path, state in before.items():
+        # The skills root gains entries, so its mtime legitimately moves.
+        if path == ".agents/skills":
+            continue
+        assert after[path] == state, f"copy install touched pre-existing {path}"
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:

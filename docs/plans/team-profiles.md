@@ -7,7 +7,7 @@ updated: 2026-11-16
 tags: [plan, presets, roles, routing, packs, dsh, team]
 links:
   part_of: [README.md]
-  relates_to: [standards-autoship.md, dsh-adaptation.md, role-registry.md, ../reference/dsh-preset-allowlist.md, ../reference/harnesses.md, ../reference/review-roles.md, ../ops/continue.md]
+  relates_to: [standards-autoship.md, dsh-adaptation.md, role-registry.md, ../reference/harnesses.md, ../reference/review-roles.md, ../ops/continue.md]
 ---
 
 # team-profiles — личная команда агентов на пресетах DSH
@@ -17,7 +17,7 @@ Draft-спека юнита. Повод — оператор 2026-11-13: ком�
 сборщики контекста), где оператор — продакт-оунер; пресеты DSH —
 нативный механизм ролей. Вход — концепт-основа сессии планирования
 2026-11-13, проба динамического allowlist
-([dsh-preset-allowlist.md](../reference/dsh-preset-allowlist.md)) и гейт
+(носитель: `ontoship-team/docs/reference/dsh-preset-allowlist.md`) и гейт
 проекций ([00-projection-report.md](../../tickets/team-profiles/00-projection-report.md)).
 
 ## Цель
@@ -373,8 +373,8 @@ ask 2026-11-13; решение 20 — разведка сессионного п
 
 ## Контекст
 
-- Вход интервью — концепт-основа, проба
-  [dsh-preset-allowlist.md](../reference/dsh-preset-allowlist.md) и гейт
+- Вход интервью — концепт-основа, проба allowlist
+  (носитель: `ontoship-team/docs/reference/dsh-preset-allowlist.md`) и гейт
   проекций [00-projection-report.md](../../tickets/team-profiles/00-projection-report.md).
 - Текущее состояние ролей: шесть ролей ядра
   ([roles.py](../../skills/init/roles.py)), реестр

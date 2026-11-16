@@ -11,7 +11,7 @@ a direct operator decision; the skill names no ZCode root and no generator.
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed
       block, .gitignore (five lines), the project-local skill root
 spec: docs/plans/entry-and-continuity.md#готово — init создаёт скелет
-      docs/ops/continue.md при отсутствии: пять разделов и чек-лист трёх
+      docs/ops/continue.md при отсутствии: пять разделов и чек-лист четырёх
       переходов дословно; существующий файл не перезаписывается, отчёт
       называет created или unchanged; контракт владения — четыре файла
 spec: docs/plans/review-config.md#готово — реестр ролей .agents/config.toml,
@@ -23,10 +23,11 @@ spec: docs/plans/dsh-adaptation.md#готово — стандартная ра�
 spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): init
       пишет стандартную раскладку с пулом flash, независимость по умолчанию —
       норма реестра, секция пула в существующем конфиге — названный пропуск
-spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
-      решение 20): управляемый блок называет команду «орк-промт» —
-      инициирующий промпт оркестратора в continue.md, скилл to-tickets;
-      паритет блока сохранён (шаблон скилла, этот литерал, AGENTS.md)
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
+      блок init несёт команды ядра, словарь ведения (цепочка, орк-промт)
+      снят и под запретом; скелет continue.md несёт чек-лист текущего
+      потока без передачи в цепочку; паритет блока сохранён (шаблон
+      скилла, этот литерал, AGENTS.md)
 invariant: docs/plans/workflow-skills.md#ограничения — no registry, provenance,
       Reel or acceptance chord
 invariant: docs/plans/harness-agnostic.md#готово — no harness root named
@@ -188,39 +189,45 @@ BLOCK = """\
 ## Вход в работу (OntoShip)
 
 - Изменения этого проекта идут через ship-флоу: скилл `ship` исполняет
-  один тикет за запуск — моделью в автономной цепочке или вручную
-  командой `/ship`; свободные правки в обход тикета не делаются —
-  прямые решения оператора выше этого правила.
+  один тикет за запуск — вручную командой `/ship`; свободные правки
+  в обход тикета не делаются — прямые решения оператора выше этого
+  правила.
 - Запрос плана открывает draft-спеку через скилл `grilling`; режим плана
   харнесса не используется.
 - Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
   сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой
-  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка
-  в чистой сессии, скилл `chain`; «орк-промт» — инициирующий промпт
-  оркестратора в continue.md, скилл `to-tickets`.
+  `/ship` или «исполняй тикет N».
 <!-- END ontoship -->
 """
 
 # Rule clauses of the entry section (docs/plans/entry-and-continuity.md,
-# «Готово» 1, 3; dsh-adaptation consequence 2; standards-autoship «Готово» 9,
-# decisions 11, 12; «Готово» 15, decision 20): one anchor per clause, so a
-# dropped clause reddens with its own name. The ship clause names the model
-# invocation in the chain and the manual `/ship`; the command bullet names
-# the chain launch command and the entry-prompt regeneration command.
+# «Готово» 1, 3; dsh-adaptation consequence 2; core-team-boundaries 03,
+# «Готово» 3, decision 3): one anchor per clause, so a dropped clause
+# reddens with its own name. The ship clause names the manual `/ship`
+# channel; the command bullet names the core commands only — the chain
+# launch and the entry-prompt regeneration left for the team bundle.
 ENTRY_RULES = (
     "свободные правки в обход тикета не",
     "Запрос плана открывает draft-спеку через скилл `grilling`",
     "харнесса не используется",
     "Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):",
     "скилл `ship` исполняет",
-    "один тикет за запуск — моделью в автономной цепочке",
+    "один тикет за запуск — вручную",
     "командой `/ship`",
     "`/ship` или «исполняй тикет N»",
-    "«цепочка» — автономная цепочка",
-    "в чистой сессии, скилл `chain`",
-    "«орк-промт» — инициирующий промпт",
-    "оркестратора в continue.md, скилл `to-tickets`",
+)
+
+# core-team-boundaries 03 («Готово» 3, decision 3): the retired chain
+# vocabulary must not return into the managed block — the chain mechanism
+# and the entry-prompt rule live in the team bundle, the block carries the
+# core commands.
+BLOCK_RETIRED = (
+    "в автономной цепочке",
+    "«цепочка»",
+    "скилл `chain`",
+    "«орк-промт»",
+    "инициирующий промпт",
 )
 
 # The continue.md skeleton shipped by init (docs/plans/entry-and-continuity.md,
@@ -261,8 +268,10 @@ updated: <дата>
 ## Стартовый промпт
 
 Текст, с которого открывается сессия. Чек-лист фазовых переходов:
-вычитка спеки перед план-гейтом — скилл `grilling`; критик после нарезки —
-скилл `to-tickets`; ревью-панель перед merge — скилл `ship`.
+вычитка спеки перед план-гейтом — скилл `grilling`; проекционная
+валидация после план-гейта, до нарезки — скилл `critic`; самопроверка
+после приёмки нарезки — скилл `to-tickets`; ревью-панель перед merge —
+скилл `ship`.
 """
 
 CONTINUE_FENCE = re.compile(r"^```markdown\n(.*?)^```$", re.MULTILINE | re.DOTALL)
@@ -290,10 +299,14 @@ CONTINUE_RULES = (
 )
 
 # The phase-transition checklist carried by the skeleton's «Стартовый промпт»
-# section: one anchor per transition.
+# section: one anchor per transition. core-team-boundaries 03 («Готово» 3):
+# the checklist names the current core flow — the projection gate stands
+# before slicing, the self-check closes it; the retired «критик после
+# нарезки» wording and the chain handoff stay out.
 TRANSITION_CHECKLIST = (
     "вычитка спеки перед план-гейтом — скилл `grilling`",
-    "критик после нарезки — скилл `to-tickets`",
+    "проекционная валидация после план-гейта, до нарезки — скилл `critic`",
+    "самопроверка после приёмки нарезки — скилл `to-tickets`",
     "ревью-панель перед merge — скилл `ship`",
 )
 
@@ -494,11 +507,14 @@ def _contract_errors(text: str) -> list[str]:
             if got.count(marker) != 1:
                 errors.append(f"block: expected exactly one {marker!r}")
         # Entry-section clauses: one named error per lost clause, so a
-        # dropped chain command or ship wording reddens with its own name.
+        # dropped core command or ship wording reddens with its own name.
         flat_got = re.sub(r"\s+", " ", got)
         for rule in ENTRY_RULES:
             if rule not in flat_got:
                 errors.append(f"block: entry rule missing {rule!r}")
+        for phrase in BLOCK_RETIRED:
+            if phrase in flat_got:
+                errors.append(f"block: retired chain vocabulary {phrase!r}")
 
     gitignore_sets = _gitignore_sets(text)
     if gitignore_sets != [GITIGNORE]:
@@ -602,83 +618,66 @@ def test_entry_section_rules_are_pinned_and_mutation_reddens():
     state = ("- Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):\n"
              "  сессия продолжается оттуда и берёт следующий тикет оттуда же.\n")
     commands = ("- Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой\n"
-                "  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка\n"
-                "  в чистой сессии, скилл `chain`; «орк-промт» — инициирующий промпт\n"
-                "  оркестратора в continue.md, скилл `to-tickets`.\n")
+                "  `/ship` или «исполняй тикет N».\n")
     assert state in text and commands in text
     swapped = text.replace(state + commands, commands + state)
     assert swapped != text
     assert _contract_errors(swapped), "step-order swap did not redden"
 
 
-def test_block_names_the_chain_command():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: управляемый
-    блок init называет команду запуска цепочки в чистой сессии; строка ship
-    несёт модельный вызов в автономной цепочке и ручной `/ship` (решения 11,
-    12; зацепка тикета 05 — строка «вызывается командой /ship»). Мутации:
-    потеря команды цепочки и возврат снятой user-only формулировки краснят."""
+def test_block_carries_no_chain_vocabulary():
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
+    блок init несёт команды ядра; словарь ведения снят — «цепочка»,
+    «орк-промт», модельный вызов в автономной цепочке живут в team-бандле.
+    Мутации: возврат команды цепочки, команды «орк-промт» и снятой
+    user-only формулировки краснят контракт; паритет блока держит
+    test_repo_managed_block_matches_the_init_block."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
     flat_block = re.sub(r"\s+", " ", BLOCK)
-    assert "«цепочка» — автономная цепочка" in flat_block
-    assert "в чистой сессии, скилл `chain`" in flat_block
-    assert "один тикет за запуск — моделью в автономной цепочке" in flat_block
+    for phrase in BLOCK_RETIRED:
+        assert phrase not in flat_block, \
+            f"the retired phrase {phrase!r} survives in the block"
+    assert "один тикет за запуск — вручную" in flat_block
 
-    dropped = text.replace(
-        "; «цепочка» — автономная цепочка\n  в чистой сессии, скилл `chain`;",
-        ";", 1)
-    assert dropped != text
-    errors = _contract_errors(dropped)
-    assert any("«цепочка» — автономная цепочка" in error for error in errors)
-    assert any("в чистой сессии, скилл `chain`" in error for error in errors)
+    chain_back = text.replace(
+        "  `/ship` или «исполняй тикет N».",
+        "  `/ship` или «исполняй тикет N»; «цепочка» — автономная цепочка\n"
+        "  в чистой сессии, скилл `chain`.", 1)
+    assert chain_back != text
+    errors = _contract_errors(chain_back)
+    assert any("retired chain vocabulary '«цепочка»'" in error
+               for error in errors), errors
+    assert any("retired chain vocabulary 'скилл `chain`'" in error
+               for error in errors), errors
+
+    orc_back = text.replace(
+        "  `/ship` или «исполняй тикет N».",
+        "  `/ship` или «исполняй тикет N»; «орк-промт» — инициирующий\n"
+        "  промпт оркестратора в continue.md, скилл `to-tickets`.", 1)
+    assert orc_back != text
+    errors = _contract_errors(orc_back)
+    assert any("retired chain vocabulary '«орк-промт»'" in error
+               for error in errors), errors
+    assert any("retired chain vocabulary 'инициирующий промпт'" in error
+               for error in errors), errors
 
     reverted = text.replace(
         "скилл `ship` исполняет\n"
-        "  один тикет за запуск — моделью в автономной цепочке или вручную\n"
-        "  командой `/ship`;",
+        "  один тикет за запуск — вручную командой `/ship`;",
         "скилл `ship` вызывается\n"
         "  командой `/ship`, один тикет за запуск;", 1)
     assert reverted != text
     errors = _contract_errors(reverted)
     assert any("скилл `ship` исполняет" in error for error in errors)
-    assert any("один тикет за запуск — моделью в автономной цепочке" in error
-               for error in errors)
-
-
-def test_block_names_the_orc_prompt_command():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 15 (тикет 09,
-    решение 20): управляемый блок называет команду «орк-промт» —
-    инициирующий промпт оркестратора в continue.md, скилл `to-tickets`.
-    Мутации: потеря команды и переименование команды краснят контракт;
-    паритет блока держит test_repo_managed_block_matches_the_init_block."""
-    text = SKILL.read_text("utf-8")
-    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
-    flat_block = re.sub(r"\s+", " ", BLOCK)
-    assert "«орк-промт» — инициирующий промпт" in flat_block
-    assert "оркестратора в continue.md, скилл `to-tickets`" in flat_block
-
-    dropped = text.replace(
-        "; «орк-промт» — инициирующий промпт\n"
-        "  оркестратора в continue.md, скилл `to-tickets`.",
-        ".", 1)
-    assert dropped != text
-    errors = _contract_errors(dropped)
-    assert any("«орк-промт» — инициирующий промпт" in error for error in errors)
-    assert any("оркестратора в continue.md, скилл `to-tickets`" in error
-               for error in errors)
-
-    renamed = text.replace("«орк-промт» — инициирующий промпт",
-                           "«орк-промпт» — инициирующий промпт", 1)
-    assert renamed != text
-    assert any("«орк-промт» — инициирующий промпт" in error
-               for error in _contract_errors(renamed))
+    assert any("один тикет за запуск — вручную" in error for error in errors)
 
 
 def test_continue_skeleton_clauses_are_pinned():
     """spec: docs/plans/entry-and-continuity.md#готово (2) — три случая
     контракта (создание при отсутствии, не-перезапись, идемпотентность)
     запинены как клаузы прозы скилла, вместе с пятью разделами и чек-листом
-    трёх переходов; поведение доказывает живой прогон — демонстрация тикета
+    четырёх переходов; поведение доказывает живой прогон — демонстрация тикета
     и полигон юнита, не этот тест (панель dwfrun-dee2378e об имени)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
@@ -713,7 +712,8 @@ def test_continue_skeleton_contract_can_fail():
     assert any("Что осталось" in error
                for error in _contract_errors(renamed_section))
 
-    lost_item = text.replace("критик после нарезки —\nскилл `to-tickets`;", "", 1)
+    lost_item = text.replace(
+        "самопроверка\nпосле приёмки нарезки — скилл `to-tickets`;", "", 1)
     assert lost_item != text
     assert any("checklist item" in error
                for error in _contract_errors(lost_item))
