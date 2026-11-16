@@ -1,6 +1,7 @@
 # 12: Гибридный READ-канал — плагин чтения сессий и ревизия норм chain
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 12,
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 12,
 решение 21 (оператор ask 2026-11-15 после отчёта разведки 11: гибрид C
 как шаг к A; клиент — плагин; контракт 2; пенсия по tokenUsage).
 

@@ -1,6 +1,7 @@
 # 10: Таймер опроса исполнителя — норма chain
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 10,
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 10,
 решение 19 (оператор 2026-11-13: опрос каждые 5 минут — норма, а не
 практика одной сессии).
 

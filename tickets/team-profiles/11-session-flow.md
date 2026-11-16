@@ -1,6 +1,7 @@
 # 11: Разведка API-ведения сессий DSH
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 11,
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 11,
 решение 20 (оператор 2026-11-15: сначала разведка, решение о переделке
 потока — после, совместно с оператором).
 

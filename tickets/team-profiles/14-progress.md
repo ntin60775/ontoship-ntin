@@ -1,7 +1,8 @@
 # Тикет 14 — прогресс ship
 
 Тикет: [14-triviality-filter.md](14-triviality-filter.md). Спека:
-team-profiles.md (носитель: `ontoship-team/docs/plans/team-profiles.md`), решение 23.
+team-profiles.md (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), решение 23.
 
 - [x] Публикация (основной checkout, `d4194cb`): решение 23, тикет 14,
       виды, continue, индекс, зацепка «Соразмерность».

@@ -1,6 +1,7 @@
 # 04: OntoShip-носители и метод-контракт
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 6.
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 6.
 
 **Блокируется:** 02, 03
 

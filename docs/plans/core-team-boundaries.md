@@ -3,7 +3,7 @@ node_type: plan
 title: core-team-boundaries — разделение метода и ведения
 service: _platform
 status: active
-updated: 2026-11-16
+updated: 2026-11-17
 tags: [plan, boundaries, core, team, chain, contract, canon, migration]
 links:
   part_of: [README.md]

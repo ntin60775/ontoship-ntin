@@ -1,7 +1,8 @@
 # Тикет 12 — прогресс ship
 
 Тикет: [12-hybrid-read-channel.md](12-hybrid-read-channel.md). Спека:
-team-profiles.md (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 12, решение 21.
+team-profiles.md (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 12, решение 21.
 
 - [x] Публикация тикета 12 (основной checkout, `63d44e3`): спека-дельта,
       тикет, виды, индексы, continue, leads.

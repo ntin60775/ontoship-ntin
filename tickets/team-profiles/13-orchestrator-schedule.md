@@ -1,6 +1,7 @@
 # 13: tool-schedule у orchestrator — полнота композиции цепочки
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 10;
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 10;
 решения 19, 22. Дефект поставки вскрыт пробой 07 (S0): композиция
 orchestrator не несёт `tool-schedule`, норма таймера chain на пресете
 невыполнима.

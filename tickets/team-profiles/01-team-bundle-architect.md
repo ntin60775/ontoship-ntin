@@ -1,6 +1,7 @@
 # 01: Каркас team-бандла и пресет architect
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 7.
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 7.
 
 **Блокируется:** —
 

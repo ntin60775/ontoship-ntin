@@ -1,6 +1,7 @@
 # 06: Релиз и поставка team-бандла
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 7.
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 7.
 
 **Блокируется:** 03, 04, 05, 09
 

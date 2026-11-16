@@ -1,7 +1,8 @@
 # Тикет 13 — прогресс ship
 
 Тикет: [13-orchestrator-schedule.md](13-orchestrator-schedule.md). Спека:
-team-profiles.md (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 10,
+team-profiles.md (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 10,
 решения 19, 22.
 
 - [x] Публикация (основной checkout, `cdf559c`): решение 22, тикет 13,

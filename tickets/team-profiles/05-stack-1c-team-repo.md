@@ -1,6 +1,7 @@
 # 05: Стековая специализация 1C — репо ontoship-team-1c
 
-**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 4.
+**Спека:** team-profiles (носитель:
+`ontoship-team/docs/plans/team-profiles.md`), «Готово» 4.
 
 **Блокируется:** 01, 02
 
