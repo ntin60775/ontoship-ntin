@@ -420,12 +420,14 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 05 | [ship-исполнитель и политика ролей](standards-autoship/05-ship-executor.md) | 02, 04 |
 | 06 | [цепочка-оркестратор и финишная приёмка](standards-autoship/06-chain-orchestrator.md) | 04, 05 |
 | 07 | [канон, зеркало, KB](standards-autoship/07-canon-mirror-kb.md) | 04, 05, 06 |
-| 08 | [живая проба и закрывающий набор](standards-autoship/08-live-proof.md) | 01–07, 09 |
+| 08 | [дымовой pack-тест ядра](standards-autoship/08-live-proof.md) | 01–07, 09 |
 | 09 | [инициирующий промпт оркестратора](standards-autoship/09-orchestrator-entry-prompt.md) | 06 |
 
-Тикет 08 **заморожен** решением оператора ask 2026-11-13 до закрытия
-юнита [team-profiles](../docs/plans/team-profiles.md); вернётся пробой
-профильного потока.
+Тикет 08 **разморожен** решением оператора ask 2026-11-16 (решение 7
+спеки [core-team-boundaries](../docs/plans/core-team-boundaries.md)) и
+переписан под дымовой pack-тест ядра; заморозка ask 2026-11-13 снята.
+Исполнение и красная проба критериев — отдельный прогон вне юнита
+core-team-boundaries.
 
 Тикет 06 сделан, влит и принят автоприёмкой 2026-11-12 (срез `590276b`,
 редизайн `4b32bd5`, правки панели `6cf039d`, проба `38f2436` в worktree
