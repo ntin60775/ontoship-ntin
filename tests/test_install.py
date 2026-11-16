@@ -17,8 +17,11 @@ spec: docs/plans/canon-section-in-bundles.md#готово — link и copy ст�
       method-phases.md, ссылки скиллов на секции резолвятся в дереве
       установки
 spec: docs/plans/standards-autoship.md#готово — «Готово» 7, рамки: состав
-      бандлов — одиннадцать, chain joins the rest; the parity guards the
-      eleven names
+      бандлов выводится из массива SKILLS, chain joins the rest; the parity
+      guards the names
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, триаж G17:
+      число бандлов выводится из SKILLS, носители счётчика не хардкодят
+      снятое число
 invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
 """
 from __future__ import annotations
@@ -309,6 +312,71 @@ def test_harnesses_carries_no_bundle_count() -> None:
     assert COUNTED_NOUN.search(probe) is not None, "oblique-case counts must redden"
     # A numeral hidden inside a word must not fire (probe of the left lookbehind).
     assert COUNTED_NOUN.search("смотри скиллы и внутри бандла") is None
+
+
+# core-team-boundaries 01 («Готово» 1, триаж G17): the named carriers of the
+# retired bundle count. The count itself is derived from the installer array;
+# a hardcoded snapshot in a carrier is a stale-count defect.
+COUNT_CARRIERS = (
+    "docs/plans/standards-autoship.md",
+    "docs/reference/harnesses.md",
+    "tests/test_pack_channel.py",
+    "tests/test_install.py",
+    "docs/ops/continue.md",
+)
+# Split literal: this file is itself a scanned carrier, the contiguous word
+# would self-match.
+RETIRED_COUNT = "один" "надцать"
+
+
+def _hardcoded_count_errors(root: Path) -> list[str]:
+    """Every named carrier still hardcoding the retired count; empty is sound."""
+    errors: list[str] = []
+    for rel in COUNT_CARRIERS:
+        path = root / rel
+        if not path.is_file():
+            errors.append(f"count carrier missing: {rel}")
+            continue
+        if RETIRED_COUNT in path.read_text("utf-8").lower():
+            errors.append(f"hardcoded bundle count in {rel}")
+    return errors
+
+
+def test_bundle_count_is_derived_from_skills() -> None:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 4:
+    число бандлов выводится из массива SKILLS установщика и совпадает с
+    перечнем индекса и кортежем этого файла; носители счётчика не хардкодят
+    снятое число."""
+    source = INSTALL.read_text("utf-8")
+    match = re.search(r"^readonly SKILLS=\(([^)]*)\)", source, re.MULTILINE)
+    assert match, "install.sh carries no readonly SKILLS array"
+    bundles = match.group(1).split()
+    index_rows = re.findall(r"^- \[([a-z0-9-]+)/\]\(",
+                            (REPO / "skills" / "README.md").read_text("utf-8"),
+                            re.MULTILINE)
+    assert len(bundles) == len(index_rows) == len(SKILLS), \
+        "the derived count must agree across the array, the index and the tuple"
+    assert _hardcoded_count_errors(REPO) == []
+
+
+def test_derived_count_check_can_fail(tmp_path: Path) -> None:
+    """invariant: docs/plans/core-team-boundaries.md#рамки — the count check
+    reddens on a hardcoded counter in a seeded carrier and on a lost carrier;
+    probes run on seeded files, so a real carrier reddens only the test above."""
+    assert _hardcoded_count_errors(REPO) == []
+    rel = COUNT_CARRIERS[0]
+    seeded = tmp_path / rel
+    seeded.parent.mkdir(parents=True)
+    seeded.write_text(f"Состав бандлов — {RETIRED_COUNT}.\n", "utf-8")
+    errors = _hardcoded_count_errors(tmp_path)
+    assert f"hardcoded bundle count in {rel}" in errors, errors
+    seeded.write_text("Состав бандлов выводится из массива SKILLS.\n", "utf-8")
+    errors = _hardcoded_count_errors(tmp_path)
+    assert f"hardcoded bundle count in {rel}" not in errors, errors
+    assert any("count carrier missing" in error for error in errors), errors
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert len(_hardcoded_count_errors(empty)) == len(COUNT_CARRIERS)
 
 
 def test_onto_doc_joins_the_install_channel(project: Path) -> None:

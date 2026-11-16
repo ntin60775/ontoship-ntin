@@ -17,13 +17,19 @@ Named carrier sets share the anchor mechanics:
   (skills/onto-doc/references/ontodoc-run.md);
 - ``method-phases`` — the canon's three-phase section: the canon and the
   bundle carrier (skills/ship/references/method-phases.md); the anchors carry
-  the new flow (projection gate, slicing self-check, chain, auto-acceptance,
-  pack gates, standards priority) and the role carriers with the method
-  contract (team-profiles ticket 04: profile-level presets bundle, init names
-  it by reference, `methodContract` version 2, the chain checks it through the
-  plugin service and stops on mismatch or absence, the version bumps with the
-  method release), and the gate-shape test guards the manual gate list and
-  forbids the retired flow phrases;
+  the new flow (projection gate, slicing self-check, auto-acceptance, pack
+  gates, standards priority), and the gate-shape test guards the manual gate
+  list and forbids the retired flow phrases and the retired team wordings
+  (core-team-boundaries ticket 01: the chain description, the team-role
+  paragraph and the methodContract check paragraph left the core);
+- ``boundaries`` — the canon-only «Границы» section (core-team-boundaries
+  ticket 01): the core/team purpose, the three connectors with directions
+  and absence behaviour, the team↔stack pin line, functional
+  self-sufficiency, the team-pack distinction and the bump rule with the
+  load-bearing-norm definition;
+- ``dsh-boundaries`` — the DSH needles of harnesses.md (core-team-boundaries
+  ticket 01): the contract reference file and the pointer at the team repo
+  as the single full carrier of the chain norms;
 - ``pack-contract`` — the pack contract API v1: the KB project carrier
   (docs/reference/pack-contract.md) and the bundle carrier
   (skills/pack/references/pack-contract.md);
@@ -52,6 +58,9 @@ spec: docs/plans/canon-section-in-bundles.md#готово — набор method-
 spec: docs/plans/standards-autoship.md#готово — «Готово» 10, 13: новый поток
 в каноне и зеркале, форма ручных гейтов; справочник паков — проектный
 носитель контракта, якорный паритет с бандлом pack
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1: секция
+«Границы» канона, снятые team-формулировки в gate-shape, canon-only набор
+«Границ», DSH-набор harnesses (эталон из файла, указатель на team)
 """
 from __future__ import annotations
 
@@ -154,11 +163,15 @@ TRIVIALITY_ANCHORS = (
 
 # standards-autoship 07 («Готово» 10; решения 8, 10, 11, 13, 16, 17): the
 # new flow replaces the retired one in every carrier of the set — projection
-# validation before slicing, the slicing self-check, the autonomous chain with
-# auto-acceptance, the pack mechanical gates and the standards priority. The
-# retired anchors («Гейты ручные: … команда ship», «вручную, то есть без
-# автоматических цепочек») left the tuple with the rule; the gate-shape test
-# below forbids their return.
+# validation before slicing, the slicing self-check, auto-acceptance, the
+# pack mechanical gates and the standards priority. The retired anchors
+# («Гейты ручные: … команда ship», «вручную, то есть без автоматических
+# цепочек») left the tuple with the rule; the gate-shape test below forbids
+# their return. core-team-boundaries 01 («Готово» 1, триаж G1/G3): the chain
+# description, the team-role paragraph and the methodContract check paragraph
+# left the core for the team bundle — their anchors left the tuple with them;
+# the bump rule and the load-bearing-norm definition stay in the core as the
+# connector norm and moved to the canon-only BOUNDARIES_ANCHORS set.
 METHOD_ANCHORS = (
     "Факты — работа агента; решения — работа оператора",
     "Никаких якорей `file:line` — они гниют",
@@ -171,18 +184,7 @@ METHOD_ANCHORS = (
     "без записи нарезка не идёт",
     "механические гейты пака",
     "канон > стандарты проекта > пак команды > пак стека > базовый документ",
-    "`ship` вызывается моделью",
     "каждый пункт «Готово» спеки закрыт тикетом",
-    "одной продолжаемой сессии-исполнителю",
-    "Роли команды — носитель профиля, не проекта",
-    "DSH-пресеты поставляет team-бандл уровня профиля",
-    "`init` называет его ссылкой",
-    "`methodContract` (версия 2) в манифесте бандла",
-    "эталон — релиз метода",
-    "проверяет контракт через сервис плагина",
-    "останавливается с вопросом при mismatch или отсутствии",
-    "поднимается вместе с релизом метода",
-    "обязательные механизмы ведения",
     *TRIVIALITY_ANCHORS,
 )
 
@@ -198,6 +200,63 @@ RETIRED_FLOW_PHRASES = (
     "критик плана",
     "до первого ship",
     "каждое решение идёт оператору",
+)
+
+# core-team-boundaries 01 («Готово» 1, триаж G3): the team wordings removed
+# from the canon and the mirror — the chain description, the team-role
+# paragraph and the methodContract check paragraph. The norms of vedenie live
+# in the chain SKILL.md of the team bundle; the core keeps the connector norm
+# in the «Границы» section (BOUNDARIES_ANCHORS). The tuple reddens on the base
+# commit, where the wordings are still present.
+RETIRED_TEAM_PHRASES = (
+    "Цепочку ведёт скилл `chain`",
+    "оркестратор в чистой сессии передаёт тикеты",
+    "одной продолжаемой сессии-исполнителю",
+    "`ship` вызывается моделью",
+    "автономная цепочка после принятой нарезки",
+    "Роли команды — носитель профиля, не проекта",
+    "DSH-пресеты поставляет team-бандл уровня профиля",
+    "`init` называет его ссылкой",
+    "`methodContract` (версия 2) в манифесте бандла",
+    "эталон — релиз метода",
+    "проверяет контракт через сервис плагина",
+    "останавливается с вопросом при mismatch или отсутствии",
+)
+
+# core-team-boundaries 01 («Готово» 1, критерий 1): the canon-only «Границы»
+# section. The mirror carries the «Три фазы» section alone, so these anchors
+# are required in the canon only; the bump rule and the load-bearing-norm
+# definition arrived here from the removed methodContract paragraph (G1).
+BOUNDARIES_CARRIERS = (
+    REPO / "docs/decisions/ontoship-core.md",
+)
+BOUNDARIES_ANCHORS = (
+    "OntoShip core — метод",
+    "OntoShip Team — ведение метода",
+    "функциональная самодостаточность",
+    "ядро доводит тикет до main без team",
+    "пак команды (стандарты, проект) ≠ OntoShip Team (ведение, профиль)",
+    "объявление team→core",
+    "method-contract.json",
+    "данные двусторонние, владелец формата — ядро",
+    "информационная core→team",
+    "Пин team↔стек — отдельный уровень",
+    "поднимается вместе с релизом метода",
+    "вход и выбор исполнителя цепочки",
+    "форма записей",
+    "READ-канал и стражи бюджета",
+)
+
+# core-team-boundaries 01 («Готово» 1, критерий 3, триаж G17): the DSH needles
+# of harnesses.md — the contract reference is the core file, the chain norms
+# point at the team repo. The projection way stays in the same section.
+DSH_BOUNDARIES_CARRIERS = (
+    REPO / "docs/reference/harnesses.md",
+)
+DSH_BOUNDARIES_ANCHORS = (
+    "method-contract.json",
+    "ontoship-team",
+    "единственный полный носитель норм ведения",
 )
 
 # standards-autoship 07 («Готово» 13): the KB pack reference is the project
@@ -234,6 +293,8 @@ SETS = (
     ("panel-intro", PANEL_INTRO_CARRIERS, PANEL_INTRO_ANCHORS),
     ("ontodoc-run", ONTODOC_CARRIERS, ONTODOC_ANCHORS),
     ("method-phases", METHOD_CARRIERS, METHOD_ANCHORS),
+    ("boundaries", BOUNDARIES_CARRIERS, BOUNDARIES_ANCHORS),
+    ("dsh-boundaries", DSH_BOUNDARIES_CARRIERS, DSH_BOUNDARIES_ANCHORS),
     ("pack-contract", PACK_CONTRACT_CARRIERS, PACK_CONTRACT_ANCHORS),
     ("guard", GUARD_CARRIERS, GUARD_ANCHORS),
 )
@@ -299,6 +360,8 @@ def _gate_shape_errors(text: str) -> list[str]:
               if _flat(phrase) not in flat]
     errors.extend(f"retired flow phrase {phrase!r} is back"
                   for phrase in RETIRED_FLOW_PHRASES if _flat(phrase) in flat)
+    errors.extend(f"retired team phrase {phrase!r} is back"
+                  for phrase in RETIRED_TEAM_PHRASES if _flat(phrase) in flat)
     return errors
 
 
@@ -309,10 +372,13 @@ def _triviality_errors(text: str) -> list[str]:
             for anchor in TRIVIALITY_ANCHORS if _flat(anchor) not in flat]
 
 
-def _mutate(text: str, old: str, new: str) -> str:
-    """Replace a phrase tolerating the 80-column wrap; the text must change."""
+def _mutate(text: str, old: str, new: str, count: int = 1) -> str:
+    """Replace a phrase tolerating the 80-column wrap; the text must change.
+
+    count=1 mutates one occurrence (a single anchor); count=0 mutates every
+    occurrence — a needle repeated in the carrier must leave all of them."""
     pattern = re.escape(old).replace(r"\ ", r"\s+")
-    mutated = re.sub(pattern, new, text, count=1, flags=re.IGNORECASE)
+    mutated = re.sub(pattern, new, text, count=count, flags=re.IGNORECASE)
     assert mutated != text, f"the mutation must change the text: {old!r}"
     return mutated
 
@@ -333,7 +399,8 @@ def test_anchor_in_every_carrier(set_name: str, anchor: str,
             "carrier — if the rule was deliberately reworded, update the "
             "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
             "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
-            "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+            "ANCHORS / BOUNDARIES_ANCHORS / DSH_BOUNDARIES_ANCHORS / "
+            "PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
             "in this test"
         )
     assert not missing, (
@@ -361,7 +428,10 @@ def test_manual_gates_shape(carrier: Path) -> None:
     план-гейт, нарезка и финишная приёмка — единственные ручные гейты; команда
     ship из перечня ручных гейтов ушла, автоприёмка тикета названа; снятый
     поток (критик после нарезки, «автоматических цепочек нет») не
-    возвращается."""
+    возвращается.
+    spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 2:
+    снятые team-формулировки (chain-описание, абзац ролей команды, абзац
+    methodContract) не возвращаются в канон и зеркало."""
     errors = _gate_shape_errors(carrier.read_text(encoding="utf-8"))
     assert errors == [], f"{_carrier_name(carrier)}: {errors}"
 
@@ -403,6 +473,60 @@ def test_gate_shape_can_fail() -> None:
     absolute_back = canon + "\n\nКаждое решение идёт оператору.\n"
     assert any("каждое решение идёт оператору" in error
                for error in _gate_shape_errors(absolute_back))
+
+    # core-team-boundaries 01: a returned team wording reddens the gate shape.
+    chain_back = canon + "\n\nЦепочку ведёт скилл `chain`.\n"
+    assert any("retired team phrase" in error and "Цепочку ведёт скилл" in error
+               for error in _gate_shape_errors(chain_back))
+    roles_back = canon + "\n\nРоли команды — носитель профиля, не проекта.\n"
+    assert any("Роли команды" in error
+               for error in _gate_shape_errors(roles_back))
+    contract_back = canon + "\n\n`methodContract` (версия 2) в манифесте бандла.\n"
+    assert any("methodContract" in error
+               for error in _gate_shape_errors(contract_back))
+
+
+def test_boundaries_anchors_can_fail() -> None:
+    """invariant: docs/decisions/ontoship-core.md#границы — the canon-only
+    boundaries check reddens when the canon loses a connector direction, the
+    self-sufficiency definition, the reference file or the bump rule; probes
+    mutate the canon text in memory.
+    spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 5:
+    набор «Границ» умеет падать."""
+    canon = BOUNDARIES_CARRIERS[0].read_text(encoding="utf-8")
+    flat = _flat(canon)
+    assert all(_flat(anchor) in flat for anchor in BOUNDARIES_ANCHORS)
+    for old, new in (
+        ("объявление team→core", "объявление без направления"),
+        ("ядро доводит тикет до main без team", "ядро работает вместе с team"),
+        ("method-contract.json", "литерал в скилле"),
+        ("поднимается вместе с релизом метода", "поднимается по вкусу агента"),
+        ("Пин team↔стек — отдельный уровень", "Пин team↔стек — часть канона"),
+    ):
+        mutated = _mutate(canon, old, new)
+        lost = [anchor for anchor in BOUNDARIES_ANCHORS
+                if _flat(anchor) not in _flat(mutated)]
+        assert lost, (old, new)
+
+
+def test_dsh_boundaries_needles_can_fail() -> None:
+    """invariant: docs/reference/harnesses.md#цепочка и проекции по харнессам —
+    the DSH needles redden when harnesses loses the reference file or the team
+    pointer; probes mutate the page text in memory.
+    spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 3:
+    DSH-набор нидлов умеет падать."""
+    page = DSH_BOUNDARIES_CARRIERS[0].read_text(encoding="utf-8")
+    flat = _flat(page)
+    assert all(_flat(needle) in flat for needle in DSH_BOUNDARIES_ANCHORS)
+    for old, new in (
+        ("method-contract.json", "релиз метода"),
+        ("ontoship-team", "неизвестный репозиторий"),
+        ("единственный полный носитель норм ведения", "один из носителей"),
+    ):
+        mutated = _mutate(page, old, new, count=0)
+        lost = [needle for needle in DSH_BOUNDARIES_ANCHORS
+                if _flat(needle) not in _flat(mutated)]
+        assert lost, (old, new)
 
 
 @pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
@@ -507,22 +631,19 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
                                 (ship, panel))
     assert missing == [panel.as_posix()], missing
 
-    # The team-carrier pair (team-profiles 04): the canon keeps the role
-    # carriers and the method contract while the bundle section loses the
-    # contract wording alone — the comparator names the mirror.
-    canon = seed("canon-team.md",
-                 "Роли команды — носитель профиля, не проекта: "
-                 "`methodContract` (версия 2) в манифесте бандла.")
-    mirror = seed("mirror-team.md",
-                  "Роли команды — носитель профиля, не проекта: "
-                  "`methodContract` (версия 2) в манифесте бандла.")
-    mutated_text = mirror.read_text("utf-8").replace(
-        "`methodContract` (версия 2) в манифесте бандла", "версия не нужна")
+    # The canon/mirror pair on a surviving anchor: the canon keeps the
+    # standards priority while the bundle section loses it alone — the
+    # comparator names the mirror. (The former team-profiles 04 seed carried
+    # the role/contract wordings; core-team-boundaries 01 removed them from
+    # the core, so the probe seeds a current anchor instead.)
+    priority = "канон > стандарты проекта > пак команды > пак стека > базовый документ"
+    canon = seed("canon-priority.md", f"Приоритет норм: {priority}.")
+    mirror = seed("mirror-priority.md", f"Приоритет норм: {priority}.")
+    mutated_text = mirror.read_text("utf-8").replace(priority, "порядок не важен")
     assert mutated_text != mirror.read_text("utf-8"), \
         "the mutation must remove the anchor"
     mirror.write_text(mutated_text, "utf-8")
-    missing = _missing_carriers("`methodContract` (версия 2) в манифесте бандла",
-                                (canon, mirror))
+    missing = _missing_carriers(priority, (canon, mirror))
     assert missing == [mirror.as_posix()], missing
 
     # The method-phases pair: an anchor dropped from the bundle section

@@ -1,19 +1,24 @@
 """KB carriers of the new flow (standards-autoship ticket 07).
 
 ``docs/reference/harnesses.md`` carries the chain and projection ways per
-harness: the DSH way names the orchestrator's clean root session, the
-continuable executor fed via ``send_message``, the ``[validation]`` pool
-of the registry, the role-carrier team bundle with the method contract read
-through the plugin service and the dictated chain records; zcode is named
-retired, Qoder stays a named gap. The pack
-reference ``docs/reference/pack-contract.md`` exists with sound frontmatter,
-is linked from the folder index and names the ``--pack`` install channel.
-``skills/README.md`` describes the critic bundle as projection validation
-before slicing; the retired plan-critique description must not return.
+harness: the DSH block keeps the projection way (the ``[validation]`` pool
+of the registry, the spawn way, the live catalog check) and points the chain
+at the team bundle with the contract reference file (core-team-boundaries
+ticket 01: the chain mechanics — the clean root session, the continuable
+executor, the plugin-service contract read, the dictated records — left the
+core for the team bundle); zcode is named retired, Qoder stays a named gap.
+The pack reference ``docs/reference/pack-contract.md`` exists with sound
+frontmatter, is linked from the folder index and names the ``--pack``
+install channel. ``skills/README.md`` describes the critic bundle as
+projection validation before slicing; the retired plan-critique description
+must not return.
 
 spec: docs/plans/standards-autoship.md#готово — «Готово» 13: справочник
 паков в docs/reference/ (проектный носитель контракта), harnesses.md несёт
 цепочку и проекции, индексы обновлены
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 3:
+chain-часть harnesses — указатель на team, проекции остаются, DSH-блок —
+эталон из method-contract.json
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
 contract check can fail
 """
@@ -30,17 +35,18 @@ SKILLS_INDEX = REPO / "skills" / "README.md"
 
 FLOW_HEADING = "## Цепочка и проекции по харнессам"
 DSH_FLOW_NEEDLES = (
-    "чистой корневой сессии",
-    "send_message",
+    # The projection way stays in the core (critic): the pool, the spawn way,
+    # the live catalog check.
     "[validation]",
     "subagent",
     "list_subagent_models",
-    # team-profiles 04: the DSH way names the role-carrier bundle, the method
-    # contract read through the plugin service and the dictated chain records.
-    "team-бандла уровня профиля",
-    "ontoshipteam",
-    "methodcontract",
-    "по диктовке",
+    # core-team-boundaries 01 («Готово» 1, триаж G3/G17): the chain mechanics
+    # left for the team bundle — the DSH block names the team carrier and the
+    # contract reference file instead (the former needles «чистой корневой
+    # сессии», «send_message», «team-бандла уровня профиля», «ontoshipteam»,
+    # «methodcontract», «по диктовке» left with the norms).
+    "ontoship-team",
+    "method-contract.json",
 )
 RETIRED_CRITIC_DESCRIPTION = "критика плана до первого ship"
 CRITIC_DESCRIPTION = "проекционная валидация спеки до нарезки"
@@ -155,9 +161,11 @@ def _skills_index_errors(text: str) -> list[str]:
 
 def test_harnesses_carry_the_chain_and_projections():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 13:
-    harnesses.md несёт цепочку и проекции — DSH-способ с чистой корневой
-    сессией, продолжаемым исполнителем и пулом валидации; zcode снят,
-    Qoder — названный пробел."""
+    harnesses.md несёт цепочку и проекции; zcode снят, Qoder — названный
+    пробел.
+    spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 3:
+    DSH-блок — проекции с пулом валидации, цепочка — указатель на team-бандл
+    и эталон из method-contract.json."""
     assert _flow_errors(HARNESSES.read_text("utf-8")) == []
 
 
@@ -191,11 +199,16 @@ def test_kb_flow_checks_can_fail():
     assert any("no chain-and-projections section" in error
                for error in _flow_errors(no_section))
 
-    # The DSH block carries the tool twice (handover and the dictated record
-    # write, team-profiles 04): the probe drops both, or the anchor survives.
-    no_send = harnesses.replace("send_message", "сообщения", 2)
-    assert no_send != harnesses
-    assert any("send_message" in error for error in _flow_errors(no_send))
+    # core-team-boundaries 01: the team pointer and the reference file each
+    # appear twice in the flow section (intro and DSH block): the probe drops
+    # every occurrence, or the needle survives.
+    no_team = harnesses.replace("ontoship-team", "неизвестный репо")
+    assert no_team != harnesses
+    assert any("ontoship-team" in error for error in _flow_errors(no_team))
+
+    no_ref = harnesses.replace("method-contract.json", "релиз метода")
+    assert no_ref != harnesses
+    assert any("method-contract.json" in error for error in _flow_errors(no_ref))
 
     no_pool = harnesses.replace("[validation]", "[agents.critic]", 1)
     assert no_pool != harnesses
