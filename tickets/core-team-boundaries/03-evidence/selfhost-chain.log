@@ -1,0 +1,51 @@
+# Критерий 5: selfhost-симлинк chain снят вручную после merge eb2f475
+# 2026-11-16T23:35:30+02:00
+
+$ ls -la .agents/skills/ (до)
+итого 52
+drwxrwxr-x 2 prog7 prog7 4096 ноя 12 19:46 .
+drwxrwxr-x 4 prog7 prog7 4096 ноя 16 16:08 ..
+lrwxrwxrwx 1 prog7 prog7   61 ноя 12 19:46 chain -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/chain
+lrwxrwxrwx 1 prog7 prog7   62 окт 29 13:17 critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/critic
+lrwxrwxrwx 1 prog7 prog7   64 окт 22 15:05 grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/grilling
+lrwxrwxrwx 1 prog7 prog7   60 окт 21 14:16 init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/init
+lrwxrwxrwx 1 prog7 prog7   65 окт 21 14:16 kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/kb-curate
+lrwxrwxrwx 1 prog7 prog7   65 окт 21 14:16 kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/kb-search
+lrwxrwxrwx 1 prog7 prog7   64 окт 30 17:56 onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/onto-doc
+lrwxrwxrwx 1 prog7 prog7   60 ноя 11 21:37 pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/pack
+lrwxrwxrwx 1 prog7 prog7   60 окт 22 15:05 ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/ship
+lrwxrwxrwx 1 prog7 prog7   63 окт 22 15:05 testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/testing
+lrwxrwxrwx 1 prog7 prog7   66 окт 22 15:05 to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/to-tickets
+
+$ readlink .agents/skills/chain
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/skills/chain
+# источник снят merge'ем — симлинк висящий
+
+$ rm .agents/skills/chain
+exit=0
+
+$ ls .agents/skills/ (после)
+critic
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+ship
+testing
+to-tickets
+
+$ scripts/install.sh --check . (selfhost, после снятия)
+ok kb-search (link)
+ok kb-curate (link)
+ok init (link)
+ok grilling (link)
+ok to-tickets (link)
+ok ship (link)
+ok testing (link)
+ok critic (link)
+ok onto-doc (link)
+ok pack (link)
+check: ok
+exit=0
