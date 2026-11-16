@@ -374,7 +374,8 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 Личная команда агентов на пресетах DSH; стек 1C — новое репо
 `ontoship-team-1c` с аддитивным швом 1C-DSH.
 Тикеты 01–06, 09–13 сделаны, влиты и приняты автоприёмкой; тикет 14
-в работе (фильтр тривиальности), проба 07 возобновляется после 14; далее 08.
+принят автоприёмкой 2026-11-16, проба 07 — universal fin-agent (решение 24);
+далее 08.
 Решением 24 (2026-11-16) 1C-специализация вынесена из юнита (парк
 будущего юнита); проба 07 переписана под универсальный поток на fin-agent;
 тикеты 05/13 (1C-части) остаются поставленным кодом вне scope закрытия.
@@ -387,7 +388,7 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 04 | [OntoShip-носители и метод-контракт](team-profiles/04-method-carriers-contract.md) | 02, 03 |
 | 05 | [стек 1C: ontoship-team-1c](team-profiles/05-stack-1c-team-repo.md) | 01, 02 |
 | 06 | [релиз и поставка](team-profiles/06-release-delivery.md) | 03, 04, 05, 09 |
-| 07 | [живая проба на 1C-DSH](team-profiles/07-live-proof.md) | 06, 10, 11, 12 |
+| 07 | [живая проба universal fin-agent](team-profiles/07-live-proof.md) | 06, 10, 11, 12, 13, 14 |
 | 08 | [набор, KB и протокол 08](team-profiles/08-suite-kb-08-protocol.md) | 07 |
 | 09 | [личные имена агентов](team-profiles/09-personal-names.md) | 02 |
 | 10 | [таймер опроса — норма chain](team-profiles/10-polling-timer-norm.md) | 04 |
