@@ -347,6 +347,26 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 Юнит `chain-live-activity` удалён решением оператора 2026-11-16
 (прототип неактуален): спека, гейт проекций и четыре тикета сняты.
 
+Юнит [`core-team-boundaries`](../docs/plans/core-team-boundaries.md)
+открыт 2026-11-16: спека утверждена на план-гейте ask-проходом
+(решения 1–9), гейт проекций пройден (пять срезов flash-пула, 53
+сырых находки → 22 группы, все подтверждены; инцидент дефектного
+спавна назван; [00-projection-report.md](core-team-boundaries/00-projection-report.md)),
+ревизия по триажу — решением оператора «править всё, спорное по
+рекомендациям»; нарезка — семь тикетов приняты ask-ом со сверкой
+понимания 2026-11-16 (team-релиз отложен решением оператора на
+сверке 06), самопроверка пройдена.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [Границы канона и паритет носителей](core-team-boundaries/01-canon-boundaries.md) | — |
+| 02 | [Эталон и chain в team](core-team-boundaries/02-reference-and-chain-team.md) | 01 |
+| 03 | [Ядро без chain](core-team-boundaries/03-core-without-chain.md) | 02 |
+| 04 | [Живая самодостаточность](core-team-boundaries/04-live-self-sufficiency.md) | 02, 03 |
+| 05 | [Перенос спеки team-profiles](core-team-boundaries/05-spec-move.md) | — |
+| 06 | [Релиз core v0.7.0](core-team-boundaries/06-core-release.md) | 04, 05 |
+| 07 | [sa08 разморожен](core-team-boundaries/07-sa08-unfreeze.md) | — |
+
 Юнит [`team-profiles`](../docs/plans/team-profiles.md) открыт 2026-11-13:
 спека утверждена на план-гейте ask-проходом после гейта проекций
 (grilling-раунды 1–5, решения 1–17; четыре среза проекций, 25 находок
