@@ -47,10 +47,9 @@ flowchart TD
   classDef pending fill:#e2e3e5,stroke:#6c757d,color:#383d41;
   classDef waiting fill:#fff3cd,stroke:#ffc107,color:#856404;
 
-  class T01,T02,T03,T04,T05,T06,T09,T10,T11,T12,T13 done;
-  class T07 waiting;
+  class T01,T02,T03,T04,T05,T06,T09,T10,T11,T12,T13,T14 done;
+  class T07 pending;
   class T08 waiting;
-  class T14 running;
 ```
 
 Порядок исполнения последовательный (параллельное исполнение веток
@@ -58,5 +57,5 @@ flowchart TD
 READ-канал (решение 21), встал между 11 и 07 и принят автоприёмкой
 2026-11-15; 07 свободен (активация READ-канала — точка решения оператора).
 
-Обновлено: 2026-11-16, тикет 14 в работе (исполнитель-9); проба 07 ждёт
-14; ready-frontier: нет; порядок — 14, 07, 08.
+Обновлено: 2026-11-16, тикет 14 принят автоприёмкой; ready-frontier: 07
+(переделка под fin-agent); порядок — 07, 08.
