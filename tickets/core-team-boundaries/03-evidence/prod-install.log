@@ -1,0 +1,70 @@
+== link install ==
+linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/kb-search
+linked kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/kb-curate
+linked init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/init
+linked grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/grilling
+linked to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/to-tickets
+linked ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/ship
+linked testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/testing
+linked critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/critic
+linked onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/onto-doc
+linked pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb03-core-without-chain/skills/pack
+== link check ==
+ok kb-search (link)
+ok kb-curate (link)
+ok init (link)
+ok grilling (link)
+ok to-tickets (link)
+ok ship (link)
+ok testing (link)
+ok critic (link)
+ok onto-doc (link)
+ok pack (link)
+check: ok
+exit=0
+== copy install ==
+copied kb-search -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/kb-search
+copied kb-curate -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/kb-curate
+copied init -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/init
+copied grilling -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/grilling
+copied to-tickets -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/to-tickets
+copied ship -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/ship
+copied testing -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/testing
+copied critic -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/critic
+copied onto-doc -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/onto-doc
+copied pack -> /tmp/ctb03-prod.Dbn0/copy/.agents/skills/pack
+== copy check ==
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+check: ok
+exit=0
+== catalog (copy) ==
+critic
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+ship
+testing
+to-tickets
+== second copy run ==
+unchanged kb-search
+unchanged kb-curate
+unchanged init
+unchanged grilling
+unchanged to-tickets
+unchanged ship
+unchanged testing
+unchanged critic
+unchanged onto-doc
+unchanged pack

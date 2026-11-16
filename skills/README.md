@@ -18,7 +18,7 @@ links:
 фазы метода — `grilling`, `to-tickets`, `ship`; правило качества —
 `testing`; проекционная валидация спеки — `critic`; док-часть —
 `onto-doc`; контракт паков стандартов — `pack`. Ведение метода
-(автономная цепочка) поставляет team-бандл `ontoship-team`, не ядро.
+(автономная цепочка) — поставка team-бандла `ontoship-team`, не ядра.
 
 - [kb-search/](kb-search/SKILL.md) — движок GitMark и поиск по KB.
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
@@ -39,6 +39,7 @@ links:
 - [pack/](pack/SKILL.md) — контракт паков стандартов: манифест,
   стандарты, чек-листы ролей, гейты как данные; валидатор и эталонный
   пак.
+
 Новый скилл появляется бандлом в `scripts/install.sh`, строкой здесь и
 кортежем в `tests/test_install.py` — одним коммитом; паритет держит тот же
 тест.

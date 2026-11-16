@@ -1,0 +1,17 @@
+== team commit d49a21d ==
+commit d49a21d06ed0cd16c6b9be9edc46b51916ce2783
+Author: 1cprog7 <1cprog7@kbs39.ru>
+Date:   Mon Nov 16 23:10:27 2026 +0200
+
+    core-team-boundaries 03: справочник dsh-preset-allowlist перенесён из ядра
+    
+    team-механизм живёт в team: docs/reference/dsh-preset-allowlist.md,
+    строка индекса README; кросс-репо ссылки — адреса-проза на носители
+    ядра (KB-бутстрап team — названный пробел). Содержание справочника
+    не менялось, форма ссылок — названное исключение.
+
+ README.md                              |  5 +++
+
+== core deletion (slice) ==
+docs/reference/dsh-preset-allowlist.md
+skills/chain/SKILL.md

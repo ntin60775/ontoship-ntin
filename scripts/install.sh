@@ -215,11 +215,18 @@ legacy_warnings() {
 # The finding follows legacy_warnings: report, never delete — removal is the
 # operator's decision.
 retired_warnings() {
-  local name path
+  local name path root
   for name in "${RETIRED_SKILLS[@]}"; do
     path=$dest/$name
-    [[ -e $path || -L $path ]] || continue
-    printf 'warning: %s выведен — удали вручную: %s\n' "$name" "$path" >&2
+    if [[ -e $path || -L $path ]]; then
+      printf 'warning: %s выведен — удали вручную: %s\n' "$name" "$path" >&2
+    fi
+    # The legacy roots carried the retired bundle too; keep naming it there.
+    for root in "${LEGACY_ROOTS[@]}"; do
+      path=$project/$root/skills/$name
+      [[ -e $path || -L $path ]] || continue
+      printf 'warning: %s выведен — удали вручную: %s\n' "$name" "$path" >&2
+    done
   done
 }
 

@@ -68,7 +68,8 @@ manifest 4), `build` и `typecheck` чисто —
 даёт дефолт при опущенном id. `[]`, дубли, без `executor` и неизвестный
 id покрыты тестами реестра: `[]`/без `executor` — дефолт, дубли —
 схлопывание, неизвестный id сохраняется до вызова. Механика `!!js`-выражения —
-проба [dsh-preset-allowlist.md](../../docs/reference/dsh-preset-allowlist.md)
+проба allowlist (носитель: `ontoship-team/docs/reference/dsh-preset-allowlist.md`;
+на момент записи — `docs/reference/dsh-preset-allowlist.md` ядра)
 (DSH 0.2.2-rc.2): сервис вызывается из выражения, неизвестный id
 допустим до вызова; независимый носитель отказа — код хоста
 `packages/subagent/tool-subagent/src/preset-selection.ts` («Unknown agent

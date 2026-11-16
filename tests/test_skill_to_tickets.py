@@ -216,6 +216,10 @@ def _contract_errors(text: str) -> list[str]:
     if "орк-промт" in description:
         errors.append("frontmatter: description must not name the retired "
                       "command «орк-промт» (core-team-boundaries decision 3)")
+    for phrase in RETIRED_HANDOFF_PHRASES:
+        if phrase in description.lower():
+            errors.append("frontmatter: description carries retired "
+                          f"handoff phrase {phrase!r}")
 
     lowered = re.sub(r"\s+", " ", body.lower())
     for phrase in REQUIRED_PHRASES:
@@ -269,10 +273,12 @@ def _contract_errors(text: str) -> list[str]:
             if phrase in sequence:
                 errors.append(f"body: section 'Порядок' carries "
                               f"forbidden phrase {phrase!r}")
-        # The self-check closes «Порядок»: a step after it (the retired
-        # handoff or anything else) reddens the contract.
-        steps = re.findall(r"\d+\.\s+\*\*([^*]+)\*\*", sections["Порядок"])
-        if not steps or "самопроверка нарезки" not in steps[-1].lower():
+        # The self-check closes «Порядок»: a numbered step after it (the
+        # retired handoff or anything else, bold title or not) reddens.
+        starts = [m.start() for m in re.finditer(r"(?m)^\d+\.\s",
+                                                 sections["Порядок"])]
+        if not starts or "самопроверка нарезки" not in \
+                sections["Порядок"][starts[-1]:].lower():
             errors.append("body: the slicing self-check must close 'Порядок'")
     when = sections.get("Когда использовать")
     if when is None:
@@ -597,18 +603,17 @@ def test_slicing_ends_with_the_self_check():
     for phrase in RETIRED_HANDOFF_PHRASES:
         assert phrase not in lowered, \
             f"the retired handoff phrase {phrase!r} survives in the body"
-    description = _unquote(fields["description"])
-    assert "орк-промт" not in description, \
-        "the description must not name the retired command"
-    assert "цепочк" not in description.lower(), \
-        "the description must not name the chain"
+    description = _unquote(fields["description"]).lower()
+    for phrase in RETIRED_HANDOFF_PHRASES:
+        assert phrase not in description, \
+            f"the retired phrase {phrase!r} survives in the description"
     when = re.sub(
         r"\s+", " ", _sections(body).get("Когда использовать", "").lower())
     assert "орк-промт" not in when
     assert "инициирующий промпт" not in when
     section = _sections(body).get("Порядок", "")
-    steps = re.findall(r"\d+\.\s+\*\*([^*]+)\*\*", section)
-    assert steps and "самопроверка нарезки" in steps[-1].lower(), \
+    starts = [m.start() for m in re.finditer(r"(?m)^\d+\.\s", section)]
+    assert starts and "самопроверка нарезки" in section[starts[-1]:].lower(), \
         "the slicing self-check must close «Порядок»"
 
 
@@ -655,6 +660,23 @@ def test_retired_handoff_contract_can_fail():
     assert late_step != text
     assert any("must close 'Порядок'" in error
                for error in _contract_errors(late_step))
+
+    # A plain (non-bold) tail step is caught too (panel 03).
+    plain_tail = text.replace(
+        "## Честность",
+        "7. Хвост после самопроверки. Ещё один шаг.\n\n## Честность", 1)
+    assert plain_tail != text
+    assert any("must close 'Порядок'" in error
+               for error in _contract_errors(plain_tail))
+
+    # The description runs through the same ban (panel 03).
+    description_phrase = text.replace(
+        "Скилл вызывает агент.\"",
+        "Скилл вызывает агент. Инициирующий промпт оркестратора.\"", 1)
+    assert description_phrase != text
+    assert any("description carries retired handoff phrase "
+               "'инициирующий промпт'" in error
+               for error in _contract_errors(description_phrase))
 
 
 @pytest.mark.parametrize("phrase", RETIRED_HANDOFF_PHRASES)

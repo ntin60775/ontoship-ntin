@@ -14,12 +14,11 @@ ticket 01): the phrase «изолированный worktree» lives in step 1 o
 anywhere in the skill file, frontmatter included.
 
 standards-autoship ticket 05 (decisions 10, 11, 15) flips the executor:
-the frontmatter drops ``disable-model-invocation`` — the model invokes the
-skill in the autonomous chain, the manual ``/ship`` survives;
-core-team-boundaries ticket 03 (decision 3) removes the driver context
-lines: the chain mechanism lives in the team bundle, the core names the
-manual ``/ship`` channel, model invocation stays open via the absent flag;
-ticket
+the frontmatter drops ``disable-model-invocation`` — model invocation
+stays open; core-team-boundaries ticket 03 (decision 3) removes the
+driver context lines: the chain mechanism lives in the team bundle and
+drives the model invocation from there, the core names the manual
+``/ship`` channel; ticket
 acceptance is automatic on the fully green contour (criteria proven, panel
 after one fix pass without open P1/P2, dev/prod passed, pack gates green,
 stop points passed), P3 goes to the leads register, anything open or a stop
@@ -101,7 +100,7 @@ REQUIRED_PHRASES = (
     "docs/plans/<slug>.md",
     "references/method-phases.md",
     "три фазы",
-    "вызов — ручная команда `/ship`",
+    "ручной канал — команда `/ship`",
     "один тикет за запуск",
 )
 FORBIDDEN_PHRASES = (
@@ -434,7 +433,7 @@ def test_manual_ship_is_the_core_channel():
     fields, body = _parse(text)
     assert "disable-model-invocation" not in fields
     lowered = _normalized_lower(body)
-    assert "вызов — ручная команда `/ship`" in lowered
+    assert "ручной канал — команда `/ship`" in lowered
     assert "один тикет за запуск" in lowered
     assert "может звать модельные скиллы" in lowered
     assert "не другой пользовательский" in lowered
@@ -688,12 +687,12 @@ def test_contract_check_can_fail():
 
     # The carrier wraps the phrase at 80 columns; the probe tolerates the
     # wrap so a reflow does not hide the mutation.
-    user_only = re.sub(r"Вызов\s+—\s+ручная\s+команда\s+`/ship`",
+    user_only = re.sub(r"Ручной\s+канал\s+—\s+команда\s+`/ship`",
                        "Скилл вызывает только пользователь", text, count=1)
     assert user_only != text
     errors = _contract_errors(user_only)
     assert any("скилл вызывает только пользователь" in error for error in errors)
-    assert any("вызов — ручная команда `/ship`" in error for error in errors)
+    assert any("ручной канал — команда `/ship`" in error for error in errors)
 
     driver_back = text.replace(
         "- Проход один:",

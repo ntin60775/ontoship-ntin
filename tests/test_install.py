@@ -560,49 +560,93 @@ def test_check_names_a_retired_bundle_without_deleting_it(project: Path) -> None
     """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, критерий 3,
     триаж G10/S3: --check находит выведенный бандл по образцу legacy_warnings —
     находка «chain выведен — удали вручную», exit 0, запись не тронута; обе
-    формы старой установки: висящий после снятия link и detached-копия."""
+    формы старой установки: висящий после снятия link и detached-копия.
+    На базе падает именно отсутствием находки: базовый install ставит chain
+    сам, запись нормализуется к засеянной форме до проверки (панель 03:
+    падение от предусловия не доказывает критерий)."""
     install = run(project)
     assert install.returncode == 0, output(install)
+    dest = project / ".agents" / "skills"
+    chain = dest / "chain"
+    # The base generation ships chain itself; drop its entry so the probe
+    # seeds the old-install form instead of colliding with the precondition.
+    if chain.is_symlink() or chain.exists():
+        chain.unlink()
     clean = run(project, "--check")
-    assert clean.returncode == 0, output(clean)
     assert "выведен — удали вручную" not in output(clean), \
         "a clean install must not warn about a retired bundle"
-    dest = project / ".agents" / "skills"
 
     # A link install of the old generation: the source is gone, the link dangles.
-    os.symlink(REPO / "skills" / "chain", dest / "chain")
+    os.symlink(REPO / "skills" / "chain", chain)
     before = tree(project)
     result = run(project, "--check")
+    assert "warning: chain выведен — удали вручную" in result.stderr, \
+        "the retired-bundle finding is missing"
     assert result.returncode == 0, output(result)
     assert "check: ok" in result.stdout
-    assert "warning: chain выведен — удали вручную" in result.stderr
     assert tree(project) == before, "--check must not touch a retired entry"
-    (dest / "chain").unlink()
+    chain.unlink()
 
     # A detached copy of the old generation: a real directory with content.
-    (dest / "chain").mkdir()
-    (dest / "chain" / "SKILL.md").write_text("# old chain\n", encoding="utf-8")
+    chain.mkdir()
+    (chain / "SKILL.md").write_text("# old chain\n", encoding="utf-8")
     before = tree(project)
     result = run(project, "--check")
+    assert "warning: chain выведен — удали вручную" in result.stderr, \
+        "the retired-bundle finding is missing"
     assert result.returncode == 0, output(result)
-    assert "warning: chain выведен — удали вручную" in result.stderr
     assert tree(project) == before, "--check must not delete a retired copy"
+
+
+def test_check_names_a_retired_bundle_in_legacy_roots(project: Path) -> None:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, критерий 3
+    (панель 03, регрессия): база называла chain в legacy-корнях перебором
+    SKILLS; после снятия находка обязана звучать и там — .dsh/.zcode/.qoder,
+    exit 0, запись не тронута."""
+    install = run(project)
+    assert install.returncode == 0, output(install)
+    dest = project / ".agents" / "skills"
+    if (dest / "chain").is_symlink() or (dest / "chain").exists():
+        (dest / "chain").unlink()
+    for root in (".dsh", ".zcode", ".qoder"):
+        legacy = project / root / "skills"
+        legacy.mkdir(parents=True)
+        os.symlink(REPO / "skills" / "chain", legacy / "chain")
+    before = tree(project)
+    result = run(project, "--check")
+    text = result.stderr
+    for root in (".dsh", ".zcode", ".qoder"):
+        assert f"warning: chain выведен — удали вручную: {project / root / 'skills' / 'chain'}" \
+            in text, (root, text)
+    assert result.returncode == 0, output(result)
+    assert tree(project) == before, "--check must not touch a legacy retired entry"
 
 
 def test_install_does_not_touch_a_retired_entry(project: Path, tmp_path: Path) -> None:
     """invariant: docs/plans/core-team-boundaries.md#готово — «Готово» 3,
-    триаж G10: delete-пути нет — link- и copy-установка не трогают выведенный
-    бандл; запись только под .agents сохраняется."""
+    триаж G10: delete-пути нет — установка не трогает выведенный бандл.
+    Link-часть краснеет на базе по существу: база считает chain живым и
+    перепривязывает чужой симлинк к своему источнику. Copy-часть — инвариант
+    выживания записи при любом исходе прогона (база отказывает целиком,
+    финал ставит 10 бандлов мимо chain)."""
     dest = project / ".agents" / "skills"
     dest.mkdir(parents=True)
-    (dest / "chain").mkdir()
-    (dest / "chain" / "SKILL.md").write_text("# local edits\n", encoding="utf-8")
+    # A foreign link: the retired entry points at its own target, not the repo.
+    foreign = tmp_path / "foreign-chain"
+    foreign.mkdir()
+    (foreign / "SKILL.md").write_text("# local edits\n", encoding="utf-8")
+    os.symlink(foreign, dest / "chain")
     before = tree(project)
 
     result = run(project)
     assert result.returncode == 0, output(result)
     after = tree(project)
-    assert after[".agents/skills/chain/SKILL.md"] == before[".agents/skills/chain/SKILL.md"]
+    retired_before = {p: s for p, s in before.items()
+                      if p.startswith(".agents/skills/chain")}
+    retired_after = {p: s for p, s in after.items()
+                     if p.startswith(".agents/skills/chain")}
+    assert retired_after == retired_before, \
+        "the install rewired or removed the retired entry"
     assert (dest / "chain" / "SKILL.md").read_text("utf-8") == "# local edits\n"
 
     copied = tmp_path / "copied"
@@ -613,16 +657,22 @@ def test_install_does_not_touch_a_retired_entry(project: Path, tmp_path: Path) -
     (copy_dest / "chain" / "SKILL.md").write_text("# local edits\n", encoding="utf-8")
     before = tree(copied)
     result = run(copied, "--copy")
-    assert result.returncode == 0, output(result)
     after = tree(copied)
-    assert after[".agents/skills/chain/SKILL.md"] == before[".agents/skills/chain/SKILL.md"]
-    added = set(after) - set(before)
-    assert all(path == ".agents" or path.startswith(".agents/") for path in added), added
-    for path, state in before.items():
-        # The skills root gains entries, so its mtime legitimately moves.
-        if path == ".agents/skills":
-            continue
-        assert after[path] == state, f"copy install touched pre-existing {path}"
+    retired_before = {p: s for p, s in before.items()
+                      if p.startswith(".agents/skills/chain")}
+    retired_after = {p: s for p, s in after.items()
+                     if p.startswith(".agents/skills/chain")}
+    assert retired_after == retired_before, \
+        "the copy install touched the retired entry"
+    if result.returncode == 0:
+        added = set(after) - set(before)
+        assert all(path == ".agents" or path.startswith(".agents/")
+                   for path in added), added
+        for path, state in before.items():
+            # The skills root gains entries, so its mtime legitimately moves.
+            if path == ".agents/skills":
+                continue
+            assert after[path] == state, f"copy install touched pre-existing {path}"
 
 
 def test_copy_install_is_detached(tmp_path: Path) -> None:

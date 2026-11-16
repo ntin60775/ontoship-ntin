@@ -30,6 +30,5 @@ links:
 - [baseline-standards.md](baseline-standards.md) — базовые стандарты инженерии
   и стека из знаний модели; нижний приоритет норм, утверждён оператором.
 
-- Справочник динамического allowlist пресетов DSH перенесён в team-бандл
-  (core-team-boundaries 03): носитель —
-  `ontoship-team/docs/reference/dsh-preset-allowlist.md`.
+- Справочник динамического allowlist пресетов DSH живёт в team-бандле:
+  носитель — `ontoship-team/docs/reference/dsh-preset-allowlist.md`.

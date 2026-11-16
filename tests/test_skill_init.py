@@ -11,9 +11,15 @@ a direct operator decision; the skill names no ZCode root and no generator.
 spec: docs/plans/harness-agnostic.md#готово — skills/init/SKILL.md, the managed
       block, .gitignore (five lines), the project-local skill root
 spec: docs/plans/entry-and-continuity.md#готово — init создаёт скелет
-      docs/ops/continue.md при отсутствии: пять разделов и чек-лист четырёх
-      переходов дословно; существующий файл не перезаписывается, отчёт
-      называет created или unchanged; контракт владения — четыре файла
+      docs/ops/continue.md при отсутствии: пять разделов дословно;
+      существующий файл не перезаписывается, отчёт называет created или
+      unchanged; контракт владения — четыре файла
+spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3: чек-лист
+      скелета несёт четыре перехода текущего потока (проекционная
+      валидация до нарезки — standards-autoship решение 17, самопроверка
+      после приёмки нарезки вместо передачи в цепочку — решение 3);
+      трёхпереходный список entry-and-continuity вытеснен, якорь чек-листа
+      перетыкнут сюда
 spec: docs/plans/review-config.md#готово — реестр ролей .agents/config.toml,
       названный пробел без источника моделей, совпадение модели критика —
       рекомендация в отчёте
@@ -230,11 +236,13 @@ BLOCK_RETIRED = (
     "инициирующий промпт",
 )
 
-# The continue.md skeleton shipped by init (docs/plans/entry-and-continuity.md,
-# «Готово» 2). The five section headings and the three-transition checklist are
-# the spec's requirement; the frontmatter, the intro line and the section
-# bodies are the template's own prose, pinned verbatim here independently of
-# the skill text — the expected value is this literal, not a re-extraction.
+# The continue.md skeleton shipped by init: the five section headings and the
+# create-if-absent contract come from entry-and-continuity «Готово» 2; the
+# four-transition checklist of the current flow comes from core-team-boundaries
+# «Готово» 3 (the old three-transition list is superseded). The frontmatter,
+# the intro line and the section bodies are the template's own prose, pinned
+# verbatim here independently of the skill text — the expected value is this
+# literal, not a re-extraction.
 CONTINUE_SKELETON = """\
 ---
 node_type: runbook
@@ -676,9 +684,11 @@ def test_block_carries_no_chain_vocabulary():
 def test_continue_skeleton_clauses_are_pinned():
     """spec: docs/plans/entry-and-continuity.md#готово (2) — три случая
     контракта (создание при отсутствии, не-перезапись, идемпотентность)
-    запинены как клаузы прозы скилла, вместе с пятью разделами и чек-листом
-    четырёх переходов; поведение доказывает живой прогон — демонстрация тикета
-    и полигон юнита, не этот тест (панель dwfrun-dee2378e об имени)."""
+    запинены как клаузы прозы скилла, вместе с пятью разделами;
+    spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3: чек-лист
+    четырёх переходов текущего потока; поведение доказывает живой прогон —
+    демонстрация тикета и полигон юнита, не этот тест (панель
+    dwfrun-dee2378e об имени)."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
     assert _continue_skeleton(text) == CONTINUE_SKELETON

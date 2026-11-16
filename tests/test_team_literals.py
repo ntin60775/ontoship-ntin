@@ -63,7 +63,17 @@ def test_core_skills_carry_no_team_literals() -> None:
     """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3,
     критерий 4: скиллы ядра и массив SKILLS не несут team-литералов;
     на базе краснеет — skills/chain нёс session_read, ontoshipExecutors,
-    allowedAgentPresets и id пресетов."""
+    allowedAgentPresets и id пресетов. Sanity против вакуума (панель 03):
+    область скана непуста и покрывает каждый бандл массива-источника."""
+    source = (REPO / "scripts" / "install.sh").read_text("utf-8")
+    match = SKILLS_ARRAY_RE.search(source)
+    assert match, "install.sh carries no SKILLS array — the scan would be vacuous"
+    names = match.group(1).split()
+    assert names, "the SKILLS array is empty — the scan would be vacuous"
+    scope = _scope(REPO)
+    for name in names:
+        assert REPO / "skills" / name / "SKILL.md" in scope, \
+            f"the scan scope misses the {name} bundle"
     assert _scan(REPO) == []
 
 
