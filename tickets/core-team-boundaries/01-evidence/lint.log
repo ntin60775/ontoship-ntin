@@ -1,0 +1,6 @@
+# lint --strict на финальном дереве тикета 01
+# Команда: python3 skills/kb-search/gitmark.py lint --strict
+
+
+scope: 116 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (60 файлов · —)
