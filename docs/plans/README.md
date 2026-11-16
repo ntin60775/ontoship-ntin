@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-16
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, team-profiles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, team-profiles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -123,6 +123,12 @@ links:
 
 Юнит `chain-live-activity` удалён решением оператора 2026-11-16:
 прототип живой активности на доске неактуален, спека и тикеты сняты.
+
+- [core-team-boundaries.md](core-team-boundaries.md) — разделение
+  метода и ведения: core самодостаточен, chain переезжает в
+  team-бандл, эталон methodContract — файл ядра, канон несёт
+  границы (утверждена на план-гейте 2026-11-16 ask-проходом,
+  решения 1–9; открыта 2026-11-16).
 
 - [team-profiles.md](team-profiles.md) — личная команда агентов на пресетах
   DSH: роли архитектора/оркестратора/исполнителя/сборщика, реестр
