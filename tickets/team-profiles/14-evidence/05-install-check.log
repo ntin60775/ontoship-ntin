@@ -1,0 +1,23 @@
+copied kb-search -> /tmp/tp14-install/.agents/skills/kb-search
+copied kb-curate -> /tmp/tp14-install/.agents/skills/kb-curate
+copied init -> /tmp/tp14-install/.agents/skills/init
+copied grilling -> /tmp/tp14-install/.agents/skills/grilling
+copied to-tickets -> /tmp/tp14-install/.agents/skills/to-tickets
+copied ship -> /tmp/tp14-install/.agents/skills/ship
+copied testing -> /tmp/tp14-install/.agents/skills/testing
+copied critic -> /tmp/tp14-install/.agents/skills/critic
+copied onto-doc -> /tmp/tp14-install/.agents/skills/onto-doc
+copied pack -> /tmp/tp14-install/.agents/skills/pack
+copied chain -> /tmp/tp14-install/.agents/skills/chain
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+ok chain (copy)
+check: ok

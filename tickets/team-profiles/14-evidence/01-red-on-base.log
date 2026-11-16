@@ -1,0 +1,285 @@
+== новые тесты на базе d4194cb (ожидание: 5 падают) ==
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_ test_triviality_override_in_canon_and_mirror[docs/decisions/ontoship-core.md] _
+
+carrier = PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md')
+
+    @pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
+    def test_triviality_override_in_canon_and_mirror(carrier: Path) -> None:
+        """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+        тривиальные обратимые решения при полных требованиях принимает агент;
+        канон несёт дословную оговорку к принципу «решения — работа оператора»,
+        зеркало бандла — ту же формулировку (паритет)."""
+        errors = _triviality_errors(carrier.read_text(encoding="utf-8"))
+>       assert errors == [], errors
+E       AssertionError: ["triviality rule lost 'тривиальные обратимые решения при полных требованиях'", "triviality rule lost '(имена, тексты,...y rule lost 'критерий тривиальности: обратимость, малое влияние на цель, отсутствие явного требования оператора'", ...]
+E       assert ["triviality ...ратора'", ...] == []
+E         
+E         Left contains 8 more items, first extra item: "triviality rule lost 'тривиальные обратимые решения при полных требованиях'"
+E         Use -v to get more diff
+
+tests/test_canon_sync.py:415: AssertionError
+_ test_triviality_override_in_canon_and_mirror[skills/ship/references/method-phases.md] _
+
+carrier = PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md')
+
+    @pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
+    def test_triviality_override_in_canon_and_mirror(carrier: Path) -> None:
+        """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+        тривиальные обратимые решения при полных требованиях принимает агент;
+        канон несёт дословную оговорку к принципу «решения — работа оператора»,
+        зеркало бандла — ту же формулировку (паритет)."""
+        errors = _triviality_errors(carrier.read_text(encoding="utf-8"))
+>       assert errors == [], errors
+E       AssertionError: ["triviality rule lost 'тривиальные обратимые решения при полных требованиях'", "triviality rule lost '(имена, тексты,...y rule lost 'критерий тривиальности: обратимость, малое влияние на цель, отсутствие явного требования оператора'", ...]
+E       assert ["triviality ...ратора'", ...] == []
+E         
+E         Left contains 8 more items, first extra item: "triviality rule lost 'тривиальные обратимые решения при полных требованиях'"
+E         Use -v to get more diff
+
+tests/test_canon_sync.py:415: AssertionError
+______________________ test_triviality_override_can_fail _______________________
+
+    def test_triviality_override_can_fail() -> None:
+        """invariant: docs/decisions/ontoship-core.md#три фазы — проверка оговорки
+        краснеет на потере названного выбора, критерия тривиальности и ограждения
+        «сомнение — оператору»; пробы мутируют текст канона в памяти."""
+        canon = METHOD_CARRIERS[0].read_text(encoding="utf-8")
+>       assert _triviality_errors(canon) == []
+E       assert ["triviality ...ратора'", ...] == []
+E         
+E         Left contains 8 more items, first extra item: "triviality rule lost 'тривиальные обратимые решения при полных требованиях'"
+E         Use -v to get more diff
+
+tests/test_canon_sync.py:423: AssertionError
+_______________________ test_triviality_filter_contract ________________________
+
+    def test_triviality_filter_contract():
+        """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+        grilling фильтрует тривиальные развилки в раундах — при полных
+        требованиях агент решает их сам и называет выбор в спеке и отчёте,
+        оператору идут только содержательные и необратимые решения; критерий
+        тривиальности и ограждение «сомнение — оператору» на месте. Мутации:
+        потеря каждой фразы фильтра, подмена ограждения и снятие называния
+        выбора краснят контракт."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       assert ["rounds: mis...отчёте'", ...] == []
+E         
+E         Left contains 14 more items, first extra item: "rounds: missing triviality phrase 'фильтр тривиальности'"
+E         Use -v to get more diff
+
+tests/test_skill_grilling.py:710: AssertionError
+______________________ test_brief_predecides_trivialities ______________________
+
+    def test_brief_predecides_trivialities():
+        """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+        бриф пред-решает тривиальные развилки (имена, тексты, формат,
+        маловлияющий выбор), оркестратор не ретранслирует оператору тривиальный
+        ask агента в цепочке — пред-решает сам или делегирует исполнителю;
+        содержательные и необратимые решения идут оператору, сомнение в
+        тривиальности — оператору. Мутации: снятие нормы брифа, возврат
+        ретрансляции, подмена критерия и ограждения краснят контракт."""
+        text = SKILL.read_text("utf-8")
+>       assert _contract_errors(text) == []
+E       AssertionError: assert ['brief: miss...ивиальности»'] == []
+E         
+E         Left contains one more item: 'brief: missing section «бриф и тривиальности»'
+E         Use -v to get more diff
+
+tests/test_skill_chain.py:1379: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_canon_sync.py::test_triviality_override_in_canon_and_mirror[docs/decisions/ontoship-core.md]
+FAILED tests/test_canon_sync.py::test_triviality_override_in_canon_and_mirror[skills/ship/references/method-phases.md]
+FAILED tests/test_canon_sync.py::test_triviality_override_can_fail - assert [...
+FAILED tests/test_skill_grilling.py::test_triviality_filter_contract - assert...
+FAILED tests/test_skill_chain.py::test_brief_predecides_trivialities - Assert...
+5 failed, 131 deselected in 0.17s
+
+== новые якорные случаи method-набора на базе (ожидание: 8 падают, старые зелены) ==
+.......................FFFFFFFF                                          [100%]
+=================================== FAILURES ===================================
+_ test_anchor_in_every_carrier[method-phases:\u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u044b\u0435 \u043e\u0431\u0440\u0430\u0442\u0438\u043c\u044b] _
+
+set_name = 'method-phases'
+anchor = 'тривиальные обратимые решения при полных требованиях'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «тривиальные обратимые решения при полных требованиях» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:(\u0438\u043c\u0435\u043d\u0430, \u0442\u0435\u043a\u0441\u0442\u044b, \u0444\u043e\u0440\u043c] _
+
+set_name = 'method-phases'
+anchor = '(имена, тексты, формат, маловлияющий выбор)'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «(имена, тексты, формат, маловлияющий выбор)» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u043f\u0440\u0438\u043d\u0438\u043c\u0430\u0435\u0442 \u0430\u0433\u0435\u043d\u0442 \u043f\u043e \u0440] _
+
+set_name = 'method-phases', anchor = 'принимает агент по рекомендации'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «принимает агент по рекомендации» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u043d\u0430\u0437\u044b\u0432\u0430\u044f \u0432\u044b\u0431\u043e\u0440 \u0432 \u043e\u0442\u0447\u0451] _
+
+set_name = 'method-phases', anchor = 'называя выбор в отчёте'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «называя выбор в отчёте» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0443 \u0447\u0435\u0440\u0435\u0437 ask ] _
+
+set_name = 'method-phases'
+anchor = 'оператору через ask — содержательные и необратимые решения'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «оператору через ask — содержательные и необратимые решения» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u043a\u0440\u0438\u0442\u0435\u0440\u0438\u0439 \u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u043e\u0441] _
+
+set_name = 'method-phases'
+anchor = 'критерий тривиальности: обратимость, малое влияние на цель, отсутствие явного требования оператора'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «критерий тривиальности: обратимость, малое влияние на цель, отсутствие явного требования оператора» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u0441\u043e\u043c\u043d\u0435\u043d\u0438\u0435 \u0432 \u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d] _
+
+set_name = 'method-phases'
+anchor = 'сомнение в тривиальности — решение оператору'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «сомнение в тривиальности — решение оператору» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+_ test_anchor_in_every_carrier[method-phases:\u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u044b\u0435 \u2014 \u043f\u043e \u0444\u0438\u043b] _
+
+set_name = 'method-phases', anchor = 'тривиальные — по фильтру раундов'
+carriers = (PosixPath('/tmp/tp14-base3/docs/decisions/ontoship-core.md'), PosixPath('/tmp/tp14-base3/skills/ship/references/method-phases.md'))
+
+    @pytest.mark.parametrize("set_name,anchor,carriers", ANCHOR_CASES, ids=ANCHOR_IDS)
+    def test_anchor_in_every_carrier(set_name: str, anchor: str,
+                                     carriers: tuple[Path, ...]) -> None:
+        missing = _missing_carriers(anchor, carriers)
+        if len(missing) == len(carriers):
+>           raise AssertionError(
+                f"anchor «{anchor}» of the {set_name} set is missing from every "
+                "carrier — if the rule was deliberately reworded, update the "
+                "anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_"
+                "ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_"
+                "ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) "
+                "in this test"
+            )
+E           AssertionError: anchor «тривиальные — по фильтру раундов» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+
+tests/test_canon_sync.py:331: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u044b\u0435 \u043e\u0431\u0440\u0430\u0442\u0438\u043c\u044b]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:(\u0438\u043c\u0435\u043d\u0430, \u0442\u0435\u043a\u0441\u0442\u044b, \u0444\u043e\u0440\u043c]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043f\u0440\u0438\u043d\u0438\u043c\u0430\u0435\u0442 \u0430\u0433\u0435\u043d\u0442 \u043f\u043e \u0440]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043d\u0430\u0437\u044b\u0432\u0430\u044f \u0432\u044b\u0431\u043e\u0440 \u0432 \u043e\u0442\u0447\u0451]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0443 \u0447\u0435\u0440\u0435\u0437 ask ]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043a\u0440\u0438\u0442\u0435\u0440\u0438\u0439 \u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u043e\u0441]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u0441\u043e\u043c\u043d\u0435\u043d\u0438\u0435 \u0432 \u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d]
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u0442\u0440\u0438\u0432\u0438\u0430\u043b\u044c\u043d\u044b\u0435 \u2014 \u043f\u043e \u0444\u0438\u043b]
+8 failed, 23 passed, 55 deselected in 0.12s
