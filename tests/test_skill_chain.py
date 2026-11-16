@@ -270,10 +270,9 @@ REPORT_PHRASES = (
 # tracker folder: the graph is a mermaid block, the Kanban a markdown table.
 # blocked is computed from the edges; the ready-frontier is computed and read
 # from the Kanban ready column, not rendered as a separate third block;
-# Temporal status colors, no host code. The live DSH panel is the external
-# plugin ontoship-chain-board: the orchestrator calls its tool once at the
-# chain start and the board opens only in the orchestrator session (operator
-# decision 2026-11-12); the ReactFlow+ELK panel stays a future unit.
+# Temporal status colors, no host code. The live board prototypes
+# (ontoship-chain-board, chain-live-activity, chain-viz-panel) were deleted
+# by operator decision 2026-11-16; only the two static views remain.
 VIZ_PHRASES = (
     "источник истины — тикеты и блокирующие рёбра",
     "оркестратор вычисляет виды",
@@ -289,13 +288,6 @@ VIZ_PHRASES = (
     "mermaid",
     "рендерит виды из тикетов",
     "без кода хоста",
-    "живая панель dsh — внешний плагин",
-    "один раз вызывает инструмент",
-    "`ontoship_board_open`",
-    "доска открывается в сессии оркестратора",
-    "исполнитель и сессия планирования инструмент не вызывают",
-    "инструмента нет в сессии — назови пробел",
-    "доска — визуализация, не гейт",
 )
 FORBIDDEN_PHRASES = (
     # the retired or rejected flows: a user-only orchestrator, compaction,
@@ -1289,9 +1281,8 @@ def test_viz_derived_views_from_one_dag():
     и Kanban (markdown-таблица), файлы в папке юнита трекера; blocked
     вычисляется из рёбер, ready-frontier читается колонкой ready
     (отдельный третий блок не рендерится), цвета Temporal, без кода
-    хоста; живая панель DSH — внешний плагин, оркестратор роутится на
-    его инструмент один раз (приписка 2026-11-12), доска только
-    в сессии оркестратора."""
+    хоста; живая панель и прототипы доски удалены решением оператора
+    2026-11-16."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
     for old, new, needle in (
@@ -1314,14 +1305,6 @@ def test_viz_derived_views_from_one_dag():
         ("цвета статусов — лексика Temporal", "цвета статусов произвольные",
          "цвета статусов — лексика temporal"),
         ("без кода хоста", "кодом хоста", "без кода хоста"),
-        ("один раз вызывает инструмент", "вызывает инструмент на каждом тикете",
-         "один раз вызывает инструмент"),
-        ("доска открывается в сессии оркестратора",
-         "доска открывается в любой сессии",
-         "доска открывается в сессии оркестратора"),
-        ("исполнитель и сессия планирования инструмент не вызывают",
-         "исполнитель тоже вызывает инструмент",
-         "исполнитель и сессия планирования инструмент не вызывают"),
     ):
         mutated = _body_mutated(text, old, new)
         assert any(needle in error for error in _contract_errors(mutated)), \

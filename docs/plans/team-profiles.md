@@ -7,7 +7,7 @@ updated: 2026-11-16
 tags: [plan, presets, roles, routing, packs, dsh, team]
 links:
   part_of: [README.md]
-  relates_to: [standards-autoship.md, chain-live-activity.md, dsh-adaptation.md, role-registry.md, ../reference/dsh-preset-allowlist.md, ../reference/harnesses.md, ../reference/review-roles.md, ../ops/continue.md]
+  relates_to: [standards-autoship.md, dsh-adaptation.md, role-registry.md, ../reference/dsh-preset-allowlist.md, ../reference/harnesses.md, ../reference/review-roles.md, ../ops/continue.md]
 ---
 
 # team-profiles — личная команда агентов на пресетах DSH
@@ -328,7 +328,8 @@ ask 2026-11-13; решение 20 — разведка сессионного п
 - Контур поставки (`contour.lock`, `contour update`, bootstrap,
   DSH-индекс маркета) — отдельный юнит; здесь место для
   `executors.json`, ручное обновление и поставка бандла (link/git-пин).
-- `chain-live-activity` — вне юнита; тикет 08 заморожен, его возврат
+- Юнит `chain-live-activity` удалён решением оператора 2026-11-16
+  (прототип); тикет 08 заморожен, его возврат
   описан в «Готово» 9 (сам 08 — вне юнита).
 
 ## Ограничения
