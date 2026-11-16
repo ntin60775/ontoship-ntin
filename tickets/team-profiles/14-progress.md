@@ -25,4 +25,6 @@
       description grilling, порядок «Раундов», сторожа/мутации, evidence;
       перегон: 136/789 passed, lint чист, install ok, красная проба 13
       проверок (`14-evidence/`).
-- [ ] Prod-проверки после merge, merge ntin, автоприёмка по диктовке.
+- [x] Prod после merge (main `73d31ce`): pytest **789 passed**, lint
+      чисто, install ok (`14-evidence/10-prod-checks.md`).
+- [ ] Автоприёмка по диктовке оркестратора.
