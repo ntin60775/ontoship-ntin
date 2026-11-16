@@ -328,7 +328,7 @@ def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
          config.replace("deepseek-account/deepseek-flash",
                         "deepseek-account/deepseek-max", 1),
          "is not the standard flash pool"),
-        ("lost-level", config.replace('level = "max"', 'level = ""', 1),
+        ("lost-level", config.replace('level = "max" }', 'level = "" }', 1),
          "without model/level"),
         ("duplicate-entry",
          config.replace(

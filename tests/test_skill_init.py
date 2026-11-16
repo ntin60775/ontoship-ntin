@@ -81,15 +81,17 @@ HARNESS_NEEDLES = (
     "на чужом харнессе он не работает",
 )
 
-# The bootstrap section carries the standard layout (dsh-adaptation): six
-# routes and levels shipped one table, written without an ask when every
-# route is live, deviation named in the report.
+# The bootstrap section carries the standard layout (operator decision
+# 2026-11-16, supersedes dsh-adaptation decision 5): six routes and levels
+# shipped one table, written without an ask when every route is live,
+# deviation named in the report.
 LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
-    "`qwen-token-plan/qwen3.8-flash`",
+    "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`",
     "`qwen-token-plan-max/qwen4-max-preview`",
-    "`xhigh`",
-    "`medium`",
+    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |",
+    "| `critic` | `qwen-token-plan-max/qwen4-max-preview` | `xhigh` |",
+    "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `high` |",
     "запиши её без ask",
     "назови отклонение от стандарта",
     "спроси оператора",
@@ -107,7 +109,7 @@ POOL_NEEDLES = (
     "**Пул валидации.**",
     "`[validation]`",
     "`deepseek-account/deepseek-flash`",
-    "`max`",
+    "с уровнем `max`",
     "Сверь маршруты и уровни пула с живым каталогом",
     "пиши без ask",
     "Независимость по умолчанию — норма реестра",
@@ -833,14 +835,17 @@ def test_standard_layout_contract_can_fail():
                for error in _contract_errors(no_table))
 
     drifted = text.replace("`qwen-token-plan-max/qwen4-max-preview`",
-                           "`qwen-token-plan/qwen3.8-flash`", 1)
+                           "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`", 1)
     assert drifted != text
     assert any("`qwen-token-plan-max/qwen4-max-preview`" in error
                for error in _contract_errors(drifted))
 
-    no_medium = text.replace("`medium`", "`high`", 1)
-    assert no_medium != text
-    assert any("`medium`" in error for error in _contract_errors(no_medium))
+    drifted_level = text.replace(
+        "| `critic` | `qwen-token-plan-max/qwen4-max-preview` | `xhigh` |",
+        "| `critic` | `qwen-token-plan-max/qwen4-max-preview` | `medium` |", 1)
+    assert drifted_level != text
+    assert any("| `critic` |" in error
+               for error in _contract_errors(drifted_level))
 
     no_askless = text.replace("запиши её без ask",
                               "спроси модель каждой роли", 1)
@@ -886,7 +891,7 @@ def test_pool_contract_can_fail():
         ("**Пул валидации.**", "Пул:", "**Пул валидации.**"),
         ("`deepseek-account/deepseek-flash`", "`deepseek-account/deepseek-max`",
          "`deepseek-account/deepseek-flash`"),
-        ("с уровнем `max`", "с уровнем `high`", "`max`"),
+        ("с уровнем `max`", "с уровнем `high`", "с уровнем `max`"),
         ("Сверь маршруты и уровни пула с живым каталогом",
          "Сверь маршруты пула с конфигом",
          "Сверь маршруты и уровни пула с живым каталогом"),
@@ -1193,7 +1198,7 @@ TEAM_REPORT_NEEDLE = (
     "Для ролей команды назови team-бандл ссылкой на установленный бандл"
 )
 PERSONAL_REPO_NAME = "ontoship-team"
-ROUTE_TOKENS = ("qwen", "deepseek", "xhigh", "/max", "/medium")
+ROUTE_TOKENS = ("qwen", "deepseek", "xhigh", "/max", "/high")
 
 
 def _team_paragraph(text: str) -> str:
@@ -1252,6 +1257,6 @@ def test_team_reference_contract_can_fail():
         text.replace("**Роли команды.**", f"**Роли команды** `{PERSONAL_REPO_NAME}`.", 1))
     assert _team_reference_missing(
         text.replace("пакет и версия", "пакет, версия и маршрут "
-                     "`qwen-token-plan/qwen3.8-flash`/`medium`", 1))
+                     "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`", 1))
     assert _team_reference_missing(
         text.replace(TEAM_REPORT_NEEDLE, "Для ролей команды назови бандл пакетом.", 1))

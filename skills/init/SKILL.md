@@ -219,9 +219,9 @@ updated: <дата>
 
    | роль | `model` | `level` |
    |---|---|---|
-   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
-   | `critic` | `qwen-token-plan-max/qwen4-max-preview` | `medium` |
-   | `curator` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
+   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |
+   | `critic` | `qwen-token-plan-max/qwen4-max-preview` | `xhigh` |
+   | `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `high` |
 
    Сверь её с живым каталогом: все шесть маршрутов и их уровни доступны —
    запиши её без ask. Хоть один маршрут или уровень недоступен — спроси

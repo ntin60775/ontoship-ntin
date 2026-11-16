@@ -1,10 +1,10 @@
 # OntoShip role registry.
 # One [agents.<name>] section per role; `model` is required.
-# Routes are the standard layout of dsh-adaptation decision 5 (ask
-# 2026-11-09, amendments 2026-11-09, 2026-11-10 and 2026-11-11): all six
-# roles run on the Qwen token-plan providers — the four reviewers and the
-# curator on `qwen-token-plan/qwen3.8-flash` with `xhigh`, the critic on
-# `qwen-token-plan-max/qwen4-max-preview` with `medium`.
+# Routes are the standard layout of operator decision 2026-11-16 (supersedes
+# the dsh-adaptation decision 5 layout): the four reviewers on
+# `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `max`, the critic
+# on `qwen-token-plan-max/qwen4-max-preview` with `xhigh`, the curator on
+# `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `high`.
 # `init` delivers the same layout to a fresh project when every route and
 # level is live. DSH is the only rail: the ZCode branch and its generator
 # left the project (operator decision, continue.md).
@@ -24,28 +24,28 @@
 # `init` in a fresh project writes the maximum available level.
 
 [agents.reviewer-spec]
-model = "qwen-token-plan/qwen3.8-flash"
-level = "xhigh"
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-tests]
-model = "qwen-token-plan/qwen3.8-flash"
-level = "xhigh"
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-code]
-model = "qwen-token-plan/qwen3.8-flash"
-level = "xhigh"
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.reviewer-kb]
-model = "qwen-token-plan/qwen3.8-flash"
-level = "xhigh"
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
 
 [agents.critic]
 model = "qwen-token-plan-max/qwen4-max-preview"
-level = "medium"
+level = "xhigh"
 
 [agents.curator]
-model = "qwen-token-plan/qwen3.8-flash"
-level = "xhigh"
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "high"
 
 # Validation pool (standards-autoship decisions 15, 16): projection
 # validation picks a model per slice from this flash pool; the main session
