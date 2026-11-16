@@ -1,3 +1,10 @@
+# Красная проба критерия 1: установка с базы c7e1dcb (до тикета 03)
+# Дата: 2026-11-17. База: c7e1dcb (main до merge тикета 03).
+# Команды:
+#   git worktree add --detach /tmp/ctb04-red-tree c7e1dcb
+#   /tmp/ctb04-red-tree/scripts/install.sh /tmp/ctb04-red
+#   ls /tmp/ctb04-red/.agents/skills
+# Ожидание (спека «Готово» 3/4): на базе состав 11, chain в каталоге.
 linked kb-search -> /tmp/ctb04-red-tree/skills/kb-search
 linked kb-curate -> /tmp/ctb04-red-tree/skills/kb-curate
 linked init -> /tmp/ctb04-red-tree/skills/init
