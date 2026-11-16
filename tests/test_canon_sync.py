@@ -27,9 +27,11 @@ Named carrier sets share the anchor mechanics:
   and absence behaviour, the team↔stack pin line, functional
   self-sufficiency, the team-pack distinction and the bump rule with the
   load-bearing-norm definition;
-- ``dsh-boundaries`` — the DSH needles of harnesses.md (core-team-boundaries
+- ``dsh-boundaries`` — the DSH anchors of harnesses.md (core-team-boundaries
   ticket 01): the contract reference file and the pointer at the team repo
-  as the single full carrier of the chain norms;
+  as the single full carrier of the chain norms; page-level presence by the
+  spec's placement, the section-scoped projection way and the retired
+  chain-mechanics absence live in test_kb_flow;
 - ``pack-contract`` — the pack contract API v1: the KB project carrier
   (docs/reference/pack-contract.md) and the bundle carrier
   (skills/pack/references/pack-contract.md);
@@ -231,15 +233,21 @@ BOUNDARIES_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
 )
 BOUNDARIES_ANCHORS = (
+    "## Границы",
     "OntoShip core — метод",
     "OntoShip Team — ведение метода",
     "функциональная самодостаточность",
     "ядро доводит тикет до main без team",
+    "Самодостаточность = DSH без team/stack-бандлов",
+    "примитивы DSH и живой каталог моделей — хост-требование",
     "пак команды (стандарты, проект) ≠ OntoShip Team (ведение, профиль)",
     "объявление team→core",
     "method-contract.json",
+    "Без team читателя контракта нет",
     "данные двусторонние, владелец формата — ядро",
+    "Без team ядро ведёт артефакты само",
     "информационная core→team",
+    "Бандла нет — шаг молчит",
     "Пин team↔стек — отдельный уровень",
     "поднимается вместе с релизом метода",
     "вход и выбор исполнителя цепочки",
@@ -247,9 +255,11 @@ BOUNDARIES_ANCHORS = (
     "READ-канал и стражи бюджета",
 )
 
-# core-team-boundaries 01 («Готово» 1, критерий 3, триаж G17): the DSH needles
+# core-team-boundaries 01 («Готово» 1, критерий 3, триаж G17): the DSH anchors
 # of harnesses.md — the contract reference is the core file, the chain norms
-# point at the team repo. The projection way stays in the same section.
+# point at the team repo. Page-level presence by the spec's placement of the
+# set; the DSH-block projection way and the retired-mechanics absence are
+# guarded section-scoped by test_kb_flow (panel: no duplicate needles there).
 DSH_BOUNDARIES_CARRIERS = (
     REPO / "docs/reference/harnesses.md",
 )
@@ -502,6 +512,11 @@ def test_boundaries_anchors_can_fail() -> None:
         ("method-contract.json", "литерал в скилле"),
         ("поднимается вместе с релизом метода", "поднимается по вкусу агента"),
         ("Пин team↔стек — отдельный уровень", "Пин team↔стек — часть канона"),
+        ("Без team читателя контракта нет", "Без team контракт проверяется"),
+        ("Бандла нет — шаг молчит", "Бандла нет — шаг пишет ссылку"),
+        ("примитивы DSH и живой каталог моделей — хост-требование",
+         "примитивы DSH — зависимость от team"),
+        ("## Границы", "## Пределы"),
     ):
         mutated = _mutate(canon, old, new)
         lost = [anchor for anchor in BOUNDARIES_ANCHORS
@@ -509,12 +524,12 @@ def test_boundaries_anchors_can_fail() -> None:
         assert lost, (old, new)
 
 
-def test_dsh_boundaries_needles_can_fail() -> None:
+def test_dsh_boundaries_anchors_can_fail() -> None:
     """invariant: docs/reference/harnesses.md#цепочка и проекции по харнессам —
-    the DSH needles redden when harnesses loses the reference file or the team
+    the DSH anchors redden when harnesses loses the reference file or the team
     pointer; probes mutate the page text in memory.
     spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 3:
-    DSH-набор нидлов умеет падать."""
+    DSH-набор якорей умеет падать."""
     page = DSH_BOUNDARIES_CARRIERS[0].read_text(encoding="utf-8")
     flat = _flat(page)
     assert all(_flat(needle) in flat for needle in DSH_BOUNDARIES_ANCHORS)

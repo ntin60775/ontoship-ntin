@@ -2,11 +2,13 @@
 
 ``docs/reference/harnesses.md`` carries the chain and projection ways per
 harness: the DSH block keeps the projection way (the ``[validation]`` pool
-of the registry, the spawn way, the live catalog check) and points the chain
-at the team bundle with the contract reference file (core-team-boundaries
-ticket 01: the chain mechanics — the clean root session, the continuable
-executor, the plugin-service contract read, the dictated records — left the
-core for the team bundle); zcode is named retired, Qoder stays a named gap.
+of the registry, the spawn way, the live catalog check); the chain pointer
+anchors (the team repo, the contract reference file) live in the canon_sync
+dsh-boundaries set, and the retired chain mechanics — the clean root session,
+the continuable executor, the plugin-service contract read, the dictated
+records — are forbidden in the flow section (core-team-boundaries ticket 01:
+the norms left the core for the team bundle); zcode is named retired, Qoder
+stays a named gap.
 The pack reference ``docs/reference/pack-contract.md`` exists with sound
 frontmatter, is linked from the folder index and names the ``--pack``
 install channel. ``skills/README.md`` describes the critic bundle as
@@ -36,17 +38,25 @@ SKILLS_INDEX = REPO / "skills" / "README.md"
 FLOW_HEADING = "## Цепочка и проекции по харнессам"
 DSH_FLOW_NEEDLES = (
     # The projection way stays in the core (critic): the pool, the spawn way,
-    # the live catalog check.
+    # the live catalog check. The chain pointer anchors (method-contract.json,
+    # ontoship-team) live in the canon_sync dsh-boundaries set — the spec
+    # places that set there; no duplicate needles here (panel).
     "[validation]",
     "subagent",
     "list_subagent_models",
-    # core-team-boundaries 01 («Готово» 1, триаж G3/G17): the chain mechanics
-    # left for the team bundle — the DSH block names the team carrier and the
-    # contract reference file instead (the former needles «чистой корневой
-    # сессии», «send_message», «team-бандла уровня профиля», «ontoshipteam»,
-    # «methodcontract», «по диктовке» left with the norms).
-    "ontoship-team",
-    "method-contract.json",
+)
+# core-team-boundaries 01 («Готово» 1, триаж G3/G17; panel P2): the former
+# presence needles of the DSH chain mechanics inverted into an absence guard —
+# the norms left for the team bundle, their wording must not return into the
+# flow section. «methodcontract» does not match the reference file name
+# «method-contract.json» (the hyphen), «ontoshipteam» — the repo «ontoship-team».
+RETIRED_DSH_CHAIN_NEEDLES = (
+    "чистой корневой сессии",
+    "send_message",
+    "по диктовке",
+    "ontoshipteam",
+    "methodcontract",
+    "team-бандла уровня профиля",
 )
 RETIRED_CRITIC_DESCRIPTION = "критика плана до первого ship"
 CRITIC_DESCRIPTION = "проекционная валидация спеки до нарезки"
@@ -104,6 +114,10 @@ def _flow_errors(harnesses: str) -> list[str]:
         for needle in DSH_FLOW_NEEDLES:
             if needle.lower() not in dsh_blocks[0]:
                 errors.append(f"the DSH way lost {needle!r}")
+    lowered_section = _normalized_lower(section)
+    errors.extend(f"the retired chain mechanics are back: {needle!r}"
+                  for needle in RETIRED_DSH_CHAIN_NEEDLES
+                  if needle in lowered_section)
     zcode_retired = any("zcode" in heading and "снят" in block
                         for heading, block in blocks.items())
     if not zcode_retired:
@@ -164,8 +178,8 @@ def test_harnesses_carry_the_chain_and_projections():
     harnesses.md несёт цепочку и проекции; zcode снят, Qoder — названный
     пробел.
     spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 3:
-    DSH-блок — проекции с пулом валидации, цепочка — указатель на team-бандл
-    и эталон из method-contract.json."""
+    DSH-блок — проекции с пулом валидации; снятая chain-механика не
+    возвращается в секцию (указатель на team и эталон сторожит canon_sync)."""
     assert _flow_errors(HARNESSES.read_text("utf-8")) == []
 
 
@@ -199,16 +213,16 @@ def test_kb_flow_checks_can_fail():
     assert any("no chain-and-projections section" in error
                for error in _flow_errors(no_section))
 
-    # core-team-boundaries 01: the team pointer and the reference file each
-    # appear twice in the flow section (intro and DSH block): the probe drops
-    # every occurrence, or the needle survives.
-    no_team = harnesses.replace("ontoship-team", "неизвестный репо")
-    assert no_team != harnesses
-    assert any("ontoship-team" in error for error in _flow_errors(no_team))
-
-    no_ref = harnesses.replace("method-contract.json", "релиз метода")
-    assert no_ref != harnesses
-    assert any("method-contract.json" in error for error in _flow_errors(no_ref))
+    # core-team-boundaries 01 (panel P2): the retired DSH chain mechanics
+    # inserted back into the flow section redden the absence guard — the
+    # pointer-only presence check stayed green on such a return.
+    mechanics_back = harnesses.replace(
+        "### DSH — цепочка и проекции",
+        "### DSH — цепочка и проекции\n\nЦепочку ведёт оркестратор в чистой "
+        "корневой сессии; записи chain пишет исполнитель по диктовке.", 1)
+    assert mechanics_back != harnesses
+    assert any("retired chain mechanics" in error
+               for error in _flow_errors(mechanics_back))
 
     no_pool = harnesses.replace("[validation]", "[agents.critic]", 1)
     assert no_pool != harnesses

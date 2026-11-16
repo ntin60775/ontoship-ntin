@@ -315,8 +315,11 @@ def test_harnesses_carries_no_bundle_count() -> None:
 
 
 # core-team-boundaries 01 («Готово» 1, триаж G17): the named carriers of the
-# retired bundle count. The count itself is derived from the installer array;
-# a hardcoded snapshot in a carrier is a stale-count defect.
+# retired bundle count. The criterion's artifact is the literal grep of the
+# retired word, and the check scans exactly that lexeme. A digit snapshot
+# («11 бандлов») is outside the artifact's scope — a named gap in the unit
+# leads: a numeral scan over the chronicle would redden legitimate historical
+# counts (the consumer-registry fact «9 бандлах v0.6.0»).
 COUNT_CARRIERS = (
     "docs/plans/standards-autoship.md",
     "docs/reference/harnesses.md",
@@ -344,25 +347,18 @@ def _hardcoded_count_errors(root: Path) -> list[str]:
 
 def test_bundle_count_is_derived_from_skills() -> None:
     """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, критерий 4:
-    число бандлов выводится из массива SKILLS установщика и совпадает с
-    перечнем индекса и кортежем этого файла; носители счётчика не хардкодят
-    снятое число."""
-    source = INSTALL.read_text("utf-8")
-    match = re.search(r"^readonly SKILLS=\(([^)]*)\)", source, re.MULTILINE)
-    assert match, "install.sh carries no readonly SKILLS array"
-    bundles = match.group(1).split()
-    index_rows = re.findall(r"^- \[([a-z0-9-]+)/\]\(",
-                            (REPO / "skills" / "README.md").read_text("utf-8"),
-                            re.MULTILINE)
-    assert len(bundles) == len(index_rows) == len(SKILLS), \
-        "the derived count must agree across the array, the index and the tuple"
+    число бандлов выводится из массива SKILLS — паритет имён носителей с
+    массивем (а значит, и равенство чисел) сторожит _parity_errors, повторного
+    разбора массива здесь нет; уникальная часть — скан носителей счётчика."""
+    assert _parity_errors(REPO) == []
     assert _hardcoded_count_errors(REPO) == []
 
 
 def test_derived_count_check_can_fail(tmp_path: Path) -> None:
-    """invariant: docs/plans/core-team-boundaries.md#рамки — the count check
-    reddens on a hardcoded counter in a seeded carrier and on a lost carrier;
-    probes run on seeded files, so a real carrier reddens only the test above."""
+    """invariant: docs/plans/core-team-boundaries.md#готово — «Готово» 1,
+    критерий 4: the count check reddens on a hardcoded counter in a seeded
+    carrier and on a lost carrier; the probe starts from the sound repo and
+    mutates seeded files, so a real carrier reddens the test above."""
     assert _hardcoded_count_errors(REPO) == []
     rel = COUNT_CARRIERS[0]
     seeded = tmp_path / rel
