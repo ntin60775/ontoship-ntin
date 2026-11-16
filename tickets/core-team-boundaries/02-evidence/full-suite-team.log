@@ -1,0 +1,26 @@
+# Полный набор team, срез 5802ee5 + правки панели a0970a8
+# Команда: npm test (vitest run), worktree ontoship-team-wt-ctb02
+
+
+> ontoship-team@0.3.0 test
+> vitest run
+
+
+ RUN  v3.2.7 /home/prog7/home/dev/contrib/forks/ontoship-team-wt-ctb02
+
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 7ms
+ ✓ tests/unit/routes.spec.ts (6 tests) 5ms
+ ✓ tests/unit/manifest.spec.ts (8 tests) 10ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 14ms
+ ✓ tests/unit/contract.spec.ts (12 tests) 18ms
+ ✓ tests/unit/composition.spec.ts (36 tests) 25ms
+ ✓ tests/unit/names.spec.ts (19 tests) 33ms
+ ✓ tests/unit/session-read.spec.ts (19 tests) 40ms
+ ✓ tests/unit/lib.spec.ts (2 tests) 1174ms
+   ✓ собранный lib > lib совпадает с детерминированной сборкой src  1169ms
+
+ Test Files  9 passed (9)
+      Tests  124 passed (124)
+   Start at  17:57:09
+   Duration  1.54s (transform 615ms, setup 0ms, collect 1.32s, tests 1.33s, environment 2ms, prepare 914ms)
+
