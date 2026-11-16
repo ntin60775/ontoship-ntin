@@ -72,11 +72,9 @@ POINTS = (
     ("to-tickets", "Вход — спека, утверждённая на план-гейте",
      "../ship/references/method-phases.md", "docs/reference/method-phases.md",
      "../ship/references/method-phases.md"),
-    # standards-autoship 06: the chain orchestrator cross-references the
-    # method section from its own header, the same guard as the phases.
-    ("chain", "Автономный поток фазы 3", "../ship/references/method-phases.md",
-     "docs/reference/method-phases.md",
-     "../ship/references/method-phases.md"),
+    # core-team-boundaries 02 («Готово» 2, триаж G7): the chain entry left
+    # with the skill — chain is a team-bundle skill now, its norms and guards
+    # live in the team repo; the core copy stays until ticket 03 removes it.
 )
 
 # Every shipped bundle, taken from disk at import: a new bundle joins the
@@ -303,7 +301,7 @@ def test_order_step_crosslinks_the_bundle_section():
     assert errors == [], "\n".join(errors)
 
 
-@pytest.mark.parametrize("skill", ("critic", "grilling", "ship", "to-tickets", "chain"))
+@pytest.mark.parametrize("skill", ("critic", "grilling", "ship", "to-tickets"))
 def test_method_section_guard_can_fail_per_skill(skill: str):
     """spec: docs/plans/canon-section-in-bundles.md#готово — потеря guard-фразы
     на имя method-phases.md краснит у каждого ссылающегося скилла; ошибки

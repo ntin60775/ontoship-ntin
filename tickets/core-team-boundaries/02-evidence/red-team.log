@@ -1,0 +1,109 @@
+# Красная проба team: пины контракта 3 / версии 0.3.0 на базе v0.2.1 (eea68d1)
+# Команда: npm test (vitest run)
+
+
+> ontoship-team@0.2.1 test
+> vitest run
+
+
+ RUN  v3.2.7 /tmp/ctb02-red-team
+
+ ✓ tests/unit/routes.spec.ts (6 tests) 8ms
+ ✓ tests/unit/names.generator.spec.ts (6 tests) 29ms
+ ✓ tests/unit/executors.spec.ts (16 tests) 27ms
+ ❯ tests/unit/manifest.spec.ts (8 tests | 1 failed) 22ms
+   ✓ манифест > объявляет пакет, точку входа и патч бандла 4ms
+   ✓ манифест > экспорт корня совпадает с точкой входа сборки 1ms
+   ✓ манифест > экспорт имён указывает на lib-сборку отдельной строки 0ms
+   ✓ манифест > экспорт реестра исполнителей указывает на lib-сборку 0ms
+   ✓ манифест > экспорт READ-канала указывает на lib-сборку 0ms
+   ✓ манифест > экспорт контракта указывает на lib-сборку 0ms
+   × манифест > манифест объявляет метод-контракт версии 3 и версию 0.3.0 10ms
+     → expected 2 to be 3 // Object.is equality
+   ✓ манифест > engines.dsh принимает живой DSH и отсекает следующий минор 4ms
+ ❯ tests/unit/contract.spec.ts (12 tests | 2 failed) 24ms
+   ✓ манифест: разбор контракта > читает ontoship.methodContract из манифеста 7ms
+   ✓ манифест: разбор контракта > контракт отсутствует, если нет секции, ключа или версия не по схеме 1ms
+   ✓ манифест: разбор контракта > reason называет причину: нет секции, секция не объект, нет ключа 1ms
+   × манифест: разбор контракта > манифест репозитория объявляет версию контракта 2 9ms
+     → expected 2 to be 3 // Object.is equality
+   ✓ чтение контракта с деградацией > валидный манифест — версия; ошибка чтения и битый JSON — null и лог 0ms
+   ✓ сервис контракта > отдаёт зафиксированную версию или null 0ms
+   ✓ read-only inspect-провайдер > объявляет провайдера OntoShipTeam с методом methodContract 1ms
+   ✓ read-only inspect-провайдер > возвращает версию контракта без входных параметров 1ms
+   ✓ read-only inspect-провайдер > отсутствующий контракт — contract 0 и absent 0ms
+   ✓ read-only inspect-провайдер > неизвестный метод — отказ 1ms
+   × плагин > публикует сервис и регистрирует провайдера через cordisInspect 1ms
+     → expected 2 to be 3 // Object.is equality
+   ✓ плагин > профиль без cordisInspect: сервис публикуется, провайдер не регистрируется 0ms
+ ✓ tests/unit/names.spec.ts (19 tests) 33ms
+ ✓ tests/unit/composition.spec.ts (36 tests) 38ms
+ ✓ tests/unit/session-read.spec.ts (19 tests) 42ms
+ ✓ tests/unit/lib.spec.ts (2 tests) 1198ms
+   ✓ собранный lib > lib совпадает с детерминированной сборкой src  1189ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/contract.spec.ts > манифест: разбор контракта > манифест репозитория объявляет версию контракта 2
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ tests/unit/contract.spec.ts:120:47
+    118|       ontoship?: { methodContract?: number }
+    119|     }
+    120|     expect(manifest.ontoship?.methodContract).toBe(MANIFEST_CONTRACT)
+       |                                               ^
+    121|     expect(parseMethodContract(readFileSync(join(ROOT, 'package.json')…
+    122|       .toEqual({ contract: MANIFEST_CONTRACT })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/unit/contract.spec.ts > плагин > публикует сервис и регистрирует провайдера через cordisInspect
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ tests/unit/contract.spec.ts:200:39
+    198|     expect(name).toBe('ontoship-contract')
+    199|     const service = fake.provided.get(CONTRACT_SERVICE) as ReturnType<…
+    200|     expect(service?.methodContract()).toBe(MANIFEST_CONTRACT)
+       |                                       ^
+    201|     expect(fake.injections).toEqual([['cordisInspect']])
+    202|     const inject = fake.injected()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/unit/manifest.spec.ts > манифест > манифест объявляет метод-контракт версии 3 и версию 0.3.0
+AssertionError: expected 2 to be 3 // Object.is equality
+
+- Expected
++ Received
+
+- 3
++ 2
+
+ ❯ tests/unit/manifest.spec.ts:96:46
+     94|     // core-team-boundaries 02: контракт 3 (эталон — method-contract.j…
+     95|     // проекта); версия 0.3.0 — dev-состояние, тег отложен решением оп…
+     96|     expect(MANIFEST.ontoship.methodContract).toBe(3)
+       |                                              ^
+     97|     expect(MANIFEST.version).toBe('0.3.0')
+     98|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 7 passed (9)
+      Tests  3 failed | 121 passed (124)
+   Start at  17:24:16
+   Duration  1.78s (transform 1.91s, setup 0ms, collect 2.60s, tests 1.42s, environment 2ms, prepare 1.02s)
+

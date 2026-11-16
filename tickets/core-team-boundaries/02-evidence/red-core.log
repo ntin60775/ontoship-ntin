@@ -1,0 +1,19 @@
+# Красная проба ядра: эталон method-contract.json на базе 0175e6f (до тикета 02)
+# Команда: python3 -m pytest tests/test_method_contract.py -q --tb=line
+
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert ['method-cont...he core root'] == []
+      
+      Left contains one more item: 'method-contract.json is missing from the core root'
+      Use -v to get more diff
+/tmp/ctb02-red-core/tests/test_method_contract.py:53: AssertionError: assert ['method-cont...he core root'] == []
+E   AssertionError: assert ['method-cont...he core root'] == []
+      
+      Left contains one more item: 'method-contract.json is missing from the core root'
+      Use -v to get more diff
+/tmp/ctb02-red-core/tests/test_method_contract.py:60: AssertionError: assert ['method-cont...he core root'] == []
+=========================== short test summary info ============================
+FAILED tests/test_method_contract.py::test_reference_file_carries_contract_3
+FAILED tests/test_method_contract.py::test_reference_check_can_fail - Asserti...
+2 failed in 0.05s

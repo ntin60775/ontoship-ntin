@@ -289,7 +289,6 @@ GUARD_CARRIERS = (
     REPO / "skills/onto-doc/SKILL.md",
     REPO / "skills/testing/SKILL.md",
     REPO / "skills/to-tickets/SKILL.md",
-    REPO / "skills/chain/SKILL.md",
 )
 GUARD_ANCHORS = (
     "файл бандла — первоисточник",
