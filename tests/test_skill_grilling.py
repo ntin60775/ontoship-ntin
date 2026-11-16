@@ -99,6 +99,34 @@ PROJECTION_CONTRADICTIONS = (
 )
 RETIRED_CRITIC_PHRASE = "критик после нарезки"
 
+# Triviality filter (team-profiles ticket 14, decision 23): under full
+# requirements the agent settles trivial reversible forks itself and names
+# the choice in the spec and the report; the operator gets substantive and
+# irreversible decisions; the criterion and the doubt guard live in «Раунды».
+TRIVIALITY_HEADING = "раунды"
+TRIVIALITY_PHRASES = (
+    "фильтр тривиальности",
+    "при полных требованиях",
+    "тривиальные развилки",
+    "имена, тексты, формат, маловлияющий выбор",
+    "агент разрешает сам по рекомендации",
+    "называет выбор в спеке и отчёте",
+    "ask оператора — только содержательные и необратимые решения",
+    "критерий тривиальности",
+    "обратимость, малое влияние на цель, отсутствие явного требования",
+    "сомнение в тривиальности — решение оператору",
+    "фильтр не отменяет план-гейт и нарезку",
+)
+# The same rule's consistency edits outside «Раунды» (honesty item and the
+# out-of-scope note) and the catalog description must not roll back silently.
+TRIVIALITY_CONSISTENCY_PHRASES = (
+    "тривиальное решение, принятое по фильтру раундов и названное в отчёте, — не дефект",
+    "содержательные и необратимые решения фронтира идут оператору, тривиальные — по фильтру раундов",
+)
+TRIVIALITY_DESCRIPTION_PHRASE = (
+    "тривиальные обратимые решения агент принимает сам по рекомендации"
+)
+
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
     """Parse the simple single-line YAML frontmatter this skill uses."""
@@ -195,6 +223,15 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("exit: slicing must follow the projection step")
     if RETIRED_CRITIC_PHRASE in lowered:
         errors.append(f"body: retired phrase {RETIRED_CRITIC_PHRASE!r}")
+    rounds = re.sub(r"\s+", " ", _section(body, TRIVIALITY_HEADING).lower())
+    for phrase in TRIVIALITY_PHRASES:
+        if phrase not in rounds:
+            errors.append(f"rounds: missing triviality phrase {phrase!r}")
+    for phrase in TRIVIALITY_CONSISTENCY_PHRASES:
+        if phrase not in lowered:
+            errors.append(f"body: missing triviality consistency phrase {phrase!r}")
+    if TRIVIALITY_DESCRIPTION_PHRASE not in description.lower():
+        errors.append("frontmatter: description lost the triviality filter clause")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden strict-profile entity {term!r}")
@@ -659,3 +696,53 @@ def test_projection_exit_contract_can_fail():
     assert early != text
     assert any("must follow the plan gate item" in error
                for error in _contract_errors(early))
+
+
+def test_triviality_filter_contract():
+    """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+    grilling фильтрует тривиальные развилки в раундах — при полных
+    требованиях агент решает их сам и называет выбор в спеке и отчёте,
+    оператору идут только содержательные и необратимые решения; критерий
+    тривиальности и ограждение «сомнение — оператору» на месте. Мутации:
+    потеря каждой фразы фильтра, подмена ограждения и снятие называния
+    выбора краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    body = _parse(text)[1]
+    rounds = re.sub(r"\s+", " ", _section(body, TRIVIALITY_HEADING).lower())
+    for phrase in TRIVIALITY_PHRASES:
+        assert phrase in rounds, f"the phrase {phrase!r} left «Раунды»"
+
+    for phrase in TRIVIALITY_PHRASES:
+        mutated = _remove_phrase(text, phrase)
+        assert mutated != text, f"the needle {phrase!r} matched nothing"
+        assert any("missing triviality phrase" in error
+                   for error in _contract_errors(mutated)), phrase
+
+    for phrase, replacement in (
+        ("сомнение в тривиальности — решение оператору",
+         "сомнение в тривиальности — решает агент"),
+        ("называет выбор в спеке и отчёте",
+         "фиксирует выбор в спеке и отчёте"),
+        ("при полных требованиях", "при любых требованиях"),
+        ("агент разрешает сам по рекомендации", "агент решает молча"),
+        ("фильтр не отменяет план-гейт и нарезку", "фильтр заменяет план-гейт"),
+    ):
+        mutated = _replace_phrase(text, phrase, replacement)
+        assert mutated != text, phrase
+        assert any("missing triviality phrase" in error
+                   for error in _contract_errors(mutated)), \
+            (phrase, _contract_errors(mutated))
+
+    for phrase in TRIVIALITY_CONSISTENCY_PHRASES:
+        mutated = _remove_phrase(text, phrase)
+        assert mutated != text, phrase
+        assert any("missing triviality consistency phrase" in error
+                   for error in _contract_errors(mutated)), phrase
+
+    mutated_desc = _replace_phrase(
+        text, TRIVIALITY_DESCRIPTION_PHRASE, "решения принимает оператор")
+    assert mutated_desc != text
+    assert any("description lost the triviality filter clause" in error
+               for error in _contract_errors(mutated_desc)), \
+        _contract_errors(mutated_desc)

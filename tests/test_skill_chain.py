@@ -405,6 +405,25 @@ CONTRACT_PHRASES = (
     "обязательные механизмы ведения",
 )
 HYBRID_HEADING = "гибридный read-канал"
+# «Бриф и тривиальности» (ticket 14 team-profiles, decision 23): the brief
+# pre-decides trivial reversible forks under full requirements; the
+# orchestrator does not relay a probe agent's trivial ask to the operator —
+# it pre-decides or delegates the decision to the executor; substantive and
+# irreversible decisions go to the operator, doubt goes to the operator too.
+BRIEF_HEADING = "бриф и тривиальности"
+BRIEF_PHRASES = (
+    "бриф — контекстный промпт юнита",
+    "при полных требованиях",
+    "обратимые развилки",
+    "оркестратор и исполнитель решают по рекомендации",
+    "называют выбор в отчёте",
+    "критерий тривиальности",
+    "обратимость, малое влияние на цель, отсутствие явного требования",
+    "содержательные и необратимые решения идут оператору",
+    "сомнение в тривиальности — решение оператору",
+    "тривиальный ask агента в цепочке оркестратор не ретранслирует оператору",
+    "пред-решает сам или делегирует решение исполнителю",
+)
 # «Гибридный READ-канал»: read-only instrument, credential inside, child address,
 # degradation and no second lifecycle.
 HYBRID_PHRASES = (
@@ -526,6 +545,7 @@ def _contract_errors(text: str) -> list[str]:
         (VIZ_HEADING, "viz", VIZ_PHRASES),
         (TIMER_HEADING, "timer", TIMER_PHRASES),
         (HYBRID_HEADING, "hybrid", HYBRID_PHRASES),
+        (BRIEF_HEADING, "brief", BRIEF_PHRASES),
     ):
         section = _section(lowered, heading)
         if not section:
@@ -1345,3 +1365,42 @@ def test_skill_names_no_harness_root(root: str):
     """invariant: docs/plans/harness-agnostic.md#готово — текст скилла не
     называет корни харнессов."""
     assert root not in SKILL.read_text("utf-8")
+
+
+def test_brief_predecides_trivialities():
+    """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+    бриф пред-решает тривиальные развилки (имена, тексты, формат,
+    маловлияющий выбор), оркестратор не ретранслирует оператору тривиальный
+    ask агента в цепочке — пред-решает сам или делегирует исполнителю;
+    содержательные и необратимые решения идут оператору, сомнение в
+    тривиальности — оператору. Мутации: снятие нормы брифа, возврат
+    ретрансляции, подмена критерия и ограждения краснят контракт."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+    body = _normalized_lower(_parse(text)[1])
+    brief = _section(body, BRIEF_HEADING)
+    assert brief, "the section «Бриф и тривиальности» is missing"
+    for phrase in BRIEF_PHRASES:
+        assert phrase in brief, f"the phrase {phrase!r} left «Бриф и тривиальности»"
+
+    for old, new, needle in (
+        ("Тривиальный ask агента в цепочке оркестратор не ретранслирует оператору",
+         "Тривиальный ask агента в цепочке оркестратор передаёт оператору",
+         "не ретранслирует оператору"),
+        ("сомнение в тривиальности — решение оператору",
+         "сомнение в тривиальности — решает агент",
+         "сомнение в тривиальности"),
+        ("Содержательные и необратимые решения идут оператору",
+         "Все решения идут агенту", "содержательные и необратимые"),
+        ("критерий тривиальности", "критерий удобства", "критерий тривиальности"),
+        ("при полных требованиях", "при любых требованиях", "при полных требованиях"),
+        ("оркестратор и исполнитель решают по рекомендации",
+         "агент решает молча", "оркестратор и исполнитель"),
+    ):
+        mutated = _body_mutated(text, old, new)
+        errors = _contract_errors(mutated)
+        assert any(needle in error for error in errors), (old, errors)
+
+    removed = _body_mutated(text, "Бриф — контекстный промпт юнита", "")
+    assert any("brief" in error and "бриф — контекстный промпт юнита" in error
+               for error in _contract_errors(removed)), _contract_errors(removed)

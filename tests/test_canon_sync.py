@@ -136,6 +136,22 @@ MANUAL_GATES = "Гейты ручные: план-гейт, нарезка и ф
 GATE_EXCLUSIVITY = "других ручных гейтов нет"
 AUTO_ACCEPT = "автоприёмка на полном зелёном контуре"
 
+# team-profiles ticket 14 (decision 23): the triviality filter is the
+# authorized override of the «decisions are the operator's work» principle.
+# The canon's grilling item and the bundle mirror must carry the same
+# wording; the can-fail probe below mutates it in memory.
+TRIVIALITY_ANCHORS = (
+    "тривиальные обратимые решения при полных требованиях",
+    "(имена, тексты, формат, маловлияющий выбор)",
+    "принимает агент по рекомендации",
+    "называя выбор в отчёте",
+    "оператору через ask — содержательные и необратимые решения",
+    "критерий тривиальности: обратимость, малое влияние на цель, "
+    "отсутствие явного требования оператора",
+    "сомнение в тривиальности — решение оператору",
+    "тривиальные — по фильтру раундов",
+)
+
 # standards-autoship 07 («Готово» 10; решения 8, 10, 11, 13, 16, 17): the
 # new flow replaces the retired one in every carrier of the set — projection
 # validation before slicing, the slicing self-check, the autonomous chain with
@@ -167,6 +183,7 @@ METHOD_ANCHORS = (
     "останавливается с вопросом при mismatch или отсутствии",
     "поднимается вместе с релизом метода",
     "обязательные механизмы ведения",
+    *TRIVIALITY_ANCHORS,
 )
 
 # The retired flow phrases must not return into the canon or the mirror. The
@@ -180,6 +197,7 @@ RETIRED_FLOW_PHRASES = (
     "команда ship",
     "критик плана",
     "до первого ship",
+    "каждое решение идёт оператору",
 )
 
 # standards-autoship 07 («Готово» 13): the KB pack reference is the project
@@ -284,6 +302,21 @@ def _gate_shape_errors(text: str) -> list[str]:
     return errors
 
 
+def _triviality_errors(text: str) -> list[str]:
+    """Violated triviality-override wording of one method carrier."""
+    flat = _flat(text)
+    return [f"triviality rule lost {anchor!r}"
+            for anchor in TRIVIALITY_ANCHORS if _flat(anchor) not in flat]
+
+
+def _mutate(text: str, old: str, new: str) -> str:
+    """Replace a phrase tolerating the 80-column wrap; the text must change."""
+    pattern = re.escape(old).replace(r"\ ", r"\s+")
+    mutated = re.sub(pattern, new, text, count=1, flags=re.IGNORECASE)
+    assert mutated != text, f"the mutation must change the text: {old!r}"
+    return mutated
+
+
 @pytest.mark.parametrize("carrier", ALL_CARRIERS,
                          ids=_carrier_name)
 def test_carrier_exists(carrier: Path) -> None:
@@ -366,6 +399,40 @@ def test_gate_shape_can_fail() -> None:
     resurrected = canon + "\n\nАвтоматических цепочек нет.\n"
     assert any("автоматических цепочек нет" in error
                for error in _gate_shape_errors(resurrected))
+
+    absolute_back = canon + "\n\nКаждое решение идёт оператору.\n"
+    assert any("каждое решение идёт оператору" in error
+               for error in _gate_shape_errors(absolute_back))
+
+
+@pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
+def test_triviality_override_in_canon_and_mirror(carrier: Path) -> None:
+    """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+    тривиальные обратимые решения при полных требованиях принимает агент;
+    канон несёт дословную оговорку к принципу «решения — работа оператора»,
+    зеркало бандла — ту же формулировку (паритет)."""
+    errors = _triviality_errors(carrier.read_text(encoding="utf-8"))
+    assert errors == [], errors
+
+
+def test_triviality_override_can_fail() -> None:
+    """invariant: docs/decisions/ontoship-core.md#три фазы — проверка оговорки
+    краснеет на потере названного выбора, критерия тривиальности и ограждения
+    «сомнение — оператору»; пробы мутируют текст канона в памяти."""
+    canon = METHOD_CARRIERS[0].read_text(encoding="utf-8")
+    assert _triviality_errors(canon) == []
+    for old, new in (
+        ("принимает агент по рекомендации", "принимает агент молча"),
+        ("(имена, тексты, формат, маловлияющий выбор)", ""),
+        ("тривиальные — по фильтру раундов", "тривиальные — по вкусу агента"),
+        ("отсутствие явного требования оператора", "удобство агента"),
+    ):
+        mutated = _mutate(canon, old, new)
+        assert _triviality_errors(mutated), (old, _triviality_errors(mutated))
+    mirror = METHOD_CARRIERS[1].read_text(encoding="utf-8")
+    assert _triviality_errors(mirror) == []
+    mutated_mirror = _mutate(mirror, "называя выбор в отчёте", "не называя выбор")
+    assert _triviality_errors(mutated_mirror), _triviality_errors(mutated_mirror)
 
 
 def test_parity_mutations_can_fail(tmp_path: Path) -> None:
