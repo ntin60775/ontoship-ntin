@@ -1,36 +1,23 @@
+# Красная проба якорного теста текста sa08 на базовом тексте
+# База: 9fc1c21 (main до среза; текст sa08 идентичен базе нарезки 88c8825,
+#       git diff 88c8825 9fc1c21 -- tickets/standards-autoship/08-live-proof.md пуст).
+# Тест: tests/test_sa08_unfreeze.py, ревизия после правок панели (срез 70b9995 + правки).
+# Команда: python3 -m pytest tests/test_sa08_unfreeze.py -q --tb=line
+# Ожидание: 2 failed — старый замороженный текст не несёт якорей дымового pack-теста.
+
 FF                                                                       [100%]
 =================================== FAILURES ===================================
-__________________ test_sa08_text_carries_the_smoke_contract ___________________
-
-    def test_sa08_text_carries_the_smoke_contract():
-        """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 7: текст
-        тикета 08 несёт обязательные разделы, четыре шага дымового pack-теста,
-        названные артефакты, строку «что краснит», запись разморозки, судьбу
-        «Готово» 12/14 и строку исполнения вне юнита; снятые формулировки
-        замороженного тикета не переживают переписывание."""
->       assert _text_errors(TICKET.read_text("utf-8")) == []
-E       assert ['the title m...g.toml'", ...] == []
-E         
-E         Left contains 19 more items, first extra item: 'the title must name the smoke pack test'
-E         Use -v to get more diff
-
-tests/test_sa08_unfreeze.py:156: AssertionError
-_______________________ test_sa08_text_contract_can_fail _______________________
-
-    def test_sa08_text_contract_can_fail():
-        """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-        the sa08 text check can fail: remove-мутация каждого якоря (разделы,
-        шаги, артефакты, «что краснит», разморозка, судьба 12/14, вне юнита),
-        возврат заморозки и старого заголовка краснят (мутационная проба)."""
-        text = TICKET.read_text("utf-8")
->       assert _text_errors(text) == []
-E       assert ['the title m...g.toml'", ...] == []
-E         
-E         Left contains 19 more items, first extra item: 'the title must name the smoke pack test'
-E         Use -v to get more diff
-
-tests/test_sa08_unfreeze.py:165: AssertionError
+E   assert ['the title m... Отчёт'", ...] == []
+      
+      Left contains 23 more items, first extra item: 'the title must name the smoke pack test'
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb07-sa08-unfreeze/tests/test_sa08_unfreeze.py:173: assert ['the title m... Отчёт'", ...] == []
+E   assert ['the title m... Отчёт'", ...] == []
+      
+      Left contains 23 more items, first extra item: 'the title must name the smoke pack test'
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/ctb07-sa08-unfreeze/tests/test_sa08_unfreeze.py:184: assert ['the title m... Отчёт'", ...] == []
 =========================== short test summary info ============================
 FAILED tests/test_sa08_unfreeze.py::test_sa08_text_carries_the_smoke_contract
 FAILED tests/test_sa08_unfreeze.py::test_sa08_text_contract_can_fail - assert...
-2 failed in 0.03s
+2 failed in 0.01s

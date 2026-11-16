@@ -7,7 +7,9 @@ mandatory sections, the four smoke steps, named artifacts, the «what
 reddens» line, the unfreeze record, the fate of the spec's «Готово» 12/14
 and the out-of-unit execution line. Execution of sa08 and the red probe of
 its criteria are a separate run outside the unit — this guard never runs
-them; the can-fail probe mutates the text in memory.
+them; the can-fail probe mutates the text in memory and asserts the named
+error, so a dropped check in this file reddens the probe too. Closed
+checkboxes ([x]) are the executed-ticket idiom and stay green.
 
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 7: текст sa08
 несёт обязательные разделы, четыре шага дымового pack-теста, названные
@@ -35,6 +37,14 @@ SECTION_LABELS = (
 # The smoke flow of decision 7, verbatim chain; whitespace-normalized search
 # survives the 80-column prose wrap.
 SMOKE_FLOW = "установка пака → init с паком → ship исполняет гейты пака → отчёт"
+
+# The four numbered steps of «Что построить», each anchored on its own.
+STEP_ANCHORS = (
+    "1. Установка пака",
+    "2. Init с паком",
+    "3. Ship исполняет гейты пака",
+    "4. Отчёт",
+)
 
 # Named artifacts of the four steps: the installer pack channel, the gate
 # runner with the manifest exit contract, the role registry.
@@ -82,7 +92,8 @@ RETIRED_PHRASES = (
 )
 
 RED_LINE_RE = re.compile(r"^\*\*Что краснит:\*\*[ \t]+\S", re.MULTILINE)
-CRITERION_RE = re.compile(r"^- \[ \]", re.MULTILINE)
+# Open and closed checkboxes alike: the sa08 run marks its criteria [x].
+CRITERION_RE = re.compile(r"^- \[[ xX]\]", re.MULTILINE)
 
 
 def _norm(text: str) -> str:
@@ -104,6 +115,10 @@ def _text_errors(text: str) -> list[str]:
 
     if SMOKE_FLOW not in norm:
         errors.append(f"missing smoke flow {SMOKE_FLOW!r}")
+
+    for step in STEP_ANCHORS:
+        if not re.search(r"^" + re.escape(step), text, re.MULTILINE):
+            errors.append(f"missing smoke step {step!r}")
 
     for phrase in ARTIFACT_PHRASES:
         if phrase not in norm:
@@ -161,30 +176,55 @@ def test_sa08_text_carries_the_smoke_contract():
 def test_sa08_text_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the sa08 text check can fail: remove-мутация каждого якоря (разделы,
-    шаги, артефакты, «что краснит», разморозка, судьба 12/14, вне юнита),
-    возврат заморозки и старого заголовка краснят (мутационная проба)."""
+    шаги, артефакты, «что краснит», разморозка, судьба 12/14, вне юнита)
+    краснит именованной ошибкой; удаление одного критерия, возврат
+    заморозки и старого заголовка краснят; закрытые чекбоксы [x] —
+    канарейка исполненного тикета — остаются зелёными (мутационная проба)."""
     text = TICKET.read_text("utf-8")
     assert _text_errors(text) == []
 
-    anchors = (SECTION_LABELS + (SMOKE_FLOW,) + ARTIFACT_PHRASES
-               + UNFREEZE_PHRASES + FATE_PHRASES + OUT_OF_UNIT_PHRASES
-               + ("артефакт", "ожидание"))
-    for phrase in anchors:
-        mutated = _remove_phrase(text, phrase)
-        assert mutated != text, f"the needle {phrase!r} matched nothing"
-        assert _text_errors(mutated), \
-            f"removing {phrase!r} must redden the sa08 text check"
+    groups = (
+        (SECTION_LABELS, "missing section label"),
+        ((SMOKE_FLOW,), "missing smoke flow"),
+        (STEP_ANCHORS, "missing smoke step"),
+        (ARTIFACT_PHRASES, "missing named artifact"),
+        (UNFREEZE_PHRASES, "missing unfreeze record phrase"),
+        (FATE_PHRASES, "missing fate phrase"),
+        (OUT_OF_UNIT_PHRASES, "missing out-of-unit phrase"),
+        (("артефакт", "ожидание"), "must name an artifact and an expectation"),
+    )
+    for phrases, expected in groups:
+        for phrase in phrases:
+            mutated = _remove_phrase(text, phrase)
+            assert mutated != text, f"the needle {phrase!r} matched nothing"
+            assert any(expected in error for error in _text_errors(mutated)), \
+                f"removing {phrase!r} must redden with {expected!r}"
 
     no_red_line = RED_LINE_RE.sub("", text)
     assert no_red_line != text
-    assert _text_errors(no_red_line), "removing the red line must redden"
+    assert any("«Что краснит»" in error for error in _text_errors(no_red_line))
+
+    bullets = list(CRITERION_RE.finditer(text))
+    assert len(bullets) >= 4
+    no_first = text[:bullets[0].start()] + text[bullets[1].start():]
+    assert any("four smoke steps" in error for error in _text_errors(no_first)), \
+        "removing one criterion must redden the criterion count"
 
     refrozen = text.replace("**Разморожен:**", "**Заморожен:**", 1)
     assert refrozen != text
-    assert _text_errors(refrozen), "restoring the freeze label must redden"
+    assert any("retired wording survived" in error
+               for error in _text_errors(refrozen)), \
+        "restoring the freeze label must redden the retired-wording check"
 
     old_title = text.replace(text.splitlines()[0],
                              "# 08: Живая проба полного потока и закрывающий набор",
                              1)
     assert old_title != text
-    assert _text_errors(old_title), "restoring the old title must redden"
+    assert any("retired wording survived" in error
+               for error in _text_errors(old_title)), \
+        "restoring the old title must redden the retired-wording check"
+
+    closed = text.replace("- [ ]", "- [x]")
+    assert closed != text
+    assert _text_errors(closed) == [], \
+        "the executed ticket marks its criteria [x] and must stay green"
