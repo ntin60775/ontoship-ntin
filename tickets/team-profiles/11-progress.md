@@ -1,7 +1,7 @@
 # Тикет 11 — прогресс ship
 
 Тикет: [11-session-flow.md](11-session-flow.md). Спека:
-[team-profiles.md](../../docs/plans/team-profiles.md), «Готово» 11, решение 20.
+team-profiles.md (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 11, решение 20.
 
 - [x] Статусная запись цепочки (основной checkout, `dc5c4c1`): continue,
       kanban, dag — тикет 11 в работе.

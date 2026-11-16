@@ -1190,8 +1190,9 @@ def test_pack_discovery_contract_can_fail():
         assert needle in _pack_discovery_missing(mutated), needle
 
 
-# team-profiles 04 («Готово» 6 и решение 15 спеки team-profiles): init
-# называет team-бандл ссылкой в §5/отчёте — роли команды поставляет
+# team-profiles 04 («Готово» 6, решение 15; спека перенесена в
+# ontoship-team, носитель нормы — core-team-boundaries «Готово» 3):
+# init называет team-бандл ссылкой в §5/отчёте — роли команды поставляет
 # DSH-бандл пресетов уровня профиля, не пак стандартов. Имени личного
 # репозитория и литералов маршрутов в навыке нет: init остаётся реестром
 # панели и куратора, а канал поставки бандла — профиль, не проект.
@@ -1239,21 +1240,22 @@ def _team_reference_missing(text: str) -> list[str]:
 
 
 def test_team_bundle_is_named_by_reference():
-    """spec: docs/plans/team-profiles.md#готово — «Готово» 6 (тикет 04);
-    решение 15 спеки team-profiles:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3 (перенос
+    team-profiles 05; бывш. «Готово» 6 team-profiles, решение 15):
     init называет team-бандл ссылкой в §5 и отчёте; роли команды — DSH-бандл
     пресетов уровня профиля, не пак; имени личного репозитория и литералов
-    маршрутов нет. На базе секции нет — красная проба."""
+    маршрутов нет. Красная проба — на базе team-profiles 04 (секции не было)."""
     text = SKILL.read_text("utf-8")
     assert _team_reference_missing(text) == []
 
 
 def test_team_reference_contract_can_fail():
-    """spec: docs/plans/team-profiles.md#готово — «Готово» 6 (тикет 04);
-    решение 15 спеки team-profiles:
+    """spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3 (перенос
+    team-profiles 05; бывш. «Готово» 6 team-profiles, решение 15):
     проверка ссылки init умеет падать — потеря каждого якоря, возврат имени
     личного репозитория, литерала маршрута и потеря строки отчёта краснят
-    её. Ожидаемые значения — из решения 15 спеки, не из текста навыка."""
+    её. Ожидаемые значения — из «Готово» 3 спеки границ (решение 15
+    team-profiles), не из текста навыка."""
     text = SKILL.read_text("utf-8")
     assert _team_reference_missing(text) == []
 

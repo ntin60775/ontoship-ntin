@@ -7,7 +7,7 @@ updated: 2026-11-16
 tags: [plan, boundaries, core, team, chain, contract, canon, migration]
 links:
   part_of: [README.md]
-  relates_to: [../decisions/ontoship-core.md, team-profiles.md, standards-autoship.md, ../reference/harnesses.md, ../ops/continue.md]
+  relates_to: [../decisions/ontoship-core.md, standards-autoship.md, ../reference/harnesses.md, ../ops/continue.md]
 ---
 
 # core-team-boundaries — разделение метода и ведения

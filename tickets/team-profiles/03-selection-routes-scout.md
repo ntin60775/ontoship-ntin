@@ -1,6 +1,6 @@
 # 03: Выбор исполнителя, маршруты и scout
 
-**Спека:** [team-profiles](../../docs/plans/team-profiles.md), «Готово» 1, 3, 5.
+**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 3, 5.
 
 **Блокируется:** 02
 

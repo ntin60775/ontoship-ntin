@@ -699,7 +699,8 @@ def test_projection_exit_contract_can_fail():
 
 
 def test_triviality_filter_contract():
-    """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+    """spec: docs/decisions/ontoship-core.md#три фазы — решение 23 (team-profiles 14;
+    спека перенесена в ontoship-team, носитель нормы — канон):
     grilling фильтрует тривиальные развилки в раундах — при полных
     требованиях агент решает их сам и называет выбор в спеке и отчёте,
     оператору идут только содержательные и необратимые решения; критерий

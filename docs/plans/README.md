@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-16
+updated: 2026-11-17
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, team-profiles.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -132,13 +132,16 @@ links:
   оператора ask 2026-11-16 «править всё, спорное по рекомендациям»;
   открыта 2026-11-16).
 
-- [team-profiles.md](team-profiles.md) — личная команда агентов на пресетах
-  DSH: роли архитектора/оркестратора/исполнителя/сборщика, реестр
-  исполнителей и выбор оркестратором, стек-пресеты 1C-DSH; утверждена на план-гейте
+- team-profiles — личная команда агентов на пресетах DSH. Спека и
+  открытые тикеты 07/08 перенесены в ontoship-team 2026-11-17
+  (core-team-boundaries 05, решение 8 спеки границ): носитель спеки —
+  `ontoship-team/docs/plans/team-profiles.md`, тикеты и виды —
+  `ontoship-team/tickets/team-profiles/`. Утверждена на план-гейте
   2026-11-13 ask-проходом после гейта проекций (25 находок, триаж,
-  правки внесены); grilling — раунды 1–5, решения 1–17; открыта 2026-11-13;
-  вход — проба динамического allowlist (носитель:
-  `ontoship-team/docs/reference/dsh-preset-allowlist.md`).
+  правки внесены); grilling — раунды 1–5, решения 1–17, дополнены
+  решениями 18–24; открыта 2026-11-13. Закрытые тикеты 01–06, 09–14,
+  evidence и гейт проекций остаются в ядре
+  ([tickets/team-profiles/](../../tickets/team-profiles/)).
 
 Будущий юнит `chain-viz-panel` отменён решением оператора 2026-11-16
 вместе с прототипами доски; визуализация цепочки — статические

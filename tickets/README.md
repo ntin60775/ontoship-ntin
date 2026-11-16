@@ -367,7 +367,8 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 06 | [Релиз core v0.7.0](core-team-boundaries/06-core-release.md) | 04, 05 |
 | 07 | [sa08 разморожен](core-team-boundaries/07-sa08-unfreeze.md) | — |
 
-Юнит [`team-profiles`](../docs/plans/team-profiles.md) открыт 2026-11-13:
+Юнит `team-profiles` (спека — носитель:
+`ontoship-team/docs/plans/team-profiles.md`) открыт 2026-11-13:
 спека утверждена на план-гейте ask-проходом после гейта проекций
 (grilling-раунды 1–5, решения 1–17; четыре среза проекций, 25 находок
 после дедупликации, триаж, спорное закрыто ask-ом —
@@ -394,14 +395,22 @@ Merge ff = `7b2c6e6`, worktree снесён, движок consumer-полиго�
 | 04 | [OntoShip-носители и метод-контракт](team-profiles/04-method-carriers-contract.md) | 02, 03 |
 | 05 | [стек 1C: ontoship-team-1c](team-profiles/05-stack-1c-team-repo.md) | 01, 02 |
 | 06 | [релиз и поставка](team-profiles/06-release-delivery.md) | 03, 04, 05, 09 |
-| 07 | [живая проба universal fin-agent](team-profiles/07-live-proof.md) | 06, 10, 11, 12, 13, 14 |
-| 08 | [набор, KB и протокол 08](team-profiles/08-suite-kb-08-protocol.md) | 07 |
+| 07 | живая проба universal fin-agent — перенесён в team (носитель: `ontoship-team/tickets/team-profiles/07-live-proof.md`) | 06, 10, 11, 12, 13, 14 |
+| 08 | набор, KB и протокол 08 — перенесён в team (носитель: `ontoship-team/tickets/team-profiles/08-suite-kb-08-protocol.md`) | 07 |
 | 09 | [личные имена агентов](team-profiles/09-personal-names.md) | 02 |
 | 10 | [таймер опроса — норма chain](team-profiles/10-polling-timer-norm.md) | 04 |
 | 11 | [разведка API-ведения сессий](team-profiles/11-session-flow.md) | 10 |
 | 12 | [гибридный READ-канал](team-profiles/12-hybrid-read-channel.md) | 11 |
 | 13 | [tool-schedule у orchestrator](team-profiles/13-orchestrator-schedule.md) | 12 |
 | 14 | [фильтр тривиальности](team-profiles/14-triviality-filter.md) | — |
+
+Спека и открытые тикеты 07/08 перенесены в ontoship-team 2026-11-17
+(core-team-boundaries 05, решение 8 спеки границ): носители —
+`ontoship-team/docs/plans/team-profiles.md`,
+`ontoship-team/tickets/team-profiles/` (индексы и виды dag/kanban team
+там же). Закрытые тикеты 01–06, 09–14, evidence, гейт проекций и
+реестр зацепок (`leads.md`) остаются в ядре; виды ядра
+перегенерированы без 07/08.
 
 Юнит [`standards-autoship`](../docs/plans/standards-autoship.md) открыт
 2026-11-11: спека утверждена на план-гейте ask-проходом (решения 1–18),

@@ -545,7 +545,8 @@ def test_dsh_boundaries_anchors_can_fail() -> None:
 
 @pytest.mark.parametrize("carrier", METHOD_CARRIERS, ids=_carrier_name)
 def test_triviality_override_in_canon_and_mirror(carrier: Path) -> None:
-    """spec: docs/plans/team-profiles.md#готово — решение 23 (тикет 14):
+    """spec: docs/decisions/ontoship-core.md#три фазы — решение 23 (team-profiles 14;
+    спека перенесена в ontoship-team, носитель нормы — канон):
     тривиальные обратимые решения при полных требованиях принимает агент;
     канон несёт дословную оговорку к принципу «решения — работа оператора»,
     зеркало бандла — ту же формулировку (паритет)."""

@@ -1,0 +1,56 @@
+--- docs/plans/team-profiles.md	2026-11-17 01:19:22.219558976 +0200
++++ /home/prog7/home/dev/contrib/forks/ontoship-team/docs/plans/team-profiles.md	2026-11-17 01:20:54.475663754 +0200
+@@ -7,7 +7,6 @@
+ tags: [plan, presets, roles, routing, packs, dsh, team]
+ links:
+   part_of: [README.md]
+-  relates_to: [standards-autoship.md, dsh-adaptation.md, role-registry.md, ../reference/harnesses.md, ../reference/review-roles.md, ../ops/continue.md]
+ ---
+ 
+ # team-profiles — личная команда агентов на пресетах DSH
+@@ -18,7 +17,16 @@
+ нативный механизм ролей. Вход — концепт-основа сессии планирования
+ 2026-11-13, проба динамического allowlist
+ (носитель: `ontoship-team/docs/reference/dsh-preset-allowlist.md`) и гейт
+-проекций ([00-projection-report.md](../../tickets/team-profiles/00-projection-report.md)).
++проекций (00-projection-report.md; носитель:
++`ontoship-ntin/tickets/team-profiles/00-projection-report.md`).
++
++Связанные носители ядра (адреса-проза):
++`ontoship-ntin/docs/plans/standards-autoship.md`,
++`ontoship-ntin/docs/plans/dsh-adaptation.md`,
++`ontoship-ntin/docs/plans/role-registry.md`,
++`ontoship-ntin/docs/reference/harnesses.md`,
++`ontoship-ntin/docs/reference/review-roles.md`,
++`ontoship-ntin/docs/ops/continue.md`.
+ 
+ ## Цель
+ 
+@@ -77,8 +85,8 @@
+ ## Решения по триажу проекций
+ 
+ Гейт проекций пройден до план-гейта по команде оператора; 25 находок
+-(9 P1 / 12 P2 / 4 P3), отчёт —
+-[00-projection-report.md](../../tickets/team-profiles/00-projection-report.md).
++(9 P1 / 12 P2 / 4 P3), отчёт — 00-projection-report.md (носитель:
++`ontoship-ntin/tickets/team-profiles/00-projection-report.md`).
+ Спорные пункты закрыты оператором ask 2026-11-13:
+ 
+ - **Доставка 1C:** 1C-специализация — в новом стековом репо
+@@ -375,11 +383,12 @@
+ 
+ - Вход интервью — концепт-основа, проба allowlist
+   (носитель: `ontoship-team/docs/reference/dsh-preset-allowlist.md`) и гейт
+-  проекций [00-projection-report.md](../../tickets/team-profiles/00-projection-report.md).
++  проекций 00-projection-report.md (носитель:
++  `ontoship-ntin/tickets/team-profiles/00-projection-report.md`).
+ - Текущее состояние ролей: шесть ролей ядра
+-  ([roles.py](../../skills/init/roles.py)), реестр
+-  [.agents/config.toml](../../.agents/config.toml), стандартная раскладка
+-  init.
++  (roles.py; носитель: `ontoship-ntin/skills/init/roles.py`), реестр
++  .agents/config.toml (носитель: `ontoship-ntin/.agents/config.toml`),
++  стандартная раскладка init.
+ - Живой `1c`-пресет бандла `dsh-1c-contour` — копия `standard` с
+   доставкой контура; фильтр доставки по точному id `1c`
+   (`src/preset/config.ts`, `index.ts`); дрейф с апстримом назван в его

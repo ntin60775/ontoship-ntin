@@ -1,6 +1,6 @@
 # 02: Реестр исполнителей и пресеты orchestrator/executor
 
-**Спека:** [team-profiles](../../docs/plans/team-profiles.md), «Готово» 1, 2.
+**Спека:** team-profiles (носитель: `ontoship-team/docs/plans/team-profiles.md`), «Готово» 1, 2.
 
 **Блокируется:** 01
 
