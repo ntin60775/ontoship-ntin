@@ -1,0 +1,51 @@
+# Красная проба: spec-тест на базовом коммите
+Дата: 2026-11-17T00:18:23+02:00
+База: 79d8e5d56ea23c3bb3265877d216d045de943607 (baseline: README с опечаткой (игрушечный проект пробы))
+Команда: python3 -m pytest tests/ -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /tmp/ctb04-project/.agents/worktrees/toy-readme-01-typo
+plugins: typeguard-4.4.2, anyio-4.8.0
+collecting ... collected 2 items
+
+tests/test_readme.py::test_readme_contains_self_sufficient FAILED        [ 50%]
+tests/test_readme.py::test_readme_has_no_typo_self_sufficent FAILED      [100%]
+
+=================================== FAILURES ===================================
+_____________________ test_readme_contains_self_sufficient _____________________
+
+    def test_readme_contains_self_sufficient():
+        """spec: docs/plans/toy-readme.md#Готово-1 — слово «self-sufficient» присутствует."""
+        text = README.read_text(encoding="utf-8")
+>       assert "self-sufficient" in text, (
+            "README не несёт «self-sufficient» (спека toy-readme, «Готово» 1)"
+        )
+E       AssertionError: README не несёт «self-sufficient» (спека toy-readme, «Готово» 1)
+E       assert 'self-sufficient' in '# Probe project\n\nThis project proves the OntoShip core is self-sufficent on a bare DSH host.\n'
+
+tests/test_readme.py:19: AssertionError
+____________________ test_readme_has_no_typo_self_sufficent ____________________
+
+    def test_readme_has_no_typo_self_sufficent():
+        """spec: docs/plans/toy-readme.md#Готово-1 — опечатки «self-sufficent» нет."""
+        text = README.read_text(encoding="utf-8")
+>       assert "self-sufficent" not in text, (
+            "README несёт опечатку «self-sufficent» (спека toy-readme, «Готово» 1)"
+        )
+E       AssertionError: README несёт опечатку «self-sufficent» (спека toy-readme, «Готово» 1)
+E       assert 'self-sufficent' not in '# Probe pro... DSH host.\n'
+E         
+E         'self-sufficent' is contained here:
+E           # Probe project
+E           
+E           This project proves the OntoShip core is self-sufficent on a bare DSH host.
+E         ?                                          ++++++++++++++
+
+tests/test_readme.py:27: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_readme.py::test_readme_contains_self_sufficient - Assertion...
+FAILED tests/test_readme.py::test_readme_has_no_typo_self_sufficent - Asserti...
+============================== 2 failed in 0.02s ===============================
+pytest exit=1

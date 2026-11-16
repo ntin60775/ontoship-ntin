@@ -1,0 +1,25 @@
+# Полный набор после реализации (dev-прогон)
+Дата: 2026-11-17T00:18:41+02:00
+Коммит дерева: 79d8e5d56ea23c3bb3265877d216d045de943607 + правка README (не закоммичена)
+Команда: python3 -m pytest tests/ -v
+
+============================= test session starts ==============================
+platform linux -- Python 3.13.5, pytest-9.1.1, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /tmp/ctb04-project/.agents/worktrees/toy-readme-01-typo
+plugins: typeguard-4.4.2, anyio-4.8.0
+collecting ... collected 2 items
+
+tests/test_readme.py::test_readme_contains_self_sufficient PASSED        [ 50%]
+tests/test_readme.py::test_readme_has_no_typo_self_sufficent PASSED      [100%]
+
+============================== 2 passed in 0.01s ===============================
+pytest exit=0
+
+# Демо-путь тикета: grep self-sufficient README.md
+This project proves the OntoShip core is self-sufficient on a bare DSH host.
+grep exit=0
+
+# Негативная проверка: опечатки нет
+0
+grep exit=1 (1 = нет совпадений)

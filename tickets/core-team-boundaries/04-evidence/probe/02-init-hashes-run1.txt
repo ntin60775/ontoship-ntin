@@ -1,0 +1,4 @@
+a93656be3d79059d8bbb46675faa634d773ca25da913c5a7fd55f5da8c58d035  AGENTS.md
+deebf07aec5e88bc74bf6d058799b6c3d96af09e021e2e482b3d412f3fed60ff  .gitignore
+1cb69eade8fb9a9938f94b92b51bea4683001ed33bb5180c1b1bfd42a46265ef  .agents/config.toml
+8bd4e875de321360ce851ee2179594f34b135332759ef699a94ced26069dbcab  docs/ops/continue.md
