@@ -29,13 +29,21 @@ git show 88c8825:AGENTS.md | grep -n "цепочка\|орк-промт"
 120:  в чистой сессии, скилл `chain`; «орк-промт» — инициирующий промпт
 ```
 
-Текущий selfhost-блок в паритете с init (chain-команд нет, тест
-`test_repo_managed_block_matches_the_init_block` зелёный на main);
-повторный init релиза доказывает идемпотентность (diff — 03-checks.md).
+Тест `test_repo_managed_block_matches_the_init_block` — паритетный
+инвариант (зелёный и на базе нарезки): краснота критерия 3 держится
+на grep chain-команд блока, не на этом тесте. Стражи снятия chain:
+`test_block_carries_no_chain_vocabulary` (test_skill_init.py) и
+`test_chain_is_retired_from_the_core` (test_install.py) — зелёные
+на текущем main. Selfhost-блок в паритете с тикета 03; повторный
+init релиза доказывает идемпотентность (diff 0 — 03-checks.md,
+post-tag).
 
 ## Критерии 4/5: записей отсрочки team и стека в тикете нет
 
+База записей — `d41dd87` (тикета 06 на базе нарезки `88c8825` нет,
+он опубликован позже):
+
 ```
-grep -n "Записи\|Отсрочка\|Стек" tickets/core-team-boundaries/06-core-release.md
-# пусто (до правки тикета этим срезом)
+git show d41dd87:tickets/core-team-boundaries/06-core-release.md | grep -n "## Записи"
+# пусто (до правки тикета срезом 06)
 ```
