@@ -1,6 +1,25 @@
 == дефект канарейки якорного теста (target-фикс в срезе sa08) ==
 факт: tests/test_sa08_unfreeze.py::test_sa08_text_contract_can_fail требовал наличия открытых чекбоксов (- [ ]); исполненный тикет несёт все [x] — мутация closed != text вырождалась в no-op, тест падал на исполненном тексте
-красная проба: старый тест (git show HEAD:tests/test_sa08_unfreeze.py) на исполненном тексте — 1 failed, 1 passed
-фикс: канарейка работает в обоих состояниях — до исполнения закрывает открытые, после исполнения гоняет один критерий [x] -> [ ] -> [x] (round-trip), зелёность обоих состояний asserted
-новый тест на исполненном тексте — 2 passed; новый тест на базовом тексте (открытые чекбоксы, git show HEAD:tickets/standards-autoship/08-live-proof.md) — 2 passed
+
+== красная проба: старый тест на исполненном тексте ==
+$ git show cadaaa8:tests/test_sa08_unfreeze.py > /tmp/sa08-old-anchor.py
+$ cp tests/test_sa08_unfreeze.py /tmp/sa08-new-anchor-backup.py
+$ cp /tmp/sa08-old-anchor.py tests/test_sa08_unfreeze.py
+$ python3 -m pytest tests/test_sa08_unfreeze.py -q --tb=no
+FAILED tests/test_sa08_unfreeze.py::test_sa08_text_contract_can_fail - Assert...
+1 failed, 1 passed in 0.06s
+(тест восстановлен из backup)
+
+== зелёность нового теста: исполненный текст ==
+$ python3 -m pytest tests/test_sa08_unfreeze.py -q --tb=no
+2 passed in 0.05s
+
+== зелёность нового теста: базовый текст тикета (открытые чекбоксы) ==
+$ git show cadaaa8:tickets/standards-autoship/08-live-proof.md > /tmp/sa08-base-ticket.md
+$ cp tickets/standards-autoship/08-live-proof.md /tmp/sa08-cur-ticket-backup.md
+$ cp /tmp/sa08-base-ticket.md tickets/standards-autoship/08-live-proof.md
+$ python3 -m pytest tests/test_sa08_unfreeze.py -q --tb=no
+2 passed in 0.03s
+(тикет восстановлен из backup)
+
 трассировка: target — реальный сбой исполненного состояния; инвариант канона «одно правило качества» (тест умеет падать) сохранён

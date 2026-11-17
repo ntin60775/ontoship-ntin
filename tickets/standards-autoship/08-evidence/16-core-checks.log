@@ -1,0 +1,16 @@
+== проверки ядра из worktree sa08-smoke-pack (dev-контур среза) ==
+каталог: /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/sa08-smoke-pack
+worktree вложен в .agents/worktrees основного репо — pytest изнутри worktree не собирает вложенные worktree (в worktree нет .agents/skills и .agents/worktrees); набор main после сноса worktree — post-merge запись
+
+$ python3 -m pytest -q
+........................................................................ [ 73%]
+........................................................................ [ 82%]
+........................................................................ [ 91%]
+..................................................................       [100%]
+786 passed in 16.56s
+suite-exit=0
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+scope: 146 файлов исключено по 1 префиксам
+✓ чисто  (57 файлов · —)
+lint-exit=0

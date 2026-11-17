@@ -93,7 +93,8 @@ RETIRED_PHRASES = (
 
 RED_LINE_RE = re.compile(r"^\*\*Что краснит:\*\*[ \t]+\S", re.MULTILINE)
 # Open and closed checkboxes alike: the sa08 run marks its criteria [x].
-CRITERION_RE = re.compile(r"^- \[[ xX]\]", re.MULTILINE)
+# Uppercase [X] is not the ticket idiom: the criterion count reddens it.
+CRITERION_RE = re.compile(r"^- \[[ x]\]", re.MULTILINE)
 
 
 def _norm(text: str) -> str:
@@ -179,9 +180,10 @@ def test_sa08_text_contract_can_fail():
     шаги, артефакты, «что краснит», разморозка, судьба 12/14, вне юнита)
     краснит именованной ошибкой; удаление одного критерия, возврат
     заморозки и старого заголовка краснят; канарейка закрытых чекбоксов
-    [x] зелёная в обоих состояниях: до исполнения закрывает открытые,
-    после исполнения (все [x]) гоняет один критерий через открытое
-    состояние и обратно (мутационная проба)."""
+    [x] — guard обоих состояний: до исполнения закрывает открытые,
+    после исполнения (все [x]) открывает один критерий и остаётся
+    зелёной; заглавный [X] — не идиома тикета, краснит счёт критериев
+    (мутационная проба)."""
     text = TICKET.read_text("utf-8")
     assert _text_errors(text) == []
 
@@ -226,19 +228,21 @@ def test_sa08_text_contract_can_fail():
                for error in _text_errors(old_title)), \
         "restoring the old title must redden the retired-wording check"
 
+    # Canary of the executed ticket: [x] criteria stay green. Before
+    # execution, close the open criteria; after execution (all [x]),
+    # reopening one criterion stays green too — a guard of both states,
+    # not a mutation probe (the remove-mutations above are the probes).
     closed = text.replace("- [ ]", "- [x]")
     if closed != text:
-        # Pre-execution state: closing the open criteria stays green.
         assert _text_errors(closed) == [], \
             "the executed ticket marks its criteria [x] and must stay green"
     else:
-        # Executed state (all criteria [x]): round-trip one criterion
-        # through the open state so the mutation stays real in both states.
         opened = text.replace("- [x]", "- [ ]", 1)
         assert opened != text, "the executed ticket must carry [x] criteria"
         assert _text_errors(opened) == [], \
             "reopening one criterion of the executed ticket must stay green"
-        reclosed = opened.replace("- [ ]", "- [x]")
-        assert reclosed == text
-        assert _text_errors(reclosed) == [], \
-            "the executed ticket marks its criteria [x] and must stay green"
+        upper = text.replace("- [x]", "- [X]")
+        assert upper != text
+        assert any("four smoke steps" in error
+                   for error in _text_errors(upper)), \
+            "uppercase [X] is not the ticket idiom and must redden the count"

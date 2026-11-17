@@ -1,3 +1,10 @@
+== шаг 6 внутреннего ship: механические гейты пака ==
+корень проекта: /tmp/sa08-smoke/proj (пак gitignored в worktree — оговорка названа в отчёте)
+$ python3 -c "import json; m=json.load(open('.agents/packs/reference-pack/manifest.json')); print([(g['name'], g['expect_exit']) for g in m['gates']])"
+[('reference-gate', 0)]
+$ python3 .agents/skills/pack/run_gates.py .
 ✓ гейт reference-pack/reference-gate: exit 0
     reference gate: ok
 ✓ гейты паков: 1 пройдено
+gates-exit=0
+сверка: reference-gate expect_exit=0 (манифест), фактический exit 0 — зелёный

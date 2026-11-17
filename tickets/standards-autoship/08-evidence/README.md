@@ -13,7 +13,7 @@ Temp-проект: `/tmp/sa08-smoke/proj` (git bundle — `toy-project.bundle`,
 | 02-install-pack.log | установка эталонного пака --copy --pack, exit 0 |
 | 03-check.log | install.sh --check: 10 бандлов ok, пак ok, check: ok |
 | 04-init-verify.log | init: валидатор пака, маркеры, git status, sha256 проход 1 |
-| 05-init-idempotence.log | init проход 2: block == template, sha256 совпали |
+| 05-init-idempotence.log | init проход 2: block == template: False (newline), sha256 совпали |
 | 06-init-newline-fix.log | расхождение newline AGENTS.md и исправление (BLOCK_FENCE) |
 | 07-init-report.md | отчёт init: четыре файла, бутстрап, роль пака ask-ом |
 | 08-manifest-mutated.json | мутированный манифест (expect_exit 1) |
@@ -22,10 +22,15 @@ Temp-проект: `/tmp/sa08-smoke/proj` (git bundle — `toy-project.bundle`,
 | 10a-red-stop-git-state.log | git-состояние остановки: main = ae26ce9, merge нет |
 | 11-toy-red-base.log | финальные доказательства toy: провенанс, краснота базы, дифф, grep, сверка строк |
 | 12-toy-fix.log | первичный срез 38b8e0e (заменён правками панели c1e04cb) |
-| 13-toy-ship-gates.log | гейты внутреннего ship: 1 пройдено, exit 0 |
+| 13-toy-ship-gates.log | гейты внутреннего ship: expect_exit рядом с выводом, 1 пройдено, exit 0 |
+| 14-anchor-canary-fix.log | target-фикс канарейки: красная проба старого теста (пин cadaaa8), зелёность обоих состояний |
+| 15-toy-panel-report.md | пер-роль отчёт внутренней панели toy: 5 ролей, 12 сырых → 6 групп, правки |
+| 16-core-checks.log | набор ядра из worktree: 786 passed; lint --strict чисто |
+| 17-sa08-panel-report.md | пер-роль отчёт внешней панели sa08: 4 роли, 19 сырых → 10 групп, правки |
 | *-attempt1.log | логи первой попытки, потерянной внешним клинером /tmp (инцидент 1) |
-| toy-project.bundle | git bundle toy-репо (main 653c062, вся история пробы) |
+| toy-project.bundle | git bundle toy-репо (main bad5c00, вся история пробы) |
 
 Коммиты toy-репо: `82a964c` README с опечаткой → `0ea80b1` init →
 `ae26ce9` toy-тикет → `38b8e0e` первичный срез → `c1e04cb` правки
-панели → `653c062` автоприёмка (merge ff в main).
+внутренней панели → `653c062` автоприёмка (merge ff в main) →
+`bad5c00` правки внешней панели sa08 (финал main).

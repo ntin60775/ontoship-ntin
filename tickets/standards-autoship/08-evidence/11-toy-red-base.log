@@ -1,8 +1,9 @@
 == провенанс ==
-repo: /tmp/sa08-smoke/proj (worktree wt-toy01, ветка toy01-readme-typo)
+repo: /tmp/sa08-smoke/proj (git bundle toy-project.bundle)
 база: ae26ce9 (toy ticket 01)
-срез: 38b8e0e (первичная правка)
-правки панели: c1e04cb7e9f04e97ad70db4bd9555890ccd933f6
+первичный срез: 38b8e0e
+правки внутренней панели: c1e04cb
+правки внешней панели sa08 (финал): bad5c00c9e56e6386d4dad3ab0dc76233039ec84
 
 == краснота критерия 1 на базе ==
 $ git show ae26ce9:README.md | grep -n tempory
@@ -11,33 +12,47 @@ $ git show ae26ce9:README.md | grep -n tempory
 grep-exit=0 (0 = опечатка на базе, критерий падает)
 примечание: половина «temporary присутствует» истинна уже на базе (строка 5 цитировала правильное слово) — краснота держится на отсутствии tempory
 
-== дифф базы до финального среза ==
-$ git diff ae26ce9..c1e04cb7e9f04e97ad70db4bd9555890ccd933f6 -- README.md
+== дифф базы до финала ==
+$ git diff ae26ce9..bad5c00c9e56e6386d4dad3ab0dc76233039ec84 -- README.md
 diff --git a/README.md b/README.md
-index 171e731..328edb8 100644
+index 171e731..6ee6f6b 100644
 --- a/README.md
 +++ b/README.md
-@@ -1,5 +1,3 @@
+@@ -1,5 +1,4 @@
  # Smoke Toy Project
  
 -This is a tempory project for the OntoShip pack smoke test.
--
--It contains a deliberate typo in this README: the word "tempory" should be "temporary".
 +This is a temporary project for the OntoShip pack smoke test.
+ 
+-It contains a deliberate typo in this README: the word "tempory" should be "temporary".
 
 == grep финального README ==
-$ git show c1e04cb7e9f04e97ad70db4bd9555890ccd933f6:README.md | grep -n tempory
+$ git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | grep -n tempory
 grep-tempory-exit=1 (1 = отсутствует)
-$ git show c1e04cb7e9f04e97ad70db4bd9555890ccd933f6:README.md | grep -n temporary
+$ git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | grep -n temporary
 3:This is a temporary project for the OntoShip pack smoke test.
 grep-temporary-exit=0 (0 = присутствует)
 
-== строки вне опечатки не тронуты ==
-$ diff <(git show ae26ce9:README.md | head -2) <(git show c1e04cb7e9f04e97ad70db4bd9555890ccd933f6:README.md | head -2)
-lines-1-2-identical: yes
-$ diff <(git show ae26ce9:README.md | sed -n 3p | sed s/tempory/temporary/) <(git show c1e04cb7e9f04e97ad70db4bd9555890ccd933f6:README.md | sed -n 3p)
+== строки без токена опечатки (1, 2, 4) побайтово не тронуты ==
+$ diff <(git show ae26ce9:README.md | sed -n 1p) <(git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | sed -n 1p)
+line-1-identical: yes
+$ diff <(git show ae26ce9:README.md | sed -n 2p) <(git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | sed -n 2p)
+line-2-identical: yes
+$ diff <(git show ae26ce9:README.md | sed -n 4p) <(git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | sed -n 4p)
+line-4-identical: yes
+$ diff <(git show ae26ce9:README.md | sed -n 3p | sed s/tempory/temporary/) <(git show bad5c00c9e56e6386d4dad3ab0dc76233039ec84:README.md | sed -n 3p)
 line-3-only-typo-token-changed: yes
+строка 5 (второе вхождение токена) удалена — толкование критерия названо в toy-тикете («Расхождения», «Автоприёмка»)
 
 == состав изменения ==
+M	.agents/config.toml
+M	.gitignore
 M	README.md
+M	docs/ops/continue.md
 M	tickets/toy/01-readme-typo.md
+
+== завершающие newline четырёх файлов init (правка внешней панели) ==
+AGENTS.md: \n
+.gitignore: \n
+.agents/config.toml: \n
+docs/ops/continue.md: \n
