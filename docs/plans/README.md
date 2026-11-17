@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-17
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -138,6 +138,15 @@ links:
   открыта 2026-11-16, завершена 2026-11-17: тикеты 01–07 приняты,
   релиз ядра v0.7.0, тег на origin; team-релиз v0.3.0 и активация
   отложены решением оператора — названный пробел).
+
+- [deliver.md](deliver.md) — поставка и обновление ядра в проекте:
+  скилл `deliver` с семантической маршрутизацией интента «поставить/
+  обновить OntoShip в X», строка команды в блоке init, реестр
+  потребителей отдельным поставляемым скиллом (DSH-возрождение
+  consumer-registry), релизы core v0.8.0 и registry v0.3.0 (открыт
+  2026-11-17, решения 1–8 оператора ask-проходом; утверждена на
+  план-гейте 2026-11-17; гейт проекций пройден, ревизия по триажу
+  решением оператора «править всё по рекомендациям», 27 групп).
 
 - team-profiles — личная команда агентов на пресетах DSH. Спека и
   открытые тикеты 07/08 перенесены в ontoship-team 2026-11-17
