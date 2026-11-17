@@ -753,8 +753,8 @@ def test_contract_check_can_fail():
     assert any("нарезка — решение оператора" in error
                for error in _contract_errors(operator_decides))
 
-    weakened = text.replace("каждый критерий должен упасть",
-                            "каждый критерий проверяем на дереве", 1)
+    weakened = text.replace("такой критерий должен упасть",
+                            "такой критерий проверяем на дереве", 1)
     assert weakened != text
     assert any("проверяем на дереве" in error
                for error in _contract_errors(weakened))

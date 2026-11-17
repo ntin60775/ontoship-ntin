@@ -60,6 +60,12 @@ CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb",
 OWNED_FILES = ("AGENTS.md", ".gitignore", ".agents/config.toml",
                "docs/ops/continue.md")
 OWNERSHIP_COUNT = "Четыре файла, ничего больше"
+# logika K10: the description and the ownership section must agree with case 2
+# of the marker table — insertion puts one separator blank line before the
+# block, outside the markers.
+SEPARATOR_CLAUSE = "при вставке — одна пустая строка-разделитель перед блоком"
+SEPARATOR_EXCEPTION = ("одна пустая строка-разделитель перед блоком "
+                       "при его вставке")
 DOCS_EXCLUSION = ("не пишет ничего в `docs/`, кроме скелета "
                   "`docs/ops/continue.md` при отсутствии файла")
 BOOTSTRAP_NEEDLES = (
@@ -435,6 +441,9 @@ def _contract_errors(text: str) -> list[str]:
     for owned in OWNED_FILES:
         if owned not in description:
             errors.append(f"frontmatter: description misses {owned!r}")
+    if SEPARATOR_CLAUSE not in re.sub(r"\s+", " ", description):
+        errors.append("frontmatter: description misses the insertion-separator "
+                      "clause")
 
     for needle in ("AGENTS.md", ".gitignore", BEGIN, END, "docs/README.md",
                    "kb-search", "kb-curate", "gitmark.py index",
@@ -562,6 +571,8 @@ def _contract_errors(text: str) -> list[str]:
     if DOCS_EXCLUSION not in flat_text:
         errors.append("ownership: the docs/ prohibition is not narrowed to "
                       "the continue skeleton exclusion")
+    if SEPARATOR_EXCEPTION not in flat_text:
+        errors.append("ownership: the insertion-separator exception is missing")
 
     # The ownership list itself: all four files as bullets between the section
     # anchor and the prohibition paragraph (panel dwfrun-dee2378e: dropping
@@ -935,6 +946,27 @@ def test_init_owns_exactly_four_files():
     assert "docs/ops/continue.md" in text
     flat = re.sub(r"\s+", " ", text)
     assert DOCS_EXCLUSION in flat
+
+
+def test_insertion_separator_is_named_not_contradicted():
+    """spec: docs/plans/entry-and-continuity.md#готово — case 2 of the marker
+    table inserts one separator blank line before the block; the description
+    and the ownership section carry that, so «only between the markers» does
+    not contradict the insertion (logika K10)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    dropped = text.replace(f" ({SEPARATOR_CLAUSE})", "", 1)
+    assert dropped != text
+    assert any("insertion-separator clause" in error
+               for error in _contract_errors(dropped))
+
+    no_body = re.sub(
+        r"одна пустая\s+строка-разделитель перед блоком\s+при его вставке",
+        "граница блока", text, count=1)
+    assert no_body != text
+    assert any("insertion-separator exception" in error
+               for error in _contract_errors(no_body))
 
 
 def test_bootstrap_names_core_roles_and_their_routes():

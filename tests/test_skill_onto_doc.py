@@ -42,10 +42,14 @@ STEP_TITLES = (
     "отчёт",
 )
 REQUIRED_PHRASES = (
-    # step 1 — survey, engine literal adapted per decision 2
+    # step 1 — survey, engine literal adapted per decision 2; stat counts
+    # index counters, not coverage (logika onto-doc hook в)
     "python3 skills/kb-search/gitmark.py stat",
-    # step 2 — decomposition targets
+    "счётчики файлов, чанков и ссылок, а не покрытие",
+    # step 2 — decomposition targets; area paths are repository paths from
+    # the KB root (logika finding K4)
     "docs/services/<svc>/readme.md",
+    "`docs/services/api` и `docs/services/billing`",
     "node_type: service",
     "docs/reference/",
     "docs/ops/",
@@ -54,17 +58,23 @@ REQUIRED_PHRASES = (
     "транспортом харнесса",
     "kb-curate",
     "status: active",
-    "documents:[src/…]",
+    "documents:[../../../src/…]",
+    "пути — от каталога документа, не от корня репозитория",
     "implemented_by",
     "`readme.md`-индекс папки",
+    "одна папка — одна область",
+    "общий `.gitmark/index.db`",
+    "`reindex` из `kb-curate` в прогоне выполняет она",
     "запускай независимые области параллельно",
     # step 4 — check and report, writing belongs to init (decision 2)
     "проверь, что",
     "главный индекс",
     "итог проверки — в отчёт",
     "домен скилла",
-    # step 5 — derived output, engine literals
+    # step 5 — derived output, engine literals in the kb-curate REINDEX order
+    # (logika finding K3): index, then the strict gate, then the map
     "python3 skills/kb-search/gitmark.py lint",
+    "python3 skills/kb-search/gitmark.py lint --strict",
     "gitmark.py index",
     "gitmark.py map -o docs-map.html",
     # step 6 — report
@@ -76,13 +86,16 @@ REQUIRED_PHRASES = (
     "перегенерируется",
     "не дублируй",
     "не спорили за файлы",
-    # launch procedure — decision 4 and the run contract
+    # launch procedure — decision 4 and the run contract; the config-section
+    # branch stops with a question (logika onto-doc hook б)
     "[agents.curator]",
     ".agents/config.toml",
     "сверь модель и уровень",
     "каталогом моделей",
     "расхождение — стоп",
     "названный пробел и стоп",
+    "каталога моделей нет",
+    "секции `[agents.curator]` нет — стоп и вопрос оператору",
     "не угадывание",
     "fan-out `subagent`",
     "`workflow` не используется",
@@ -146,6 +159,9 @@ DSH_RUN_PHRASES = (
     "`workflow` не используется",
     "`list_subagent_models`",
     "`path` — относительный путь от корня kb",
+    "корень kb — корень репозитория",
+    "одна папка — одна область",
+    "`index`, `lint` и `map` не запускай",
     "`cwd` субагента — чекаут сессии",
     "запись мимо `root` сверяй по `git status`",
     "без `..`",
@@ -383,6 +399,21 @@ def test_dsh_run_contract_can_fail():
     no_slash = _drop_phrase(text, "без начального `/`")
     assert no_slash != text
     assert any("без начального `/`" in error for error in _dsh_run_errors(no_slash))
+
+    no_root_def = _drop_phrase(text, "корень kb — корень репозитория")
+    assert no_root_def != text
+    assert any("корень kb — корень репозитория" in error
+               for error in _dsh_run_errors(no_root_def))
+
+    no_folder_rule = _drop_phrase(text, "одна папка — одна область")
+    assert no_folder_rule != text
+    assert any("одна папка — одна область" in error
+               for error in _dsh_run_errors(no_folder_rule))
+
+    no_reindex_ban = _drop_phrase(text, "`index`, `lint` и `map` не запускай")
+    assert no_reindex_ban != text
+    assert any("`index`, `lint` и `map` не запускай" in error
+               for error in _dsh_run_errors(no_reindex_ban))
 
     no_cwd = _drop_phrase(text, "`cwd` субагента — чекаут сессии")
     assert no_cwd != text
@@ -628,6 +659,44 @@ def test_launch_procedure_verifies_model_and_level():
     assert "gitmark.py map -o docs-map.html" in lowered
 
 
+DERIVED_COMMANDS = (
+    "gitmark.py index",
+    "gitmark.py lint --strict",
+    "gitmark.py map -o docs-map.html",
+)
+
+
+def _derived_order_errors(text: str) -> list[str]:
+    """Step 5 runs index → lint --strict → map, the kb-curate REINDEX order."""
+    body = _parse(text)[1]
+    positions = [(command, body.find(command)) for command in DERIVED_COMMANDS]
+    errors = [f"derived: missing {command!r}"
+              for command, pos in positions if pos == -1]
+    if errors:
+        return errors
+    if [pos for _, pos in positions] != sorted(pos for _, pos in positions):
+        errors.append("derived: the index → lint --strict → map order is broken")
+    return errors
+
+
+def test_derived_commands_run_in_the_kb_curate_order():
+    """spec: docs/plans/core-kb.md#готово-3 — the derived output follows the
+    kb-curate REINDEX order: index, then the strict gate, then map (logika
+    K3: a plain lint never exits 1 on ERR, so it is not a gate)."""
+    text = SKILL.read_text("utf-8")
+    assert _derived_order_errors(text) == []
+
+    swapped = text.replace("gitmark.py index", "__INDEX__", 1)
+    swapped = swapped.replace("gitmark.py lint --strict", "gitmark.py index", 1)
+    swapped = swapped.replace("__INDEX__", "gitmark.py lint --strict", 1)
+    assert swapped != text
+    assert any("order is broken" in error for error in _derived_order_errors(swapped))
+
+    no_strict = text.replace("gitmark.py lint --strict", "gitmark.py lint", 1)
+    assert no_strict != text
+    assert any("missing" in error for error in _derived_order_errors(no_strict))
+
+
 def test_launch_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     launch contract rejects a lost verification, a lost stop, a lost named-gap
@@ -702,8 +771,16 @@ def test_principle_is_word_for_word():
     "needle",
     [
         "python3 skills/kb-search/gitmark.py stat",
+        "счётчики файлов, чанков и ссылок, а не покрытие",
+        "`docs/services/api` и `docs/services/billing`",
         "транспортом харнесса",
-        "documents:[src/…]",
+        "documents:[../../../src/…]",
+        "пути — от каталога документа, не от корня репозитория",
+        "одна папка — одна область",
+        "общий `.gitmark/index.db`",
+        "`reindex` из `kb-curate` в прогоне выполняет она",
+        "секции `[agents.curator]` нет — стоп и вопрос оператору",
+        "каталога моделей нет",
         "implemented_by",
         "запускай независимые области параллельно",
         "проверь, что",

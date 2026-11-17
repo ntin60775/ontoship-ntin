@@ -3,7 +3,7 @@ node_type: reference
 title: Источники основной идеи
 service: _platform
 status: active
-updated: 2026-11-01
+updated: 2026-11-17
 tags: [sources, ontoship, grilling, to-tickets, testing]
 links:
   part_of: [README.md]
@@ -13,7 +13,9 @@ links:
 # Источники основной идеи
 
 Ядро — композиция трёх источников. Эта страница фиксирует, что каждый из них на
-самом деле говорит, что было взято и что сознательно оставлено. Все три под MIT.
+самом деле говорит, что было взято и что сознательно оставлено. Два внешних
+источника под MIT; третий — собственная стратегия оператора (заметка);
+ESEM-статья — CC BY.
 
 ## 1. OntoShip — KB + dev-flow
 
@@ -134,4 +136,7 @@ the Era of LLM Agents*, ESEM 2026, LIPIcs vol. 394, 47:1–47:21,
 
 - OntoShip — MIT, © vakovalskii and OntoShip contributors.
 - mattpocock/skills — MIT, © 2026 Matt Pocock.
+- Заметка оператора о стратегии тестирования — собственная работа, сторонней
+  лицензии нет.
+- ESEM-статья Liu и Wu — CC BY.
 - Текст в этом репозитории — адаптация с атрибуцией; метод свободен для использования.

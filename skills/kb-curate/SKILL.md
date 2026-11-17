@@ -13,12 +13,14 @@ description: "Создание, обновление, вывод из экспл
 (I8).
 
 Ищи до записи: используй скилл `kb-search` или запусти
-`python3 skills/kb-search/gitmark.py search "<terms>"`. Если существующий документ
-покрывает тему, обнови его, а не создавай дубль.
+`python3 skills/kb-search/gitmark.py search "<terms>"`. Если существующий
+документ покрывает тему, обнови его, а не создавай дубль. Если покрывает
+частично — дополни существующий или создай новый с `relates_to`/`part_of` и
+назови, чего не хватает.
 
-Корпус KB задаёт проект файлом `gitmark.scope.json`; полный текст правила —
-в скилле `kb-search`, раздел «KB-корпус и `gitmark.scope.json`»
-(`skills/kb-search/SKILL.md`).
+Состав KB-корпуса поиска проект задаёт файлом `gitmark.scope.json`; полный
+текст правила — в скилле `kb-search`, раздел «KB-корпус и
+`gitmark.scope.json`» (`skills/kb-search/SKILL.md`).
 
 ## Пять операций
 

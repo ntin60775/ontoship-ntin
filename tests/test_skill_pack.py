@@ -26,6 +26,7 @@ REPO = Path(__file__).resolve().parent.parent
 BUNDLE = REPO / "skills" / "pack"
 SKILL = BUNDLE / "SKILL.md"
 CONTRACT = BUNDLE / "references" / "pack-contract.md"
+KB_CONTRACT = REPO / "docs" / "reference" / "pack-contract.md"
 VALIDATOR = BUNDLE / "validate_pack.py"
 REFERENCE = BUNDLE / "reference-pack"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
@@ -46,6 +47,9 @@ REQUIRED_PHRASES = (
     "только stdlib",
     "--pack",
     "run_gates.py",
+    # Approval mark: who approved, not when; the date lives in the frontmatter.
+    "решение оператора (кто утвердил)",
+    "дата — во frontmatter",
 )
 FORBIDDEN_ROOTS = (".dsh", ".zcode", ".qoder")
 OLD_CARRIERS = (
@@ -62,11 +66,30 @@ CONTRACT_PHRASES = (
     "reviewer-<kontur>-<aspect>",
     "expect_exit",
     "валидатор проверяет схему, не семантику",
+    # Pack definition, trust boundary and norm-level scope (logika review):
+    # the gates live in the manifest as data, not as files of the pack.
+    "каталог с манифестом `manifest.json` и необязательными файлами",
+    "конфиги гейтов живут в манифесте как данные",
+    "гейт — декларация команды в манифесте, не исполняемый файл пака",
+    "доверие паку — названное решение оператора",
+    "объём уровней: стандарты проекта — документы проекта, кроме базового документа",
+    "базовый документ — нижний уровень",
     # standards-autoship 05: the gate-execution contract of the core runner.
     "исполнение гейтов",
     "run_gates.py",
     "exit 1",
     "без shell-интерпретации",
+)
+# The bundle file and the project reference are two carriers of one contract;
+# a reworded definition in one of them alone is a parity break.
+PARITY_PHRASES = (
+    "каталог с манифестом `manifest.json` и необязательными файлами стандартов и чек-листов ролей",
+    "конфиги гейтов живут в манифесте как данные",
+    "гейт — декларация команды в манифесте, не исполняемый файл пака",
+    "доверие паку — названное решение оператора",
+    "объём уровней: стандарты проекта — документы проекта, кроме базового документа",
+    "паки — отдельный класс по источнику (команда или стек)",
+    "базовый документ — нижний уровень",
 )
 
 
@@ -137,6 +160,25 @@ def test_contract_reference_is_portable() -> None:
             continue
         assert (CONTRACT.parent / target).resolve().exists(), \
             f"dead link {target!r}"
+
+
+def test_contract_carriers_keep_one_definition() -> None:
+    """spec: docs/plans/standards-autoship.md#готово — два носителя контракта
+    (файл бандла и проектный справочник) несут одну формулировку: пак — это
+    манифест и файлы стандартов и чек-листов, гейты живут в манифесте как
+    данные; доверие паку — решение оператора, не свойство данных; лестница
+    норм названа рядом с объёмом её уровней."""
+    for path in (CONTRACT, KB_CONTRACT):
+        lowered = _normalized(path.read_text(encoding="utf-8"))
+        for phrase in PARITY_PHRASES:
+            assert _normalized(phrase) in lowered, \
+                f"{path.name} lost {phrase!r}"
+
+    # can-fail: a drift in one carrier alone reddens the parity guard.
+    text = KB_CONTRACT.read_text(encoding="utf-8")
+    mutated = text.replace("каталог с манифестом", "каталог-пак", 1)
+    assert mutated != text, "the mutation must change the carrier"
+    assert _normalized(PARITY_PHRASES[0]) not in _normalized(mutated)
 
 
 def test_reference_pack_passes_the_validator() -> None:

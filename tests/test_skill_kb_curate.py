@@ -80,6 +80,8 @@ def _contract_errors(text: str) -> list[str]:
     flat = re.sub(r"\s+", " ", body)
     if "I7" not in flat or "вне ядра" not in flat:
         errors.append("body: does not state that I7 stays out of the core")
+    if "покрывает частично" not in flat:
+        errors.append("body: missing the partial-coverage case")
     lowered = text.lower()
     for term in ("provenance", "reel", "acceptance chord"):
         if re.search(rf"\b{re.escape(term)}\b", lowered):
@@ -125,6 +127,11 @@ def test_skill_contract_can_fail():
     missing_name = "\n".join(line for line in text.splitlines()
                              if not line.startswith("name:"))
     assert any("name" in error for error in _contract_errors(missing_name))
+
+    no_partial = re.sub(r"покрывает\s+частично", "покрывает", text, count=1)
+    assert no_partial != text
+    assert any("partial-coverage" in error
+               for error in _contract_errors(no_partial))
 
     unquoted_description = "\n".join(
         "description: " + _unquote(line[len('description: "'):-1])
@@ -203,13 +210,63 @@ def _table_types(text: str) -> list[str]:
     return found
 
 
-def _body_from_first_h2(path: Path) -> str:
+def _body_from_text(text: str) -> str:
     """The model body the spec names: everything from the first `## ` heading."""
-    lines = path.read_text("utf-8").splitlines()
+    lines = text.splitlines()
     for index, line in enumerate(lines):
         if line.startswith("## "):
             return "\n".join(x.rstrip() for x in lines[index:]).strip()
     return ""
+
+
+def _body_from_first_h2(path: Path) -> str:
+    """The model body of one ontology file from its first `## ` heading."""
+    return _body_from_text(path.read_text("utf-8"))
+
+
+def _drop_phrase(text: str, phrase: str) -> str:
+    """Remove every occurrence of a phrase regardless of line wrapping."""
+    pattern = re.escape(phrase).replace("\\ ", r"\s+")
+    return re.sub(pattern, "", text, flags=re.IGNORECASE)
+
+
+# The model clarifications the logic review pinned (logika K2, K5, K6, K8;
+# invariant: a type table is a dictionary, so differentia lives in the «что
+# это» column and one priority rule follows it).
+MODEL_NEEDLES = (
+    ("kb-corpus boundary", "kb-корпус поиска"),
+    ("link paths document-relative", "пути относительно документа (не url)"),
+    ("service vocabulary source", "`_platform` и имена подкаталогов `docs/`"),
+    ("type priority rule", "при совпадении выбирай тип по основной функции"),
+    ("guide differentia", "how-to под задачу"),
+    ("runbook differentia", "операционная процедура непрерывности"),
+    ("report differentia", "артефакт прогона"),
+    ("reference differentia", "durable-знание"),
+)
+CORPUS_INVARIANTS = ("I3", "I10")
+
+
+def _model_errors(text: str) -> list[str]:
+    """Every violated model clarification; empty means the body is complete."""
+    flat = re.sub(r"\s+", " ", text.lower())
+    return [f"model: missing {label} ({needle!r})"
+            for label, needle in MODEL_NEEDLES if needle not in flat]
+
+
+def _corpus_invariant_errors(body: str) -> list[str]:
+    """I3 and I10 are qualified by the corpus, not stated unconditionally (K7)."""
+    rows: dict[str, str] = {}
+    for line in body.splitlines():
+        match = INVARIANT_ROW.match(line)
+        if match:
+            rows[match.group(1)] = line
+    errors: list[str] = []
+    for invariant in CORPUS_INVARIANTS:
+        if invariant not in rows:
+            errors.append(f"invariant {invariant}: row is missing")
+        elif "в корпус" not in rows[invariant]:
+            errors.append(f"invariant {invariant}: carries no corpus qualifier")
+    return errors
 
 
 def test_docs_ontology_is_the_single_i2_vocabulary(gm):
@@ -244,6 +301,46 @@ def test_invariant_table_is_exactly_the_core_set(gm):
     assert "I7" not in ids
     flat = re.sub(r"\s+", " ", body)
     assert "I7" in flat and "вне ядра" in flat
+
+
+def test_ontology_resolves_overlapping_types_and_named_sources():
+    """spec: docs/plans/core-kb.md#рамки — the model stays a dictionary: the
+    type rows carry their differentia, one priority rule follows the table,
+    link paths are document-relative and the service vocabulary is named
+    (logika K2, K5, K6, K8)."""
+    for path in (PROJECT, SHIPPED):
+        assert _model_errors(path.read_text("utf-8")) == [], path
+    project_body = _body_from_text(PROJECT.read_text("utf-8"))
+    shipped_body = _body_from_text(SHIPPED.read_text("utf-8"))
+    assert _corpus_invariant_errors(project_body) == []
+    assert _corpus_invariant_errors(shipped_body) == []
+
+
+def test_ontology_model_checks_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — a
+    lost differentia, the old link rule back, an unnamed vocabulary source or
+    an unqualified I3/I10 reddens."""
+    project = PROJECT.read_text("utf-8")
+    for label, needle in MODEL_NEEDLES:
+        mutated = _drop_phrase(project, needle)
+        assert mutated != project, f"the mutation must remove {needle!r}"
+        assert any(label in error for error in _model_errors(mutated)), label
+
+    absolute_paths = project.replace("пути относительно документа (не URL)",
+                                     "пути репозитория, а не URL", 1)
+    assert absolute_paths != project
+    assert any("link paths document-relative" in error
+               for error in _model_errors(absolute_paths))
+
+    for invariant, old, new in (
+        ("I3", "ссылка в корпусе (frontmatter", "ссылка (frontmatter"),
+        ("I10", "`docs/`, входящий в корпус, достижим", "`docs/` достижим"),
+    ):
+        unqualified = project.replace(old, new, 1)
+        assert unqualified != project
+        assert any(invariant in error
+                   for error in _corpus_invariant_errors(
+                       _body_from_text(unqualified)))
 
 
 def test_repository_kb_passes_lint_without_errors(gm):

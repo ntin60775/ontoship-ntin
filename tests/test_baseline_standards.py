@@ -47,7 +47,8 @@ STEP_PHRASES = (
     "из знаний модели",
     "оператор утверждает документ ask-инструментом хоста один раз",
     "утверждение фиксируется в документе",
-    "дата и решение оператора",
+    "решение оператора (кто утвердил)",
+    "дата — во frontmatter",
     "только решением оператора",
     "docs/reference/readme.md",
     "нижний приоритет",
@@ -59,7 +60,6 @@ CONFLICT = "неразрешимый конфликт норм — вопрос 
 APPROVAL_HEADING = "отметка утверждения"
 APPROVAL_PHRASES = (
     "оператор утвердил документ",
-    "2026-11-11",
     "ask-ом, вариант «утвердить»",
 )
 DOC_PHRASES = APPROVAL_PHRASES + (
@@ -196,7 +196,7 @@ def test_step_contract_can_fail() -> None:
 def test_document_exists_and_is_approved() -> None:
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 4: документ
     существует в этом репозитории (dogfood), несёт отметку утверждения
-    оператором (дата, решение), источник — знания модели, оба класса
+    оператором (решение оператора; дата — во frontmatter), источник — знания модели, оба класса
     практик, приоритет норм дословно, конфликт уходит оператору."""
     assert DOC.is_file(), "the baseline-standards document is missing"
     assert _doc_errors(DOC.read_text(encoding="utf-8")) == []
@@ -220,16 +220,6 @@ def test_document_contract_can_fail() -> None:
         else:
             assert any(f"missing phrase {phrase!r}" in error
                        for error in errors), phrase
-
-    # The approval mark is section-scoped: a date surviving only in the
-    # frontmatter must not satisfy it.
-    section = _section(text, APPROVAL_HEADING)
-    date_only_in_frontmatter = text.replace(
-        section, section.replace("2026-11-11", ""), 1)
-    assert date_only_in_frontmatter != text
-    assert "2026-11-11" in date_only_in_frontmatter
-    assert any("approval section lost '2026-11-11'" in error
-               for error in _doc_errors(date_only_in_frontmatter))
 
     wrong_type = text.replace("node_type: reference", "node_type: guide", 1)
     assert wrong_type != text

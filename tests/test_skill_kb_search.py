@@ -88,6 +88,10 @@ def _contract_errors(text: str) -> list[str]:
     for phrase in ("нет индекса", "ничего не найдено", "не выдумывай"):
         if phrase not in lowered:
             errors.append(f"body: missing honest-degradation phrase {phrase!r}")
+    if "kb-корпус поиска" not in lowered:
+        errors.append("body: the KB search corpus is not named")
+    if "покрывает частично" not in lowered:
+        errors.append("body: missing the partial-coverage case")
     for term in FORBIDDEN:
         if re.search(rf"\b{re.escape(term)}\b", text, re.IGNORECASE):
             errors.append(f"forbidden entity {term!r}")
@@ -171,6 +175,16 @@ def test_contract_check_can_fail():
                              if not line.startswith("name:"))
     assert missing_name != text
     assert any("name" in error for error in _contract_errors(missing_name))
+
+    no_partial = re.sub(r"покрывает\s+частично", "покрывает", text, count=1)
+    assert no_partial != text
+    assert any("partial-coverage" in error
+               for error in _contract_errors(no_partial))
+
+    no_corpus_term = re.sub(r"KB-корпус\s+поиска", "база знаний", text, count=1)
+    assert no_corpus_term != text
+    assert any("corpus is not named" in error
+               for error in _contract_errors(no_corpus_term))
 
     unquoted_description = "\n".join(
         "description: " + _unquote(line[len("description: "):])
@@ -299,3 +313,35 @@ def test_reindex_obligation_check_can_fail():
         weakened = flat.replace("обязателен `index`", "желателен `index`", 1)
         assert weakened != flat
         assert any("обязателен" in error for error in _reindex_errors(weakened))
+
+
+# ── the stat contract: valid JSON only under a valid scope (logika K1) ─────
+
+
+STAT_CAVEAT_NEEDLES = (
+    ("valid-scope caveat", "при валидном scope"),
+    ("refusal contour", "при отказе — exit 2, stdout пуст"),
+)
+
+
+def _stat_caveat_errors(text: str) -> list[str]:
+    """`stat --json` promises valid JSON only under a valid scope."""
+    flat = re.sub(r"\s+", " ", _parse(text)[1])
+    return [f"stat: missing {label} ({needle!r})"
+            for label, needle in STAT_CAVEAT_NEEDLES if needle not in flat]
+
+
+def test_stat_json_is_honest_about_the_scope_refusal():
+    """spec: docs/plans/core-kb.md#рамки — the skill reports only what the
+    engine returns: an invalid scope is refused before any corpus work, so
+    `stat --json` prints nothing (exit 2, empty stdout)."""
+    text = SKILL.read_text("utf-8")
+    assert _stat_caveat_errors(text) == []
+
+    weakened = text.replace("при валидном scope", "всегда")
+    assert weakened != text
+    assert any("valid-scope caveat" in error for error in _stat_caveat_errors(weakened))
+
+    silent = re.sub(r"при отказе\s+—\s+exit 2, stdout пуст", "отказ", text, count=1)
+    assert silent != text
+    assert any("refusal contour" in error for error in _stat_caveat_errors(silent))
