@@ -1,0 +1,28 @@
+== dry-run copy ==
+would create /tmp/dlv02-prod-copy/.agents/skills
+would copy consumer-registry -> /tmp/dlv02-prod-copy/.agents/skills/consumer-registry
+dry-run: .agents не создан
+== install copy ==
+copied consumer-registry -> /tmp/dlv02-prod-copy/.agents/skills/consumer-registry
+== check ==
+ok consumer-registry (copy)
+check: ok
+== repeat copy (idempotent) ==
+unchanged consumer-registry
+== дерево бандла (копия, не симлинк) ==
+не симлинк
+/tmp/dlv02-prod-copy/.agents/skills/consumer-registry/scripts/registry_check.py
+/tmp/dlv02-prod-copy/.agents/skills/consumer-registry/SKILL.md
+/tmp/dlv02-prod-copy/.agents/skills/consumer-registry/templates/gitignore.snippet
+/tmp/dlv02-prod-copy/.agents/skills/consumer-registry/templates/registry.schema.json
+/tmp/dlv02-prod-copy/.agents/skills/consumer-registry/templates/registry.template.json
+== copy differs: правка копии -> отказ ==
+install: copy differs: /tmp/dlv02-prod-copy/.agents/skills/consumer-registry (remove it to reinstall)
+exit=1
+== check называет drift ==
+drift: consumer-registry: directory differs from the source
+check: 1 skill(s) drifted
+exit=1
+== link поверх detached-копии -> отказ ==
+install: refusing to replace a non-symlink: /tmp/dlv02-prod-copy/.agents/skills/consumer-registry (remove it, or use --copy/--check)
+exit=1

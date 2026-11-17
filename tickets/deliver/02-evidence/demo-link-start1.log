@@ -1,0 +1,11 @@
+== старт ведения №1 (по SKILL.md) ==
+шаг 1: файла нет — копирую каркас, заполняю machine/project по факту
+шаг 2: строки .agents/registry.local.json в .gitignore нет — добавляю из сниппета (append)
+шаг 3: предупреждение — снос .agents уничтожает реестр; бэкап/экспорт вне v1, потеря = ручное перенаполнение
+== .gitignore после старта (чужие строки целы) ==
+*.log
+node_modules/
+.agents/registry.local.json
+== снимок перед повторным стартом ==
+98d11d096f1fff5180ce4d7c7fc7fdc4032e53a8ec2ec99b12906bffa2c521d7  .agents/registry.local.json
+f2d70bd5d5fd7f4f7a255cf241666a3f58510edb3ec0ae9f53f406f636482c76  .gitignore

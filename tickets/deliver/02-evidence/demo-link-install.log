@@ -1,0 +1,13 @@
+== install link ==
+linked consumer-registry -> /home/prog7/home/dev/personal/ontoship-registry-wt-dlv02/skills/consumer-registry
+== check ==
+ok consumer-registry (link)
+check: ok
+== repeat install (idempotent) ==
+unchanged consumer-registry
+== readlink ==
+/home/prog7/home/dev/personal/ontoship-registry-wt-dlv02/skills/consumer-registry
+== tree .agents ==
+/tmp/dlv02-prod-link/.agents
+/tmp/dlv02-prod-link/.agents/skills
+/tmp/dlv02-prod-link/.agents/skills/consumer-registry

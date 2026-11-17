@@ -1,0 +1,43 @@
+== критерий 4: grep -rin zcode skills/consumer-registry (срез b276e3c) ==
+rc=1 (1 = пусто)
+== критерий 4: дерево репо (git ls-tree -r --name-only b276e3c) ==
+.gitignore
+AGENTS.md
+LICENSE
+README.md
+scripts/install.sh
+skills/consumer-registry/SKILL.md
+skills/consumer-registry/scripts/registry_check.py
+skills/consumer-registry/templates/gitignore.snippet
+skills/consumer-registry/templates/registry.schema.json
+skills/consumer-registry/templates/registry.template.json
+tests/test_registry.py
+== критерий 3: diff схемы с v0.2.0 — только описательный текст ==
+сверка схемы с v0.2.0 по структурным ключам (без description/title): True
+изменённые описательные поля: ['$.description']
+const версии: consumer-registry/1
+== критерий 6: выписка ЗАПОЛНЕННОГО реестра продюсеров (ненулевые counters) ==
+/tmp/dlv02-prod-link/.agents/registry.local.json
+  consumers = 1 | deploy_log = 1 | acceptance = 0 | updated_at = 2026-11-17T14:59:10Z
+  consumers[0] = {"name": "demo-consumer", "kind": "project", "path": "/tmp/dlv02-consumer", "version": "v0.2.0", "since": "2026-11-17", "state": "active", "note": "демо-потребитель тикета deliver/02"}
+  deploy_log[0] = {"at": "2026-11-17T14:59:10Z", "actor": "session-lead-dlv02", "action": "rollout demo-consumer", "consumer": "demo-consumer", "to": "v0.2.0", "result": "ok", "followups": [{"kind": "fresh-session", "owner": "consumer:demo-consumer", "done": false, "note": "свежая сессия потребителя"}]}
+/tmp/dlv02-prod-copy/.agents/registry.local.json
+  consumers = 1 | deploy_log = 1 | acceptance = 0 | updated_at = 2026-11-17T14:59:46Z
+  consumers[0] = {"name": "demo-consumer", "kind": "project", "path": "/tmp/dlv02-consumer", "version": "v0.2.0", "since": "2026-11-17", "state": "active"}
+  deploy_log[0] = {"at": "2026-11-17T14:59:46Z", "actor": "session-lead-dlv02", "action": "rollout demo-consumer", "consumer": "demo-consumer", "to": "v0.2.0", "result": "ok"}
+== критерий 2/6: валидатор запускается ИЗ установленного copy-бандла (явная команда) ==
+$ python3 /tmp/dlv02-prod-copy/.agents/skills/consumer-registry/scripts/registry_check.py /tmp/dlv02-prod-copy/.agents/registry.local.json
+OK: /tmp/dlv02-prod-copy/.agents/registry.local.json (consumer-registry/1)
+== критерий 1: preflight — файл .agents цел (stat) ==
+/tmp/dlv02-prod-preflight/.agents regular file 10 bytes
+== обновление copy-продюсера после правок панели: отказ copy differs -> переустановка ==
+install: copy differs: /tmp/dlv02-prod-copy/.agents/skills/consumer-registry (remove it to reinstall)
+exit=1 (отказ copy differs — поколение источника изменилось)
+d20d723a800cbdebc2fbdc7939b32ab2d1ba9fdff42e1e36a61a11d56e4d7d46  /tmp/dlv02-prod-copy/.agents/registry.local.json
+copied consumer-registry -> /tmp/dlv02-prod-copy/.agents/skills/consumer-registry
+ok consumer-registry (copy)
+check: ok
+d20d723a800cbdebc2fbdc7939b32ab2d1ba9fdff42e1e36a61a11d56e4d7d46  /tmp/dlv02-prod-copy/.agents/registry.local.json
+реестр продюсера не изменился при переустановке бандла (sha совпали)
+ok consumer-registry (link)
+check: ok

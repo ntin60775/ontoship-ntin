@@ -1,0 +1,22 @@
+== красная проба (финальный набор после правок панели) на дереве v0.2.0 (f7c479e) ==
+consumer-registry tests — root /tmp/dlv02-base-v0.2.0
+FAIL [1] schema and template are valid JSON, schema declares draft-07: unexpected FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv02-base-v0.2.0/skills/consumer-registry/templates/registry.schema.json'
+FAIL [2] template passes the bundle validator (default, explicit, foreign schema): validator rejected the template (exit 2):
+/usr/bin/python3: can't open file '/tmp/dlv02-base-v0.2.0/skills/consumer-registry/scripts/registry_check.py': [Errno 2] No such file or directory
+
+FAIL [3] schema const and required match the contract, template covers them: unexpected FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv02-base-v0.2.0/skills/consumer-registry/templates/registry.schema.json'
+FAIL [4] ZCode channel removed: no zcode in bundle, snippet .agents line: bundle file mentions zcode: /tmp/dlv02-base-v0.2.0/skills/consumer-registry/SKILL.md
+FAIL [5] SKILL.md DSH frontmatter and start step: idempotence, warning, home path: start step does not declare idempotence
+FAIL [6] validator accepts a filled registry, rejects the negative probes: unexpected FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv02-base-v0.2.0/skills/consumer-registry/templates/registry.template.json'
+
+FAILED: 6 of 6 checks
+exit=1
+== критерий 1 на базе: install.sh нет ==
+scripts/install.sh отсутствует — установка невозможна
+== критерий 3 на базе: сниппет несёт .zcode ==
+.zcode/registry.local.json
+== критерий 4 на базе: канальные файлы присутствуют ==
+deploy.json
+.zcode-plugin
+== base-приёмка критерия 5: идемпотентность и предупреждение в SKILL.md базы не названы ==
+grep пуст (rc=1) — на базе не названы

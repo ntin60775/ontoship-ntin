@@ -1,0 +1,3 @@
+сверка схемы с v0.2.0 по структурным ключам (без description/title): True
+изменённые описательные поля: ['$.description']
+const версии: consumer-registry/1

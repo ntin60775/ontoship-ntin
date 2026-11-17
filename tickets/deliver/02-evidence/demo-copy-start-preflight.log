@@ -1,0 +1,17 @@
+== восстановление копии после drift-пробы (удаление drifted-копии в /tmp — демо-артефакт) ==
+copied consumer-registry -> /tmp/dlv02-prod-copy/.agents/skills/consumer-registry
+== старт ведения №1 (copy-продюсер) ==
+предупреждение: снос .agents уничтожает реестр; бэкап/экспорт вне v1
+== старт ведения №2 (повторный) ==
+файл есть — не перезаписываю
+строка есть — не дублирую (1 шт)
+.agents/registry.local.json: ЦЕЛ
+.gitignore: ЦЕЛ
+== заполнение и валидатор из copy-бандла ==
+OK: .agents/registry.local.json (consumer-registry/1)
+== preflight: файл на месте .agents -> отказ вместо полуустановки ==
+install: refusing to replace a non-directory: /tmp/dlv02-prod-preflight/.agents
+exit=1
+install: refusing to replace a non-directory: /tmp/dlv02-prod-preflight/.agents
+exit=1
+файл .agents цел, ничего не записано

@@ -1,5 +1,8 @@
 # Тикет 02 — Реестр DSH-нативен
 
+**Сделан, влит, принят автоприёмкой 2026-11-17** (ручной /ship по
+стартовому промпту; facts — ниже).
+
 Блокируется: —
 Блокирует: 03
 
@@ -73,3 +76,64 @@ consumers/deploy_log); `grep -r zcode` по содержимому бандла 
   описательный текст и сниппет, не структура.
 - Реестр producer-side; ядро в этом тикете не правится.
 - Коммиты локальные; push и тег — тикет 04.
+
+## Факты приёмки (2026-11-17, автоприёмка на полном зелёном контуре)
+
+- **Контур**: репо `/home/prog7/home/dev/personal/consumer-registry`,
+  worktree `ontoship-registry-wt-dlv02`, ветка `dlv02-registry-dsh` от
+  main `f7c479e` (= v0.2.0). Merge ff в registry main: `f7c479e` →
+  `b276e3c` (срез `cd88564` + правки панели `b276e3c`). Worktree и
+  ветка снесены. Коммиты локальные; push и тег v0.3.0 — тикет 04.
+- **Срез**: свой `scripts/install.sh` (link/copy/check/dry-run одного
+  бандла, контур установщика ядра: идемпотентен, пишет только
+  `.agents/skills`, preflight отказывает вместо полуустановки,
+  «copy differs» — отказ); бандл самонесущий (`templates/` и
+  `scripts/registry_check.py` внутри `skills/consumer-registry/`);
+  дом `.agents/registry.local.json` (решение 4); ZCode-канал снят
+  (`.zcode-plugin/`, `deploy.json` удалены); SKILL.md DSH-идиомы
+  name/description (465 символов ≤ 500 лимита проекта), старт ведения
+  идемпотентен с предупреждением о потере файла (G-20/G-27), правило
+  followups done=false сохранено; README/AGENTS репо под новый контур.
+- **Критерий 3 (G-8)**: схема структурно равна v0.2.0 (поля/структура/
+  const/required), изменён только `$.description` (путевой литерал);
+  каркас — только notes; сниппет — `.agents/registry.local.json`
+  (`schema-structural-diff.log`).
+- **Тесты**: адаптация существующих 6 проверок под новые пути, без
+  nice-to-have; зелёный набор **6/6** (`green-tests.log`, post-merge на
+  main — `post-merge-main.log`). Красная проба финальным набором на
+  дереве v0.2.0 — **6/6 failed по существу** (`red-probe-v0.2.0.log`):
+  к4 — zcode-литерал в SKILL.md базы, к5 — идемпотентность не названа,
+  к1 — install.sh нет, к2/к3/к6 — файлы вне бандла; base-приёмка к5 —
+  grep пуст. Разбор расхождений — `discrepancy-analysis.md`
+  (неразобранных нет).
+- **Демо** (`demo-*.log`, `criteria-artifacts.log`): установка link и
+  copy в temp-продюсеры `/tmp/dlv02-prod-link`, `/tmp/dlv02-prod-copy`
+  (собственные git-репо, базовый коммит до старта); старт ведения
+  создаёт `.agents/registry.local.json` из каркаса + свою строку
+  gitignore (чужие целы); повторный старт — diff пуст, sha совпали,
+  строка не дублируется; валидатор из установленного бандла зелёный на
+  ЗАПОЛНЕННОМ реестре (consumers=1, deploy_log=1 с актом, выписка в
+  `criteria-artifacts.log`); отказы preflight (файл на месте `.agents`
+  — цел, stat), copy-differs, link поверх копии; `--check` обоих
+  продюсеров — `check: ok`; post-merge чистая copy-установка из main в
+  `/tmp/dlv02-prod-final` — `check: ok`. grep zcode по бандлу пуст
+  (rc=1).
+- **Панель** (`panel-report.md`): 4 роли ядра
+  `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max` (реестр
+  ядра; маршрут сверен с живым каталогом, не сессионная модель; спавн
+  с явными provider/model/reasoning_effort; лимит детей 4 — все одним
+  сообщением, рассрочки нет) — 4×«принять с находками», 10 сырых →
+  7 групп (1 P1 / 4 P2 / 2 P3), все закрыты одним проходом правок
+  `b276e3c`; повторного прогона не было.
+- **Гейты пака**: паков в контуре реестра нет — ноль.
+- **Пробелы**: push и тег v0.3.0 — тикет 04 (названо); PR-путь не
+  проверен — коммиты локальные до тикета 04; живая проба маршрутизации
+  и коннектора deliver→реестр — тикет 03; selfhost-реестр в ntin и
+  backfill парка — первый реальный rollout после юнита (наблюдение
+  триажа). Старое поколение OntoShip в репо реестра (локальные
+  `.agents/`, `docs/`, `tickets/`) не обновлялось — вне скоупа,
+  названо стартовым промптом.
+- **Разделение**: файлы ядра не тронуты, кроме `tickets/deliver/02-*`
+  и `02-evidence/`; continue.md, tickets/README, docs/plans/README,
+  файлы тикета 01 — не тронуты (сводная запись — сессия планирования).
+- Evidence: `tickets/deliver/02-evidence/`.
