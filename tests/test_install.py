@@ -39,7 +39,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 INSTALL = REPO / "scripts" / "install.sh"
-SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack")
+SKILLS = ("kb-search", "kb-curate", "init", "grilling", "to-tickets", "ship", "testing", "critic", "onto-doc", "pack", "deliver")
 RETIRED = ("chain",)
 
 # Method-section files shipped inside the bundles (bundle-references 01);

@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack)
+readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack deliver)
 readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
 # Bundles the core no longer ships. An old install may still carry one; like
 # legacy roots, a retired entry is reported by --check and never touched.
@@ -39,7 +39,7 @@ shared by zcode, DSH and Qoder.
 
   (default)  symlink the skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing,
-             critic, onto-doc, pack
+             critic, onto-doc, pack, deliver
   --dry-run  print the planned links (or copies with --copy) and run the same
              preflight checks without writing; cannot be combined with --check
   --copy     copy the skill directories instead (detached install)

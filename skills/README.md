@@ -3,7 +3,7 @@ node_type: index
 title: Скиллы — бандлы метода
 service: _platform
 status: active
-updated: 2026-11-16
+updated: 2026-11-17
 tags: [index, skills, bundles]
 links:
   part_of: [../README.md]
@@ -17,8 +17,9 @@ links:
 `<project>/.agents/skills`. Ядро KB — `kb-search`, `kb-curate`, `init`;
 фазы метода — `grilling`, `to-tickets`, `ship`; правило качества —
 `testing`; проекционная валидация спеки — `critic`; док-часть —
-`onto-doc`; контракт паков стандартов — `pack`. Ведение метода
-(автономная цепочка) — поставка team-бандла `ontoship-team`, не ядра.
+`onto-doc`; контракт паков стандартов — `pack`; поставка и обновление
+ядра в проекте — `deliver`. Ведение метода (автономная цепочка) —
+поставка team-бандла `ontoship-team`, не ядра.
 
 - [kb-search/](kb-search/SKILL.md) — движок GitMark и поиск по KB.
 - [kb-curate/](kb-curate/SKILL.md) — CREATE, UPDATE, DEPRECATE, LINK,
@@ -39,6 +40,8 @@ links:
 - [pack/](pack/SKILL.md) — контракт паков стандартов: манифест,
   стандарты, чек-листы ролей, гейты как данные; валидатор и эталонный
   пак.
+- [deliver/](deliver/SKILL.md) — поставка и обновление ядра в проекте:
+  протокол, коннектор к реестру потребителей, контракт акта rollout.
 
 Новый скилл появляется бандлом в `scripts/install.sh`, строкой здесь и
 кортежем в `tests/test_install.py` — одним коммитом; паритет держит тот же

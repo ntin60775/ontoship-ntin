@@ -116,5 +116,6 @@ python3 skills/kb-search/gitmark.py map -o docs-map.html
 - Состояние и порядок работы — [docs/ops/continue.md](docs/ops/continue.md):
   сессия продолжается оттуда и берёт следующий тикет оттуда же.
 - Команды: «стартуй юнит» — открыть draft-спеку; `ship` — командой
-  `/ship` или «исполняй тикет N».
+  `/ship` или «исполняй тикет N»; «деплой и обновление [имя_проекта]» —
+  скилл `deliver`.
 <!-- END ontoship -->
