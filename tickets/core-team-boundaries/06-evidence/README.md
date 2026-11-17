@@ -15,11 +15,16 @@ G18/S4). База исполнения — main `d41dd87` (после приём
 - [core-suite.log](core-suite.log) — pytest ядра на срезе.
 - [lint.log](lint.log) — lint --strict ядра на срезе.
 
-Вносит post-tag коммит main (хроника релиза), в дереве тега
+Внёс post-tag коммит main (хроника релиза), в дереве тега
 отсутствуют:
 
-- 03-checks.md — проверки релиза: ls-remote (main + тег), лог чистой
-  установки из тега (10 бандлов, check: ok), selfhost повторный init
-  (diff AGENTS.md 0 + тест managed-block).
-- install-from-tag.log — лог установки и check из дерева тега.
-- selfhost-init.diff — diff AGENTS.md повторного init (ожидание: 0).
+- [03-checks.md](03-checks.md) — проверки релиза: ls-remote (main +
+  тег), чистая установка из тега (10 бандлов, check: ok), selfhost
+  повторный init (diff AGENTS.md 0 + тест managed-block, расхождение
+  .gitignore разобрано).
+- [install-from-tag.log](install-from-tag.log) — лог установки и
+  check из дерева тега.
+- [selfhost-init.diff](selfhost-init.diff) — diff AGENTS.md
+  повторного init (0 байт).
+- [selfhost-init.log](selfhost-init.log) — лог selfhost-пробы
+  (четыре файла init, тесты, расхождение .gitignore).

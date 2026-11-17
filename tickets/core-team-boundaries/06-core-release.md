@@ -103,3 +103,15 @@ Evidence — [06-evidence/](06-evidence/README.md): карта релиза
   блока; стражи снятия chain — test_block_carries_no_chain_vocabulary
   (test_skill_init.py) и test_chain_is_retired_from_the_core
   (test_install.py), оба зелёные на текущем main.
+
+## Приёмка
+
+Автоприёмка 2026-11-17 на полном зелёном контуре после проб:
+тег v0.7.0 на origin = merge-коммит `51dc54f` (ls-remote), чистая
+установка из тега — 10 бандлов check: ok, selfhost-init — diff
+AGENTS.md 0 + тесты зелёные (.gitignore — init добавил строку
+`.agents/packs/`, расхождение разобрано), набор 786 passed,
+lint --strict чист, гейты пака — ноль; панель — один прогон,
+P1/P2 закрыты. Хроника и закрытие юнита — post-tag коммит main
+(continue.md, индексы); артефакты проб — 03-checks.md и логи
+в 06-evidence/.

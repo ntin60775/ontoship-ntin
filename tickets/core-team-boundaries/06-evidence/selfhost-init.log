@@ -1,0 +1,60 @@
+# Selfhost повторный init (релиз v0.7.0, main 51dc54f)
+
+Init идемпотентен: четыре файла проверяются, записи только при
+расхождении. Состояние до пробы:
+```
+-- AGENTS.md: блок между маркерами = шаблон init (механическая сверка — тест):
+1 passed in 0.01s
+-- .gitignore: пять строк init:
+ok: .gitmark/
+ok: *-map.html
+ok: .scratch/
+ok: .agents/skills/
+MISSING: .agents/packs/
+-- .agents/config.toml: существует, секции ролей:
+6
+-- docs/ops/continue.md: существует (init не правит существующий):
+docs/ops/continue.md
+```
+
+Все четыре файла актуальны — повторный init не пишет ничего.
+diff AGENTS.md после пробы (ожидание 0):
+```
+(пусто — diff 0)
+```
+
+Стражи снятия chain (зелёные на main):
+```
+2 passed in 0.06s
+```
+
+## Расхождение пробы: .gitignore
+
+Ожидание: полная идемпотентность (все пять строк init на месте).
+Факт: строка .agents/packs/ отсутствовала (selfhost не пере-init-лся
+с появления pack-канала standards-autoship). Не дефект релиза:
+init по контракту добавляет недостающую строку, существующие строки,
+порядок и комментарии сохранены. Правка — в post-tag коммите (хроника).
+```
+diff --git a/.gitignore b/.gitignore
+index cadd9fa..b2fed38 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -8,6 +8,7 @@ __pycache__/
+ .pytest_cache/
+ # project-local install (symlinks/copies are local, not source)
+ .agents/skills/
++.agents/packs/
+ # generated agent definitions (derived from .agents/config.toml, account-bound)
+ .zcode/agents/
+ .zcode/.backup/
+```
+
+Повторная сверка пяти строк после правки:
+```
+ok: .gitmark/
+ok: *-map.html
+ok: .scratch/
+ok: .agents/skills/
+ok: .agents/packs/
+```

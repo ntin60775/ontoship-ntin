@@ -1,0 +1,64 @@
+# Чистая установка из дерева тега v0.7.0 (51dc54f)
+
+## Разворот дерева тега
+```
+git archive v0.7.0 | tar -x -C /tmp/ctb06-tag-tree
+critic
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+README.md
+ship
+testing
+to-tickets
+```
+
+## install.sh --copy в свежий temp-проект
+```
+copied kb-search -> /tmp/ctb06-release-probe/.agents/skills/kb-search
+copied kb-curate -> /tmp/ctb06-release-probe/.agents/skills/kb-curate
+copied init -> /tmp/ctb06-release-probe/.agents/skills/init
+copied grilling -> /tmp/ctb06-release-probe/.agents/skills/grilling
+copied to-tickets -> /tmp/ctb06-release-probe/.agents/skills/to-tickets
+copied ship -> /tmp/ctb06-release-probe/.agents/skills/ship
+copied testing -> /tmp/ctb06-release-probe/.agents/skills/testing
+copied critic -> /tmp/ctb06-release-probe/.agents/skills/critic
+copied onto-doc -> /tmp/ctb06-release-probe/.agents/skills/onto-doc
+copied pack -> /tmp/ctb06-release-probe/.agents/skills/pack
+exit=0
+```
+
+## install.sh --check
+```
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+check: ok
+exit=0
+```
+
+## Состав установки
+```
+critic
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+ship
+testing
+to-tickets
+бандлов: 10
+ls: невозможно получить доступ к '/tmp/ctb06-release-probe/.agents/skills/chain': Нет такого файла или каталога
+```
