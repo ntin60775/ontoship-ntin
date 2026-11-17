@@ -1,0 +1,24 @@
+copied kb-search -> /tmp/dlv01-copy-proj/.agents/skills/kb-search
+copied kb-curate -> /tmp/dlv01-copy-proj/.agents/skills/kb-curate
+copied init -> /tmp/dlv01-copy-proj/.agents/skills/init
+copied grilling -> /tmp/dlv01-copy-proj/.agents/skills/grilling
+copied to-tickets -> /tmp/dlv01-copy-proj/.agents/skills/to-tickets
+copied ship -> /tmp/dlv01-copy-proj/.agents/skills/ship
+copied testing -> /tmp/dlv01-copy-proj/.agents/skills/testing
+copied critic -> /tmp/dlv01-copy-proj/.agents/skills/critic
+copied onto-doc -> /tmp/dlv01-copy-proj/.agents/skills/onto-doc
+copied pack -> /tmp/dlv01-copy-proj/.agents/skills/pack
+copied deliver -> /tmp/dlv01-copy-proj/.agents/skills/deliver
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+ok deliver (copy)
+check: ok
+exit=0

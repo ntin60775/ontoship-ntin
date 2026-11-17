@@ -1,0 +1,17 @@
+# Повторный init (второй прогон) — selfhost worktree dlv01
+
+Случай контракта init: один BEGIN/END, внутренний текст равен шаблону -> ничего не менять.
+
+$ python3 (сверка блока с шаблоном skills/init/SKILL.md)
+block == template: True
+second run action: no write (case 3)
+
+$ git diff -- AGENTS.md .gitignore .agents/config.toml docs/ops/continue.md
+(пусто — exit 0)
+
+$ git status --short -- AGENTS.md .gitignore .agents/config.toml docs/ops/continue.md
+(пусто — exit 0)
+
+$ grep -c markers
+1
+1

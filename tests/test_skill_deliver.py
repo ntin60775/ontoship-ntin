@@ -21,7 +21,7 @@ spec: docs/plans/deliver.md#контракт-акта — поля акта, fol
 spec: docs/plans/deliver.md#решения — решения 1, 7: носитель интента —
       скилл + строка блока; коннектор начинает ведение при отсутствующем файле
 invariant: docs/reference/text-style.md#смысловое-направление — проектных
-      фактов в бандле нет: абсолютные пути, имена сессий, порты
+      фактов в бандле нет: абсолютные пути, имена сессий, порты, дисплеи
 invariant: docs/decisions/ontoship-core.md#одно правило качества — the
       contract check can fail
 """
@@ -52,13 +52,15 @@ PROTOCOL_NEEDLES = (
     "realpath бандла `.agents/skills/deliver`",
     "copy-продюсер — ask оператора о чекауте ядра",
     "Молчаливого клона и remote нет",
-    "Канал продюсера и путь использованного install.sh фиксируй в evidence",
+    "Канал продюсера и путь использованного install.sh фиксируй в доказательствах",
     "имя → реестр потребителей и соседние чекауты",
     "не найден — ask пути, не угадывай",
     "`install.sh --check <X>` до обновления",
+    "(legacy-корни, выведенные бандлы)",
     "до утверждения «поставлено»",
     "`check: ok` не отменяет warning",
     "ask канала link/copy",
+    "обновление — тем же каналом",
     "смена канала — ask оператора",
     "(relink), не деструктив",
     "«copy differs»",
@@ -67,9 +69,11 @@ PROTOCOL_NEEDLES = (
     "только между маркерами ontoship",
     "install.sh сам init не запускает",
     "скилл реестра `consumer-registry`",
+    "Скилл в каталоге — загрузи его и следуй правилам",
     "файла реестра нет — исполни старт ведения по правилам скилла",
+    "затем пиши акт",
     "Скилла нет — запись не делается",
-    "fallback-записи в другой носитель нет",
+    "фолбэк-записи в другой носитель нет",
     "deliver не ставит реестр потребителям",
     "continue.md целевого проекта deliver не пишет",
     "Версия до/после, канал, вывод check, warning",
@@ -80,6 +84,7 @@ CONTRACT_NEEDLES = (
     "`action` = `rollout` (свежая поставка) | `update` (обновление)",
     "`actor` = сессия deliver",
     "тег link-дерева, иначе `git describe`",
+    "для copy — прежнее `consumers[].version`",
     "без прежней записи — `unknown` с названным пробелом",
     "`from` = прежнее `consumers[].version`",
     "`updated_at` обновляется",
@@ -90,12 +95,20 @@ CONTRACT_NEEDLES = (
 )
 
 # Project facts never ship in a bundle (text-style, «Смысловое направление»
-# 4): absolute paths, session names, loopback addresses.
-PROJECT_FACT_RE = re.compile(r"/home/|/tmp/|session-[0-9a-f]|dwfrun-|127\.0\.0\.1")
+# 4): absolute paths (the common filesystem roots), session names, ports,
+# displays, loopback addresses. A colon-digit token covers both a port
+# (:3080) and a display (:0); the bundle prose carries no such tokens.
+PROJECT_FACT_RE = re.compile(
+    r"(?<![\w.])/(?:home|Users|opt|srv|var|mnt|root|private|tmp|run)/"
+    r"|session-[0-9a-f]|dwfrun-"
+    r"|127\.0\.0\.1|localhost"
+    r"|:\d{1,5}\b"
+    r"|\bDISPLAY=")
 
 
 def _frontmatter(text: str) -> dict[str, str]:
-    """Parse the single-line YAML frontmatter the skill uses."""
+    """Parse the single-line YAML frontmatter the skill uses; values stay
+    raw (quotes included), so the quoting rule can be checked."""
     lines = text.splitlines()
     if not lines or lines[0].strip() != "---":
         return {}
@@ -105,7 +118,7 @@ def _frontmatter(text: str) -> dict[str, str]:
             return fields
         if ":" in line:
             key, _, value = line.partition(":")
-            fields[key.strip()] = value.strip().strip('"')
+            fields[key.strip()] = value.strip()
     return {}
 
 
@@ -115,9 +128,15 @@ def _contract_errors(text: str) -> list[str]:
     fields = _frontmatter(text)
     if fields.get("name") != "deliver":
         errors.append("frontmatter: name is not deliver")
-    description = fields.get("description", "")
+    raw_description = fields.get("description", "")
+    quoted = raw_description.startswith('"') and raw_description.endswith('"')
+    description = raw_description[1:-1] if quoted else raw_description
     if not 3 <= len(description) <= 500:
         errors.append("frontmatter: description length out of 3..500")
+    # The description carries ': ' — YAML requires quoting, or the catalog
+    # may fail to parse the skill (the init/kb-search contracts pin this).
+    if ": " in description and not quoted:
+        errors.append("frontmatter: description contains ': ' and must be quoted")
     # Decision 1: the catalog routes the intent by description — a
     # user-only flag would kill the native routing.
     if "disable-model-invocation" in text:
@@ -155,7 +174,8 @@ def test_description_carries_intent_without_paraphrase_literals():
     description несёт семантику поставки/обновления/деплоя и не содержит
     литералов парафраза «раскатай ядро в X»; инъекция литерала краснит."""
     text = SKILL.read_text("utf-8")
-    description = _frontmatter(text)["description"]
+    assert SKILL.is_file(), "the deliver bundle is missing"
+    description = _frontmatter(text)["description"].strip('"')
     for needle in DESCRIPTION_NEEDLES:
         assert needle in description, f"intent semantics missing: {needle!r}"
     for word in DESCRIPTION_FORBIDDEN:
@@ -173,8 +193,16 @@ def test_description_carries_intent_without_paraphrase_literals():
 def test_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the contract reddens on a lost protocol norm, a lost act-contract
-    clause, a seeded project fact and on the missing bundle (the base
-    commit state); every needle names its own error."""
+    clause, a seeded project fact, unquoted YAML and on the missing
+    bundle (the base commit state); every needle names its own error."""
+    # The base commit carries no bundle: the empty carrier reddens the
+    # frontmatter and every protocol clause, not a vacuous pass. Checked
+    # before the file read, so the branch runs on the base state too.
+    errors = _contract_errors("")
+    assert any("name is not deliver" in error for error in errors)
+    assert any(error.startswith("protocol:") for error in errors)
+    assert any(error.startswith("act contract:") for error in errors)
+
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == [], "the unmutated carrier must be clean"
 
@@ -185,12 +213,14 @@ def test_contract_can_fail():
         errors = _contract_errors(mutated)
         assert any(needle in error for error in errors), (needle, errors)
 
-    factual = text + "\nПример: /home/operator/project.\n"
-    assert any("project fact" in error for error in _contract_errors(factual))
+    for fact in ("/home/operator/project", "/opt/dsh", "порт :3080",
+                 "DISPLAY=:0"):
+        factual = text + f"\nПример: {fact}.\n"
+        assert any("project fact" in error
+                   for error in _contract_errors(factual)), fact
 
-    # The base commit carries no bundle: the empty carrier reddens the
-    # frontmatter and every protocol clause, not a vacuous pass.
-    errors = _contract_errors("")
-    assert any("name is not deliver" in error for error in errors)
-    assert any(error.startswith("protocol:") for error in errors)
-    assert any(error.startswith("act contract:") for error in errors)
+    # Unquoting the description reddens: it carries ': ', YAML needs quotes.
+    unquoted = text.replace('description: "', "description: ", 1)
+    assert unquoted != text
+    assert any("must be quoted" in error
+               for error in _contract_errors(unquoted))

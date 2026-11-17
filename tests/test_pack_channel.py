@@ -229,7 +229,8 @@ def test_skills_array_unchanged_by_pack_channel() -> None:
     """spec: docs/plans/standards-autoship.md#готово — массив SKILLS ядра
     не меняется каналом паков; состав выводится из массива SKILLS,
     паритет сторожит test_install. core-team-boundaries 03: chain выведен
-    из ядра — литерал несёт состав без него."""
+    из ядра — литерал несёт состав без него; deliver 01: состав несёт
+    deliver."""
     source = INSTALL.read_text(encoding="utf-8")
     assert "readonly SKILLS=(kb-search kb-curate init grilling to-tickets " \
-        "ship testing critic onto-doc pack)" in source
+        "ship testing critic onto-doc pack deliver)" in source

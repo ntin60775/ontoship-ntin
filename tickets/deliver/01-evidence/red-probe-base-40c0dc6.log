@@ -18,21 +18,21 @@ E   AssertionError: assert ['parity: the...taller array'] == []
 E   AssertionError: deliver is not a symlink
     assert False
      +  where False = is_symlink()
-     +    where is_symlink = PosixPath('/tmp/pytest-of-prog7/pytest-29/test_fresh_install_links_every0/project/.agents/skills/deliver').is_symlink
+     +    where is_symlink = PosixPath('/tmp/pytest-of-prog7/pytest-47/test_fresh_install_links_every0/project/.agents/skills/deliver').is_symlink
 /tmp/dlv01-red/tests/test_install.py:207: AssertionError: deliver is not a symlink
 E   assert False
-     +  where False = all(<generator object test_second_install_is_idempotent.<locals>.<genexpr> at 0x7f0cc7f8ca00>)
+     +  where False = all(<generator object test_second_install_is_idempotent.<locals>.<genexpr> at 0x7f5497fc8860>)
 /tmp/dlv01-red/tests/test_install.py:436: assert False
 E   AssertionError: assert 'ok deliver' in 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n'
-     +  where 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--check', '/tmp/pytest-of-prog7/pytest-29/test_check_is_c...ink)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n', stderr='').stdout
+     +  where 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--check', '/tmp/pytest-of-prog7/pytest-47/test_check_is_c...ink)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n', stderr='').stdout
 /tmp/dlv01-red/tests/test_install.py:449: AssertionError: assert 'ok deliver' in 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\ncheck: ok\n'
 E   AssertionError: assert 'drift: deliver:' in 'drift: kb-search: missing\ndrift: kb-curate: missing\ndrift: init: missing\ndrift: grilling: missing\ndrift: to-ticke...testing: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n'
-     +  where 'drift: kb-search: missing\ndrift: kb-curate: missing\ndrift: init: missing\ndrift: grilling: missing\ndrift: to-ticke...testing: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n' = output(CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--check', '/tmp/pytest-of-prog7/pytest-29/test_check_on_a...esting: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n'))
+     +  where 'drift: kb-search: missing\ndrift: kb-curate: missing\ndrift: init: missing\ndrift: grilling: missing\ndrift: to-ticke...testing: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n' = output(CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--check', '/tmp/pytest-of-prog7/pytest-47/test_check_on_a...esting: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n'))
 /tmp/dlv01-red/tests/test_install.py:460: AssertionError: assert 'drift: deliver:' in 'drift: kb-search: missing\ndrift: kb-curate: missing\ndrift: init: missing\ndrift: grilling: missing\ndrift: to-ticke...testing: missing\ndrift: critic: missing\ndrift: onto-doc: missing\ndrift: pack: missing\ncheck: 10 skill(s) drifted\n'
 E   AssertionError: deliver is not a symlink
     assert False
      +  where False = is_symlink()
-     +    where is_symlink = PosixPath('/tmp/pytest-of-prog7/pytest-29/test_install_does_not_touch_a_0/project/.agents/skills/deliver').is_symlink
+     +    where is_symlink = PosixPath('/tmp/pytest-of-prog7/pytest-47/test_install_does_not_touch_a_0/project/.agents/skills/deliver').is_symlink
 /tmp/dlv01-red/tests/test_install.py:207: AssertionError: deliver is not a symlink
 E   AssertionError: assert ['parity: the...taller array'] == []
       
@@ -42,25 +42,25 @@ E   AssertionError: assert ['parity: the...taller array'] == []
 E   AssertionError: deliver is not a real directory
     assert (False)
      +  where False = is_dir()
-     +    where is_dir = PosixPath('/tmp/pytest-of-prog7/pytest-29/test_copy_install_is_detached0/copied/.agents/skills/deliver').is_dir
+     +    where is_dir = PosixPath('/tmp/pytest-of-prog7/pytest-47/test_copy_install_is_detached0/copied/.agents/skills/deliver').is_dir
 /tmp/dlv01-red/tests/test_install.py:688: AssertionError: deliver is not a real directory
 E   assert False
-     +  where False = all(<generator object test_second_copy_run_is_idempotent_and_detects_drift.<locals>.<genexpr> at 0x7f0cc7f8c520>)
+     +  where False = all(<generator object test_second_copy_run_is_idempotent_and_detects_drift.<locals>.<genexpr> at 0x7f5497fc9630>)
 /tmp/dlv01-red/tests/test_install.py:710: assert False
-E   AssertionError: assert 'would link deliver -> /tmp/dlv01-red/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n'
-     +  where 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '/tmp/pytest-of-prog7/pytest-29/test_dry_run_...ic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n', stderr='').stdout
-/tmp/dlv01-red/tests/test_install.py:771: AssertionError: assert 'would link deliver -> /tmp/dlv01-red/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n'
+E   AssertionError: assert 'would link deliver -> /tmp/dlv01-red/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n'
+     +  where 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '/tmp/pytest-of-prog7/pytest-47/test_dry_run_...ic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n', stderr='').stdout
+/tmp/dlv01-red/tests/test_install.py:771: AssertionError: assert 'would link deliver -> /tmp/dlv01-red/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_link_inst0/fresh/.agents/skills\nwould link kb-searc.../skills/critic\nwould link onto-doc -> /tmp/dlv01-red/skills/onto-doc\nwould link pack -> /tmp/dlv01-red/skills/pack\n'
 E   AssertionError: assert 'would leave deliver unchanged' in 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n'
-     +  where 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '/tmp/pytest-of-prog7/pytest-29/test_dry_run_...ting unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n', stderr='').stdout
+     +  where 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '/tmp/pytest-of-prog7/pytest-47/test_dry_run_...ting unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n', stderr='').stdout
 /tmp/dlv01-red/tests/test_install.py:787: AssertionError: assert 'would leave deliver unchanged' in 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n'
-E   AssertionError: assert 'would copy deliver -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n'
-     +  where 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '--copy', '/tmp/pytest-of-prog7/pytest-29/tes...ld copy pack -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n', stderr='').stdout
-/tmp/dlv01-red/tests/test_install.py:861: AssertionError: assert 'would copy deliver -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-29/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n'
+E   AssertionError: assert 'would copy deliver -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n'
+     +  where 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '--copy', '/tmp/pytest-of-prog7/pytest-47/tes...ld copy pack -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n', stderr='').stdout
+/tmp/dlv01-red/tests/test_install.py:861: AssertionError: assert 'would copy deliver -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/deliver' in 'would create /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills\nwould copy kb-searc...nto-doc\nwould copy pack -> /tmp/pytest-of-prog7/pytest-47/test_dry_run_plans_a_copy_inst0/fresh/.agents/skills/pack\n'
 E   AssertionError: assert 'would leave deliver unchanged' in 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n'
-     +  where 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '--copy', '/tmp/pytest-of-prog7/pytest-29/tes...ting unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n', stderr='').stdout
+     +  where 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n' = CompletedProcess(args=['/tmp/dlv01-red/scripts/install.sh', '--dry-run', '--copy', '/tmp/pytest-of-prog7/pytest-47/tes...ting unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n', stderr='').stdout
 /tmp/dlv01-red/tests/test_install.py:879: AssertionError: assert 'would leave deliver unchanged' in 'would leave kb-search unchanged\nwould leave kb-curate unchanged\nwould leave init unchanged\nwould leave grilling un...ld leave testing unchanged\nwould leave critic unchanged\nwould leave onto-doc unchanged\nwould leave pack unchanged\n'
-E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-prog7/pytest-29/test_method_section_references0/linked/.agents/skills/deliver/SKILL.md'
-/usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-prog7/pytest-29/test_method_section_references0/linked/.agents/skills/deliver/SKILL.md'
+E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-prog7/pytest-47/test_method_section_references0/linked/.agents/skills/deliver/SKILL.md'
+/usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/pytest-of-prog7/pytest-47/test_method_section_references0/linked/.agents/skills/deliver/SKILL.md'
 E   assert ['block: the ...л `deliver`'"] == []
       
       Left contains 3 more items, first extra item: 'block: the fenced ontoship block is not its verbatim DSH template'
@@ -141,7 +141,7 @@ E   AssertionError: the deliver bundle is missing
     assert False
      +  where False = is_file()
      +    where is_file = PosixPath('/tmp/dlv01-red/skills/deliver/SKILL.md').is_file
-/tmp/dlv01-red/tests/test_skill_deliver.py:148: AssertionError: the deliver bundle is missing
+/tmp/dlv01-red/tests/test_skill_deliver.py:167: AssertionError: the deliver bundle is missing
 E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv01-red/skills/deliver/SKILL.md'
 /usr/lib/python3.13/pathlib/_local.py:539: FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv01-red/skills/deliver/SKILL.md'
 E   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/dlv01-red/skills/deliver/SKILL.md'
@@ -180,5 +180,5 @@ FAILED tests/test_skill_init.py::test_repo_managed_block_matches_the_init_block
 FAILED tests/test_skill_deliver.py::test_bundle_carries_the_protocol_and_the_act_contract
 FAILED tests/test_skill_deliver.py::test_description_carries_intent_without_paraphrase_literals
 FAILED tests/test_skill_deliver.py::test_contract_can_fail - FileNotFoundErro...
-33 failed, 31 passed in 1.24s
+33 failed, 31 passed in 1.61s
 red exit=1
