@@ -14,3 +14,30 @@ $ python3 skills/kb-search/gitmark.py lint --strict
 scope: 146 файлов исключено по 1 префиксам
 ✓ чисто  (57 файлов · —)
 lint-exit=0
+
+== post-merge: набор main после сноса worktree sa08-smoke-pack ==
+каталог: /home/prog7/home/dev/contrib/forks/ontoship-ntin (main 8c57507)
+worktree снесён, ветка sa08-smoke-pack удалена (была 8c57507)
+
+$ python3 -m pytest -q
+786 passed in 14.94s
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+✓ чисто (57 файлов)
+
+$ bash scripts/install.sh --check .
+ok pack (link)
+check: ok
+
+== prod: чистая copy-установка из слитого дерева в /tmp/sa08-prod-install ==
+$ bash scripts/install.sh --copy /tmp/sa08-prod-install
+10 бандлов (copy)
+$ bash scripts/install.sh --check /tmp/sa08-prod-install
+ok pack (copy)
+check: ok
+$ bash scripts/install.sh --copy --pack skills/pack/reference-pack /tmp/sa08-prod-install
+copied pack reference-pack
+$ python3 skills/pack/run_gates.py /tmp/sa08-prod-install
+✓ гейт reference-pack/reference-gate: exit 0
+✓ гейты паков: 1 пройдено
+gates-exit=0
