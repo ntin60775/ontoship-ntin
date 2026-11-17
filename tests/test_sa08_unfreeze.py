@@ -178,8 +178,10 @@ def test_sa08_text_contract_can_fail():
     the sa08 text check can fail: remove-мутация каждого якоря (разделы,
     шаги, артефакты, «что краснит», разморозка, судьба 12/14, вне юнита)
     краснит именованной ошибкой; удаление одного критерия, возврат
-    заморозки и старого заголовка краснят; закрытые чекбоксы [x] —
-    канарейка исполненного тикета — остаются зелёными (мутационная проба)."""
+    заморозки и старого заголовка краснят; канарейка закрытых чекбоксов
+    [x] зелёная в обоих состояниях: до исполнения закрывает открытые,
+    после исполнения (все [x]) гоняет один критерий через открытое
+    состояние и обратно (мутационная проба)."""
     text = TICKET.read_text("utf-8")
     assert _text_errors(text) == []
 
@@ -225,6 +227,18 @@ def test_sa08_text_contract_can_fail():
         "restoring the old title must redden the retired-wording check"
 
     closed = text.replace("- [ ]", "- [x]")
-    assert closed != text
-    assert _text_errors(closed) == [], \
-        "the executed ticket marks its criteria [x] and must stay green"
+    if closed != text:
+        # Pre-execution state: closing the open criteria stays green.
+        assert _text_errors(closed) == [], \
+            "the executed ticket marks its criteria [x] and must stay green"
+    else:
+        # Executed state (all criteria [x]): round-trip one criterion
+        # through the open state so the mutation stays real in both states.
+        opened = text.replace("- [x]", "- [ ]", 1)
+        assert opened != text, "the executed ticket must carry [x] criteria"
+        assert _text_errors(opened) == [], \
+            "reopening one criterion of the executed ticket must stay green"
+        reclosed = opened.replace("- [ ]", "- [x]")
+        assert reclosed == text
+        assert _text_errors(reclosed) == [], \
+            "the executed ticket marks its criteria [x] and must stay green"

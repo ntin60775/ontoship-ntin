@@ -1,0 +1,12 @@
+== baseline: гейты зелёные ==
+✓ гейт reference-pack/reference-gate: exit 0
+    reference gate: ok
+✓ гейты паков: 1 пройдено
+gates-exit=0
+== мутация: expect_exit 0 -> 1 в установленном паке ==
+expect_exit = 1
+== красная проба: run_gates на мутации ==
+✗ гейт reference-pack/reference-gate: ожидался exit 1, получен 0
+    reference gate: ok
+гейты паков: 1 из 1 красные
+gates-exit=1

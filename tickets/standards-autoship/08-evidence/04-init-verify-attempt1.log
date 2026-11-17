@@ -1,0 +1,14 @@
+== validate_pack installed ==
+python3: can't open file '/tmp/sa08-smoke/proj/.agents/skills/pack/validate_pack.py': [Errno 2] No such file or directory
+validator-exit=2
+== markers ==
+1
+1
+== git status ==
+fatal: не найден git репозиторий (или один из его каталогов вплоть до точки монтирования /)
+Останавливаю поиск на границе файловой системы (так как GIT_DISCOVERY_ACROSS_FILESYSTEM не установлен).
+== sha256 pass 1 ==
+a93656be3d79059d8bbb46675faa634d773ca25da913c5a7fd55f5da8c58d035  AGENTS.md
+deebf07aec5e88bc74bf6d058799b6c3d96af09e021e2e482b3d412f3fed60ff  .gitignore
+3fe036b38886ca9bcba7d6871d22b3428411d5b99d80b4667c9fc346c1fc9947  .agents/config.toml
+8bd4e875de321360ce851ee2179594f34b135332759ef699a94ced26069dbcab  docs/ops/continue.md

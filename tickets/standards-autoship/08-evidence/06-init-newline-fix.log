@@ -1,0 +1,7 @@
+== расхождение: AGENTS.md создан без завершающего newline (инструмент записи срезал); канон блока по BLOCK_FENCE tests/test_skill_init.py кончается END+newline; исправлено допиской одного байта ==
+block == template (test BLOCK_FENCE): True
+== sha256 final ==
+12294df5c2c2246e68a31d1b1c29b04fb06057ae146a7c0ee177a09a818a0ca8  AGENTS.md
+deebf07aec5e88bc74bf6d058799b6c3d96af09e021e2e482b3d412f3fed60ff  .gitignore
+3fe036b38886ca9bcba7d6871d22b3428411d5b99d80b4667c9fc346c1fc9947  .agents/config.toml
+8bd4e875de321360ce851ee2179594f34b135332759ef699a94ced26069dbcab  docs/ops/continue.md

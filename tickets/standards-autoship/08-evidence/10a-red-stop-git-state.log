@@ -1,0 +1,8 @@
+== дополнение к красной пробе: состояние git на момент остановки прохода ==
+$ git -C /tmp/sa08-smoke/proj rev-parse main
+ae26ce9460e9f9a47656f4f00ae868e2cac6be01
+$ git -C /tmp/sa08-smoke/proj log --oneline main
+ae26ce9 toy ticket 01: опечатка README (написан заранее)
+0ea80b1 init: точка входа OntoShip с паком reference-pack
+82a964c toy project: README with a deliberate typo
+main = ae26ce9: merge-коммита нет, записи автоприёмки нет — проход стоит на шаге 6 ship (красный гейт run_gates exit 1, лог 09); остановка — решение потока по правилу шага 6, артефакты: красный гейт + неизменный main

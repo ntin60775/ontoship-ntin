@@ -1,0 +1,12 @@
+== остановка прохода ==
+шаг 6 ship (механические гейты пака): гейт reference-pack/reference-gate красный (ожидался exit 1, получен 0), run_gates exit 1 — проход стоит: merge и автоприёмка не выполняются, критерий гейтов падает (строка «Что краснит» тикета sa08)
+== восстановление манифеста ==
+6aa744c321f1bbefdc8d9ad225db3dd8ec7b163cd9c7416f7f7025e20b38e29e  .agents/packs/reference-pack/manifest.json
+6aa744c321f1bbefdc8d9ad225db3dd8ec7b163cd9c7416f7f7025e20b38e29e  /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/sa08-smoke-pack/skills/pack/reference-pack/manifest.json
+== гейты после восстановления ==
+✓ гейт reference-pack/reference-gate: exit 0
+    reference gate: ok
+✓ гейты паков: 1 пройдено
+gates-exit=0
+✓ пак reference-pack (team, 1.0.0) валиден
+validator-exit=0

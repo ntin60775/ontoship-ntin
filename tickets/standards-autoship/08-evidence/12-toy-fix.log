@@ -1,0 +1,17 @@
+== первичный срез 38b8e0e (заменён правками панели c1e04cb, финальные доказательства — 11-toy-red-base.log) ==
+$ git diff ae26ce9..38b8e0e
+diff --git a/README.md b/README.md
+index 171e731..91f26ea 100644
+--- a/README.md
++++ b/README.md
+@@ -1,5 +1,5 @@
+ # Smoke Toy Project
+ 
+-This is a tempory project for the OntoShip pack smoke test.
++This is a temporary project for the OntoShip pack smoke test.
+ 
+-It contains a deliberate typo in this README: the word "tempory" should be "temporary".
++It contains a deliberate typo in this README: the word "temporary" should be "temporary".
+$ git show 38b8e0e:README.md | grep -n tempory
+grep-tempory-exit=1
+находка панели: строка 5 стала тавтологией — разбор в тикете, секция «Расхождения»
