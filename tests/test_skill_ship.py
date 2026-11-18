@@ -21,7 +21,7 @@ drives the model invocation from there, the core names the manual
 ``/ship`` channel; ticket
 acceptance is automatic on the fully green contour (criteria proven, panel
 after one fix pass without open P1/P2, dev/prod passed, pack gates green,
-stop points passed), P3 goes to the leads register, anything open or a stop
+stop points passed), P3 is triaged in the same pass, anything open or a stop
 is an operator question; the pass carries the pack mechanical-gate step
 (configs-as-data executed by the core); the panel assembles from core and
 pack roles, ``reviewer-code`` receives the standards sources in priority
@@ -84,8 +84,8 @@ REQUIRED_PHRASES = (
     "доказательные тесты",
     "один прогон ревью",
     "зацепки, а не цикл сходимости",
-    "исправь p1/p2",
-    "p3 — в реестр зацепок, остановись",
+    "p1/p2 исправляются в этом проходе",
+    "p3 — не долг, а триаж",
     "остановись",
     "точки остановки",
     "раздела «ограничения» спеки",
@@ -171,7 +171,8 @@ AUTOSHIP_PHRASES = (
     "проверки dev/prod пройдены",
     "механические гейты пака зелёные",
     "точки остановки спеки пройдены",
-    "p3 — в реестр зацепок",
+    "p3 не блокируют автоприёмку",
+    "у каждой зацепки исход в этом проходе",
     "незакрытое или остановка — вопрос оператору",
     "tickets/<slug>/",
 )
@@ -489,8 +490,8 @@ def test_review_is_one_pass_and_yields_leads():
     lowered = _normalized_lower(body)
     assert "один прогон ревью" in lowered
     assert "зацепки, а не цикл сходимости" in lowered
-    assert "исправь p1/p2" in lowered
-    assert "p3 — в реестр зацепок" in lowered
+    assert "p1/p2 исправляются в этом проходе" in lowered
+    assert "p3 — не долг, а триаж" in lowered
     assert "остановись" in lowered
     for phrase in FORBIDDEN_PHRASES[:2]:
         assert phrase not in lowered, f"convergence-loop phrase {phrase!r} leaked"
@@ -509,8 +510,9 @@ def test_degradation_without_remote_is_honest():
 
 def test_auto_acceptance_on_the_green_contour():
     """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 10:
-    автоприёмка тикета на полном зелёном контуре без ask; P3 — в реестр
-    зацепок; незакрытое или остановка — вопрос оператору."""
+    автоприёмка тикета на полном зелёном контуре без ask; P3 — триаж в
+    том же проходе (правка или ишью), а не долг; незакрытое или
+    остановка — вопрос оператору."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = _section(_normalized_lower(body), "автоприёмка")
     assert section, "the «Автоприёмка» section is missing"
@@ -622,13 +624,13 @@ def test_contract_check_can_fail():
     assert any("disable-model-invocation" in error
                for error in _contract_errors(restored_flag))
 
-    looped = text.replace("P3 — в реестр зацепок",
+    looped = text.replace("P3 — не долг, а триаж",
                           "повторяй прогоны ревью до нуля находок", 1)
     assert looped != text
     errors = _contract_errors(looped)
     assert any("повторяй прогоны ревью" in error for error in errors)
     assert any("до нуля находок" in error for error in errors)
-    assert any("p3 — в реестр зацепок" in error for error in errors)
+    assert any("p3 — не долг, а триаж" in error for error in errors)
 
     fake_pr = text.replace("локальным коммитом в целевую ветку",
                            "создай pull request в удалённый репозиторий", 1)
@@ -743,7 +745,7 @@ def test_gate_step_contract_can_fail():
 def test_auto_acceptance_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
     auto-acceptance contract rejects a lost green-contour condition, a lost
-    P3 register, a lost operator question, a blocking P3 and a lost section."""
+    P3 triage, a lost operator question, a blocking P3 and a lost section."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -754,8 +756,8 @@ def test_auto_acceptance_contract_can_fail():
          "панель без находок", "панель после одного раунда правок без незакрытых p1/p2"),
         ("механические гейты пака зелёные", "гейты пройдены",
          "механические гейты пака зелёные"),
-        ("P3 — в реестр зацепок юнита", "P3 тоже блокирует юнита",
-         "p3 — в реестр зацепок"),
+        ("P3 не блокируют автоприёмку", "P3 тоже блокирует юнита",
+         "p3 не блокируют автоприёмку"),
         ("Незакрытое или остановка — вопрос оператору",
          "Незакрытое закрывает исполнитель", "незакрытое или остановка — вопрос оператору"),
     ):
