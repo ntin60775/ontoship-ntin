@@ -1,0 +1,25 @@
+# Чистая установка реестра из дерева тега v0.3.0
+дата: 2026-11-18T12:01:55+02:00
+tag sha: b276e3ca3fdd000eeec10783c020804e6700862f
+tag tree: /tmp/dlv04-tag-registry (git archive v0.3.0)
+script: /tmp/dlv04-tag-registry/scripts/install.sh
+target: /tmp/dlv04-proj-registry
+
+$ /tmp/dlv04-tag-registry/scripts/install.sh --copy /tmp/dlv04-proj-registry
+copied consumer-registry -> /tmp/dlv04-proj-registry/.agents/skills/consumer-registry
+exit=0
+
+$ /tmp/dlv04-tag-registry/scripts/install.sh --check /tmp/dlv04-proj-registry
+ok consumer-registry (copy)
+check: ok
+exit=0
+
+$ ls /tmp/dlv04-proj-registry/.agents/skills | wc -l
+1
+$ ls /tmp/dlv04-proj-registry/.agents/skills
+consumer-registry
+$ grep -ri zcode /tmp/dlv04-proj-registry/.agents/skills/consumer-registry | wc -l
+0
+$ python3 .../registry_check.py .../registry.template.json
+OK: /tmp/dlv04-proj-registry/.agents/skills/consumer-registry/templates/registry.template.json (consumer-registry/1)
+exit=0

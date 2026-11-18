@@ -1,0 +1,56 @@
+# Чистая установка ядра из дерева тега v0.8.0
+дата: 2026-11-18T12:01:49+02:00
+tag sha: 82dad3cb8eaa138991a0cd79a2623352acb7f296
+tag tree: /tmp/dlv04-tag-kernel (git archive v0.8.0)
+script: /tmp/dlv04-tag-kernel/scripts/install.sh
+target: /tmp/dlv04-proj-kernel
+
+$ git -C /tmp/dlv04-tag-kernel rev-parse --show-toplevel
+(нет .git — дерево из archive)
+$ /tmp/dlv04-tag-kernel/scripts/install.sh --copy /tmp/dlv04-proj-kernel
+copied kb-search -> /tmp/dlv04-proj-kernel/.agents/skills/kb-search
+copied kb-curate -> /tmp/dlv04-proj-kernel/.agents/skills/kb-curate
+copied init -> /tmp/dlv04-proj-kernel/.agents/skills/init
+copied grilling -> /tmp/dlv04-proj-kernel/.agents/skills/grilling
+copied to-tickets -> /tmp/dlv04-proj-kernel/.agents/skills/to-tickets
+copied ship -> /tmp/dlv04-proj-kernel/.agents/skills/ship
+copied testing -> /tmp/dlv04-proj-kernel/.agents/skills/testing
+copied critic -> /tmp/dlv04-proj-kernel/.agents/skills/critic
+copied onto-doc -> /tmp/dlv04-proj-kernel/.agents/skills/onto-doc
+copied pack -> /tmp/dlv04-proj-kernel/.agents/skills/pack
+copied deliver -> /tmp/dlv04-proj-kernel/.agents/skills/deliver
+exit=0
+
+$ /tmp/dlv04-tag-kernel/scripts/install.sh --check /tmp/dlv04-proj-kernel
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+ok deliver (copy)
+check: ok
+exit=0
+
+$ ls /tmp/dlv04-proj-kernel/.agents/skills | wc -l
+11
+$ ls /tmp/dlv04-proj-kernel/.agents/skills
+critic
+deliver
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+ship
+testing
+to-tickets
+$ test -f .../deliver/SKILL.md
+deliver в составе: да
+$ grep -c "name: deliver" .../deliver/SKILL.md
+1

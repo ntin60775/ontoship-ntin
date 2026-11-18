@@ -1,0 +1,19 @@
+# Diff description deliver: срез пробы 8c7bd4d vs тег v0.8.0
+$ git diff 8c7bd4d v0.8.0 -- skills/deliver/SKILL.md | grep -E "^[+-](name|description):"
+<пусто>
+grep exit=1 (1 — совпадений нет: name/description не менялись)
+
+$ git diff --stat 8c7bd4d v0.8.0 -- skills/deliver/SKILL.md
+ skills/deliver/SKILL.md | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+$ git show 8c7bd4d:skills/deliver/SKILL.md | sed -n "1,4p"
+---
+name: deliver
+description: "Поставка и обновление OntoShip в проекте: полный пр
+---
+$ git show v0.8.0:skills/deliver/SKILL.md | sed -n "1,4p"
+---
+name: deliver
+description: "Поставка и обновление OntoShip в проекте: полный пр
+---

@@ -1,0 +1,8 @@
+$ git log --oneline -3 main
+82dad3c deliver: тикет 04 — отчёт панели и правки P2/P3 (срез)
+7e73aa3 deliver: тикет 04 — карта релиза v0.8.0/v0.3.0 и красная база (срез)
+29cb052 continue: факт окружения — gh вне PATH (~/.local/bin), ишью через API
+
+$ git rev-parse main v0.8.0
+82dad3cb8eaa138991a0cd79a2623352acb7f296
+82dad3cb8eaa138991a0cd79a2623352acb7f296
