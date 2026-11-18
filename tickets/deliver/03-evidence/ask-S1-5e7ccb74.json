@@ -1,0 +1,24 @@
+{
+ "session": "session-13c1ae52-86aa-4a72-bbcd-585f5d13a8a8",
+ "event": "user-questions/request",
+ "eventId": "5e7ccb74-fcb2-454a-85f9-e9ba32e89442",
+ "request": {
+  "questions": [
+   {
+    "id": "channel",
+    "question": "X1 (/tmp/dlv03/X1) — свежая установка, .agents нет. Канал: link или copy?",
+    "header": "Канал установки",
+    "options": [
+     {
+      "label": "link (Recommended)",
+      "description": "Симлинки на ядро v0.7.0-15-g8c7bd4d; обновления ядра подхватываются, но ядро должно оставаться на месте."
+     },
+     {
+      "label": "copy",
+      "description": "Автономная копия бандлов; версия не отслеживается (unknown), обновление только переустановкой."
+     }
+    ]
+   }
+  ]
+ }
+}

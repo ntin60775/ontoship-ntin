@@ -1,0 +1,16 @@
+## X1: check после поставки S1
+ok deliver (link)
+check: ok
+## X1: git status (только .agents/ и файлы init)
+?? .agents/
+?? .gitignore
+?? AGENTS.md
+## X1: continue.md маркер и diff
+1
+0
+## X1: readlink deliver
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+## P1: валидатор на заполненном реестре
+OK: /tmp/dlv03/P1/.agents/registry.local.json (consumer-registry/1)
+## P1: gitignore строка реестра
+6:.agents/registry.local.json

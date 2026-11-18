@@ -1,0 +1,30 @@
+# OntoShip role registry (bootstrap init, стандартная раскладка).
+[agents.reviewer-spec]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.reviewer-tests]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.reviewer-code]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.reviewer-kb]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.critic]
+model = "qwen-token-plan-max/qwen4-max-preview"
+level = "xhigh"
+
+[agents.curator]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "high"
+
+[validation]
+pool = [
+  { model = "deepseek-account/deepseek-flash", level = "max" },
+  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
+]

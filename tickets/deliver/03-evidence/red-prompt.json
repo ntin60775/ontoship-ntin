@@ -1,0 +1,10 @@
+{
+ "type": "server-response",
+ "rpcId": "dlv03-97456b961930",
+ "result": {
+  "ok": true,
+  "value": {
+   "accepted": true
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "type": "server-response",
+ "rpcId": "dlv03-bdac4e6d97a4",
+ "result": {
+  "ok": true,
+  "value": {
+   "kind": "sequenced",
+   "asOfSeq": 258,
+   "values": {
+    "forgeChangeRequests": [],
+    "userQuestions": {
+     "active": [],
+     "settled": []
+    },
+    "turnOutline": [
+     {
+      "turn": 1,
+      "seq": 5,
+      "prompt": "раскатай ядро в X4",
+      "response": "Готово. Ядро в X4 раскатано, init выполнен, акт записан в реестр. **Источник** — link-продюсер резолвнул ядро из `realp…"
+     }
+    ],
+    "tokenUsage": {
+     "uncachedInputTokens": 70709,
+     "outputTokens": 20211,
+     "cacheReadTokens": 1572608,
+     "cacheWriteTokens": 0
+    },
+    "sessionStats": {
+     "turns": 1,
+     "steps": 36,
+     "llmMs": 182528,
+     "toolMs": 12396,
+     "ttftMs": 71690,
+     "ttftSteps": 36,
+     "decodeMs": 110838,
+     "decodeTokens": 20211
+    },
+    "contextPressure": {
+     "pressureTokens": 67318,
+     "projectedTokens": 68385,
+     "contextWindow": 1000000
+    },
+    "title": "раскатай ядро в X4",
+    "goal": null,
+    "actionCards": {
+     "proposals": {},
+     "decisions": {}
+    },
+    "modelSelection": {
+     "lastUsed": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     },
+     "next": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     }
+    },
+    "agentPreset": "standard",
+    "workingDirectory": "/tmp/dlv03/P2b",
+    "contextBreakdown": {
+     "systemTokens": 1544,
+     "toolsTokens": 8335,
+     "messageTokens": 48006
+    },
+    "inbox": {
+     "next-turn": [],
+     "next-step": []
+    },
+    "permissions": {
+     "currentValue": "danger-full-access"
+    },
+    "subagentCatalog": [],
+    "worktree": [],
+    "forgeWorktree": null,
+    "subagentTiming": {
+     "settledMs": 0
+    },
+    "subagent": null,
+    "agentTeam": {
+     "enabled": false,
+     "tasks": []
+    },
+    "todos": null,
+    "plan": {
+     "active": false,
+     "pending": false
+    },
+    "conversationContinuation": null,
+    "sessionListMetadata": {
+     "blank": false,
+     "lastPromptAt": 1794988265603
+    },
+    "imageLimits": {
+     "maxImageBytes": 52428800,
+     "maxImagesPerMessage": 20,
+     "maxMessageImageBytes": 209715200,
+     "maxImagePixels": 64000000,
+     "maxImageDimension": 65535,
+     "mediaTypes": [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/gif"
+     ]
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,92 @@
+{
+ "session": "S2",
+ "sessionId": "session-9801dda7-a744-4ae5-804c-a96c2b3ff4f0",
+ "listRow": {},
+ "agentPreset": "standard",
+ "modelSelection": {
+  "lastUsed": {
+   "provider": "qwen-token-plan-deepseek",
+   "model": "deepseek-v4.1-flash-1017",
+   "reasoningEffort": "max"
+  },
+  "next": {
+   "provider": "qwen-token-plan-deepseek",
+   "model": "deepseek-v4.1-flash-1017",
+   "reasoningEffort": "max"
+  }
+ },
+ "title": "поставь онтошип в X2",
+ "firstEvents": [
+  {
+   "seq": 0,
+   "type": "permission/preset",
+   "data": {
+    "preset": "danger-full-access"
+   }
+  },
+  {
+   "seq": 1,
+   "type": "sandbox/mode",
+   "data": {
+    "mode": "danger-full-access"
+   }
+  },
+  {
+   "seq": 2,
+   "type": "approval/policy",
+   "data": {
+    "policy": "never"
+   }
+  },
+  {
+   "seq": 3,
+   "type": "subagent/model-selection-policy",
+   "data": {
+    "allowedModels": [
+     {
+      "provider": "deepseek-account",
+      "model": "deepseek-flash"
+     },
+     {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash"
+     },
+     {
+      "provider": "qwen-token-plan-max",
+      "model": "qwen4-max-preview"
+     },
+     {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017"
+     }
+    ]
+   }
+  },
+  {
+   "seq": 4,
+   "type": "agent/inbox/spliced",
+   "data": {
+    "target": "next-turn",
+    "start": 0,
+    "inserted": [
+     {
+      "content": [
+       {
+        "type": "text",
+        "text": "поставь онтошип в X2"
+       }
+      ],
+      "source": {
+       "kind": "user",
+       "rpcId": "dlv03-S2-1"
+      },
+      "role": "user",
+      "id": "61781eda-f7aa-43e4-80d8-17698d3ced06"
+     }
+    ]
+   }
+  }
+ ],
+ "note": "unary session/create response раннером не сохранялся (пробел драйвера, назван панелью); факты создания — list-строка, проекции, первые события журнала; цепочка launch-token→connect→cookie→create драйвера — drv.py (cookie-файлы 600, вне evidence); сессия удалена после фиксации (S2-delete.json), list-строка отсутствует — cwd из runner-лога и событий",
+ "runnerLog": "[18:49:08] S2: старт cwd=/tmp/dlv03/P1 policy=stop-on-ask парафраз=\"поставь онтошип в X2\""
+}

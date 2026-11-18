@@ -1,0 +1,37 @@
+{
+  "schema": "consumer-registry/1",
+  "machine": {
+    "hostname": "prog7",
+    "operator": "prog7"
+  },
+  "project": {
+    "name": "P2",
+    "path": "/tmp/dlv03/P2",
+    "description": "Продюсер пробы deliver/03, контур P2"
+  },
+  "updated_at": "2026-11-17T16:55:29Z",
+  "consumers": [
+    {
+      "name": "X4",
+      "kind": "project",
+      "machine": "prog7",
+      "path": "/tmp/dlv03/X4",
+      "version": "unknown",
+      "since": "2026-11-17",
+      "state": "active",
+      "note": "copy-установка из v0.7.0-15-g8c7bd4d; init выполнен; версия копии не пинится (deployed.json не заводится)"
+    }
+  ],
+  "deploy_log": [
+    {
+      "at": "2026-11-17T16:55:29Z",
+      "actor": "deliver session (lead)",
+      "action": "rollout X4",
+      "consumer": "X4",
+      "to": "unknown",
+      "result": "ok"
+    }
+  ],
+  "acceptance": [],
+  "notes": "Реестр пробы deliver/03: продюсер ведёт своих потребителей X."
+}

@@ -1,0 +1,5 @@
+[18:49:08] S2: старт cwd=/tmp/dlv03/P1 policy=stop-on-ask парафраз="поставь онтошип в X2" resume=False
+[18:49:08] S2: sessionId=session-9801dda7-a744-4ae5-804c-a96c2b3ff4f0
+[18:50:24] S2: wait reason=input-required cursor=126 asks=1 unanswered=1
+[18:50:24] S2: ask при policy=stop-on-ask — фиксация и остановка callId=call_3b6204176e914beabea7487a
+[18:50:24] S2: финиш stopped_on_ask=True tokenUsage={'uncachedInputTokens': 25078, 'outputTokens': 7737, 'cacheReadTokens': 261888, 'cacheWriteTokens': 0} title=поставь онтошип в X2

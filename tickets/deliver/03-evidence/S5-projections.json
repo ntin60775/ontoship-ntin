@@ -1,0 +1,113 @@
+{
+ "type": "server-response",
+ "rpcId": "dlv03-11f67dac7217",
+ "result": {
+  "ok": true,
+  "value": {
+   "kind": "sequenced",
+   "asOfSeq": 316,
+   "values": {
+    "forgeChangeRequests": [],
+    "userQuestions": {
+     "active": [],
+     "settled": []
+    },
+    "turnOutline": [
+     {
+      "turn": 1,
+      "seq": 5,
+      "prompt": "поставь онтошип в X5",
+      "response": "Готово. X5 поставлен. | | | |---|---| | источник | `/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/scripts/i…"
+     }
+    ],
+    "tokenUsage": {
+     "uncachedInputTokens": 65936,
+     "outputTokens": 19668,
+     "cacheReadTokens": 1506560,
+     "cacheWriteTokens": 0
+    },
+    "sessionStats": {
+     "turns": 1,
+     "steps": 43,
+     "llmMs": 273861,
+     "toolMs": 54002,
+     "ttftMs": 164101,
+     "ttftSteps": 43,
+     "decodeMs": 109760,
+     "decodeTokens": 19668
+    },
+    "contextPressure": {
+     "pressureTokens": 68143,
+     "projectedTokens": 68904,
+     "contextWindow": 1000000
+    },
+    "title": "поставь онтошип в X5",
+    "goal": null,
+    "actionCards": {
+     "proposals": {},
+     "decisions": {}
+    },
+    "modelSelection": {
+     "lastUsed": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     },
+     "next": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     }
+    },
+    "agentPreset": "standard",
+    "workingDirectory": "/tmp/dlv03/P3",
+    "contextBreakdown": {
+     "systemTokens": 1544,
+     "toolsTokens": 8335,
+     "messageTokens": 46597
+    },
+    "inbox": {
+     "next-turn": [],
+     "next-step": []
+    },
+    "permissions": {
+     "currentValue": "danger-full-access"
+    },
+    "subagentCatalog": [],
+    "worktree": [],
+    "forgeWorktree": null,
+    "subagentTiming": {
+     "settledMs": 0
+    },
+    "subagent": null,
+    "agentTeam": {
+     "enabled": false,
+     "tasks": []
+    },
+    "todos": null,
+    "plan": {
+     "active": false,
+     "pending": false
+    },
+    "conversationContinuation": null,
+    "sessionListMetadata": {
+     "blank": false,
+     "lastPromptAt": 1794934304788
+    },
+    "imageLimits": {
+     "maxImageBytes": 52428800,
+     "maxImagesPerMessage": 20,
+     "maxMessageImageBytes": 209715200,
+     "maxImagePixels": 64000000,
+     "maxImageDimension": 65535,
+     "mediaTypes": [
+      "image/png",
+      "image/jpeg",
+      "image/webp",
+      "image/gif"
+     ]
+    }
+   }
+  }
+ }
+}

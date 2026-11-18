@@ -1,0 +1,6 @@
+.gitmark/
+*-map.html
+.scratch/
+.agents/skills/
+.agents/packs/
+.agents/registry.local.json

@@ -1,0 +1,5 @@
+[18:51:44] S5: старт cwd=/tmp/dlv03/P3 policy=channel:link парафраз="поставь онтошип в X5" resume=False
+[18:51:44] S5: sessionId=session-cecc2f85-e317-4ae9-b036-2ddde8765570
+[18:54:44] S5: wait reason=timeout cursor=184 asks=1 unanswered=0
+[18:57:14] S5: wait reason=idle cursor=316 asks=1 unanswered=0
+[18:57:14] S5: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 65936, 'outputTokens': 19668, 'cacheReadTokens': 1506560, 'cacheWriteTokens': 0} title=поставь онтошип в X5

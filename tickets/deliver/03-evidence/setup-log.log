@@ -1,0 +1,54 @@
+# Setup-лог пробы (собран после панели; артефакты живы до уборки)
+## копия профиля: diff package.json живой vs копия (ожидание: сняты 3 team/stack deps и bundles)
+7,10c7
+<     "@local/dsh-omp-theme": "link:/home/prog7/home/dev/dsh-plugins/theme-omp",
+<     "dsh-1c-contour": "link:/home/prog7/home/dev/personal/1C-DSH",
+<     "ontoship-team": "link:/home/prog7/home/dev/contrib/forks/ontoship-team",
+<     "ontoship-team-1c": "link:/home/prog7/home/dev/contrib/forks/ontoship-team-1c"
+---
+>     "@local/dsh-omp-theme": "link:/home/prog7/home/dev/dsh-plugins/theme-omp"
+25,28c22
+<         "@local/dsh-omp-theme",
+<         "dsh-1c-contour",
+<         "ontoship-team-1c",
+<         "ontoship-team"
+---
+>         "@local/dsh-omp-theme"
+## симлинки team/stack в копии (ожидание: отсутствуют)
+0
+0
+## ontoship-каталог профиля в копии (ожидание: отсутствует)
+ls: невозможно получить доступ к '/tmp/dlv03-dsh-home/profiles/web/ontoship': Нет такого файла или каталога
+## DSH_HOME копия: состав (sessions/attachments живого хоста не копировались)
+cordis.patch.yml
+profiles
+sessions
+storages
+## git log temp-проектов (базовые коммиты до сессий)
+-- P1
+592f0a3 base: P1
+-- P2
+242f3fa base: P2
+-- P3
+8b334c9 base: P3
+-- P2b
+b3430f3 base: P2b
+-- X1
+630c6d3 поставка S1: ядро link + init (драйвер фиксирует для повторного init)
+c6e13fb setup: проектный continue.md до поставки
+fc64908 base: X1
+-- X2
+85f9140 base: X2
+-- X3
+6141117 base: X3
+-- X4
+08c7326 base: X4
+-- X5
+0b426bd base: X5
+-- PR
+89831ac base: PR
+-- XR
+ea5de27 base: XR
+## маркер continue.md X1 (декодировка s1-verify.log)
+Строка-маркер для проверки: X1-CONTINUE-UNTouched-42.
+grep -c маркер = 1 (файл несёт маркер), git diff continue.md = 0 строк (не изменён)

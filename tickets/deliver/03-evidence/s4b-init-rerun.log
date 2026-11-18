@@ -1,0 +1,5 @@
+AGENTS.md: unchanged (inner == шаблон)
+.gitignore: unchanged (все строки на месте; завершающего \n нет — init строки не добавляет, байт не нормализует)
+config.toml: unchanged (существует)
+continue.md: unchanged (существует — init не трогает)
+git diff после повторного init: 0 строк; status: 0 строк

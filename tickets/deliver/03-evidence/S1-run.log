@@ -1,0 +1,6 @@
+[18:41:57] S1: старт cwd=/tmp/dlv03/P1 policy=channel:link парафраз="деплой и обновление X1" resume=True
+[18:41:57] S1: resume sessionId=session-13c1ae52-86aa-4a72-bbcd-585f5d13a8a8
+[18:44:58] S1: wait reason=timeout cursor=228 asks=1
+[18:45:01] S1: wait reason=idle cursor=231 asks=1
+[18:45:01] S1: idle с неотвеченным ask callId=call_fc6c9068bdc242b8ad6dba72 — фиксация, остановка
+[18:45:01] S1: финиш stopped_on_ask=True tokenUsage=None model=None

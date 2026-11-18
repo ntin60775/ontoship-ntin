@@ -1,0 +1,157 @@
+{
+ "type": "server-response",
+ "rpcId": "dlv03-b177b76326a5",
+ "result": {
+  "ok": true,
+  "value": {
+   "default": {
+    "provider": "qwen-token-plan-deepseek",
+    "model": "deepseek-v4.1-flash-1017",
+    "reasoningEffort": "max"
+   },
+   "routableProviders": [
+    "deepseek-account",
+    "qwen-token-plan",
+    "qwen-token-plan-max",
+    "qwen-token-plan-deepseek"
+   ],
+   "groups": [
+    {
+     "id": "deepseek-account",
+     "name": "DeepSeek Account",
+     "models": [
+      {
+       "id": "deepseek-flash",
+       "name": "DeepSeek-V4.1-Flash",
+       "reasoning": {
+        "efforts": [
+         {
+          "id": "off",
+          "name": "Off",
+          "description": "Use for simple tasks that do not need reasoning."
+         },
+         {
+          "id": "low",
+          "name": "Low",
+          "description": "Prefer for routine or latency-sensitive tasks."
+         },
+         {
+          "id": "high",
+          "name": "High",
+          "description": "The default balance for most tasks."
+         },
+         {
+          "id": "max",
+          "name": "Max",
+          "description": "Reserve for the hardest quality-first tasks."
+         }
+        ],
+        "defaultEffort": "high"
+       }
+      },
+      {
+       "id": "deepseek-v4-pro",
+       "name": "DeepSeek-V4-Pro",
+       "description": "Stronger agentic coding, knowledge, and difficult reasoning; suited to complex or quality-critical tasks at higher cost.",
+       "reasoning": {
+        "efforts": [
+         {
+          "id": "off",
+          "name": "Off",
+          "description": "Use for simple tasks that do not need reasoning."
+         },
+         {
+          "id": "low",
+          "name": "Low",
+          "description": "Prefer for routine or latency-sensitive tasks."
+         },
+         {
+          "id": "high",
+          "name": "High",
+          "description": "The default balance for most tasks."
+         },
+         {
+          "id": "max",
+          "name": "Max",
+          "description": "Reserve for the hardest quality-first tasks."
+         }
+        ],
+        "defaultEffort": "high"
+       }
+      }
+     ]
+    },
+    {
+     "id": "qwen-token-plan",
+     "name": "qwen-token-plan",
+     "models": [
+      {
+       "id": "qwen3.8-flash",
+       "name": "Qwen3.8 Flash",
+       "reasoning": {
+        "efforts": [
+         {
+          "id": "medium",
+          "name": "Medium"
+         },
+         {
+          "id": "xhigh",
+          "name": "Xhigh"
+         }
+        ],
+        "defaultEffort": "xhigh"
+       }
+      }
+     ]
+    },
+    {
+     "id": "qwen-token-plan-max",
+     "name": "qwen-token-plan-max",
+     "models": [
+      {
+       "id": "qwen4-max-preview",
+       "name": "Qwen4 Max preview",
+       "reasoning": {
+        "efforts": [
+         {
+          "id": "medium",
+          "name": "Medium"
+         },
+         {
+          "id": "xhigh",
+          "name": "Xhigh"
+         }
+        ],
+        "defaultEffort": "medium"
+       }
+      }
+     ]
+    },
+    {
+     "id": "qwen-token-plan-deepseek",
+     "name": "qwen-token-plan-deepseek",
+     "models": [
+      {
+       "id": "deepseek-v4.1-flash-1017",
+       "name": "DeepSeek V4.1 Flash 1017",
+       "reasoning": {
+        "efforts": [
+         {
+          "id": "high",
+          "name": "High"
+         },
+         {
+          "id": "max",
+          "name": "Max"
+         }
+        ],
+        "defaultEffort": "high"
+       }
+      }
+     ]
+    }
+   ],
+   "failures": []
+  }
+ }
+}

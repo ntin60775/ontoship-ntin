@@ -1,0 +1,24 @@
+{
+ "session": "session-8ee45971-5b81-4e80-972d-40b21d730e92",
+ "event": "user-questions/request",
+ "eventId": "bad0a622-e0e7-4de1-8bf3-fad6e60b01fc",
+ "request": {
+  "questions": [
+   {
+    "id": "channel",
+    "question": "X4 = /tmp/dlv03/X4, ядро не установлено (check: 11 skills drifted/missing). Свежая поставка: каким каналом ставить?",
+    "header": "Канал X4",
+    "options": [
+     {
+      "label": "copy",
+      "description": "Detached копия в X4/.agents/skills — версия фиксируется на момент копии, ядро можно менять независимо."
+     },
+     {
+      "label": "link (Recommended)",
+      "description": "Симлинки на ядро v0.7.0-15-g8c7bd4d — обновляется вместе с ядром, но зависит от его пути."
+     }
+    ]
+   }
+  ]
+ }
+}

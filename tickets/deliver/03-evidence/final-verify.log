@@ -1,0 +1,41 @@
+## X4: check + status + readlink
+check: ok
+?? .agents/
+?? .gitignore
+?? AGENTS.md
+?? docs/
+итого 8
+## X4: continue.md скелет (создан init)
+status: active
+updated: 2026-11-17
+---
+## X5: check + status
+check: ok
+?? .agents/
+?? .gitignore
+?? AGENTS.md
+?? docs/
+## X3: readlink всего каталога (поколение среза)
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/critic
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/grilling
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/init
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-curate
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-search
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/onto-doc
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/pack
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/ship
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/testing
+/home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/to-tickets
+## валидаторы на заполненных реестрах
+OK: /tmp/dlv03/P1/.agents/registry.local.json (consumer-registry/1)
+OK: /tmp/dlv03/P2/.agents/registry.local.json (consumer-registry/1)
+## P2: gitignore (5 строк init? нет — init не было; строка реестра)
+.agents/registry.local.json
+## P3: реестра нет (absence)
+config.toml
+skills
+## поколения на момент финиша матрицы
+8c7bd4d7a72c5abb3c654f6f0a2de883c0bde7e9
+0
+b276e3ca3fdd000eeec10783c020804e6700862f

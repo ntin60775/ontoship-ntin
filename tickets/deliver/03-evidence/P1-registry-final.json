@@ -1,0 +1,71 @@
+{
+  "schema": "consumer-registry/1",
+  "machine": {
+    "hostname": "prog7",
+    "operator": "prog7"
+  },
+  "project": {
+    "name": "P1",
+    "path": "/tmp/dlv03/P1",
+    "description": "Продюсер пробы deliver/03, контур P1"
+  },
+  "updated_at": "2026-11-17T16:53:07Z",
+  "consumers": [
+    {
+      "name": "X1",
+      "kind": "project",
+      "machine": "prog7",
+      "path": "/tmp/dlv03/X1",
+      "version": "v0.7.0-15-g8c7bd4d",
+      "since": "2026-11-17",
+      "state": "active"
+    },
+    {
+      "name": "X3",
+      "kind": "project",
+      "machine": "prog7",
+      "path": "/tmp/dlv03/X3",
+      "version": "v0.7.0-15-g8c7bd4d",
+      "since": "2026-11-17",
+      "state": "active",
+      "note": "обновление v0.7.0 -> v0.7.0-15-g8c7bd4d каналом link, init выполнен"
+    }
+  ],
+  "deploy_log": [
+    {
+      "at": "2026-11-17T16:44:03Z",
+      "actor": "deliver (lead, сессия P1)",
+      "action": "rollout X1",
+      "consumer": "X1",
+      "to": "v0.7.0-15-g8c7bd4d",
+      "result": "ok",
+      "followups": [
+        {
+          "kind": "fresh-session",
+          "owner": "consumer:X1",
+          "done": false,
+          "note": "свежая сессия потребителя X1: вход через docs/ops/continue.md, следующий шаг — KB"
+        }
+      ]
+    },
+    {
+      "at": "2026-11-17T16:53:07Z",
+      "actor": "deliver (lead, сессия P1)",
+      "action": "update X3",
+      "consumer": "X3",
+      "from": "v0.7.0",
+      "to": "v0.7.0-15-g8c7bd4d",
+      "result": "ok",
+      "followups": [
+        {
+          "kind": "fresh-session",
+          "owner": "consumer:X3",
+          "done": false,
+          "note": "свежая сессия потребителя X3: вход через docs/ops/continue.md, следующий шаг — KB"
+        }
+      ]
+    }
+  ],
+  "acceptance": [],
+  "notes": "Реестр пробы deliver/03: продюсер ведёт своих потребителей X."
+}

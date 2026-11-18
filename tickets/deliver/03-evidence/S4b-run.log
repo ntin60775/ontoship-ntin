@@ -1,0 +1,5 @@
+[09:51:05] S4b: старт cwd=/tmp/dlv03/P2b policy=channel:copy парафраз="раскатай ядро в X4" resume=False
+[09:51:05] S4b: sessionId=session-272672c1-f706-47a3-82c9-3245d900ac4a
+[09:54:05] S4b: wait reason=timeout cursor=247 asks=1 unanswered=0
+[09:54:23] S4b: wait reason=idle cursor=258 asks=1 unanswered=0
+[09:54:23] S4b: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 70709, 'outputTokens': 20211, 'cacheReadTokens': 1572608, 'cacheWriteTokens': 0} title=раскатай ядро в X4

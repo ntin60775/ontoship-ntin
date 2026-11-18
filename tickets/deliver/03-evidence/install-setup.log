@@ -1,0 +1,82 @@
+# install-лог пробы deliver/03 (драйвер, setup до сессий)
+slice sha: 8c7bd4d7a72c5abb3c654f6f0a2de883c0bde7e9  path: /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03
+registry sha: b276e3ca3fdd000eeec10783c020804e6700862f  path: /home/prog7/home/dev/personal/consumer-registry
+baseline: v0.7.0 = 51dc54fa8c36c0661cca74bf05622d0169166e45  path: /tmp/dlv03/core-v0.7.0
+red base: 40c0dc6 = 40c0dc6006ef190dea7098a5ffcd111a86e1021d  path: /tmp/dlv03/core-base
+
+## P1: ядро link + реестр link
+linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-search
+linked kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-curate
+linked init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/init
+linked grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/grilling
+linked to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/to-tickets
+linked ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/ship
+linked testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/testing
+linked critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/critic
+linked onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/onto-doc
+linked pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/pack
+linked deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+linked consumer-registry -> /home/prog7/home/dev/personal/consumer-registry/skills/consumer-registry
+
+## P2: ядро link + реестр link (без init)
+linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-search
+linked kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-curate
+linked init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/init
+linked grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/grilling
+linked to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/to-tickets
+linked ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/ship
+linked testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/testing
+linked critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/critic
+linked onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/onto-doc
+linked pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/pack
+linked deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+linked consumer-registry -> /home/prog7/home/dev/personal/consumer-registry/skills/consumer-registry
+
+## P3: ядро link (без реестра)
+linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-search
+linked kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/kb-curate
+linked init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/init
+linked grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/grilling
+linked to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/to-tickets
+linked ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/ship
+linked testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/testing
+linked critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/critic
+linked onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/onto-doc
+linked pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/pack
+linked deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+
+## PR: ядро link с базы 40c0dc6 (красная проба)
+linked kb-search -> /tmp/dlv03/core-base/skills/kb-search
+linked kb-curate -> /tmp/dlv03/core-base/skills/kb-curate
+linked init -> /tmp/dlv03/core-base/skills/init
+linked grilling -> /tmp/dlv03/core-base/skills/grilling
+linked to-tickets -> /tmp/dlv03/core-base/skills/to-tickets
+linked ship -> /tmp/dlv03/core-base/skills/ship
+linked testing -> /tmp/dlv03/core-base/skills/testing
+linked critic -> /tmp/dlv03/core-base/skills/critic
+linked onto-doc -> /tmp/dlv03/core-base/skills/onto-doc
+linked pack -> /tmp/dlv03/core-base/skills/pack
+
+## X2: baseline copy из v0.7.0
+copied kb-search -> /tmp/dlv03/X2/.agents/skills/kb-search
+copied kb-curate -> /tmp/dlv03/X2/.agents/skills/kb-curate
+copied init -> /tmp/dlv03/X2/.agents/skills/init
+copied grilling -> /tmp/dlv03/X2/.agents/skills/grilling
+copied to-tickets -> /tmp/dlv03/X2/.agents/skills/to-tickets
+copied ship -> /tmp/dlv03/X2/.agents/skills/ship
+copied testing -> /tmp/dlv03/X2/.agents/skills/testing
+copied critic -> /tmp/dlv03/X2/.agents/skills/critic
+copied onto-doc -> /tmp/dlv03/X2/.agents/skills/onto-doc
+copied pack -> /tmp/dlv03/X2/.agents/skills/pack
+
+## X3: baseline link из v0.7.0
+linked kb-search -> /tmp/dlv03/core-v0.7.0/skills/kb-search
+linked kb-curate -> /tmp/dlv03/core-v0.7.0/skills/kb-curate
+linked init -> /tmp/dlv03/core-v0.7.0/skills/init
+linked grilling -> /tmp/dlv03/core-v0.7.0/skills/grilling
+linked to-tickets -> /tmp/dlv03/core-v0.7.0/skills/to-tickets
+linked ship -> /tmp/dlv03/core-v0.7.0/skills/ship
+linked testing -> /tmp/dlv03/core-v0.7.0/skills/testing
+linked critic -> /tmp/dlv03/core-v0.7.0/skills/critic
+linked onto-doc -> /tmp/dlv03/core-v0.7.0/skills/onto-doc
+linked pack -> /tmp/dlv03/core-v0.7.0/skills/pack

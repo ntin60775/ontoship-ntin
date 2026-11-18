@@ -1,0 +1,159 @@
+{
+ "session": "S4",
+ "sessionId": "session-8ee45971-5b81-4e80-972d-40b21d730e92",
+ "listRow": {
+  "sessionId": "session-8ee45971-5b81-4e80-972d-40b21d730e92",
+  "updatedAt": 1794934304758,
+  "agentAvailable": true,
+  "formatStatus": "current",
+  "running": false,
+  "blank": false,
+  "cwd": "/tmp/dlv03/P2",
+  "projections": {
+   "kind": "sequenced",
+   "asOfSeq": 279,
+   "values": {
+    "forgeChangeRequests": [],
+    "userQuestions": {
+     "active": [],
+     "settled": []
+    },
+    "tokenUsage": {
+     "uncachedInputTokens": 70755,
+     "outputTokens": 21285,
+     "cacheReadTokens": 1345536,
+     "cacheWriteTokens": 0
+    },
+    "title": "раскатай ядро в X4",
+    "goal": null,
+    "modelSelection": {
+     "lastUsed": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     },
+     "next": {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017",
+      "reasoningEffort": "max"
+     }
+    },
+    "agentPreset": "standard",
+    "workingDirectory": "/tmp/dlv03/P2",
+    "inbox": {
+     "next-turn": [],
+     "next-step": []
+    },
+    "permissions": {
+     "currentValue": "danger-full-access"
+    },
+    "subagentCatalog": [],
+    "worktree": [],
+    "forgeWorktree": null,
+    "subagentTiming": {
+     "settledMs": 0
+    },
+    "subagent": null,
+    "agentTeam": {
+     "enabled": false,
+     "tasks": []
+    },
+    "plan": {
+     "active": false,
+     "pending": false
+    },
+    "conversationContinuation": null,
+    "sessionListMetadata": {
+     "blank": false,
+     "lastPromptAt": 1794934304758
+    }
+   }
+  }
+ },
+ "agentPreset": "standard",
+ "modelSelection": {
+  "lastUsed": {
+   "provider": "qwen-token-plan-deepseek",
+   "model": "deepseek-v4.1-flash-1017",
+   "reasoningEffort": "max"
+  },
+  "next": {
+   "provider": "qwen-token-plan-deepseek",
+   "model": "deepseek-v4.1-flash-1017",
+   "reasoningEffort": "max"
+  }
+ },
+ "title": "раскатай ядро в X4",
+ "firstEvents": [
+  {
+   "seq": 0,
+   "type": "permission/preset",
+   "data": {
+    "preset": "danger-full-access"
+   }
+  },
+  {
+   "seq": 1,
+   "type": "sandbox/mode",
+   "data": {
+    "mode": "danger-full-access"
+   }
+  },
+  {
+   "seq": 2,
+   "type": "approval/policy",
+   "data": {
+    "policy": "never"
+   }
+  },
+  {
+   "seq": 3,
+   "type": "subagent/model-selection-policy",
+   "data": {
+    "allowedModels": [
+     {
+      "provider": "deepseek-account",
+      "model": "deepseek-flash"
+     },
+     {
+      "provider": "qwen-token-plan",
+      "model": "qwen3.8-flash"
+     },
+     {
+      "provider": "qwen-token-plan-max",
+      "model": "qwen4-max-preview"
+     },
+     {
+      "provider": "qwen-token-plan-deepseek",
+      "model": "deepseek-v4.1-flash-1017"
+     }
+    ]
+   }
+  },
+  {
+   "seq": 4,
+   "type": "agent/inbox/spliced",
+   "data": {
+    "target": "next-turn",
+    "start": 0,
+    "inserted": [
+     {
+      "content": [
+       {
+        "type": "text",
+        "text": "раскатай ядро в X4"
+       }
+      ],
+      "source": {
+       "kind": "user",
+       "rpcId": "dlv03-S4-1"
+      },
+      "role": "user",
+      "id": "6c579ee0-6d8e-4167-af57-ed4c42f45abd"
+     }
+    ]
+   }
+  }
+ ],
+ "note": "unary session/create response раннером не сохранялся (пробел драйвера, назван панелью); факты создания — list-строка, проекции, первые события журнала; цепочка launch-token→connect→cookie→create драйвера — drv.py (cookie-файлы 600, вне evidence)"
+}

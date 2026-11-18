@@ -1,0 +1,18 @@
+P1: init драйвером — AGENTS.md created (блок), .gitignore created (5 строк), config.toml created (6 ролей + пул, стандартная раскладка, маршруты сверены list_subagent_models), continue.md created (скелет, 2026-11-17)
+P3: init драйвером — AGENTS.md created (блок), .gitignore created (5 строк), config.toml created (6 ролей + пул, стандартная раскладка, маршруты сверены list_subagent_models), continue.md created (скелет, 2026-11-17)
+X1: continue.md предсоздан с проектным содержанием (коммит setup) — init сессии обязан оставить unchanged
+P1: старт ведения драйвером — registry.local.json из каркаса (machine/project по факту), gitignore-строка добавлена; ВНИМАНИЕ: снос .agents уничтожает реестр (бэкап вне v1)
+P2: старт ведения драйвером — registry.local.json из каркаса (machine/project по факту), gitignore-строка добавлена; ВНИМАНИЕ: снос .agents уничтожает реестр (бэкап вне v1)
+
+## Детализация init P1/P3 (правка панели: правило отчёта init)
+
+Роли ядра (стандартная раскладка, маршруты и уровни сверены живым
+list_subagent_models драйвера до записи): reviewer-spec, reviewer-tests,
+reviewer-code, reviewer-kb — qwen-token-plan-deepseek/deepseek-v4.1-flash-1017,
+level max; critic — qwen-token-plan-max/qwen4-max-preview, level xhigh;
+curator — qwen-token-plan-deepseek/deepseek-v4.1-flash-1017, level high.
+Пул [validation]: deepseek-account/deepseek-flash max,
+qwen-token-plan/qwen3.8-flash xhigh. Team-бандла пресетов в изолированном
+профиле нет — шаг ролей команды молчит. Паков нет — шаг молчит.
+Файловые артефакты init: init-output-p1/, init-output-p3/ (четыре файла
+каждого продюсера, байт-в-байт).

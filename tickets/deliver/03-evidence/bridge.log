@@ -1,0 +1,46 @@
+[18:40:26] bridge: WS open, opening $events stream
+[18:40:26] bridge: ready clientId=a5aee5a5-2348-457b-98f5-12106edc1eed
+[18:40:26] bridge: waterfall user-questions/request session=?(4ee0b605) eventId=9eab0687-10e2-4218-8e2e-e7b3e0cd3dba policy=log-only
+[18:40:26] bridge: не отвечаю (policy=log-only) — ask зафиксирован
+[18:40:26] bridge: waterfall user-questions/request session=?(13c1ae52) eventId=5e7ccb74-fcb2-454a-85f9-e9ba32e89442 policy=log-only
+[18:40:26] bridge: не отвечаю (policy=log-only) — ask зафиксирован
+[18:41:45] bridge: cancel eventId=9eab0687-10e2-4218-8e2e-e7b3e0cd3dba
+[18:41:45] bridge: emit api-session/status
+[18:41:45] bridge: emit api-session/added
+[18:41:45] bridge: emit api-session/removed
+[18:41:45] bridge: emit api-session/removed
+[18:41:47] bridge: WS open, opening $events stream
+[18:41:47] bridge: ready clientId=3405b190-535e-4c50-8b32-6cdc399b2b10
+[18:41:47] bridge: waterfall user-questions/request session=S1(13c1ae52) eventId=5e7ccb74-fcb2-454a-85f9-e9ba32e89442 policy=channel:link
+[18:41:47] bridge: answer S1 ok=true value={"answers":[{"id":"channel","selected":["link (Recommended)"]}]}
+[18:45:01] bridge: emit api-session/status
+[18:49:08] bridge: emit api-session/added
+[18:49:08] bridge: emit api-session/added
+[18:49:08] bridge: emit api-session/status
+[18:49:08] bridge: emit api-session/activity
+[18:50:23] bridge: waterfall user-questions/request session=S2(9801dda7) eventId=973e2eaa-5d23-4868-a046-cbc4a70bb892 policy=stop-on-ask
+[18:50:23] bridge: не отвечаю (policy=stop-on-ask) — ask зафиксирован
+[18:50:51] bridge: cancel eventId=973e2eaa-5d23-4868-a046-cbc4a70bb892
+[18:50:51] bridge: emit api-session/status
+[18:50:51] bridge: emit api-session/added
+[18:50:51] bridge: emit api-session/removed
+[18:50:51] bridge: emit api-session/removed
+[18:50:51] bridge: emit api-session/added
+[18:50:51] bridge: emit api-session/added
+[18:50:51] bridge: emit api-session/status
+[18:50:51] bridge: emit api-session/activity
+[18:51:44] bridge: emit api-session/added
+[18:51:44] bridge: emit api-session/added
+[18:51:44] bridge: emit api-session/status
+[18:51:44] bridge: emit api-session/added
+[18:51:44] bridge: emit api-session/added
+[18:51:44] bridge: emit api-session/status
+[18:51:44] bridge: emit api-session/activity
+[18:51:44] bridge: emit api-session/activity
+[18:53:32] bridge: emit api-session/status
+[18:53:34] bridge: waterfall user-questions/request session=S4(8ee45971) eventId=bad0a622-e0e7-4de1-8bf3-fad6e60b01fc policy=channel:copy
+[18:53:34] bridge: answer S4 ok=true value={"answers":[{"id":"channel","selected":["copy"]}]}
+[18:54:32] bridge: waterfall user-questions/request session=S5(cecc2f85) eventId=dffce9bf-d8aa-4c4d-9a11-8a33d25510e0 policy=channel:link
+[18:54:32] bridge: answer S5 ok=true value={"answers":[{"id":"channel","selected":["link (Recommended)"]}]}
+[18:56:14] bridge: emit api-session/status
+[18:57:14] bridge: emit api-session/status

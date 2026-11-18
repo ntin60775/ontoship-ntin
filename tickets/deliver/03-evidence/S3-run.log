@@ -1,0 +1,4 @@
+[18:50:51] S3: старт cwd=/tmp/dlv03/P1 policy=no-ask парафраз="раскатай ядро в X3" resume=False
+[18:50:51] S3: sessionId=session-89b8d3fd-4270-4ff7-8f47-dfb265ebab8f
+[18:53:32] S3: wait reason=idle cursor=221 asks=0 unanswered=0
+[18:53:32] S3: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 56623, 'outputTokens': 11675, 'cacheReadTokens': 788480, 'cacheWriteTokens': 0} title=раскатай ядро в X3

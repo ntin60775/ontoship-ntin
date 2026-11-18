@@ -1,0 +1,30 @@
+[18:09:10] S1: старт cwd=/tmp/dlv03/P1 policy=channel:link парафраз="деплой и обновление X1"
+[18:09:10] S1: sessionId=session-4ee0b605-4010-4c64-916d-bd0dd230bb3b
+[18:17:17] S1: старт cwd=/tmp/dlv03/P1 policy=channel:link парафраз="деплой и обновление X1"
+[18:17:17] S1: sessionId=session-13c1ae52-86aa-4a72-bbcd-585f5d13a8a8
+[18:28:40] S1: старт cwd=/tmp/dlv03/P1 policy=channel:link парафраз="деплой и обновление X1" resume=True
+[18:28:40] S1: resume sessionId=session-13c1ae52-86aa-4a72-bbcd-585f5d13a8a8
+[18:41:57] S1: старт cwd=/tmp/dlv03/P1 policy=channel:link парафраз="деплой и обновление X1" resume=True
+[18:41:57] S1: resume sessionId=session-13c1ae52-86aa-4a72-bbcd-585f5d13a8a8
+[18:44:58] S1: wait reason=timeout cursor=228 asks=1
+[18:45:01] S1: wait reason=idle cursor=231 asks=1
+[18:45:01] S1: idle с неотвеченным ask callId=call_fc6c9068bdc242b8ad6dba72 — фиксация, остановка
+[18:45:01] S1: финиш stopped_on_ask=True tokenUsage=None model=None
+[18:49:08] S2: старт cwd=/tmp/dlv03/P1 policy=stop-on-ask парафраз="поставь онтошип в X2" resume=False
+[18:49:08] S2: sessionId=session-9801dda7-a744-4ae5-804c-a96c2b3ff4f0
+[18:50:24] S2: ask при policy=stop-on-ask — фиксация и остановка callId=call_3b6204176e914beabea7487a
+[18:50:24] S2: финиш stopped_on_ask=True tokenUsage={'uncachedInputTokens': 25078, 'outputTokens': 7737, 'cacheReadTokens': 261888, 'cacheWriteTokens': 0} title=поставь онтошип в X2
+[18:50:51] S3: старт cwd=/tmp/dlv03/P1 policy=no-ask парафраз="раскатай ядро в X3" resume=False
+[18:50:51] S3: sessionId=session-89b8d3fd-4270-4ff7-8f47-dfb265ebab8f
+[18:51:44] S4: старт cwd=/tmp/dlv03/P2 policy=channel:copy парафраз="раскатай ядро в X4" resume=False
+[18:51:44] S5: старт cwd=/tmp/dlv03/P3 policy=channel:link парафраз="поставь онтошип в X5" resume=False
+[18:51:44] S4: sessionId=session-8ee45971-5b81-4e80-972d-40b21d730e92
+[18:51:44] S5: sessionId=session-cecc2f85-e317-4ae9-b036-2ddde8765570
+[18:53:32] S3: wait reason=idle cursor=221 asks=0 unanswered=0
+[18:53:32] S3: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 56623, 'outputTokens': 11675, 'cacheReadTokens': 788480, 'cacheWriteTokens': 0} title=раскатай ядро в X3
+[18:54:44] S4: wait reason=timeout cursor=214 asks=1 unanswered=0
+[18:54:44] S5: wait reason=timeout cursor=184 asks=1 unanswered=0
+[18:56:14] S4: wait reason=idle cursor=279 asks=1 unanswered=0
+[18:56:14] S4: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 70755, 'outputTokens': 21285, 'cacheReadTokens': 1345536, 'cacheWriteTokens': 0} title=раскатай ядро в X4
+[18:57:14] S5: wait reason=idle cursor=316 asks=1 unanswered=0
+[18:57:14] S5: финиш stopped_on_ask=False tokenUsage={'uncachedInputTokens': 65936, 'outputTokens': 19668, 'cacheReadTokens': 1506560, 'cacheWriteTokens': 0} title=поставь онтошип в X5

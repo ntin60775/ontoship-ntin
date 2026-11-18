@@ -1,0 +1,34 @@
+## P1 удостоверение
+pwd: /tmp/dlv03/P1
+toplevel: /tmp/dlv03/P1
+deliver realpath: /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+ok pack (link)
+ok deliver (link)
+check: ok
+## P2 удостоверение
+pwd: /tmp/dlv03/P2
+toplevel: /tmp/dlv03/P2
+deliver realpath: /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+ok pack (link)
+ok deliver (link)
+check: ok
+## P3 удостоверение
+pwd: /tmp/dlv03/P3
+toplevel: /tmp/dlv03/P3
+deliver realpath: /home/prog7/home/dev/contrib/forks/ontoship-ntin-wt-dlv03/skills/deliver
+ok pack (link)
+ok deliver (link)
+check: ok
+## валидатор реестра P1/P2 (каркас)
+OK: /tmp/dlv03/P1/.agents/registry.local.json (consumer-registry/1)
+OK: /tmp/dlv03/P2/.agents/registry.local.json (consumer-registry/1)
+## baseline check X2/X3 от v0.7.0
+ok pack (copy)
+check: ok
+ok pack (link)
+check: ok
+## PR удостоверение (красная проба, добавлено панелью)
+pwd: /tmp/dlv03/PR
+toplevel: /tmp/dlv03/PR
+deliver realpath: отсутствует (база 40c0dc6, deliver не поставляется)
+состав: critic grilling init kb-curate kb-search onto-doc pack ship testing to-tickets

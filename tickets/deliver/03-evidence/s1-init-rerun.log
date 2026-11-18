@@ -1,0 +1,5 @@
+AGENTS.md: unchanged (внутренний текст равен шаблону)
+.gitignore: unchanged (все 5 строк на месте, missing=[])
+.agents/config.toml: unchanged (существует — init не трогает)
+docs/ops/continue.md: unchanged (существует — init не трогает)
+git diff после повторного init: 0 строк; git status: 0 строк

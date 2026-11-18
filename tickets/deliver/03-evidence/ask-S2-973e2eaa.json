@@ -1,0 +1,28 @@
+{
+ "session": "session-9801dda7-a744-4ae5-804c-a96c2b3ff4f0",
+ "event": "user-questions/request",
+ "eventId": "973e2eaa-5d23-4868-a046-cbc4a70bb892",
+ "request": {
+  "questions": [
+   {
+    "id": "x2-drifted-copies",
+    "question": "В /tmp/dlv03/X2/.agents/skills лежат 10 copy-бандлов v0.7.0, отличающихся от среза v0.7.0-15-g8c7bd4d, и нет deliver. Чтобы обновить copy-каналом, установщик требует удалить эти 10 каталогов (команда: rm -rf -- /tmp/dlv03/X2/.agents/skills/{kb-search,kb-curate,init,grilling,to-tickets,ship,testing,critic,onto-doc,pack}), затем `./scripts/install.sh --copy /tmp/dlv03/X2`. Удалять?",
+    "header": "Удаление drifted-копий",
+    "options": [
+     {
+      "label": "Да, удали 10 копий и переустанови copy (Recommended)",
+      "description": "Тот же канал: baseline v0.7.0 → срез, X2 получит 11 бандлов включая deliver; затем init и акт update в реестр P1."
+     },
+     {
+      "label": "Смени канал на link",
+      "description": "Тоже требует удаления 10 копий, но дальше симлинки на дерево ядра; канал меняется — future updates без переустановки."
+     },
+     {
+      "label": "Ничего не трогай",
+      "description": "X2 остаётся на copy v0.7.0 без deliver; протокол стоит, поставка не состоялась."
+     }
+    ]
+   }
+  ]
+ }
+}

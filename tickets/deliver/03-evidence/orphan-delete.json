@@ -1,0 +1,10 @@
+{
+ "type": "server-response",
+ "rpcId": "dlv03-338e69e6c538",
+ "result": {
+  "ok": true,
+  "value": {
+   "deleted": true
+  }
+ }
+}

@@ -1,0 +1,9 @@
+# prod: чистая copy-установка из среза в temp (sha 8c7bd4d)
+copied pack -> /tmp/dlv03-prod-copy/.agents/skills/pack
+copied deliver -> /tmp/dlv03-prod-copy/.agents/skills/deliver
+check: ok
+бандлов: 11
+# selfhost main-чекаут
+check: ok
+# check из worktree: selfhost-симлинки репо ведут на main-чекаут — drift ожидаем, названный факт (не дефект)
+check: 11 skill(s) drifted

@@ -1,0 +1,20 @@
+# S2 верификация драйвером (после панели; состояние X2 живо до уборки)
+## git status X2 (ожидание: только ?? .agents/ — baseline драйвера)
+?? .agents/
+## состав X2 (ожидание: 10 бандлов v0.7.0, deliver нет)
+critic
+grilling
+init
+kb-curate
+kb-search
+onto-doc
+pack
+ship
+testing
+to-tickets
+## check X2 от baseline v0.7.0 (ожидание: check: ok)
+check: ok
+## реестр P1: актов S2 нет (ожидание: 2 записи — S1 rollout, S3 update)
+['rollout X1', 'update X3']
+## ask удаления зафиксирован, ответа нет (bridge.log)
+[18:50:23] bridge: waterfall user-questions/request session=S2(9801dda7) eventId=973e2eaa-5d23-4868-a046-cbc4a70bb892 policy=stop-on-ask
