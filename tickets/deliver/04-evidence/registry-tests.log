@@ -1,0 +1,9 @@
+consumer-registry tests — root /home/prog7/home/dev/personal/consumer-registry
+ok   [1] schema and template are valid JSON, schema declares draft-07
+ok   [2] template passes the bundle validator (default, explicit, foreign schema)
+ok   [3] schema const and required match the contract, template covers them
+ok   [4] ZCode channel removed: no zcode in bundle, snippet .agents line
+ok   [5] SKILL.md DSH frontmatter and start step: idempotence, warning, home path
+ok   [6] validator accepts a filled registry, rejects the negative probes
+
+PASSED: 6/6 checks green

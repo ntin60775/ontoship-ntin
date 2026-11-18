@@ -1,0 +1,40 @@
+# Красная проба тикета 04 на базе
+
+База прогона: main 29cb052 (2026-11-18); база нарезки юнита
+40c0dc6. Ожидания критериев 1–3 тикета: теги v0.8.0 (ядро)
+и v0.3.0 (реестр) на origin; критерия 5 — записи закрытия
+юнита в трёх носителях.
+
+## Ядро: тега нет
+$ git tag -l v0.8.0 | wc -l
+0
+$ git ls-remote --tags origin | grep v0.8.0 | wc -l
+0
+$ git archive --format=tar v0.8.0 >/dev/null
+fatal: недопустимое имя объекта: v0.8.0
+exit=128
+
+## Реестр: тега нет, main не опубликован
+$ git -C /home/prog7/home/dev/personal/consumer-registry tag -l v0.3.0 | wc -l
+0
+$ git -C ... ls-remote --tags origin | grep v0.3.0 | wc -l
+0
+$ git -C ... rev-parse origin/main
+f7c479e789879974c6a323ae50035399eb69388a
+$ git -C ... rev-parse HEAD
+b276e3ca3fdd000eeec10783c020804e6700862f
+
+## Закрытия юнита нет
+$ grep -c "Юнит deliver (открыт 2026-11-17, закрыт" tickets/README.md
+0
+$ grep -c "завершена 2026-11-18" docs/plans/README.md
+0
+$ ls tickets/deliver/04-evidence 2>&1
+ls: невозможно получить доступ к 'tickets/deliver/04-evidence': Нет такого файла или каталога
+(каталог создан этим прогоном)
+
+## Тикет 03 не помечен сделанным
+$ sed -n 1,3p tickets/deliver/03-live-probe.md
+# Тикет 03 — Живая проба маршрутизации и протокола
+
+Блокируется: 01, 02
