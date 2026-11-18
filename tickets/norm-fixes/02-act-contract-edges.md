@@ -1,3 +1,5 @@
+GitHub: https://github.com/ntin60775/ontoship-ntin/issues/3 (закрыт).
+
 # Ишью 02 — контракт акта: from без прежней записи, followup на свежей поставке
 
 Источник: панель и проба тикета deliver/03 (наблюдения evidence, зацепки

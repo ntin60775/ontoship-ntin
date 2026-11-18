@@ -1,3 +1,5 @@
+GitHub: https://github.com/ntin60775/ontoship-ntin/issues/2 (закрыт).
+
 # Ишью 01 — init: завершающий перевод строки новых файлов
 
 Источник: панель и проба тикета deliver/03 (инцидент 6 evidence,
