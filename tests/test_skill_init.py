@@ -63,6 +63,13 @@ CORE_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb",
 OWNED_FILES = ("AGENTS.md", ".gitignore", ".agents/config.toml",
                "docs/ops/continue.md")
 OWNERSHIP_COUNT = "Четыре файла, ничего больше"
+# norm-fixes/01 (проба deliver/03, инцидент 6): новые файлы кончаются
+# переводом строки по шаблону; правило сохранения байтов — только для
+# существующих. Клауза запинена и мутации краснят.
+NEW_FILE_NEWLINE_RULE = (
+    "Новые файлы — байт-в-байт по шаблону, включая завершающий перевод строки",
+    "относится только к существующим файлам",
+)
 # logika K10: the description and the ownership section must agree with case 2
 # of the marker table — insertion puts one separator blank line before the
 # block, outside the markers.
@@ -463,6 +470,9 @@ def _contract_errors(text: str) -> list[str]:
             errors.append(f"body: missing {needle!r}")
 
     flat_body = re.sub(r"\s+", " ", body)
+    for needle in NEW_FILE_NEWLINE_RULE:
+        if needle not in flat_body:
+            errors.append(f"new-file newline rule missing: {needle!r}")
     for needle in HARNESS_NEEDLES:
         if needle not in flat_body:
             errors.append(f"harness: missing {needle!r}")
@@ -1314,3 +1324,27 @@ def test_team_reference_contract_can_fail():
                      "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`", 1))
     assert _team_reference_missing(
         text.replace(TEAM_REPORT_NEEDLE, "Для ролей команды назови бандл пакетом.", 1))
+
+
+def test_new_file_newline_rule_is_pinned_and_mutation_reddens():
+    """spec: docs/plans/entry-and-continuity.md#готово (2) — уточнение
+    случая «файл отсутствует»: новый файл байт-в-байт по шаблону, включая
+    завершающий перевод строки; граница правила сохранения байтов (только
+    существующие файлы) запинена; удаление клаузы и снятие границы краснят
+    (рецидив исполнения S4/S5/S4b пробы deliver/03, ишью norm-fixes/01)."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == [], "the unmutated carrier must be clean"
+    flat = re.sub(r"\s+", " ", text)
+    for rule in NEW_FILE_NEWLINE_RULE:
+        assert rule in flat, f"new-file newline rule missing: {rule!r}"
+
+    for rule in NEW_FILE_NEWLINE_RULE:
+        pattern = re.escape(rule).replace("\\ ", r"\s+")
+        mutated = re.sub(pattern, "", text, count=1)
+        assert mutated != text, f"the mutation must change the text: {rule!r}"
+        assert _contract_errors(mutated), f"removal of {rule!r} did not redden"
+
+    widened = text.replace("относится только к существующим файлам",
+                           "относится ко всем файлам", 1)
+    assert widened != text
+    assert _contract_errors(widened), "scope widening did not redden"

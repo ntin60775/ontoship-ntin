@@ -3,7 +3,7 @@ node_type: plan
 title: deliver — поставка и обновление ядра в проекте, реестр потребителей
 service: _platform
 status: active
-updated: 2026-11-17
+updated: 2026-11-18
 tags: [plan, deliver, install, update, routing, consumer-registry, rollout]
 links:
   part_of: [README.md]
@@ -122,12 +122,16 @@ ZCode-рельсами 2026-11-10, [continue.md](../ops/continue.md)).
 (обновление); `actor` = сессия deliver; `to`/`version` потребителя =
 тег link-дерева, иначе `git describe` (dev+sha); для copy — прежнее
 `consumers[].version`, без прежней записи — `unknown` с названным
-пробелом; `from` = прежнее `consumers[].version`; `updated_at`
+пробелом; `from` = прежнее `consumers[].version`, без прежней записи
+`from` опускается (версия baseline — в note потребителя); `updated_at`
 обновляется. deliver сверяет открытые followups (`done: false`) перед
 поставкой по правилам скилла реестра и пишет followup «свежая сессия
-потребителя» после обновления. `acceptance[]` deliver не заполняет —
+потребителя» после свежей поставки и после обновления. `acceptance[]` deliver не заполняет —
 акт оператора, названный пробел v1. deployed.json не заводится;
 формулировки схемы о мёртвых носителях версии не правятся (вне скоупа).
+**Ревизия 2026-11-18** (ишью norm-fixes/02, решение оператора): краевые
+случаи `from` без прежней записи и followup на свежей поставке уточнены
+по находкам пробы deliver/03; требования не менялись.
 
 ## Готово
 
