@@ -433,9 +433,30 @@ RED-projections.json, red-create.json, red-prompt.json, red-wait1.json.
 - Init продюсеров: [init-output-p1/](init-output-p1/),
   [init-output-p3/](init-output-p3/) (файлы init P1/P3 байт-в-байт).
 
-## Уборка (после merge)
+## Уборка (исполнена после merge 2026-11-18)
 
-(заполняется после merge: список целей, скан остатков, живой профиль не тронут)
+Merge ff main = `1351377`. Список целей и результат:
+
+| цель | действие | результат |
+|---|---|---|
+| хост 3096 (node PID 526655, обёртка 526653) | kill | порт 3096 не слушает (ss/curl) |
+| WS-мост (node ask-bridge.mjs) | kill | процесса нет |
+| `/tmp/dlv03-dsh-home` (копия DSH_HOME: профиль, копия `.credentials.yaml`, sessions изолированного хоста) | rm -rf | отсутствует |
+| `/tmp/dlv03` (temp-проекты P1–P3/P2b/X1–X5/PR/XR, чекауты core-base/core-v0.7.0/core-dist/reg-dist, work/ с host.log и cookie-файлами) | git worktree remove --force (core-base, core-v0.7.0) + rm -rf | отсутствует |
+| `/tmp/dlv03-prod-copy` (prod-установка) | rm -rf | отсутствует |
+| worktree среза `ontoship-ntin-wt-dlv03`, ветка `dlv03-live-probe` | git worktree remove + branch -d | снесены (ветка была 1351377) |
+| сессии изолированного хоста (S1–S5, S4b, RED; S2/orphan удалены ранее) | сносятся вместе с DSH_HOME | каталог sessions копии удалён |
+
+Скан остатков: `ls /tmp/dlv03*` — нет; `ss -tlnp | grep 3096` — пусто;
+процессов `node ask-bridge` / `bin.ts web … 3096` — 0. Launch-токен и
+v2-cookie изолированного хоста инвалидированы остановкой хоста и сносом
+его DSH_HOME; в артефакты не попадали (скан по значениям чист, токен
+RED-events отредактирован). Живой профиль не менялся: package.json mtime
+2026-11-16 (до пробы), team/stack-строки на месте, ontoship-каталог
+профиля на месте; живой GUI PID 7386 не перезапускался (uptime 22ч+).
+Worktree `ontoship-ntin-wt-tp07` сохранён (решение оператора об остановке
+пробы 07, не цель этой уборки). Уборка /tmp — SAFE-категория (всё
+воспроизводимо/эфемерно, вне git-деревьев).
 
 ## Пробелы пробы (названные)
 

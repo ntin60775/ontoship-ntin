@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-17
+updated: 2026-11-18
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -48,8 +48,9 @@ DSH-нативен (репо consumer-registry) → 03 живая проба (и
 схему/каркас/валидатор, ZCode-канал снят, старт ведения идемпотентен;
 evidence `tickets/deliver/02-evidence/`. Сводная запись 01/02 внесена этой
 хроникой (сессия ship тикета 03).
-**Тикет 03 «Живая проба маршрутизации и протокола» исполнен 2026-11-17**
-(ручной /ship): изолированный хост 3096 (копия профиля web без
+**Тикет 03 «Живая проба маршрутизации и протокола» сделан, влит и принят
+автоприёмкой 2026-11-18** (ручной /ship; merge ff `1351377`, worktree
+`ontoship-ntin-wt-dlv03` снесён): изолированный хост 3096 (копия профиля web без
 team/stack-строк, живой GUI не перезапускался), поколения фиксированы
 (срез `8c7bd4d`, реестр `b276e3c`, baseline `v0.7.0` = `51dc54f`,
 красная база `40c0dc6`); пять свежих сессий S1–S5 + красная: первый ход
@@ -70,8 +71,11 @@ link/copy, обновление link v0.7.0→срез, отказ drifted-ко�
 планировочным деревом названа (критерий 1 чист — first-call раньше
 чтений, блок-маршрут S1 — reasoning-трасса). Набор 804 passed, lint чисто,
 prod — copy 11 бандлов check: ok. Evidence —
-[`tickets/deliver/03-evidence/`](../../tickets/deliver/03-evidence/README.md). Открытая работа — тикет 04 (релизы
-v0.8.0 + v0.3.0 и закрытие юнита, блокер 03).
+[`tickets/deliver/03-evidence/`](../../tickets/deliver/03-evidence/README.md). Уборка исполнена: хост 3096 остановлен,
+`/tmp/dlv03*` снесены (копия DSH_HOME с credential, temp-проекты,
+чекауты), остатков 0, живой профиль/GUI не тронуты (список целей и скан —
+evidence README). Открытая работа — тикет 04 (релизы v0.8.0 + v0.3.0 и
+закрытие юнита, блокер 03 закрыт).
 
 **Открыт юнит `team-profiles` (2026-11-13).** Личная команда агентов на
 нативных пресетах DSH: архитектор-аналитик, оркестратор, исполнитель,

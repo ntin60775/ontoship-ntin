@@ -361,5 +361,8 @@ spec/tests/kb «принять с находками», code «вернуть».
    делался), ask-ноги, acceptance[] v1, рецидив newline init-исполнения
    (инцидент 6, зацепка формулировки init — leads).
 
-Merge ff в main — sha в записи хроники continue.md (после merge).
-Worktree `ontoship-ntin-wt-dlv03` снесён после merge.
+Merge ff в main = `1351377` (срез `1351377`, 87 файлов). Worktree
+`ontoship-ntin-wt-dlv03` и ветка `dlv03-live-probe` снесены. Уборка
+исполнена после merge: хост 3096 и мост остановлены, `/tmp/dlv03*`
+снесены (включая копию DSH_HOME с credential), остатков 0, живой
+профиль/GUI не тронуты — список целей и скан в evidence README §Уборка.
