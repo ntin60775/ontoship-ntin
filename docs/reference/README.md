@@ -3,10 +3,10 @@ node_type: index
 title: Справочники
 service: _platform
 status: active
-updated: 2026-11-16
+updated: 2026-11-18
 links:
   part_of: [../README.md]
-  relates_to: [harnesses.md, review-roles.md, sources.md, testing.md, text-style.md, baseline-standards.md, pack-contract.md, ../decisions/ontoship-core.md]
+  relates_to: [harnesses.md, dsh-session-probe.md, review-roles.md, sources.md, testing.md, text-style.md, baseline-standards.md, pack-contract.md, ../decisions/ontoship-core.md]
 ---
 
 # Справочники
@@ -20,6 +20,12 @@ links:
   (единственный канал — установщик; ZCode-рельсы сняты) для zcode,
   DSH и Qoder: матрица, ранги, `AGENTS.md`, доказательства из исходников;
   панель, онто-док, цепочка и проекции на DSH, Qoder — пробел.
+- [dsh-session-probe.md](dsh-session-probe.md) — ведение сессий DSH через
+  API без GUI: изолированный хост (копия DSH_HOME), авторизация
+  launch-токен/cookie, unary-методы, ответ на ask (legacy — WS-мост
+  `$events/result`, timed — unary answer), чтение хода, дизайн пробы
+  (distribution-only чекаут, поколения, уборка); код драйвера — evidence
+  deliver/03.
 - [review-roles.md](review-roles.md) — контракты ревью-ролей базового набора,
   вход и выход роли, регламент паков контуров.
 - [pack-contract.md](pack-contract.md) — контракт паков стандартов API v1:

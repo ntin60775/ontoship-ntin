@@ -3,7 +3,7 @@ node_type: reference
 title: Совместимость харнессов — project-local скиллы и AGENTS.md
 service: _platform
 status: active
-updated: 2026-11-16
+updated: 2026-11-18
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder, chain, projections, packs, boundaries]
 links:
   part_of: [README.md]
@@ -49,6 +49,8 @@ links:
   `kb-search`, `kb-curate`, `init`, `grilling`, `to-tickets`, `testing`,
   `critic`, `onto-doc` из `.agents/skills`; `ship` — user-invocable
   `/ship`. Прошлая запись о недоступности каталога снята 2026-11-09.
+- Ведение сессий через API без GUI (изолированный хост пробы, авторизация,
+  unary-методы, ответ на ask, чтение хода) — [dsh-session-probe.md](dsh-session-probe.md).
 
 ### zcode 3.16.2
 
