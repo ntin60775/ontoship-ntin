@@ -12,13 +12,17 @@ merge → тег → пробы → post-tag запись; преждеврем�
   по SSH (`git@github.com:ntin60775/ontoship-ntin.git`), main и тег
   одним push; сверка
   `git ls-remote origin refs/heads/main refs/tags/v0.8.0` — оба ведут
-  на merge-коммит (критерий 1, G-17).
+  на tip main: ff merge-коммита не создаёт (критерий 1, G-17;
+  формулировка триажа — «тег = tip main»).
 - Тег ставится после merge; тег на origin до merge запрещён
   («Ограничения» тикета).
 - Чистая установка из дерева тега: `git archive v0.8.0` в
-  `/tmp/dlv04-tag-kernel`, `install.sh --copy` в свежий temp-проект,
-  затем `--check`: ожидание 11 бандлов, `check: ok`, deliver в
-  составе (критерий 3). Лог — post-tag коммит.
+  `/tmp/dlv04-tag-kernel`, затем **install.sh дерева тега** (не
+  main-чекаута) — `--copy` в свежий temp-проект и `--check` им же:
+  `$REPO` скрипта резолвится рядом со скриптом, чужое дерево сверило
+  бы не то поколение (G-12). Ожидание 11 бандлов, `check: ok`,
+  deliver в составе (критерий 3). Путь скрипта и sha дерева — в логе
+  post-tag коммита.
 
 ## Релиз реестра
 
@@ -26,9 +30,10 @@ merge → тег → пробы → post-tag запись; преждеврем�
   публикация здесь: push origin main, тег `v0.3.0` на tip main, push
   тега, сверка `ls-remote` main ↔ tag (критерий 2). Remote —
   `git@github.com:ntin60775/consumer-registry.git`.
-- Чистая установка из дерева тега: `git archive v0.3.0`, `install.sh
-  --copy` в temp-проект, `--check`: один бандл `consumer-registry`,
-  `check: ok`; `grep .zcode` по содержимому бандла пуст (критерий 3).
+- Чистая установка из дерева тега: `git archive v0.3.0`, затем
+  **install.sh дерева тега** — `--copy` в temp-проект и `--check` им
+  же: один бандл `consumer-registry`, `check: ok`; `grep .zcode` по
+  содержимому бандла пуст, путь скрипта в логе (критерий 3).
 
 ## Критерий 4: описание deliver
 
@@ -43,7 +48,9 @@ merge → тег → пробы → post-tag запись; преждеврем�
 - Набор ядра и `lint --strict` — на срезе до merge (`core-suite.log`,
   `lint.log`) и повторно на main после релиза (post-tag коммит).
 - Тесты реестра `tests/test_registry.py` — `registry-tests.log`.
-- Selfhost `check: ok` — на main до и после релиза (post-tag коммит).
+- Selfhost `check: ok` — два места осмотра: срез до merge
+  (`selfhost-check-slice.log`) и main после релиза
+  (`selfhost-check.log`, post-tag коммит).
 
 ## Закрытие юнита (post-tag запись)
 
@@ -52,8 +59,11 @@ merge → тег → пробы → post-tag запись; преждеврем�
 - `docs/ops/continue.md` — абзац юнита (факты тикетов, релизы,
   названные пробелы) и хроника тикета 04;
 - `tickets/README.md` — секция юнита с таблицей и закрытием;
-- `docs/plans/README.md` — строка юнита «завершена»;
-- статусы тикетов 01–04 «сделан, влит и принят» с evidence.
+- `docs/plans/README.md` — строка юнита «завершена».
+
+Срез уже несёт отметку тикета 03 (запоздалая запись состоявшейся
+приёмки `a4d41c1`); post-tag вносит статус тикета 04 «сделан, влит и
+принят» с evidence.
 
 В дереве тега закрытия нет — носитель факта main после тега. Пробелы,
 называемые в закрытии: ask-ноги протокола в пробе не исполнены;

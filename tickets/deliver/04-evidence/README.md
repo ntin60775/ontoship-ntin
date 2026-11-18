@@ -16,16 +16,21 @@
 - [core-suite.log](core-suite.log) — полный набор ядра на срезе.
 - [lint.log](lint.log) — `lint --strict` на срезе.
 - [registry-tests.log](registry-tests.log) — тесты реестра.
+- [selfhost-check-slice.log](selfhost-check-slice.log) — selfhost
+  `check: ok` на срезе.
 - [04-panel.md](04-panel.md) — отчёт ревью-панели (один прогон).
 
-## Внёс post-tag коммит main
+Расхождений ожидание/факт в прогонах среза не было: числа логов
+совпали с повторными прогонами панели.
+
+## Внесёт post-tag коммит main
 
 В дереве тега отсутствуют: закрытие юнита и проверки релиза.
 
 - [03-checks.md](03-checks.md) — проверки релиза: ls-remote ядра и
-  реестра, чистые установки из деревьев тегов, diff description,
-  набор и lint на main после тега.
-- `ls-remote-kernel.log`, `ls-remote-registry.log`,
+  реестра, git log tip main, чистые установки из деревьев тегов, diff
+  description, набор и lint на main после тега.
+- `ls-remote-kernel.log`, `ls-remote-registry.log`, `git-log-main.log`,
   `install-from-tag-kernel.log`, `install-from-tag-registry.log`,
   `description-diff.log`, `core-suite-main.log`, `lint-main.log`,
   `selfhost-check.log` — логи проверок.
