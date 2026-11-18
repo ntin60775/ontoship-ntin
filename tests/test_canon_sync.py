@@ -288,6 +288,16 @@ PACK_CONTRACT_ANCHORS = (
     "пак — доверенный источник команды",
 )
 
+# Operator decision 2026-11-18: done includes commit and push; no remote
+# or no push access is a named gap, never a silent skip.
+READINESS_CARRIERS = (
+    REPO / "docs/decisions/ontoship-core.md",
+)
+READINESS_ANCHORS = (
+    "Готово без коммита и push — не готово",
+    "remote или push недоступны — названный пробел",
+)
+
 GUARD_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
     REPO / "skills/ship/SKILL.md",
@@ -308,6 +318,7 @@ SETS = (
     ("ontodoc-run", ONTODOC_CARRIERS, ONTODOC_ANCHORS),
     ("method-phases", METHOD_CARRIERS, METHOD_ANCHORS),
     ("boundaries", BOUNDARIES_CARRIERS, BOUNDARIES_ANCHORS),
+    ("readiness", READINESS_CARRIERS, READINESS_ANCHORS),
     ("dsh-boundaries", DSH_BOUNDARIES_CARRIERS, DSH_BOUNDARIES_ANCHORS),
     ("pack-contract", PACK_CONTRACT_CARRIERS, PACK_CONTRACT_ANCHORS),
     ("guard", GUARD_CARRIERS, GUARD_ANCHORS),
