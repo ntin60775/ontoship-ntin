@@ -2487,7 +2487,9 @@ sa08 сгенерирован по команде оператора 2026-11-17 
   `mcp__playwright-mcp__*`. Тикетам 01–04 браузер не понадобился; если его
   нет, не подделывай E2E.
 - Python 3.13, для движка только stdlib; `pytest` доступен. `node/npm/npx` нет в
-  PATH; движок не должен требовать Node. Бинарники Node есть вне PATH
+  PATH; `gh` тоже вне PATH — `~/.local/bin/gh`, авторизация keyring
+  (аккаунт ntin60775, git-протокол ssh); GitHub-ишью — через gh/API,
+  SSH только для git-операций; движок не должен требовать Node. Бинарники Node есть вне PATH
   (сверено 2026-11-13): `/home/prog7/.local/share/node-lts/bin` — node
   v24.19.0, npm, npx, pnpm, yarn; лаунчер `~/.local/bin/pnpm` идёт через
   этот node. Сборке team-бандла PATH пополняется этим каталогом.
