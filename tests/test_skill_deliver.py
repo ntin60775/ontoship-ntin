@@ -17,7 +17,7 @@ spec: docs/plans/deliver.md#готово — «Готово» 1: бандл су
 spec: docs/plans/deliver.md#протокол-deliver — восемь шагов: источник,
       поиск X, состояние, канал, установка/обновление, init, акт, отчёт
 spec: docs/plans/deliver.md#контракт-акта — поля акта, followups,
-      acceptance-пробел, deployed.json не заводится
+      журнал приёмок не ведётся, deployed.json не заводится
 spec: docs/plans/deliver.md#решения — решения 1, 7: носитель интента —
       скилл + строка блока; коннектор начинает ведение при отсутствующем файле
 invariant: docs/reference/text-style.md#смысловое-направление — проектных
@@ -93,7 +93,7 @@ CONTRACT_NEEDLES = (
     "открытые followups (`done: false`)",
     "после свежей поставки и после обновления пиши followup",
     "followup «свежая сессия потребителя»",
-    "`acceptance[]` deliver не заполняет",
+    "`acceptance[]` не ведётся",
     "deployed.json не заводится",
 )
 
