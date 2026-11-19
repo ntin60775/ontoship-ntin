@@ -19,3 +19,4 @@ __pycache__/
 .zcode/skills/
 .zcode/registry/
 .zcode/deployed.json
+.agents/registry.local.json
