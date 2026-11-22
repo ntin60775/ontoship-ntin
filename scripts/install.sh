@@ -24,8 +24,8 @@ readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
 # Bundles the core no longer ships. An old install may still carry one; like
 # legacy roots, a retired entry is reported by --check and never touched.
 readonly RETIRED_SKILLS=(chain)
-# A copy carries content, not this machine's bytecode and not the source
-# repository: `.git` is compared and copied away (issue #4).
+# A copy is content, not this machine's bytecode and not VCS internals:
+# neither is compared, nor does either stay in a fresh copy (issue #4).
 readonly EXCLUDES=(-x __pycache__ -x '*.pyc' -x .git)
 
 here=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
@@ -420,18 +420,8 @@ install_pack_link() {
   printf 'linked pack %s -> %s\n' "$pack_name" "$pack_source"
 }
 
-# A pack copy is content, not the source repository: `.git` never travels.
-# A copy installed before this rule is healed in place, and the run says so.
-drop_source_git() {
-  local target=$1
-  [[ -e $target/.git || -L $target/.git ]] || return 0
-  rm -rf -- "$target/.git"
-  printf 'removed source .git from pack %s\n' "$(basename -- "$target")"
-}
-
 install_pack_copy() {
   local target=$packs_dest/$pack_name
-  drop_source_git "$target"
   if is_copy_of "$target" "$pack_source"; then
     printf 'unchanged pack %s\n' "$pack_name"
     return 0
@@ -440,7 +430,8 @@ install_pack_copy() {
     rm -f -- "$target"
   fi
   cp -a -- "$pack_source" "$target"
-  drop_source_git "$target"
+  # The source's VCS internals never travel: a fresh copy is content only.
+  find "$target" -name .git -prune -exec rm -rf -- {} +
   find "$target" -type d -name __pycache__ -prune -exec rm -rf -- {} +
   find "$target" -type f -name '*.pyc' -delete
   printf 'copied pack %s -> %s\n' "$pack_name" "$target"
@@ -452,9 +443,6 @@ plan_pack() {
   local target=$packs_dest/$pack_name
   [[ -d $packs_dest ]] || printf 'would create %s\n' "$packs_dest"
   if [[ $mode == copy ]]; then
-    if [[ -e $target/.git || -L $target/.git ]]; then
-      printf 'would remove source .git from pack %s\n' "$pack_name"
-    fi
     if is_copy_of "$target" "$pack_source"; then
       printf 'would leave pack %s unchanged\n' "$pack_name"
     else

@@ -81,53 +81,64 @@ def test_pack_copy_install_is_detached(project: Path) -> None:
     assert "unchanged pack reference-pack" in again.stdout
 
 
+def _git(source: Path, *args: str) -> None:
+    """git в источнике пака: identity и подпись заданы явно, чтобы прогон
+    не зависел от глобального конфига хоста."""
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
+                    "-c", "commit.gpgsign=false", *args],
+                   cwd=source, check=True, timeout=60)
+
+
 def _git_backed_pack(tmp_path: Path) -> Path:
     """Пак-источник в корне собственного git-репозитория, как орг-пак:
     каталог пака и `.git` источника лежат рядом."""
     source = tmp_path / "reference-pack"
     shutil.copytree(REFERENCE, source)
-    subprocess.run(["git", "init", "-q"], cwd=source, check=True)
-    subprocess.run(["git", "add", "-A"], cwd=source, check=True)
-    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
-                    "commit", "-q", "-m", "pack"], cwd=source, check=True)
+    _git(source, "init", "-q")
+    _git(source, "add", "-A")
+    _git(source, "commit", "-q", "-m", "pack")
     return source
 
 
 def test_pack_copy_carries_content_not_source_git(tmp_path: Path,
                                                   project: Path) -> None:
-    """target-тест: копия пака — контент, не git-история источника
-    (ишью #4). Изменение только `.git` источника (пустой коммит) не делает
-    content-равную копию устаревшей и не несёт вложенный репозиторий."""
+    """target: ишью #4 — копия пака это контент, не git-история источника:
+    `.git` в копию не переносится, а изменение только `.git` источника
+    (пустой коммит) не делает content-равную копию устаревшей. Dry-run
+    обещает копию и ничего не пишет."""
     source = _git_backed_pack(tmp_path)
+    plan = _install("--dry-run", "--copy", "--pack", str(source), str(project))
+    assert plan.returncode == 0, plan.stderr
+    assert "would copy pack reference-pack" in plan.stdout
+    assert not (project / ".agents").exists()
     first = _install("--copy", "--pack", str(source), str(project))
     assert first.returncode == 0, first.stderr
     target = project / ".agents" / "packs" / "reference-pack"
     assert (target / "manifest.json").is_file()
     assert not (target / ".git").exists()
-    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
-                    "commit", "-q", "--allow-empty", "-m", "x"],
-                   cwd=source, check=True)
+    _git(source, "commit", "-q", "--allow-empty", "-m", "x")
     second = _install("--copy", "--pack", str(source), str(project))
     assert second.returncode == 0, second.stderr
     assert "unchanged pack reference-pack" in second.stdout
 
 
-def test_pack_copy_drops_source_git_from_earlier_copy(
-        tmp_path: Path, project: Path) -> None:
-    """target-тест: копия, поставленная до фикса, несла `.git` источника;
-    повторная установка content-равной копии снимает его и называет это,
-    а не молчит «unchanged» (ишью #4)."""
+def test_pack_copy_from_link_keeps_source_git(tmp_path: Path,
+                                               project: Path) -> None:
+    """target: ишью #4 — переход link→copy не трогает источник: копия
+    снимает `.git` с себя, но `.git` источника остаётся цел (снятие через
+    симлинк уничтожило бы репозиторий орг-пака)."""
     source = _git_backed_pack(tmp_path)
-    assert _install("--copy", "--pack", str(source),
-                    str(project)).returncode == 0
+    linked = _install("--pack", str(source), str(project))
+    assert linked.returncode == 0, linked.stderr
     target = project / ".agents" / "packs" / "reference-pack"
-    (target / ".git").mkdir(exist_ok=True)
-    (target / ".git" / "HEAD").write_text("ref: refs/heads/main\n",
-                                          encoding="utf-8")
-    again = _install("--copy", "--pack", str(source), str(project))
-    assert again.returncode == 0, again.stderr
-    assert "removed source .git from pack reference-pack" in again.stdout
+    assert target.is_symlink()
+    copied = _install("--copy", "--pack", str(source), str(project))
+    assert copied.returncode == 0, copied.stderr
+    assert copied.stdout.index("copied pack reference-pack") >= 0
+    assert target.is_dir() and not target.is_symlink()
     assert not (target / ".git").exists()
+    assert (source / ".git").is_dir()
+    _git(source, "rev-parse", "--verify", "HEAD")
 
 
 def test_installed_pack_dir_matches_manifest_name(tmp_path: Path,
