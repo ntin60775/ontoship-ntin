@@ -120,9 +120,10 @@ ZCode-рельсами 2026-11-10, [continue.md](../ops/continue.md)).
 
 **Контракт акта** (G-6, G-7): `action` = `rollout` (свежая) | `update`
 (обновление); `actor` = сессия deliver; `to`/`version` потребителя =
-тег link-дерева, иначе `git describe` (dev+sha); для copy — прежнее
-`consumers[].version`, без прежней записи — `unknown` с названным
-пробелом; `from` = прежнее `consumers[].version`, без прежней записи
+тег link-дерева, иначе `git describe` (dev+sha); для copy — версия
+фактически поставленного снимка (тег или `git describe` чекаута ядра,
+с которого снята копия), прежнюю запись не переносить; чекаут не
+резолвится — `unknown` с названным пробелом; `from` = прежнее `consumers[].version`, без прежней записи
 `from` опускается (версия baseline — в note потребителя); `updated_at`
 обновляется. deliver сверяет открытые followups (`done: false`) перед
 поставкой по правилам скилла реестра и пишет followup «свежая сессия
