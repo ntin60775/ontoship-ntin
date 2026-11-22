@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-18
+updated: 2026-11-22
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -15,6 +15,19 @@ links:
 источник истины — этот runbook и тикеты, а не снимок.
 
 ## Где мы
+
+**Ишью [#4](https://github.com/ntin60775/ontoship-ntin/issues/4) закрыт
+2026-11-22 (вне тикетного потока, решение оператора).** Copy-канал пака
+больше не несёт `.git` источника: `EXCLUDES` установщика получил `-x .git`
+(сравнение — по контенту), свежая копия снимает `.git` при установке.
+Срез `04910bc`, правки триажа `8b889ac`: первая редакция лечила
+дофиксовые копии `rm -rf` до проверки симлинка и на переходе link→copy
+сносила `.git` самого источника — поймано ревью-панелью (P1, спайк),
+heal снят, регрессия запинена target-тестом `link→copy`. Набор
+**812 passed**, lint --strict чисто, selfhost `check: ok`. Дубли в
+трекере — `tickets/norm-fixes/03-pack-copy-git.md`, строка в
+[tickets/README.md](../../tickets/README.md). Пробел: дофиксовые копии
+сохраняют `.git`, установщик их не трогает (снос — решение оператора).
 
 **Решение оператора 2026-11-22 (раскладка ролей):** critic переезжает с
 `qwen-token-plan-max/qwen4-max-preview` на `qwen-token-plan-max/qwen4-max`
