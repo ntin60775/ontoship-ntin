@@ -81,6 +81,55 @@ def test_pack_copy_install_is_detached(project: Path) -> None:
     assert "unchanged pack reference-pack" in again.stdout
 
 
+def _git_backed_pack(tmp_path: Path) -> Path:
+    """Пак-источник в корне собственного git-репозитория, как орг-пак:
+    каталог пака и `.git` источника лежат рядом."""
+    source = tmp_path / "reference-pack"
+    shutil.copytree(REFERENCE, source)
+    subprocess.run(["git", "init", "-q"], cwd=source, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=source, check=True)
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
+                    "commit", "-q", "-m", "pack"], cwd=source, check=True)
+    return source
+
+
+def test_pack_copy_carries_content_not_source_git(tmp_path: Path,
+                                                  project: Path) -> None:
+    """target-тест: копия пака — контент, не git-история источника
+    (ишью #4). Изменение только `.git` источника (пустой коммит) не делает
+    content-равную копию устаревшей и не несёт вложенный репозиторий."""
+    source = _git_backed_pack(tmp_path)
+    first = _install("--copy", "--pack", str(source), str(project))
+    assert first.returncode == 0, first.stderr
+    target = project / ".agents" / "packs" / "reference-pack"
+    assert (target / "manifest.json").is_file()
+    assert not (target / ".git").exists()
+    subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.com",
+                    "commit", "-q", "--allow-empty", "-m", "x"],
+                   cwd=source, check=True)
+    second = _install("--copy", "--pack", str(source), str(project))
+    assert second.returncode == 0, second.stderr
+    assert "unchanged pack reference-pack" in second.stdout
+
+
+def test_pack_copy_drops_source_git_from_earlier_copy(
+        tmp_path: Path, project: Path) -> None:
+    """target-тест: копия, поставленная до фикса, несла `.git` источника;
+    повторная установка content-равной копии снимает его и называет это,
+    а не молчит «unchanged» (ишью #4)."""
+    source = _git_backed_pack(tmp_path)
+    assert _install("--copy", "--pack", str(source),
+                    str(project)).returncode == 0
+    target = project / ".agents" / "packs" / "reference-pack"
+    (target / ".git").mkdir(exist_ok=True)
+    (target / ".git" / "HEAD").write_text("ref: refs/heads/main\n",
+                                          encoding="utf-8")
+    again = _install("--copy", "--pack", str(source), str(project))
+    assert again.returncode == 0, again.stderr
+    assert "removed source .git from pack reference-pack" in again.stdout
+    assert not (target / ".git").exists()
+
+
 def test_installed_pack_dir_matches_manifest_name(tmp_path: Path,
                                                   project: Path) -> None:
     """spec: docs/plans/standards-autoship.md#готово — каталог цели равен
