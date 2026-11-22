@@ -1,9 +1,10 @@
 # OntoShip role registry.
 # One [agents.<name>] section per role; `model` is required.
-# Routes are the standard layout of operator decision 2026-11-16 (supersedes
-# the dsh-adaptation decision 5 layout): the four reviewers on
+# Routes are the standard layout of operator decisions 2026-11-16 and
+# 2026-11-22 (critic moved to the `qwen4-max` release; supersedes the
+# dsh-adaptation decision 5 layout): the four reviewers on
 # `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `max`, the critic
-# on `qwen-token-plan-max/qwen4-max-preview` with `xhigh`, the curator on
+# on `qwen-token-plan-max/qwen4-max` with `xhigh`, the curator on
 # `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `high`.
 # `init` delivers the same layout to a fresh project when every route and
 # level is live. DSH is the only rail: the ZCode branch and its generator
@@ -40,7 +41,7 @@ model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
 level = "max"
 
 [agents.critic]
-model = "qwen-token-plan-max/qwen4-max-preview"
+model = "qwen-token-plan-max/qwen4-max"
 level = "xhigh"
 
 [agents.curator]
