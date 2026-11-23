@@ -1195,6 +1195,8 @@ PACK_DISCOVERY_NEEDLES = (
     "reviewer-<kontur>-<aspect>",
     "невалидный манифест",
     "бутстрап-вопросом",
+    "останови шаг",
+    "ask поднимает оркестратор",
     "Конфиг существует",
     "Конфига нет",
     "канон > стандарты проекта > пак команды > пак стека > базовый документ",
@@ -1221,6 +1223,17 @@ def test_bootstrap_discovers_and_registers_packs():
     text = SKILL.read_text("utf-8")
     assert _pack_discovery_missing(text) == []
     assert "Для паков назови итог" in text
+
+
+def test_missing_registry_section_stops_the_bootstrap():
+    """spec: docs/plans/standards-autoship.md#готово — реестр без секции
+    роли или пула останавливает шаг до ответа оператора; в делегированном
+    прогоне ask поднимает оркестратор; формулировка «предложи добавить»
+    не возвращается (пробел жил в отчёте и не доходил до решения)."""
+    text = SKILL.read_text("utf-8")
+    assert "предложи добавить" not in text
+    assert text.count("останови шаг") >= 3
+    assert "ask поднимает оркестратор" in text
 
 
 def test_pack_discovery_contract_can_fail():
