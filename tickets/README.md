@@ -658,5 +658,6 @@ b12e4d0, ишью #4 (дефект продюсера из репетиции or
 | 03 | [copy-канал пака несёт .git источника](norm-fixes/03-pack-copy-git.md) | `EXCLUDES -x .git`, снятие `.git` у свежей копии, два target-теста |
 | 04 | [готовность ship не зависит от remote](norm-fixes/04-readiness-sync.md) | «Синхронизация» вместо деградации, догон при появлении remote, канон и якоря обновлены |
 | 05 | [коннектор реестра — из чекаута ядра](norm-fixes/05-deliver-connector.md) | резолв бандла consumer-registry у install.sh, forbidden-сторож старой формулировки |
+| 06 | [init останавливает бутстрап на секции реестра](norm-fixes/06-init-role-stop.md) | стоп вместо «предложи в отчёте», ask поднимает оркестратор; тест правила |
 
 Набор 815 passed, lint чисто; коммиты — в хронике continue.md.
