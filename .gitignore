@@ -20,3 +20,4 @@ __pycache__/
 .zcode/registry/
 .zcode/deployed.json
 .agents/registry.local.json
+.agents/registry.local.json.lock
