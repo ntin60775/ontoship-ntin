@@ -288,14 +288,19 @@ PACK_CONTRACT_ANCHORS = (
     "пак — доверенный источник команды",
 )
 
-# Operator decision 2026-11-18: done includes commit and push; no remote
-# or no push access is a named gap, never a silent skip.
+# Operator decision 2026-11-18 (superseded by 2026-11-23): done includes
+# commit and push; no remote or no push access is a named gap, never a silent
+# skip. Decision 2026-11-23: readiness does not depend on a remote — a local
+# commit in the target branch is the readiness act, the remote is a sync
+# channel, and a remote that appears later is caught up by the next pass.
 READINESS_CARRIERS = (
     REPO / "docs/decisions/ontoship-core.md",
 )
 READINESS_ANCHORS = (
-    "Готово без коммита и push — не готово",
-    "remote или push недоступны — названный пробел",
+    "Готовность не зависит от remote",
+    "`origin` — канал синхронизации, а не условие готовности",
+    "пушит неотправленные коммиты целевой ветки",
+    "догон в отчёте",
 )
 
 GUARD_CARRIERS = (
