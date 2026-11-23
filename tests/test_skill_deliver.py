@@ -4,9 +4,10 @@ The bundle is the intent carrier «поставить/обновить OntoShip 
 the full delivery/update protocol lives in the skill, the init block only
 names the command (decision 1). These checks pin the shipped artifact
 against the spec sections «Протокол deliver» and «Контракт акта» and the
-connector branches of decision 7: the registry skill present — follow its
-rules, the file absent — start the ledger then write the act, the skill
-absent — a named gap, no fallback record. The description carries the
+connector branches of decision 7 as revised 2026-11-23: the registry
+bundle in the core checkout — follow its rules, the file absent — start
+the ledger then write the act, the bundle absent or unreadable — a named
+gap, no fallback record; the session catalog plays no role. The description carries the
 delivery/update semantics without the paraphrase literals «раскатай ядро
 в X» (triage G-24); model invocation stays open — the catalog routes the
 intent by description. The bundle names no project facts: it installs
@@ -44,6 +45,13 @@ DESCRIPTION_NEEDLES = (
 # G-24: the paraphrase «раскатай ядро в X» shares no words with the
 # carriers — its literals must not leak into the description.
 DESCRIPTION_FORBIDDEN = ("раскатай", "ядро")
+# Revision 2026-11-23: the connector resolves in the core checkout, never in
+# the session catalog — the retired resolution must not come back next to
+# the new clause (a second path would resurrect the absent-act failure).
+CONNECTOR_FORBIDDEN = (
+    "скилл в каталоге — загрузи его",
+    "скилла нет — запись не делается",
+)
 
 # One anchor per protocol norm («Протокол deliver»); checked on the
 # whitespace-flattened text, so an 80-column wrap cannot hide a clause.
@@ -68,11 +76,13 @@ PROTOCOL_NEEDLES = (
     "После свежей установки и при обновлении — скилл init",
     "только между маркерами ontoship",
     "install.sh сам init не запускает",
-    "скилл реестра `consumer-registry`",
-    "Скилл в каталоге — загрузи его и следуй правилам",
-    "файла реестра нет — исполни старт ведения по правилам скилла",
+    "бандл реестра `consumer-registry` в чекауте ядра",
+    ".agents/skills/consumer-registry/",
+    "Каталог сессии роли не играет",
+    "Прочитай `SKILL.md` бандла и следуй правилам",
+    "Файла реестра нет — исполни старт ведения по правилам бандла",
     "затем пиши акт",
-    "Скилла нет — запись не делается",
+    "Бандла нет в чекауте ядра или он нечитаем — запись не делается",
     "фолбэк-записи в другой носитель нет",
     "deliver не ставит реестр потребителям",
     "continue.md целевого проекта deliver не пишет",
@@ -158,6 +168,10 @@ def _contract_errors(text: str) -> list[str]:
     for needle in CONTRACT_NEEDLES:
         if needle not in flat:
             errors.append(f"act contract: missing {needle!r}")
+    lowered = flat.lower()
+    for phrase in CONNECTOR_FORBIDDEN:
+        if phrase in lowered:
+            errors.append(f"connector: retired catalog-resolution phrase {phrase!r}")
     match = PROJECT_FACT_RE.search(text)
     if match:
         errors.append(f"project fact in the bundle: {match.group(0)!r}")
@@ -222,6 +236,15 @@ def test_contract_can_fail():
         factual = text + f"\nПример: {fact}.\n"
         assert any("project fact" in error
                    for error in _contract_errors(factual)), fact
+
+    # The retired catalog-resolution clause returns — red, even next to the
+    # new one: one path only (revision 2026-11-23).
+    retired = text.replace(
+        "Каталог сессии роли не играет:",
+        "Скилл в каталоге — загрузи его и следуй правилам. Каталог сессии роли не играет:", 1)
+    assert retired != text
+    assert any("retired catalog-resolution" in error
+               for error in _contract_errors(retired))
 
     # Unquoting the description reddens: it carries ': ', YAML needs quotes.
     unquoted = text.replace('description: "', "description: ", 1)
