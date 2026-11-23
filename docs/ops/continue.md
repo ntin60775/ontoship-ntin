@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-22
+updated: 2026-11-23
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -37,6 +37,14 @@ heal снят, регрессия запинена target-тестом `link→c
 `list_subagent_models` (`medium`, `xhigh`; пинится `xhigh`). Носители:
 таблица init, реестр `.agents/config.toml`, якоря и мутации
 `tests/test_skill_init.py`, эта запись.
+
+**Решение оператора 2026-11-23 (раскладка ролей):** `curator` идёт с
+уровнем `low` вместо `high`. Модель и остальные пять ролей не менялись;
+уровень сверен с живым `list_subagent_models` (`low` доступен, дефолт
+модели — `high`). Носители: таблица init, реестр `.agents/config.toml`,
+якоря и мутации `tests/test_skill_init.py`, эта запись. Реестр
+существующего проекта init не правит: парк переходит на `low` сменой
+своего конфига.
 
 **Юнит `deliver` открыт 2026-11-17, закрыт 2026-11-18.** Поставка и обновление ядра
 в проекте X: скилл `deliver` с семантической маршрутизацией интента
