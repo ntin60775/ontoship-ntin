@@ -5,8 +5,9 @@ The bundle must be discoverable as ``<root>/ship/SKILL.md`` and carry the
 phase-3 single pass — worktree, implementation, proof tests, exactly one
 review pass, dev/prod checks, the pack mechanical gates, merge — with stop
 points read from the spec's «Ограничения» section, review yielding leads
-instead of a convergence loop, and honest degradation without a remote: a
-local commit and a named gap, never a faked PR.
+instead of a convergence loop, and readiness independent of a remote: a local
+commit in the target branch and a named sync gap, catch-up when the remote
+appears later, never a faked PR.
 
 Step one demands an isolated worktree unconditionally (ship-isolation
 ticket 01): the phrase «изолированный worktree» lives in step 1 of the
@@ -102,7 +103,10 @@ REQUIRED_PHRASES = (
     "три фазы",
     "ручной канал — команда `/ship`",
     "один тикет за запуск",
-    "коммит и push — часть готовности",
+    "готовность прохода — коммит в целевой ветке",
+    "входит в готовность",
+    "недоступны (origin нет)",
+    "догон",
 )
 FORBIDDEN_PHRASES = (
     "повторяй прогоны ревью",
@@ -172,6 +176,7 @@ AUTOSHIP_PHRASES = (
     "проверки dev/prod пройдены",
     "механические гейты пака зелёные",
     "точки остановки спеки пройдены",
+    "синхронизация названа",
     "p3 не блокируют автоприёмку",
     "у каждой зацепки исход в этом проходе",
     "незакрытое или остановка — вопрос оператору",
@@ -498,15 +503,32 @@ def test_review_is_one_pass_and_yields_leads():
         assert phrase not in lowered, f"convergence-loop phrase {phrase!r} leaked"
 
 
-def test_degradation_without_remote_is_honest():
-    """spec: docs/plans/workflow-skills.md#готово — local commit and named gap."""
+def test_sync_without_remote_is_honest():
+    """spec: docs/plans/workflow-skills.md#ревизия-2026-11-23 — готовность
+    без remote: локальный коммит в целевой ветке и названный sync-пробел,
+    проход не останавливается, PR не имитируется."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
     assert "git remote -v" in lowered
     assert "локальный коммит" in lowered
     assert "названный пробел" in lowered
+    assert "не останавливает проход" in lowered
     assert "не имитируй" in lowered
     assert "создай pull request" not in lowered
+
+
+def test_remote_appearing_later_is_caught_up():
+    """spec: docs/plans/workflow-skills.md#ревизия-2026-11-23 — remote
+    появился позже: ближайший проход пушит неотправленные коммиты и называет
+    догон; проверка remote идёт в каждом проходе, без памяти прогонов."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _section(_normalized_lower(body), "синхронизация")
+    assert section, "the «Синхронизация» section is missing"
+    assert "в каждом проходе" in section
+    assert "появился позже" in section
+    assert "догон" in section
+    assert "git push -u origin" in section
+    assert "sync: догнал" in section
 
 
 def test_auto_acceptance_on_the_green_contour():
@@ -633,7 +655,7 @@ def test_contract_check_can_fail():
     assert any("до нуля находок" in error for error in errors)
     assert any("p3 — не долг, а триаж" in error for error in errors)
 
-    fake_pr = text.replace("локальным коммитом в целевую ветку",
+    fake_pr = text.replace("проход оканчивается локальным коммитом",
                            "создай pull request в удалённый репозиторий", 1)
     assert fake_pr != text
     assert any("создай pull request" in error for error in _contract_errors(fake_pr))
@@ -655,8 +677,8 @@ def test_contract_check_can_fail():
                for error in _contract_errors(weakened))
 
     moved_out = weakened.replace(
-        "## Деградация без remote",
-        "## Деградация без remote\n\nИзолированный worktree обязателен.", 1)
+        "## Синхронизация",
+        "## Синхронизация\n\nИзолированный worktree обязателен.", 1)
     assert moved_out != weakened
     assert any("step 1" in error for error in _contract_errors(moved_out))
 
