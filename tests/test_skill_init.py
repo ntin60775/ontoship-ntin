@@ -147,7 +147,8 @@ POOL_NEEDLES = (
     "маршруты различны по модели",
     "Секция пула валидации `[validation]`",
 )
-RETIRED_POOL_PHRASES = ("модель под срез", "срезов валидации")
+RETIRED_POOL_PHRASES = ("модель под срез", "причина по срезу",
+                        "срезов валидации")
 
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".qoder", "commands.md",
@@ -503,7 +504,7 @@ def _contract_errors(text: str) -> list[str]:
             if needle not in flat_layout:
                 errors.append(f"pool: missing {needle!r}")
         for phrase in RETIRED_POOL_PHRASES:
-            if phrase in flat_layout:
+            if phrase in flat_layout.lower():
                 errors.append(f"pool: retired phrase {phrase!r} is back")
 
     for phrase in RETIRED_MODEL_RULE:
@@ -963,14 +964,19 @@ def test_pool_contract_can_fail():
          "Сверь маршруты и уровни пула с живым каталогом"),
         ("Секция пула валидации `[validation]`", "Секция пула",
          "Секция пула валидации `[validation]`"),
+        ("Пул — источник маршрутов членов консилиума",
+         "Модель под срез. Пул — источник маршрутов членов консилиума",
+         "pool: retired phrase 'модель под срез' is back"),
+        ("причина выбора — в отчёте гейта",
+         "причина по срезу — в отчёте гейта",
+         "pool: retired phrase 'причина по срезу' is back"),
     ):
         # Whitespace-flexible replace: the clause may wrap at 80 columns,
         # the line structure of the rest of the skill stays intact.
         pattern = re.escape(old).replace("\\ ", r"\s+")
         mutated = re.sub(pattern, new, text, count=1)
         assert mutated != text, f"the mutation must change the text: {old!r}"
-        assert any(f"pool: missing {needle!r}" in error
-                   for error in _contract_errors(mutated)), \
+        assert any(needle in error for error in _contract_errors(mutated)), \
             (old, _contract_errors(mutated))
 
 

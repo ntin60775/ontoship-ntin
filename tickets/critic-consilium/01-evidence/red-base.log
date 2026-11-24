@@ -1,0 +1,360 @@
+FFFFFFFFFFFFF.F.FFF..FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF... [ 76%]
+...FFFFFFFFFFFFFFF..FF                                                   [100%]
+=================================== FAILURES ===================================
+E   assert ["body: missi...is back", ...] == []
+      
+      Left contains 27 more items, first extra item: "body: missing required phrase 'весь спек и полный чек-лист'"
+      Use -v to get more diff
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:266: assert ["body: missi...is back", ...] == []
+E   AssertionError: assert 'агент запускает консилиум' in ' # skill: critic # проекционная валидация спеки — один прогон на юнит независимый взгляд на спеку до нарезки: план пр... отчётом; оператор решает — править спеку или принять риск. правки спеки после план-гейта — только решением оператора.'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:275: AssertionError: assert 'агент запускает консилиум' in ' # skill: critic # проекционная валидация спеки — один прогон на юнит независимый взгляд на спеку до нарезки: план пр... отчётом; оператор решает — править спеку или принять риск. правки спеки после план-гейта — только решением оператора.'
+E   AssertionError: section «Семя и фокусы» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:288: AssertionError: section «Семя и фокусы» is missing
+E   AssertionError: section «Члены» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:298: AssertionError: section «Члены» is missing
+E   AssertionError: section «Пул и маршруты» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:308: AssertionError: section «Пул и маршруты» is missing
+E   AssertionError: section «Отказы и кворум» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:318: AssertionError: section «Отказы и кворум» is missing
+E   AssertionError: section «Председатель» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:328: AssertionError: section «Председатель» is missing
+E   AssertionError: the triage contract lost 'Находки сводки проходят триаж основной сессии'
+    assert 'находки сводки проходят триаж основной сессии' in '## триаж находки срезов проходят триаж основной сессии: каждая подтверждается или отвергается с причиной; проверяется...покрытости, ненастоящий демо-путь, критерий, который не умеет падать, цена доказательства, связность, оверинжиниринг. '
+     +  where 'находки сводки проходят триаж основной сессии' = <built-in method lower of str object at 0x7f445d15c0d0>()
+     +    where <built-in method lower of str object at 0x7f445d15c0d0> = 'Находки сводки проходят триаж основной сессии'.lower
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:340: AssertionError: the triage contract lost 'Находки сводки проходят триаж основной сессии'
+E   AssertionError: the report contract lost '`tickets/<slug>/00-projection-report.md`'
+    assert '`tickets/<slug>/00-projection-report.md`' in '## отчёт и гейт проекций отчёт триажа — артефакт в папке юнита локального трекера (`tickets/<slug>/`), он же запись г... отчётом; оператор решает — править спеку или принять риск. правки спеки после план-гейта — только решением оператора.'
+     +  where '`tickets/<slug>/00-projection-report.md`' = <built-in method lower of str object at 0x7f445d30e9d0>()
+     +    where <built-in method lower of str object at 0x7f445d30e9d0> = '`tickets/<slug>/00-projection-report.md`'.lower
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:350: AssertionError: the report contract lost '`tickets/<slug>/00-projection-report.md`'
+E   AssertionError: section «Ручная проба» is missing
+    assert ''
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:358: AssertionError: section «Ручная проба» is missing
+E   AssertionError: the skill hardcodes 'deepseek-account/deepseek-flash'
+    assert 'deepseek-ac...epseek-flash' not in '---\nname: ...оператора.\n'
+      
+      'deepseek-account/deepseek-flash' is contained here:
+        ка пула:
+        `deepseek-account/deepseek-flash` с уровнем `max`,
+        `qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`. Модель под срез
+        выбирает основная сессия по сильным и слабым сторонам моделей пула;
+        причина выбора записывается в отчёт по каждому срезу. Сверь маршрут и...
+      
+      ...Full output truncated (35 lines hidden), use '-vv' to show
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:368: AssertionError: the skill hardcodes 'deepseek-account/deepseek-flash'
+E   assert ["body: missi...is back", ...] == []
+      
+      Left contains 27 more items, first extra item: "body: missing required phrase 'весь спек и полный чек-лист'"
+      Use -v to get more diff
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:375: assert ["body: missi...is back", ...] == []
+E   assert ["body: missi...is back", ...] == []
+      
+      Left contains 27 more items, first extra item: "body: missing required phrase 'весь спек и полный чек-лист'"
+      Use -v to get more diff
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:388: assert ["body: missi...is back", ...] == []
+E   AssertionError: the mutation must remove 'весь спек и полный чек-лист'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:419: AssertionError: the mutation must remove 'весь спек и полный чек-лист'
+E   AssertionError: the mutation must remove 'три члена консилиума'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:419: AssertionError: the mutation must remove 'три члена консилиума'
+E   AssertionError: the mutation must remove 'председатель сводит'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:419: AssertionError: the mutation must remove 'председатель сводит'
+E   AssertionError: the mutation must remove 'основная сессия триажит'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:419: AssertionError: the mutation must remove 'основная сессия триажит'
+E   AssertionError: the mutation must remove 'три брифа'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'три брифа'
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d167040>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d166a40>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d105f40>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: the mutation must remove 'Основная сессия назначает'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Основная сессия назначает'
+E   AssertionError: the mutation must remove 'Фокусы — 3/3/2'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Фокусы — 3/3/2'
+E   AssertionError: the mutation must remove 'ровно один основной фокус'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'ровно один основной фокус'
+E   AssertionError: the mutation must remove 'объединение фокусов = восемь'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'объединение фокусов = восемь'
+E   AssertionError: the mutation must remove 'причину выбора маршрута и фокуса в отчёт гейта'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'причину выбора маршрута и фокуса в отчёт гейта'
+E   AssertionError: the mutation must remove 'Находки вне фокуса принимаются'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Находки вне фокуса принимаются'
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d104540>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: the mutation must remove 'Все живые члены стартуют в одном сообщении'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Все живые члены стартуют в одном сообщении'
+E   AssertionError: the mutation must remove 'Маршруты различны по модели'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Маршруты различны по модели'
+E   AssertionError: the mutation must remove 'отчёты других членов и сводка председателя не передаются'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'отчёты других членов и сводка председателя не передаются'
+E   AssertionError: the mutation must remove '`tickets/<slug>/00-consilium/<member>.md`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove '`tickets/<slug>/00-consilium/<member>.md`'
+E   AssertionError: the mutation must remove 'маршрут, уровень, фокус, статус, находки или «находок нет»'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'маршрут, уровень, фокус, статус, находки или «находок нет»'
+E   AssertionError: the mutation must remove 'проекция, приоритет P1/P2/P3, место, утверждение, доказательство, что править'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'проекция, приоритет P1/P2/P3, место, утверждение, доказательство, что править'
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d167740>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d167b40>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: the mutation must remove 'Стандартная раскладка — три различных flash-маршрута'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Стандартная раскладка — три различных flash-маршрута'
+E   AssertionError: the mutation must remove 'конкретные маршруты в скилле не хардкодятся'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'конкретные маршруты в скилле не хардкодятся'
+E   AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+    assert False
+     +  where False = any(<generator object test_every_scoped_phrase_has_a_failing_probe.<locals>.<genexpr> at 0x7f445d104540>)
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:443: AssertionError: ["body: missing required phrase 'весь спек и полный чек-лист'", "body: missing required phrase 'три члена консилиума'"...e 'основная сессия триажит'", "body: retired phrase 'срез' is back", "body: retired phrase 'Семя срезов' is back", ...]
+E   AssertionError: the mutation must remove 'слот члена выпадает'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'слот члена выпадает'
+E   AssertionError: the mutation must remove 'подмены нет'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'подмены нет'
+E   AssertionError: the mutation must remove 'Живых различных моделей меньше двух — остановка'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Живых различных моделей меньше двух — остановка'
+E   AssertionError: the mutation must remove 'Пул без трёх живых моделей — два члена, кворум'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Пул без трёх живых моделей — два члена, кворум'
+E   AssertionError: the mutation must remove 'Одна повторная проба на члена и на председателя'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Одна повторная проба на члена и на председателя'
+E   AssertionError: the mutation must remove 'Живой член — вернул пригодный сырой отчёт'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Живой член — вернул пригодный сырой отчёт'
+E   AssertionError: the mutation must remove 'пустой или битый отчёт — выпавший для кворума'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'пустой или битый отчёт — выпавший для кворума'
+E   AssertionError: the mutation must remove 'Кворум — не меньше двух живых членов'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Кворум — не меньше двух живых членов'
+E   AssertionError: the mutation must remove 'председатель называет выпавшего и его фокус-проекции'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'председатель называет выпавшего и его фокус-проекции'
+E   AssertionError: the mutation must remove 'Кворумный пробел принимает оператор до нарезки'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Кворумный пробел принимает оператор до нарезки'
+E   AssertionError: the mutation must remove 'Падение или битая сводка председателя — одна повторная проба, затем стоп'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Падение или битая сводка председателя — одна повторная проба, затем стоп'
+E   AssertionError: the mutation must remove 'отчёт гейта не пишется'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'отчёт гейта не пишется'
+E   AssertionError: the mutation must remove 'Подмены маршрута, модели сессии или «ревью исполнителем» нет'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Подмены маршрута, модели сессии или «ревью исполнителем» нет'
+E   AssertionError: the mutation must remove 'отдельный `subagent` на `[agents.critic]`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'отдельный `subagent` на `[agents.critic]`'
+E   AssertionError: the mutation must remove 'Вход: спека, состав'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Вход: спека, состав'
+E   AssertionError: the mutation must remove 'и сырые отчёты'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'и сырые отчёты'
+E   AssertionError: the mutation must remove '`tickets/<slug>/00-consilium/chairman.md`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove '`tickets/<slug>/00-consilium/chairman.md`'
+E   AssertionError: the mutation must remove 'покрытие всех восьми проекций'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'покрытие всех восьми проекций'
+E   AssertionError: the mutation must remove 'источник (член и маршрут), поддержку, группу дублей'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'источник (член и маршрут), поддержку, группу дублей'
+E   AssertionError: the mutation must remove 'расхождения: конкурирующие находки по одному пункту'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'расхождения: конкурирующие находки по одному пункту'
+E   AssertionError: the mutation must remove 'молчание члена — не dissent'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'молчание члена — не dissent'
+E   AssertionError: the mutation must remove 'Новых находок и вердиктов председатель не добавляет'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Новых находок и вердиктов председатель не добавляет'
+E   AssertionError: the mutation must remove 'все сырые находки учтены, потерь нет'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'все сырые находки учтены, потерь нет'
+E   AssertionError: the mutation must remove 'Битая или неполная сводка — отказ председателя'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Битая или неполная сводка — отказ председателя'
+E   AssertionError: the mutation must remove 'Основная сессия сверяет сводку с сырыми отчётами'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Основная сессия сверяет сводку с сырыми отчётами'
+E   AssertionError: the mutation must remove 'Находки сводки проходят триаж основной сессии'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Находки сводки проходят триаж основной сессии'
+E   AssertionError: the mutation must remove '`tickets/<slug>/00-projection-report.md`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove '`tickets/<slug>/00-projection-report.md`'
+E   AssertionError: the mutation must remove 'прогон: дата, спека'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'прогон: дата, спека'
+E   AssertionError: the mutation must remove 'состав: члены (маршрут, уровень, фокус, статус, идентификатор)'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'состав: члены (маршрут, уровень, фокус, статус, идентификатор)'
+E   AssertionError: the mutation must remove 'председатель (маршрут, уровень, статус, идентификатор)'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'председатель (маршрут, уровень, статус, идентификатор)'
+E   AssertionError: the mutation must remove 'ссылки на сырые отчёты и сводку'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'ссылки на сырые отчёты и сводку'
+E   AssertionError: the mutation must remove 'причина выбора маршрута и фокуса по каждому члену'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'причина выбора маршрута и фокуса по каждому члену'
+E   AssertionError: the mutation must remove 'триаж находок — подтверждена или отвергнута, причина'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'триаж находок — подтверждена или отвергнута, причина'
+E   AssertionError: the mutation must remove 'расхождения и пробелы покрытия, включая кворумный'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'расхождения и пробелы покрытия, включая кворумный'
+E   AssertionError: the mutation must remove 'решения оператора и запись гейта'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'решения оператора и запись гейта'
+E   AssertionError: the mutation must remove '`to-tickets` проверяет файл'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove '`to-tickets` проверяет файл'
+E   AssertionError: the mutation must remove 'Ручная проба — исключение'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Ручная проба — исключение'
+E   AssertionError: the mutation must remove 'тестовый фикстур в папке юнита, не `docs/plans/`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'тестовый фикстур в папке юнита, не `docs/plans/`'
+E   AssertionError: the mutation must remove '`tickets/<slug>/00-probe-report.md`'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove '`tickets/<slug>/00-probe-report.md`'
+E   AssertionError: the mutation must remove 'матрицу «засев × член»'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'матрицу «засев × член»'
+E   AssertionError: the mutation must remove 'Поведенческие ветки кворума и стопа пробой не проверяются — названный пробел'
+    assert '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n' != '---\nname: critic\ndescription: "Проекционная валидация спеки — один прогон на юнит до нарезки: агент запускает скилл...ётом;\nоператор решает — править спеку или принять риск. Правки спеки после\nплан-гейта — только решением оператора.\n'
+/tmp/cc01-red.a9Veq1/tests/test_skill_critic.py:441: AssertionError: the mutation must remove 'Поведенческие ветки кворума и стопа пробой не проверяются — названный пробел'
+E   assert ['config: the...d flash pool'] == []
+      
+      Left contains one more item: "config: the validation pool [('deepseek-account/deepseek-flash', 'max'), ('qwen-token-plan/qwen3.8-flash', 'xhigh')] is not the standard flash pool"
+      Use -v to get more diff
+/tmp/cc01-red.a9Veq1/tests/test_role_registry.py:357: assert ['config: the...d flash pool'] == []
+E   AssertionError: bootstrap section lost '`qwen-token-plan-glm/glm-5.3` с уровнем `max`'
+    assert '`qwen-token-plan-glm/glm-5.3` с уровнем `max`' in ' `<корень>/.agents/config.toml` — реестр ролей: одна секция `[agents.<роль>]` на роль, обязательный ключ `model`. **Р...рм: канон > стандарты проекта > пак команды > пак стека > базовый документ; неразрешимый конфликт — вопрос оператору. '
+/tmp/cc01-red.a9Veq1/tests/test_skill_init.py:941: AssertionError: bootstrap section lost '`qwen-token-plan-glm/glm-5.3` с уровнем `max`'
+=========================== short test summary info ============================
+FAILED tests/test_skill_critic.py::test_skill_is_a_discoverable_directory_bundle
+FAILED tests/test_skill_critic.py::test_skill_is_model_invoked_before_slicing
+FAILED tests/test_skill_critic.py::test_members_read_the_whole_spec_with_three_two_three_focuses
+FAILED tests/test_skill_critic.py::test_members_are_isolated_and_write_raw_reports
+FAILED tests/test_skill_critic.py::test_pool_routes_are_distinct_and_dead_routes_do_not_substitute
+FAILED tests/test_skill_critic.py::test_quorum_and_chairman_failure_stop_the_pass
+FAILED tests/test_skill_critic.py::test_chairman_merges_without_findings_or_verdicts
+FAILED tests/test_skill_critic.py::test_triage_keeps_operator_decisions_and_plan_gate
+FAILED tests/test_skill_critic.py::test_gate_report_is_the_file_to_tickets_reads
+FAILED tests/test_skill_critic.py::test_manual_probe_is_an_exception_not_a_gate
+FAILED tests/test_skill_critic.py::test_skill_hardcodes_no_pool_route - Asser...
+FAILED tests/test_skill_critic.py::test_retired_slice_and_plan_critic_wording_is_banned
+FAILED tests/test_skill_critic.py::test_contract_check_can_fail - assert ["bo...
+FAILED tests/test_skill_critic.py::test_every_required_phrase_has_a_failing_probe[\u0432\u0435\u0441\u044c \u0441\u043f\u0435\u043a \u0438 \u043f\u043e\u043b\u043d\u044b\u0439 \u0447\u0435\u043a-\u043b\u0438\u0441\u0442]
+FAILED tests/test_skill_critic.py::test_every_required_phrase_has_a_failing_probe[\u0442\u0440\u0438 \u0447\u043b\u0435\u043d\u0430 \u043a\u043e\u043d\u0441\u0438\u043b\u0438\u0443\u043c\u0430]
+FAILED tests/test_skill_critic.py::test_every_required_phrase_has_a_failing_probe[\u043f\u0440\u0435\u0434\u0441\u0435\u0434\u0430\u0442\u0435\u043b\u044c \u0441\u0432\u043e\u0434\u0438\u0442]
+FAILED tests/test_skill_critic.py::test_every_required_phrase_has_a_failing_probe[\u043e\u0441\u043d\u043e\u0432\u043d\u0430\u044f \u0441\u0435\u0441\u0441\u0438\u044f \u0442\u0440\u0438\u0430\u0436\u0438\u0442]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u0442\u0440\u0438 \u0431\u0440\u0438\u0444\u0430]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u0447\u0435\u043a-\u043b\u0438\u0441\u0442 \u043a\u0440\u0438\u0442\u0438\u043a\u0430 \u0438 \u0432\u043e\u0441\u0435\u043c]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u043f\u043e\u043a\u0440\u044b\u0442\u043e\u0441\u0442\u044c \xab\u0413\u043e\u0442\u043e\u0432\u043e\xbb, \u0441\u0432\u044f]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u043f\u043e\u043a\u0440\u044b\u0442\u0438\u0435, \u043f\u043e\u0440\u044f\u0434\u043e\u043a, \u0434\u043e\u043a\u0430\u0437]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u041e\u0441\u043d\u043e\u0432\u043d\u0430\u044f \u0441\u0435\u0441\u0441\u0438\u044f \u043d\u0430\u0437\u043d\u0430\u0447\u0430\u0435]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u0424\u043e\u043a\u0443\u0441\u044b \u2014 3/3/2]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u0440\u043e\u0432\u043d\u043e \u043e\u0434\u0438\u043d \u043e\u0441\u043d\u043e\u0432\u043d\u043e\u0439 \u0444\u043e\u043a\u0443]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u043e\u0431\u044a\u0435\u0434\u0438\u043d\u0435\u043d\u0438\u0435 \u0444\u043e\u043a\u0443\u0441\u043e\u0432 = \u0432\u043e]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u043f\u0440\u0438\u0447\u0438\u043d\u0443 \u0432\u044b\u0431\u043e\u0440\u0430 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[focus:\u041d\u0430\u0445\u043e\u0434\u043a\u0438 \u0432\u043d\u0435 \u0444\u043e\u043a\u0443\u0441\u0430 \u043f\u0440\u0438\u043d\u0438]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:`subagent` (spawn, \u043d\u0435 `s]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:\u0412\u0441\u0435 \u0436\u0438\u0432\u044b\u0435 \u0447\u043b\u0435\u043d\u044b \u0441\u0442\u0430\u0440\u0442\u0443\u044e\u0442]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:\u041c\u0430\u0440\u0448\u0440\u0443\u0442\u044b \u0440\u0430\u0437\u043b\u0438\u0447\u043d\u044b \u043f\u043e \u043c\u043e\u0434]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:\u043e\u0442\u0447\u0451\u0442\u044b \u0434\u0440\u0443\u0433\u0438\u0445 \u0447\u043b\u0435\u043d\u043e\u0432 \u0438 \u0441]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:`tickets/<slug>/00-consi]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:\u043c\u0430\u0440\u0448\u0440\u0443\u0442, \u0443\u0440\u043e\u0432\u0435\u043d\u044c, \u0444\u043e\u043a\u0443\u0441,]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[members:\u043f\u0440\u043e\u0435\u043a\u0446\u0438\u044f, \u043f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442 P1/P]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u041f\u0443\u043b \u0432\u0430\u043b\u0438\u0434\u0430\u0446\u0438\u0438 \u2014 flash]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u0441\u0435\u043a\u0446\u0438\u044f `[validation]`]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u0421\u0442\u0430\u043d\u0434\u0430\u0440\u0442\u043d\u0430\u044f \u0440\u0430\u0441\u043a\u043b\u0430\u0434\u043a\u0430 \u2014 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u043a\u043e\u043d\u043a\u0440\u0435\u0442\u043d\u044b\u0435 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u044b \u0432 \u0441\u043a]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:`list_subagent_models`]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u0441\u043b\u043e\u0442 \u0447\u043b\u0435\u043d\u0430 \u0432\u044b\u043f\u0430\u0434\u0430\u0435\u0442]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u043f\u043e\u0434\u043c\u0435\u043d\u044b \u043d\u0435\u0442]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u0416\u0438\u0432\u044b\u0445 \u0440\u0430\u0437\u043b\u0438\u0447\u043d\u044b\u0445 \u043c\u043e\u0434\u0435\u043b\u0435\u0439 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[pool:\u041f\u0443\u043b \u0431\u0435\u0437 \u0442\u0440\u0451\u0445 \u0436\u0438\u0432\u044b\u0445 \u043c\u043e\u0434\u0435\u043b]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u041e\u0434\u043d\u0430 \u043f\u043e\u0432\u0442\u043e\u0440\u043d\u0430\u044f \u043f\u0440\u043e\u0431\u0430 \u043d\u0430 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u0416\u0438\u0432\u043e\u0439 \u0447\u043b\u0435\u043d \u2014 \u0432\u0435\u0440\u043d\u0443\u043b \u043f\u0440\u0438\u0433]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u043f\u0443\u0441\u0442\u043e\u0439 \u0438\u043b\u0438 \u0431\u0438\u0442\u044b\u0439 \u043e\u0442\u0447\u0451\u0442 \u2014]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u041a\u0432\u043e\u0440\u0443\u043c \u2014 \u043d\u0435 \u043c\u0435\u043d\u044c\u0448\u0435 \u0434\u0432\u0443\u0445 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u043f\u0440\u0435\u0434\u0441\u0435\u0434\u0430\u0442\u0435\u043b\u044c \u043d\u0430\u0437\u044b\u0432\u0430\u0435\u0442 \u0432\u044b]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u041a\u0432\u043e\u0440\u0443\u043c\u043d\u044b\u0439 \u043f\u0440\u043e\u0431\u0435\u043b \u043f\u0440\u0438\u043d\u0438\u043c\u0430]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u041f\u0430\u0434\u0435\u043d\u0438\u0435 \u0438\u043b\u0438 \u0431\u0438\u0442\u0430\u044f \u0441\u0432\u043e\u0434\u043a\u0430]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u043e\u0442\u0447\u0451\u0442 \u0433\u0435\u0439\u0442\u0430 \u043d\u0435 \u043f\u0438\u0448\u0435\u0442\u0441\u044f]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[failure:\u041f\u043e\u0434\u043c\u0435\u043d\u044b \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430, \u043c\u043e\u0434\u0435\u043b\u0438]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u0439 `subagent` \u043d\u0430 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0412\u0445\u043e\u0434: \u0441\u043f\u0435\u043a\u0430, \u0441\u043e\u0441\u0442\u0430\u0432]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0438 \u0441\u044b\u0440\u044b\u0435 \u043e\u0442\u0447\u0451\u0442\u044b]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:`tickets/<slug>/00-consi]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u043f\u043e\u043a\u0440\u044b\u0442\u0438\u0435 \u0432\u0441\u0435\u0445 \u0432\u043e\u0441\u044c\u043c\u0438 \u043f\u0440\u043e]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0438\u0441\u0442\u043e\u0447\u043d\u0438\u043a (\u0447\u043b\u0435\u043d \u0438 \u043c\u0430\u0440\u0448\u0440\u0443\u0442]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0440\u0430\u0441\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u044f: \u043a\u043e\u043d\u043a\u0443\u0440\u0438\u0440\u0443\u044e\u0449]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u043c\u043e\u043b\u0447\u0430\u043d\u0438\u0435 \u0447\u043b\u0435\u043d\u0430 \u2014 \u043d\u0435 diss]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u041d\u043e\u0432\u044b\u0445 \u043d\u0430\u0445\u043e\u0434\u043e\u043a \u0438 \u0432\u0435\u0440\u0434\u0438\u043a\u0442\u043e]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0432\u0441\u0435 \u0441\u044b\u0440\u044b\u0435 \u043d\u0430\u0445\u043e\u0434\u043a\u0438 \u0443\u0447\u0442\u0435\u043d\u044b]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u0411\u0438\u0442\u0430\u044f \u0438\u043b\u0438 \u043d\u0435\u043f\u043e\u043b\u043d\u0430\u044f \u0441\u0432\u043e\u0434\u043a]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[chairman:\u041e\u0441\u043d\u043e\u0432\u043d\u0430\u044f \u0441\u0435\u0441\u0441\u0438\u044f \u0441\u0432\u0435\u0440\u044f\u0435\u0442 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[triage:\u041d\u0430\u0445\u043e\u0434\u043a\u0438 \u0441\u0432\u043e\u0434\u043a\u0438 \u043f\u0440\u043e\u0445\u043e\u0434\u044f\u0442 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:`tickets/<slug>/00-proje]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u043f\u0440\u043e\u0433\u043e\u043d: \u0434\u0430\u0442\u0430, \u0441\u043f\u0435\u043a\u0430]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u0441\u043e\u0441\u0442\u0430\u0432: \u0447\u043b\u0435\u043d\u044b (\u043c\u0430\u0440\u0448\u0440\u0443\u0442, ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u043f\u0440\u0435\u0434\u0441\u0435\u0434\u0430\u0442\u0435\u043b\u044c (\u043c\u0430\u0440\u0448\u0440\u0443\u0442, \u0443]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u0441\u0441\u044b\u043b\u043a\u0438 \u043d\u0430 \u0441\u044b\u0440\u044b\u0435 \u043e\u0442\u0447\u0451\u0442\u044b \u0438]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u043f\u0440\u0438\u0447\u0438\u043d\u0430 \u0432\u044b\u0431\u043e\u0440\u0430 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430 ]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u0442\u0440\u0438\u0430\u0436 \u043d\u0430\u0445\u043e\u0434\u043e\u043a \u2014 \u043f\u043e\u0434\u0442\u0432\u0435\u0440\u0436]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u0440\u0430\u0441\u0445\u043e\u0436\u0434\u0435\u043d\u0438\u044f \u0438 \u043f\u0440\u043e\u0431\u0435\u043b\u044b \u043f\u043e]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:\u0440\u0435\u0448\u0435\u043d\u0438\u044f \u043e\u043f\u0435\u0440\u0430\u0442\u043e\u0440\u0430 \u0438 \u0437\u0430\u043f\u0438]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[report:`to-tickets` \u043f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u0442 \u0444]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[probe:\u0420\u0443\u0447\u043d\u0430\u044f \u043f\u0440\u043e\u0431\u0430 \u2014 \u0438\u0441\u043a\u043b\u044e\u0447\u0435\u043d\u0438]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[probe:\u0442\u0435\u0441\u0442\u043e\u0432\u044b\u0439 \u0444\u0438\u043a\u0441\u0442\u0443\u0440 \u0432 \u043f\u0430\u043f\u043a\u0435]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[probe:`tickets/<slug>/00-probe]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[probe:\u043c\u0430\u0442\u0440\u0438\u0446\u0443 \xab\u0437\u0430\u0441\u0435\u0432 \xd7 \u0447\u043b\u0435\u043d\xbb]
+FAILED tests/test_skill_critic.py::test_every_scoped_phrase_has_a_failing_probe[probe:\u041f\u043e\u0432\u0435\u0434\u0435\u043d\u0447\u0435\u0441\u043a\u0438\u0435 \u0432\u0435\u0442\u043a\u0438 \u043a\u0432\u043e\u0440]
+FAILED tests/test_role_registry.py::test_committed_registry_carries_roles_and_the_pool
+FAILED tests/test_skill_init.py::test_bootstrap_writes_the_validation_pool - ...
+82 failed, 12 passed in 0.28s

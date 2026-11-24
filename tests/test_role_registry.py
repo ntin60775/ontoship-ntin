@@ -242,6 +242,8 @@ def test_a_mutated_carrier_is_named_by_the_probe(
 # dynamic (installed-pack manifests) and are not listed in this repo's
 # registry.
 CONFIG = ".agents/config.toml"
+INIT = "skills/init/SKILL.md"
+CHAIR_ROUTE = ("qwen-token-plan-max/qwen4-max", "xhigh")
 STANDARD_POOL = (
     ("deepseek-account/deepseek-flash", "max"),
     ("qwen-token-plan/qwen3.8-flash", "xhigh"),
@@ -271,6 +273,11 @@ def _config_errors(root: Path) -> list[str]:
         if not isinstance(section, dict) or not isinstance(section.get("model"), str) \
                 or "/" not in section.get("model", ""):
             errors.append(f"config: the {role} role has no model route section")
+    critic = agents.get("critic")
+    if not isinstance(critic, dict) or \
+            (critic.get("model"), critic.get("level")) != CHAIR_ROUTE:
+        errors.append(f"config: the critic chairman route is not "
+                      f"{CHAIR_ROUTE[0]}/{CHAIR_ROUTE[1]}")
     validation = data.get("validation")
     if not isinstance(validation, dict) or "pool" not in validation:
         errors.append("config: the validation pool section [validation] is missing")
@@ -309,6 +316,41 @@ def _config_tree(tmp_path: Path, config_text: str) -> Path:
     return root
 
 
+def _init_pool_errors(text: str) -> list[str]:
+    """The init standard layout names every pool pair and the chair row."""
+    errors: list[str] = []
+    for model, level in STANDARD_POOL:
+        phrase = f"`{model}` с уровнем `{level}`"
+        if phrase not in text:
+            errors.append(f"init pool: missing {phrase!r}")
+    chair = f"| `critic` | `{CHAIR_ROUTE[0]}` | `{CHAIR_ROUTE[1]}` |"
+    if chair not in text:
+        errors.append(f"init pool: missing chairman row {chair!r}")
+    return errors
+
+
+def test_init_pool_matches_the_registry() -> None:
+    """spec: docs/plans/critic-consilium.md#готово — пункт 2: паритет
+    config ↔ init, три модели и маршрут председателя."""
+    assert _init_pool_errors((REPO / INIT).read_text("utf-8")) == []
+
+
+def test_init_pool_parity_can_fail() -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    a drifted init pool route or chair row reddens the parity."""
+    text = (REPO / INIT).read_text("utf-8")
+    assert _init_pool_errors(text) == []
+    for old, new in (
+        ("`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
+         "`qwen-token-plan-glm/glm-5.3` с уровнем `high`"),
+        ("| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
+         "| `critic` | `qwen-token-plan-glm/glm-5.3` | `max` |"),
+    ):
+        mutated = text.replace(old, new, 1)
+        assert mutated != text, old
+        assert _init_pool_errors(mutated), old
+
+
 def test_committed_registry_carries_roles_and_the_pool() -> None:
     """spec: docs/plans/critic-consilium.md#готово — пункт 2: реестр
     .agents/config.toml несёт пул из трёх различных flash-моделей."""
@@ -338,6 +380,10 @@ def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
              '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },\n'
              '  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },', 1),
          "duplicate entry"),
+        ("chair-route",
+         config.replace('model = "qwen-token-plan-max/qwen4-max"',
+                        'model = "qwen-token-plan-glm/glm-5.3"', 1),
+         "chairman route"),
         ("same-model-twice",
          config.replace(
              '{ model = "qwen-token-plan-glm/glm-5.3", level = "max" },',
