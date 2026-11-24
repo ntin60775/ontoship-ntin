@@ -72,7 +72,7 @@ EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожид
 CARRIERS_PHRASE = "вывод команды, строка лога, файл, живая проба"
 GATE_PHRASES = (
     "запись гейта проекций",
-    "отчёт триажа",
+    "`tickets/<slug>/00-projection-report.md`",
     "записи нет — остановка и вопрос оператору",
     "тихий пропуск гейта не делается",
     "скилл `critic`",
@@ -527,7 +527,7 @@ def test_gate_and_self_check_contract_can_fail():
     assert any("must carry 'запись гейта проекций'" in error
                for error in _contract_errors(no_gate))
 
-    silent = text.replace("тихий\n   пропуск гейта не делается",
+    silent = text.replace("тихий пропуск гейта не делается",
                           "тихий пропуск допустим", 1)
     assert silent != text
     errors = _contract_errors(silent)
@@ -535,7 +535,7 @@ def test_gate_and_self_check_contract_can_fail():
     assert any("contradictory phrase 'тихий пропуск допустим'" in error
                for error in errors)
 
-    no_stop = text.replace("Записи нет — остановка и вопрос\n   оператору",
+    no_stop = text.replace("Записи нет — остановка и\n   вопрос оператору",
                            "Записи нет — продолжай", 1)
     assert no_stop != text
     assert any("записи нет — остановка и вопрос оператору" in error

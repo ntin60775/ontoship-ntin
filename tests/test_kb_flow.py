@@ -42,8 +42,12 @@ DSH_FLOW_NEEDLES = (
     # ontoship-team) live in the canon_sync dsh-boundaries set — the spec
     # places that set there; no duplicate needles here (panel).
     "[validation]",
+    "[agents.critic]",
     "subagent",
     "list_subagent_models",
+    "три члена",
+    "различных flash-маршрутах",
+    "председатель",
 )
 # core-team-boundaries 01 («Готово» 1, триаж G3/G17; panel P2): the former
 # presence needles of the DSH chain mechanics inverted into an absence guard —
@@ -111,9 +115,14 @@ def _flow_errors(harnesses: str) -> list[str]:
     if not dsh_blocks:
         errors.append("the DSH chain/projection way has no subsection")
     else:
+        dsh_block = dsh_blocks[0]
         for needle in DSH_FLOW_NEEDLES:
-            if needle.lower() not in dsh_blocks[0]:
+            if needle.lower() not in dsh_block:
                 errors.append(f"the DSH way lost {needle!r}")
+        for token in ("[validation]", "[agents.critic]"):
+            if dsh_block.count(token) != 1:
+                errors.append(f"the DSH way names {token!r} "
+                              f"{dsh_block.count(token)} times, want once")
     lowered_section = _normalized_lower(section)
     errors.extend(f"the retired chain mechanics are back: {needle!r}"
                   for needle in RETIRED_DSH_CHAIN_NEEDLES
