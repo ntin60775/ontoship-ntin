@@ -1,40 +1,19 @@
-"""Contract for the critic skill (standards-autoship ticket 04).
+"""Contract for the critic skill — the projection consilium.
 
-The bundle keeps the name ``critic`` and is rewritten into the projection
-validation skill (plan-gate decision 16): a model-invoked skill the agent
-launches right after the spec is approved at the plan gate, before slicing —
-one run per unit. The main session generates dynamic semantic slices from the
-spec (seed: the critic checklist and the eight plan-validation projections),
-each slice runs in a subordinate session (``subagent``, spawn) with a role
-prompt and a goal on artifact input; the flash pool is named, the main session
-picks the model per slice with a reason in the report, checked against the
-live catalog. Findings pass the main session's triage (confirm/reject with a
-reason, overengineering check); disputed ones go to the operator via ask. The
-triage report in the unit's tracker folder is the projection gate record:
-without it slicing does not proceed. The retired plan-critic wording (run
-after the last ticket, whole tickets as input, no fallback) stays banned.
+The bundle keeps the name ``critic`` and becomes a consilium: three members
+on three distinct ``[validation]`` routes read the whole spec and a full
+checklist, each with a primary focus; members are isolated; the chairman on
+``[agents.critic]`` merges their raw reports without adding findings or
+verdicts; the main session triages and writes the gate report. One run per
+unit; quorum is two of three; no model fallback. The retired slice wording
+stays banned.
 
-The old contract of review-config ticket 03 and the DSH branch of
-dsh-adaptation ticket 04 are retired by decision 16: the critic gate becomes
-the projection gate, one skill and one gate; their tests left with this
-rewrite (canon: docs/decisions/ontoship-core.md#одно правило качества —
-a retired rule's tests leave with the same change).
-
-spec: docs/plans/standards-autoship.md#готово — «Готово» 5: скилл critic
-      переписан, имя бандла сохраняется; запуск сразу после план-гейта до
-      нарезки; динамические срезы, семя, подчинённые сессии, flash-пул,
-      выбор модели с причиной, триаж, отчёт — запись гейта проекций
-spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): пул
-      валидации живёт в реестре, скилл читает маршруты из секции [validation]
-spec: docs/plans/standards-autoship.md#решения план-гейта — решения 15–17:
-      пул flash и выбор модели под срез, один скилл и один гейт, порядок
-      «проекции до нарезки»
-spec: docs/plans/standards-autoship.md#ограничения — пул недоступен целиком:
-      остановка и вопрос оператору, «валидацию провёл исполнитель» не
-      законный исход
-spec: docs/plans/canon-section-in-bundles.md#готово — шапка критика
-      ссылается на методную секцию бандла, не на путь канона
-invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
+spec: docs/plans/critic-consilium.md#готово — пункты 1, 7, 9:
+      контракт консилиума, отчёт гейта, тесты
+invariant: docs/decisions/ontoship-core.md#одно правило качества —
+      the contract check can fail
+invariant: docs/plans/harness-agnostic.md#готово — skill texts name no
+      harness root
 """
 from __future__ import annotations
 
@@ -48,105 +27,126 @@ SKILL = REPO / "skills" / "critic" / "SKILL.md"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 
-REQUIRED_PHRASES = (
-    "агент запускает",
-    "сразу после утверждения спеки на план-гейте",
-    "до нарезки",
-    "не командой оператора",
-    "один прогон на юнит",
-    "docs/plans/<slug>.md",
-    "смысловые срезы",
-    "динамические",
-    "семя генерации",
-    "подчинённая сессия",
-    "`subagent` (spawn, не `subagent_fork`)",
-    "ролевым промптом и целью",
-    "вход среза артефактный",
-    "не ход исполнения",
-    "все срезы стартуют в одном сообщении",
-    "триаж",
-    "оверинжиниринг",
-    "спорное — оператору",
-    "отчёт триажа",
-    "tickets/<slug>/",
-    "запись гейта проекций",
-    "без записи гейта нарезка не идёт",
-    "решения план-гейта не перепрашиваются",
-    "../ship/references/method-phases.md",
-    "идентификаторы подчинённых сессий",
-)
-
-SEED_HEADING = "семя срезов"
-SEED_PHRASES = (
-    "чек-лист критика",
-    "восемь проекций",
-    "покрытость «готово»",
-    "связность",
-    "рёбра",
-    "демо-пути",
-    "честность критериев",
+FOCUS_PHRASES = (
+    "три брифа",
+    "чек-лист критика и восемь проекций",
+    "покрытость «Готово», связность, рёбра, демо-пути, честность критериев, "
     "цена доказательства",
     "покрытие, порядок, доказательства, власть, время, окружение, термины, риск",
+    "Фокусы — 3/3/2",
+    "ровно один основной фокус",
+    "объединение фокусов = восемь",
+    "причину выбора маршрута и фокуса",
+    "Находки вне фокуса принимаются",
 )
-
-RUN_HEADING = "исполнение срезов"
-# standards-autoship 05 («Готово» 9): the pool lives in the registry —
-# the skill reads the routes from the [validation] section and names the
-# standard layout; a registry without the pool section is a named gap and
-# a stop, the routes are not guessed.
+MEMBER_PHRASES = (
+    "`subagent` (spawn, не `subagent_fork`)",
+    "Все три члена стартуют в одном сообщении",
+    "Маршруты различны по модели",
+    "отчёты других членов и сводка председателя не передаются",
+    "`tickets/<slug>/00-consilium/<member>.md`",
+    "маршрут, уровень, фокус, статус, находки или «находок нет»",
+    "проекция, приоритет P1/P2/P3, место, утверждение, доказательство, "
+    "что править",
+)
 POOL_PHRASES = (
-    "пул валидации — flash",
-    "реестр `.agents/config.toml`",
+    "Пул валидации — flash",
     "секция `[validation]`",
-    "стандартная раскладка пула",
-    "`deepseek-account/deepseek-flash` с уровнем `max`",
-    "`qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`",
-    "модель под срез выбирает основная сессия",
-    "причина выбора",
+    "Стандартная раскладка — три различных flash-маршрута",
+    "конкретные маршруты в скилле не хардкодятся",
     "`list_subagent_models`",
-    "реестр без секции пула — назови пропуск и остановись",
+    "слот члена выпадает",
+    "подмены занятым маршрутом нет",
+    "Живых различных моделей меньше двух — остановка",
+    "Пул без трёх живых моделей — два члена, кворум",
 )
-ROUTE_STOP_PHRASES = (
-    "маршрут пула недоступен — бери другой маршрут пула",
-    "пул недоступен целиком — остановка и вопрос оператору",
-    "«валидацию провёл исполнитель» законным исходом не является",
+FAILURE_PHRASES = (
+    "Одна повторная проба на члена и на председателя",
+    "Живой член — вернул пригодный сырой отчёт",
+    "пустой или битый отчёт — выпавший для кворума",
+    "Кворум — не меньше двух живых членов",
+    "председатель называет выпавшего и его фокус-проекции",
+    "Кворумный пробел принимает оператор до нарезки",
+    "Падение или битая сводка председателя — одна повторная проба, затем стоп",
+    "отчёт гейта не пишется",
+    "Молчаливой подмены маршрута, модели сессии или «ревью исполнителем» нет",
 )
-
-TRIAGE_HEADING = "триаж"
+CHAIRMAN_PHRASES = (
+    "отдельный `subagent` на `[agents.critic]`",
+    "Вход: спека, ростер",
+    "и сырые отчёты",
+    "`tickets/<slug>/00-consilium/chairman.md`",
+    "покрытие всех восьми проекций",
+    "источник (член и маршрут), поддержку, группу дедупа",
+    "расхождения: конкурирующие находки по одному пункту",
+    "молчание члена — не dissent",
+    "Новых находок и вердиктов председатель не добавляет",
+    "все сырые находки учтены, потерь нет",
+    "Битая или неполная сводка — отказ председателя",
+    "Основная сессия сверяет сводку с сырыми отчётами",
+)
 TRIAGE_PHRASES = (
+    "Находки сводки проходят триаж основной сессии",
     "подтверждается или отвергается с причиной",
     "оверинжиниринг",
-    "спорное — оператору ask-инструментом хоста",
-    "решения план-гейта не перепрашиваются",
+    "Спорное — оператору ask-инструментом хоста",
+    "Решения план-гейта не перепрашиваются",
+    "«Выбрали не так» — не находка",
+    "оператор решает — править спеку или принять риск",
 )
-
-REPORT_HEADING = "отчёт и гейт проекций"
 REPORT_PHRASES = (
-    "отчёт триажа — артефакт в папке юнита локального трекера",
-    "tickets/<slug>/",
-    "он же запись гейта проекций",
-    "модели срезов с причинами выбора",
-    "идентификаторы подчинённых сессий",
-    "находки с вердиктами триажа",
-    "без записи гейта нарезка не идёт",
-    "to-tickets проверяет её до нарезки",
+    "`tickets/<slug>/00-projection-report.md`",
+    "прогон: дата, спека, один прогон",
+    "состав: члены (маршрут, уровень, фокус, статус, идентификатор)",
+    "председатель (маршрут, уровень, статус, идентификатор)",
+    "ссылки на сырые отчёты и сводку",
+    "триаж находок — подтверждена или отвергнута, причина",
+    "расхождения и пробелы покрытия, включая кворумный",
+    "решения оператора и запись гейта",
+    "`to-tickets` проверяет файл",
+)
+PROBE_PHRASES = (
+    "Ручная проба — исключение",
+    "тестовый фикстур в папке юнита, не `docs/plans/`",
+    "`tickets/<slug>/00-probe-report.md`",
+    "матрицу «засев × член»",
+    "Поведенческие ветки кворума и стопа пробой не проверяются — названный пробел",
 )
 
-# The retired plan-critic wording (review-config 03, dsh-adaptation 04):
-# decision 16 turns the critic gate into the projection gate, decision 17
-# moves the run before slicing. Planting any of these back reddens.
+SECTIONS = (
+    ("семя и фокусы", FOCUS_PHRASES, "focus"),
+    ("члены", MEMBER_PHRASES, "members"),
+    ("пул и маршруты", POOL_PHRASES, "pool"),
+    ("отказы и кворум", FAILURE_PHRASES, "failure"),
+    ("председатель", CHAIRMAN_PHRASES, "chairman"),
+    ("триаж", TRIAGE_PHRASES, "triage"),
+    ("отчёт и гейт проекций", REPORT_PHRASES, "report"),
+    ("ручная проба", PROBE_PHRASES, "probe"),
+)
+
+REQUIRED_PHRASES = (
+    "один прогон на юнит",
+    "Вход — спека `docs/plans/<slug>.md`",
+    "три члена консилиума",
+    "председатель сводит",
+    "основная сессия триажит",
+    "Независимый взгляд на спеку",
+    "../ship/references/method-phases.md",
+)
+
+# The retired plan-critic and slice wording: a return reddens.
 RETIRED_PHRASES = (
+    "срез",
+    "Семя срезов",
+    "Исполнение срезов",
+    "модель под срез",
+    "под срез",
+    "динамические срезы",
     "сразу после приёмки последнего тикета",
     "до первого ship",
-    "тикеты юнита целиком",
-    "нет фолбэка на модель сессии",
-    "критик плана",
     "находки оператору до первого ship",
     "модель роли `critic` назначает",
     "рекомендация, не запрет",
-    "модель сессии",
-    "модели сессии",
-    "powered by",
 )
 
 
@@ -171,7 +171,6 @@ def _parse(text: str) -> tuple[dict[str, str], str]:
 
 
 def _unquote(value: str) -> str:
-    """Strip matching YAML quotes; the skill keeps its description quoted."""
     if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
         return value[1:-1]
     return value
@@ -182,15 +181,11 @@ def _normalized_lower(text: str) -> str:
 
 
 def _drop_phrase(text: str, phrase: str) -> str:
-    """Remove every occurrence of a phrase regardless of case and internal
-    line wrapping (runs of whitespace inside the phrase match any run)."""
     pattern = re.escape(phrase).replace("\\ ", r"\s+")
     return re.sub(pattern, "", text, flags=re.IGNORECASE)
 
 
 def _section(body: str, heading: str) -> str:
-    """Body of one ``## `` section matched case-insensitively by its heading;
-    a ``### `` subsection belongs to its parent section."""
     lowered = body.lower()
     start = lowered.find(f"## {heading}")
     if start < 0:
@@ -223,33 +218,25 @@ def _contract_errors(text: str) -> list[str]:
         errors.append("frontmatter: description contains ': ' and must be quoted")
     if "disable-model-invocation" in fields:
         errors.append("frontmatter: disable-model-invocation must be absent — "
-                      "the projection validation is a model-invoked skill")
+                      "the consilium is a model-invoked skill")
 
     lowered = _normalized_lower(body)
     for phrase in REQUIRED_PHRASES:
-        if phrase not in lowered:
+        if phrase.lower() not in lowered:
             errors.append(f"body: missing required phrase {phrase!r}")
     for phrase in RETIRED_PHRASES:
-        if phrase in lowered:
-            errors.append(f"body: retired plan-critic phrase {phrase!r}")
+        if phrase.lower() in lowered:
+            errors.append(f"body: retired phrase {phrase!r} is back")
 
-    scoped = (
-        (SEED_HEADING, SEED_PHRASES, "seed"),
-        (RUN_HEADING, POOL_PHRASES, "pool"),
-        (RUN_HEADING, ROUTE_STOP_PHRASES, "route-stop"),
-        (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
-        (REPORT_HEADING, REPORT_PHRASES, "report"),
-    )
-    for heading, phrases, label in scoped:
+    for heading, phrases, label in SECTIONS:
         section = _normalized_lower(_section(body, heading))
         if not section:
             errors.append(f"{label}: missing section «{heading}»")
             continue
         for phrase in phrases:
-            if phrase not in section:
+            if phrase.lower() not in section:
                 errors.append(f"{label}: section «{heading}» lost {phrase!r}")
 
-    # .zcode stays banned here: this skill names no channel roots.
     for root in (".dsh", ".zcode", ".qoder"):
         if root in text:
             errors.append(f"forbidden harness root {root!r}")
@@ -257,183 +244,156 @@ def _contract_errors(text: str) -> list[str]:
 
 
 def test_skill_is_a_discoverable_directory_bundle():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: имя бандла
-    critic сохраняется, скилл переписан в проекционную валидацию."""
+    """spec: docs/plans/critic-consilium.md#готово — пункт 1: имя бандла
+    critic сохраняется, контракт — консилиум."""
     assert SKILL.is_file(), "the critic skill is missing"
     fields, _ = _parse(SKILL.read_text("utf-8"))
     assert fields["name"] == "critic"
-    assert SKILL.parent.name == fields["name"], "bundle directory must match the skill name"
+    assert SKILL.parent.name == fields["name"]
     assert 3 <= len(_unquote(fields["description"])) <= DESCRIPTION_MAX
     assert _contract_errors(SKILL.read_text("utf-8")) == []
 
 
 def test_skill_is_model_invoked_before_slicing():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: агент
-    запускает проекции сразу после утверждения спеки на план-гейте, до
-    нарезки, не командой оператора; один прогон на юнит (решение 17)."""
+    """spec: docs/plans/critic-consilium.md#готово — пункт 1: агент
+    запускает консилиум после план-гейта, до нарезки; один прогон."""
     fields, body = _parse(SKILL.read_text("utf-8"))
     assert "disable-model-invocation" not in fields
     lowered = _normalized_lower(body)
-    assert "агент запускает" in lowered
+    assert "агент запускает консилиум" in lowered
     assert "сразу после утверждения спеки на план-гейте" in lowered
     assert "до нарезки" in lowered
     assert "не командой оператора" in lowered
     assert "один прогон на юнит" in lowered
 
 
-def test_slices_are_dynamic_and_generated_from_the_spec():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: основная
-    сессия генерирует смысловые срезы из спеки — динамические, не
-    фиксированный обход."""
+def test_members_read_the_whole_spec_with_three_two_three_focuses():
+    """spec: docs/plans/critic-consilium.md#готово — пункт 1, решение 1:
+    три члена, весь спек, фокусы 3/3/2, покрытие восьми, находки вне
+    фокуса принимаются."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "генерирует смысловые срезы из спеки" in lowered
-    assert "динамические" in lowered
-    assert "семя генерации" in lowered
+    section = _normalized_lower(_section(body, "семя и фокусы"))
+    assert section, "section «Семя и фокусы» is missing"
+    for phrase in FOCUS_PHRASES:
+        assert phrase.lower() in section, f"the focus contract lost {phrase!r}"
 
 
-def test_seed_carries_the_checklist_and_the_eight_projections():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: семя —
-    чек-лист критика и восемь проекций прецедента валидации плана; фразы
-    ищутся в разделе «Семя срезов»."""
+def test_members_are_isolated_and_write_raw_reports():
+    """spec: docs/plans/critic-consilium.md#готово — пункты 1, 7, решение 8:
+    spawn в одном сообщении, изоляция, сырой отчёт члена."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, SEED_HEADING))
-    assert section, "section «Семя срезов» is missing"
-    for phrase in SEED_PHRASES:
-        assert phrase in section, f"the seed lost {phrase!r}"
+    section = _normalized_lower(_section(body, "члены"))
+    assert section, "section «Члены» is missing"
+    for phrase in MEMBER_PHRASES:
+        assert phrase.lower() in section, f"the member contract lost {phrase!r}"
 
 
-def test_slices_run_in_subordinate_sessions_on_artifact_input():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: каждый
-    срез исполняет подчинённая сессия (subagent, spawn) с ролевым промптом
-    и целью; вход артефактный, не ход исполнения. Фразы «все срезы
-    стартуют в одном сообщении» и «не ход исполнения» унаследованы от
-    прецедентов dsh-adaptation (fan-out в одном сообщении) и review-config
-    (независимость входом) — источник фраз шире, чем «Готово» 5."""
+def test_pool_routes_are_distinct_and_dead_routes_do_not_substitute():
+    """spec: docs/plans/critic-consilium.md#готово — пункт 2, решения 2,
+    6, 9: три различных flash-маршрута, мёртвый слот выпадает."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, RUN_HEADING))
-    assert section, "section «Исполнение срезов» is missing"
-    for phrase in ("подчинённая сессия",
-                   "`subagent` (spawn, не `subagent_fork`)",
-                   "ролевым промптом и целью",
-                   "все срезы стартуют в одном сообщении",
-                   "вход среза артефактный",
-                   "не ход исполнения"):
-        assert phrase in section, f"the run section lost {phrase!r}"
-
-
-def test_flash_pool_and_per_slice_model_choice():
-    """spec: docs/plans/standards-autoship.md#решения план-гейта — решение 15:
-    пул flash (deepseek-flash/max, qwen3.8-flash/xhigh), модель под срез
-    выбирает основная сессия с причиной в отчёте, сверка с живым каталогом.
-    spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05):
-    пул живёт в реестре (секция [validation]), стандартная раскладка
-    названа, реестр без секции пула — пропуск и остановка; фразы пула
-    сторожатся одним набором POOL_PHRASES и scoped-пробами по нему."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, RUN_HEADING))
-    assert section, "section «Исполнение срезов» is missing"
+    section = _normalized_lower(_section(body, "пул и маршруты"))
+    assert section, "section «Пул и маршруты» is missing"
     for phrase in POOL_PHRASES:
-        assert phrase in section, f"the pool contract lost {phrase!r}"
+        assert phrase.lower() in section, f"the pool contract lost {phrase!r}"
 
 
-def test_unavailable_pool_route_stops_the_run():
-    """spec: docs/plans/standards-autoship.md#ограничения — маршрут пула
-    недоступен — другой маршрут пула с причиной; пул недоступен целиком —
-    остановка и вопрос оператору, самопроверка исполнителем не засчитывается."""
+def test_quorum_and_chairman_failure_stop_the_pass():
+    """spec: docs/plans/critic-consilium.md#готово — решения 3, 9, 10:
+    кворум 2 из 3, выпавший и его фокус, стоп председателя."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, RUN_HEADING))
-    assert section, "section «Исполнение срезов» is missing"
-    for phrase in ROUTE_STOP_PHRASES:
-        assert phrase in section, f"the route-stop contract lost {phrase!r}"
+    section = _normalized_lower(_section(body, "отказы и кворум"))
+    assert section, "section «Отказы и кворум» is missing"
+    for phrase in FAILURE_PHRASES:
+        assert phrase.lower() in section, f"the failure contract lost {phrase!r}"
 
 
-def test_triage_confirms_or_rejects_with_a_reason():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: триаж
-    основной сессии — подтверждение/отвержение с причиной, проверка
-    оверинжиниринга; спорное — оператору ask-ом."""
+def test_chairman_merges_without_findings_or_verdicts():
+    """spec: docs/plans/critic-consilium.md#готово — решение 5: вход
+    председателя, сводка с атрибуцией, без новых находок и вердиктов."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, TRIAGE_HEADING))
+    section = _normalized_lower(_section(body, "председатель"))
+    assert section, "section «Председатель» is missing"
+    for phrase in CHAIRMAN_PHRASES:
+        assert phrase.lower() in section, f"the chairman contract lost {phrase!r}"
+
+
+def test_triage_keeps_operator_decisions_and_plan_gate():
+    """spec: docs/plans/critic-consilium.md#готово — triage: подтверждение
+    с причиной, спорное оператору, решения план-гейта не перепрашиваются."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    section = _normalized_lower(_section(body, "триаж"))
     assert section, "section «Триаж» is missing"
     for phrase in TRIAGE_PHRASES:
-        assert phrase in section, f"the triage contract lost {phrase!r}"
+        assert phrase.lower() in section, f"the triage contract lost {phrase!r}"
 
 
-def test_report_is_the_projection_gate_record():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: отчёт
-    триажа — артефакт в папке юнита трекера, он же запись гейта проекций;
-    без записи нарезка не идёт."""
+def test_gate_report_is_the_file_to_tickets_reads():
+    """spec: docs/plans/critic-consilium.md#готово — пункт 7, решение 8:
+    файл гейта, состав, ссылки, триаж, решения, запись."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, REPORT_HEADING))
+    section = _normalized_lower(_section(body, "отчёт и гейт проекций"))
     assert section, "section «Отчёт и гейт проекций» is missing"
     for phrase in REPORT_PHRASES:
-        assert phrase in section, f"the report contract lost {phrase!r}"
+        assert phrase.lower() in section, f"the report contract lost {phrase!r}"
 
 
-def test_plan_gate_decisions_are_not_reasked():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: триаж не
-    перевыбирает решения план-гейта — они приняты оператором."""
+def test_manual_probe_is_an_exception_not_a_gate():
+    """spec: docs/plans/critic-consilium.md#готово — пункт 10, решение 11:
+    ручная проба, фикстур в папке юнита, матрица, названный пробел."""
     body = _parse(SKILL.read_text("utf-8"))[1]
-    lowered = _normalized_lower(body)
-    assert "решения план-гейта не перепрашиваются" in lowered
+    section = _normalized_lower(_section(body, "ручная проба"))
+    assert section, "section «Ручная проба» is missing"
+    for phrase in PROBE_PHRASES:
+        assert phrase.lower() in section, f"the probe contract lost {phrase!r}"
 
 
-def test_retired_plan_critic_wording_is_banned():
-    """spec: docs/plans/standards-autoship.md#решения план-гейта — решения
-    16–17: критик-гейт становится гейтом проекций, прогон идёт до нарезки;
-    снятые формулировки старого критика под запретом контракта — возврат
-    любой из них краснит (мутационные пробы)."""
+def test_retired_slice_and_plan_critic_wording_is_banned():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    planting any retired slice or plan-critic phrase reddens the contract."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
     for phrase in RETIRED_PHRASES:
         planted = text + f"\n{phrase.capitalize()}.\n"
         errors = _contract_errors(planted)
-        assert any(f"retired plan-critic phrase {phrase!r}" in error
-                   for error in errors), errors
+        assert any(f"retired phrase {phrase!r}" in error for error in errors), \
+            (phrase, errors)
 
 
 def test_contract_check_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the contract check rejects a model-invocation flag, a lost gate record,
-    a lost triage reason, a leaked harness root and a missing name."""
+    the contract rejects a model-invocation flag, a lost gate file, a lost
+    quorum, a lost chairman ban and a leaked harness root."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
     model_locked = text.replace("---\n", "---\ndisable-model-invocation: true\n", 1)
-    assert model_locked != text
     assert any("disable-model-invocation" in error
                for error in _contract_errors(model_locked))
 
-    no_gate = text.replace("Без записи гейта нарезка не идёт",
-                           "Нарезка идёт без записи", 1)
-    assert no_gate != text
-    assert any("без записи гейта нарезка не идёт" in error
+    no_gate = text.replace("`tickets/<slug>/00-projection-report.md`",
+                           "`tickets/<slug>/`", 1)
+    assert any("00-projection-report.md" in error
                for error in _contract_errors(no_gate))
 
-    no_reason = text.replace("подтверждается\nили отвергается с причиной",
-                             "подтверждается\nили отвергается", 1)
-    assert no_reason != text
-    assert any("подтверждается или отвергается с причиной" in error
-               for error in _contract_errors(no_reason))
+    no_quorum = text.replace("Кворум — не меньше двух живых членов",
+                             "Кворум — не меньше одного", 1)
+    assert any("Кворум — не меньше двух" in error
+               for error in _contract_errors(no_quorum))
 
-    no_seed = text.replace("## Семя срезов", "## Список проверок", 1)
-    assert no_seed != text
-    assert any("missing section «семя срезов»" in error
-               for error in _contract_errors(no_seed))
+    no_ban = text.replace("Новых находок и вердиктов председатель не добавляет",
+                          "Председатель добавляет находки", 1)
+    assert any("Новых находок и вердиктов" in error
+               for error in _contract_errors(no_ban))
 
-    leaked_install_root = text + "\nЗапусти проекции из .zcode/skills.\n"
-    assert any(".zcode" in error for error in _contract_errors(leaked_install_root))
-
-    missing_name = "\n".join(line for line in text.splitlines()
-                             if not line.startswith("name:"))
-    assert missing_name != text
-    assert any("name" in error for error in _contract_errors(missing_name))
+    leaked = text + "\nЗапусти проекции из .zcode/skills.\n"
+    assert any(".zcode" in error for error in _contract_errors(leaked))
 
 
 @pytest.mark.parametrize("phrase", REQUIRED_PHRASES)
-def test_every_required_phrase_has_a_failing_probe(phrase: str) -> None:
+def test_every_required_phrase_has_a_failing_probe(phrase: str):
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    removing any required phrase, however short, reddens the contract."""
+    removing any required phrase reddens the contract."""
     text = SKILL.read_text("utf-8")
     mutated = _drop_phrase(text, phrase)
     assert mutated != text, f"the mutation must remove {phrase!r}"
@@ -444,13 +404,7 @@ def test_every_required_phrase_has_a_failing_probe(phrase: str) -> None:
 
 SCOPED_PROBE_CASES = tuple(
     (label, heading, phrase)
-    for heading, phrases, label in (
-        (SEED_HEADING, SEED_PHRASES, "seed"),
-        (RUN_HEADING, POOL_PHRASES, "pool"),
-        (RUN_HEADING, ROUTE_STOP_PHRASES, "route-stop"),
-        (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
-        (REPORT_HEADING, REPORT_PHRASES, "report"),
-    )
+    for heading, phrases, label in SECTIONS
     for phrase in phrases
 )
 
@@ -459,11 +413,9 @@ SCOPED_PROBE_CASES = tuple(
     ("label", "heading", "phrase"), SCOPED_PROBE_CASES,
     ids=[f"{label}:{phrase[:24]}" for label, _heading, phrase in SCOPED_PROBE_CASES])
 def test_every_scoped_phrase_has_a_failing_probe(label: str, heading: str,
-                                                 phrase: str) -> None:
+                                                 phrase: str):
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    removing any scoped phrase (seed, pool, route stop, triage, report)
-    reddens its section check, not only the global body check
-    (зацепка P3-1 ревью-панели тикета 04)."""
+    removing any scoped phrase reddens its section check."""
     text = SKILL.read_text("utf-8")
     mutated = _drop_phrase(text, phrase)
     assert mutated != text, f"the mutation must remove {phrase!r}"
@@ -490,10 +442,8 @@ def test_critic_anchors_to_the_bundle_section():
     assert "../ship/references/method-phases.md" in lowered
     assert "docs/decisions/ontoship-core.md" not in lowered
 
-    # invariant: the contract check reddens on a relink to the canon path.
     text = SKILL.read_text("utf-8")
     relinked = text.replace("../ship/references/method-phases.md",
                             "docs/decisions/ontoship-core.md")
-    assert relinked != text
     assert any("../ship/references/method-phases.md" in error
                for error in _contract_errors(relinked))

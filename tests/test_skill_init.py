@@ -131,20 +131,23 @@ LAYOUT_NEEDLES = (
     "штатный дефолт модели",
 )
 
-# standards-autoship 05 («Готово» 9): the registry carries the validation
-# pool beside the role routes; init writes the standard flash pool with the
-# layout and checks it against the live catalog by the same rule. The pool
-# section is part of the registry: an existing config without it is a named
-# gap, not a silent append.
+# critic-consilium («Готово» 3): the registry carries a validation pool of
+# three distinct flash models; init writes the same pool and names the member
+# route rule. The pool section is part of the registry: an existing config
+# without it is a named gap, not a silent append.
 POOL_NEEDLES = (
     "**Пул валидации.**",
     "`[validation]`",
-    "`deepseek-account/deepseek-flash`",
-    "с уровнем `max`",
+    "`deepseek-account/deepseek-flash` с уровнем `max`",
+    "`qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`",
+    "`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
     "Сверь маршруты и уровни пула с живым каталогом",
     "пиши без ask",
+    "Пул — источник маршрутов членов консилиума",
+    "маршруты различны по модели",
     "Секция пула валидации `[validation]`",
 )
+RETIRED_POOL_PHRASES = ("модель под срез", "срезов валидации")
 
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".qoder", "commands.md",
@@ -499,6 +502,9 @@ def _contract_errors(text: str) -> list[str]:
         for needle in POOL_NEEDLES:
             if needle not in flat_layout:
                 errors.append(f"pool: missing {needle!r}")
+        for phrase in RETIRED_POOL_PHRASES:
+            if phrase in flat_layout:
+                errors.append(f"pool: retired phrase {phrase!r} is back")
 
     for phrase in RETIRED_MODEL_RULE:
         if phrase in re.sub(r"\s+", " ", text.lower()):
@@ -923,10 +929,9 @@ def test_standard_layout_contract_can_fail():
 
 
 def test_bootstrap_writes_the_validation_pool():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: init пишет
-    стандартную раскладку с пулом flash; маршруты и уровни пула сверяются с
-    живым каталогом по тому же правилу; секция пула в существующем конфиге —
-    названный пропуск."""
+    """spec: docs/plans/critic-consilium.md#готово — пункт 3: init пишет
+    пул из трёх различных flash-моделей, называет маршруты членов и не
+    говорит «модель под срез»."""
     text = SKILL.read_text("utf-8")
     layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
     assert layout, "the bootstrap section is missing"
@@ -939,16 +944,20 @@ def test_bootstrap_writes_the_validation_pool():
 def test_pool_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the pool contract rejects a lost pool marker, a drifted pool route, a
-    lost pool level, a lost live-catalog check and a lost existing-config
-    pool gap."""
+    lost pool level, a lost live-catalog check, a lost member-route rule and
+    a returned slice wording."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
     for old, new, needle in (
         ("**Пул валидации.**", "Пул:", "**Пул валидации.**"),
         ("`deepseek-account/deepseek-flash`", "`deepseek-account/deepseek-max`",
-         "`deepseek-account/deepseek-flash`"),
-        ("с уровнем `max`", "с уровнем `high`", "с уровнем `max`"),
+         "`deepseek-account/deepseek-flash` с уровнем `max`"),
+        ("`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
+         "`qwen-token-plan-glm/glm-5.3` с уровнем `high`",
+         "`qwen-token-plan-glm/glm-5.3` с уровнем `max`"),
+        ("маршруты различны по модели", "маршруты выбираются под срез",
+         "маршруты различны по модели"),
         ("Сверь маршруты и уровни пула с живым каталогом",
          "Сверь маршруты пула с конфигом",
          "Сверь маршруты и уровни пула с живым каталогом"),

@@ -27,10 +27,11 @@ level = "xhigh"
 model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
 level = "low"
 
-# Projection-validation pool: the critic picks a route per slice from it and
-# records the reason in the report.
+# Projection-validation pool: the critic assigns one distinct route per
+# consilium member and records the reason in the gate report.
 [validation]
 pool = [
   { model = "deepseek-account/deepseek-flash", level = "max" },
   { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
+  { model = "qwen-token-plan-glm/glm-5.3", level = "max" },
 ]

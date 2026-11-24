@@ -236,14 +236,16 @@ def test_a_mutated_carrier_is_named_by_the_probe(
     assert any(needle in error for error in errors), errors
 
 
-# standards-autoship 05 («Готово» 9): the committed registry carries the panel
-# routes and the validation pool. The standard pool's independent source is
-# the spec's decision 15, not the config itself. Pack roles are dynamic
-# (installed-pack manifests) and are not listed in this repo's registry.
+# critic-consilium («Готово» 2): the committed registry carries the panel
+# routes and a validation pool of three distinct models. The standard pool's
+# independent source is the spec, not the config itself. Pack roles are
+# dynamic (installed-pack manifests) and are not listed in this repo's
+# registry.
 CONFIG = ".agents/config.toml"
 STANDARD_POOL = (
     ("deepseek-account/deepseek-flash", "max"),
     ("qwen-token-plan/qwen3.8-flash", "xhigh"),
+    ("qwen-token-plan-glm/glm-5.3", "max"),
 )
 
 
@@ -286,6 +288,10 @@ def _config_errors(root: Path) -> list[str]:
                 entries.append((item["model"], item["level"]))
             if len(entries) != len(set(entries)):
                 errors.append("config: the validation pool carries a duplicate entry")
+            models = [model for model, _level in entries]
+            if len(models) != len(set(models)):
+                errors.append("config: the validation pool carries the same "
+                              "model twice")
             if sorted(entries) != sorted(STANDARD_POOL):
                 errors.append(f"config: the validation pool {entries} "
                               "is not the standard flash pool")
@@ -304,17 +310,16 @@ def _config_tree(tmp_path: Path, config_text: str) -> Path:
 
 
 def test_committed_registry_carries_roles_and_the_pool() -> None:
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: реестр
-    .agents/config.toml несёт маршруты панели и пул валидации; пул —
-    стандартный flash решения 15."""
+    """spec: docs/plans/critic-consilium.md#готово — пункт 2: реестр
+    .agents/config.toml несёт пул из трёх различных flash-моделей."""
     assert _config_errors(REPO) == []
 
 
 def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the registry-config contract rejects a lost pool section, a drifted pool
-    route, a lost pool level, a duplicate pool entry and a lost core role
-    section."""
+    route, a lost pool level, a duplicate entry, the same model twice and a
+    lost core role section."""
     config = (REPO / CONFIG).read_text("utf-8")
     assert _config_errors(REPO) == []
 
@@ -333,6 +338,11 @@ def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
              '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },\n'
              '  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },', 1),
          "duplicate entry"),
+        ("same-model-twice",
+         config.replace(
+             '{ model = "qwen-token-plan-glm/glm-5.3", level = "max" },',
+             '{ model = "deepseek-account/deepseek-flash", level = "max" },', 1),
+         "same model twice"),
         ("lost-core-section",
          config.replace("[agents.curator]", "[agents.kurator]", 1),
          "the curator role has no model route section"),
