@@ -3,10 +3,10 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-17
+updated: 2026-11-24
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, critic-consilium.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -162,6 +162,12 @@ links:
   решениями 18–24; открыта 2026-11-13. Закрытые тикеты 01–06, 09–14,
   evidence и гейт проекций остаются в ядре
   ([tickets/team-profiles/](../../tickets/team-profiles/)).
+
+- [critic-consilium.md](critic-consilium.md) — консилиум моделей вместо
+  одиночного критика: три члена на разных маршрутах пула, председатель
+  сводит отчёт, основная сессия триажит; гейт проекций сохраняется
+  (утверждена на план-гейте 2026-11-24, решения 1–4; гейт проекций
+  впереди).
 
 Будущий юнит `chain-viz-panel` отменён решением оператора 2026-11-16
 вместе с прототипами доски; визуализация цепочки — статические
