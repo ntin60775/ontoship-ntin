@@ -3,7 +3,7 @@ node_type: plan
 title: standards-autoship — паки стандартов, проекционная валидация, автономная цепочка
 service: _platform
 status: active
-updated: 2026-11-23
+updated: 2026-11-24
 tags: [plan, packs, standards, projections, chain, autoship, roles, canon]
 links:
   part_of: [README.md]

@@ -44,6 +44,7 @@ DSH_FLOW_NEEDLES = (
     "[validation]",
     "[agents.critic]",
     "subagent",
+    "spawn, не `subagent_fork`",
     "list_subagent_models",
     "три члена",
     "различных flash-маршрутах",
@@ -54,6 +55,10 @@ DSH_FLOW_NEEDLES = (
 # the norms left for the team bundle, their wording must not return into the
 # flow section. «methodcontract» does not match the reference file name
 # «method-contract.json» (the hyphen), «ontoshipteam» — the repo «ontoship-team».
+RETIRED_DSH_PROJECTION_NEEDLES = (
+    "срезы",
+    "модель под срез",
+)
 RETIRED_DSH_CHAIN_NEEDLES = (
     "чистой корневой сессии",
     "send_message",
@@ -119,10 +124,12 @@ def _flow_errors(harnesses: str) -> list[str]:
         for needle in DSH_FLOW_NEEDLES:
             if needle.lower() not in dsh_block:
                 errors.append(f"the DSH way lost {needle!r}")
-        for token in ("[validation]", "[agents.critic]"):
-            if dsh_block.count(token) != 1:
-                errors.append(f"the DSH way names {token!r} "
-                              f"{dsh_block.count(token)} times, want once")
+        if dsh_block.count("[validation]") != 1:
+            errors.append("the DSH way names '[validation]' "
+                          f"{dsh_block.count('[validation]')} times, want once")
+        errors.extend(f"the retired projection wording is back: {needle!r}"
+                      for needle in RETIRED_DSH_PROJECTION_NEEDLES
+                      if needle in dsh_block)
     lowered_section = _normalized_lower(section)
     errors.extend(f"the retired chain mechanics are back: {needle!r}"
                   for needle in RETIRED_DSH_CHAIN_NEEDLES
@@ -236,6 +243,19 @@ def test_kb_flow_checks_can_fail():
     no_pool = harnesses.replace("[validation]", "[agents.critic]", 1)
     assert no_pool != harnesses
     assert any("[validation]" in error for error in _flow_errors(no_pool))
+
+    double_pool = harnesses.replace(
+        "flash-маршрутах пула `[validation]` реестра",
+        "flash-маршрутах пула `[validation]` и `[validation]` реестра", 1)
+    assert double_pool != harnesses
+    assert any("2 times, want once" in error
+               for error in _flow_errors(double_pool))
+
+    slices_back = harnesses.replace(
+        "Каждый член — `subagent`", "смысловые срезы. Каждый член — `subagent`", 1)
+    assert slices_back != harnesses
+    assert any("retired projection wording" in error
+               for error in _flow_errors(slices_back))
 
     unretired = harnesses.replace("### zcode — цепочка и проекции сняты",
                                   "### zcode — цепочка и проекции", 1)

@@ -55,6 +55,8 @@ invariant: docs/decisions/ontoship-core.md#одно правило качест�
 spec: docs/plans/bundle-references.md#готово — якорные наборы методных
 секций: правила панели, запуск панели, контракты панели, прогон онто-дока,
 guard-фраза; KB-страница каждой секции называет файл бандла носителем
+spec: docs/plans/critic-consilium.md#готово — пункт 4: канон и зеркало
+несут дословную фразу консилиума и не возвращают срезы.
 spec: docs/plans/canon-section-in-bundles.md#готово — набор method-phases:
 канон ↔ секция бандла ship, четыре якоря тикета
 spec: docs/plans/standards-autoship.md#готово — «Готово» 10, 13: новый поток
@@ -516,6 +518,14 @@ def test_gate_shape_can_fail() -> None:
     contract_back = canon + "\n\n`methodContract` (версия 2) в манифесте бандла.\n"
     assert any("methodContract" in error
                for error in _gate_shape_errors(contract_back))
+
+    # critic-consilium: the retired slice wording must not return.
+    slices_back = canon + "\n\nСмысловые срезы на flash-пуле.\n"
+    assert any("retired flow phrase" in error and "смысловые срезы" in error
+               for error in _gate_shape_errors(slices_back))
+    model_back = canon + "\n\nМодель под срез выбирает основная сессия.\n"
+    assert any("retired flow phrase" in error and "модель под срез" in error
+               for error in _gate_shape_errors(model_back))
 
 
 def test_boundaries_anchors_can_fail() -> None:

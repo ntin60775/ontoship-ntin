@@ -13,6 +13,8 @@ carries no ``disable-model-invocation``; «Скилл вызывает аген�
 spec: docs/plans/evidence-verification.md#готово — every acceptance criterion
 names an observable artifact and a spec-sourced expectation in both "Срезы"
 and "Порядок"; a green test is a signal to read the artifact, not proof
+spec: docs/plans/critic-consilium.md#готово — пункт 6: to-tickets проверяет
+файл `tickets/<slug>/00-projection-report.md`, а не папку.
 spec: docs/plans/standards-autoship.md#готово — «Готово» 6: to-tickets несёт
 тикетные грани бывшего чек-листа критика (покрытость «Готово», рёбра,
 демо-пути, падение критериев) как самопроверку основной сессии и проверяет
@@ -70,9 +72,11 @@ REQUIRED_PHRASES = (
 EVIDENCE_SECTIONS = ("Срезы", "Порядок")
 EVIDENCE_SECTION_PHRASES = ("наблюдаемый артефакт", "ожидание из спеки")
 CARRIERS_PHRASE = "вывод команды, строка лога, файл, живая проба"
+GATE_FILE_PHRASE = ("проверь запись гейта проекций: файл "
+                    "`tickets/<slug>/00-projection-report.md`")
 GATE_PHRASES = (
     "запись гейта проекций",
-    "`tickets/<slug>/00-projection-report.md`",
+    GATE_FILE_PHRASE,
     "записи нет — остановка и вопрос оператору",
     "тихий пропуск гейта не делается",
     "скилл `critic`",
@@ -90,6 +94,8 @@ SELF_CHECK_PHRASES = (
 GATE_CONTRADICTIONS = (
     "запись гейта не проверяется",
     "тихий пропуск допустим",
+    "отчёт триажа в папке",
+    "— только пример имени",
 )
 # core-team-boundaries 03 («Готово» 3, decision 3, triage G4): the handoff
 # step and the «орк-промт» command left the core — the entry-prompt
@@ -526,6 +532,15 @@ def test_gate_and_self_check_contract_can_fail():
     assert no_gate != text
     assert any("must carry 'запись гейта проекций'" in error
                for error in _contract_errors(no_gate))
+
+    folder = re.sub(
+        r"проверь запись гейта проекций: файл\s+`tickets/<slug>/"
+        r"00-projection-report\.md`",
+        "проверь запись гейта проекций в папке юнита трекера: "
+        "`tickets/<slug>/00-projection-report.md` — только пример имени",
+        text, count=1)
+    assert folder != text
+    assert any("must carry" in error for error in _contract_errors(folder))
 
     silent = text.replace("тихий пропуск гейта не делается",
                           "тихий пропуск допустим", 1)

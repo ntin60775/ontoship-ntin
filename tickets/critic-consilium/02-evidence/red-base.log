@@ -1,0 +1,97 @@
+.............................................F.......................... [ 45%]
+..........................FFF......F..FF........FFF.F.F...........FF.... [ 91%]
+...........F.F                                                           [100%]
+=================================== FAILURES ===================================
+E   AssertionError: anchor «один прогон — консилиум: три члена на разных flash-маршрутах, председатель сводит, независимость держится входом» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / BOUNDARIES_ANCHORS / DSH_BOUNDARIES_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+/tmp/cc02-red.q83zQP/tests/test_canon_sync.py:431: AssertionError: anchor «один прогон — консилиум: три члена на разных flash-маршрутах, председатель сводит, независимость держится входом» of the method-phases set is missing from every carrier — if the rule was deliberately reworded, update the anchor tuples (QUALITY_ANCHORS / PANEL_ANCHORS / PANEL_RUN_ANCHORS / PANEL_INTRO_ANCHORS / ONTODOC_ANCHORS / METHOD_ANCHORS / BOUNDARIES_ANCHORS / DSH_BOUNDARIES_ANCHORS / PACK_CONTRACT_ANCHORS / GUARD_ANCHORS) in this test
+E   AssertionError: docs/decisions/ontoship-core.md: ["retired flow phrase 'смысловые срезы' is back"]
+    assert ["retired flo...езы' is back"] == []
+      
+      Left contains one more item: "retired flow phrase 'смысловые срезы' is back"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_canon_sync.py:470: AssertionError: docs/decisions/ontoship-core.md: ["retired flow phrase 'смысловые срезы' is back"]
+E   AssertionError: skills/ship/references/method-phases.md: ["retired flow phrase 'смысловые срезы' is back"]
+    assert ["retired flo...езы' is back"] == []
+      
+      Left contains one more item: "retired flow phrase 'смысловые срезы' is back"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_canon_sync.py:470: AssertionError: skills/ship/references/method-phases.md: ["retired flow phrase 'смысловые срезы' is back"]
+E   assert ["retired flo...езы' is back"] == []
+      
+      Left contains one more item: "retired flow phrase 'смысловые срезы' is back"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_canon_sync.py:479: assert ["retired flo...езы' is back"] == []
+E   assert ["the DSH way...ack: 'срезы'"] == []
+      
+      Left contains 5 more items, first extra item: "the DSH way lost '[agents.critic]'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_kb_flow.py:199: assert ["the DSH way...ack: 'срезы'"] == []
+E   assert ["the DSH way...ack: 'срезы'"] == []
+      
+      Left contains 5 more items, first extra item: "the DSH way lost '[agents.critic]'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_kb_flow.py:225: assert ["the DSH way...ack: 'срезы'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:309: assert ["body: secti...ажа в папке'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:427: assert ["body: secti...ажа в папке'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:463: assert ["body: secti...ажа в папке'"] == []
+E   AssertionError: the phrase 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`' is missing from 'Порядок'
+    assert 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`' in ' 1. прочитай спеку и проверь запись гейта проекций: отчёт триажа в папке юнита трекера (`tickets/<slug>/`). записи не...та есть демо-путь; критерии приёмки падают на базовом коммите. расхождение правится до ship или называется оператору. '
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:493: AssertionError: the phrase 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`' is missing from 'Порядок'
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:528: assert ["body: secti...ажа в папке'"] == []
+E   AssertionError: the mutation must remove 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'
+    assert '---\nname: to-tickets\ndescription: "Фаза 2 метода OntoShip: нарезка утверждённой спеки на tracer-bullet тикеты. Верт... проекта.\n- Пробел (нет данных, нет окружения) называется пробелом.\n- Что не вошло в срезы, скажи оператору прямо.\n' != '---\nname: to-tickets\ndescription: "Фаза 2 метода OntoShip: нарезка утверждённой спеки на tracer-bullet тикеты. Верт... проекта.\n- Пробел (нет данных, нет окружения) называется пробелом.\n- Что не вошло в срезы, скажи оператору прямо.\n'
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:602: AssertionError: the mutation must remove 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:615: assert ["body: secti...ажа в папке'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:641: assert ["body: secti...ажа в папке'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:724: assert ["body: secti...ажа в папке'"] == []
+E   assert ["body: secti...ажа в папке'"] == []
+      
+      Left contains 2 more items, first extra item: "body: section 'Порядок' must carry 'проверь запись гейта проекций: файл `tickets/<slug>/00-projection-report.md`'"
+      Use -v to get more diff
+/tmp/cc02-red.q83zQP/tests/test_skill_to_tickets.py:826: assert ["body: secti...ажа в папке'"] == []
+=========================== short test summary info ============================
+FAILED tests/test_canon_sync.py::test_anchor_in_every_carrier[method-phases:\u043e\u0434\u0438\u043d \u043f\u0440\u043e\u0433\u043e\u043d \u2014 \u043a\u043e\u043d\u0441\u0438\u043b]
+FAILED tests/test_canon_sync.py::test_manual_gates_shape[docs/decisions/ontoship-core.md]
+FAILED tests/test_canon_sync.py::test_manual_gates_shape[skills/ship/references/method-phases.md]
+FAILED tests/test_canon_sync.py::test_gate_shape_can_fail - assert ["retired ...
+FAILED tests/test_kb_flow.py::test_harnesses_carry_the_chain_and_projections
+FAILED tests/test_kb_flow.py::test_kb_flow_checks_can_fail - assert ["the DSH...
+FAILED tests/test_skill_to_tickets.py::test_skill_is_a_discoverable_directory_bundle
+FAILED tests/test_skill_to_tickets.py::test_comprehension_check_can_fail - as...
+FAILED tests/test_skill_to_tickets.py::test_evidence_contract_can_fail - asse...
+FAILED tests/test_skill_to_tickets.py::test_projection_gate_is_checked_before_slicing
+FAILED tests/test_skill_to_tickets.py::test_gate_and_self_check_contract_can_fail
+FAILED tests/test_skill_to_tickets.py::test_every_gate_and_self_check_phrase_has_a_failing_probe[\u043f\u0440\u043e\u0432\u0435\u0440\u044c \u0437\u0430\u043f\u0438\u0441\u044c \u0433\u0435\u0439\u0442\u0430 \u043f\u0440\u043e\u0435\u043a\u0446\u0438\u0439: \u0444\u0430\u0439\u043b `tickets/<slug>/00-projection-report.md`]
+FAILED tests/test_skill_to_tickets.py::test_slicing_ends_with_the_self_check
+FAILED tests/test_skill_to_tickets.py::test_retired_handoff_contract_can_fail
+FAILED tests/test_skill_to_tickets.py::test_contract_check_can_fail - assert ...
+FAILED tests/test_skill_to_tickets.py::test_reference_guard_can_fail - assert...
+16 failed, 142 passed in 0.51s
