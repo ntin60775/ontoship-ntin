@@ -662,3 +662,18 @@ b12e4d0, ишью #4 (дефект продюсера из репетиции or
 | 07 | [ship различает «пак без гейтов»](norm-fixes/07-ship-pack-without-gates.md) | шаг 6 и критерий приёмки: ноль гейтов — названный пробел, не зелёный |
 
 Набор 815 passed, lint чисто; коммиты — в хронике continue.md.
+
+## Юнит critic-consilium (2026-11-24, решения оператора)
+
+Спека [critic-consilium](../docs/plans/critic-consilium.md) утверждена на
+план-гейте 2026-11-24; гейт проекций пройден (6 срезов, 5 P1 / 5 P2 /
+2 P3, правки внесены решением «править всё»), отчёт —
+[00-projection-report.md](critic-consilium/00-projection-report.md).
+Нарезка 2026-11-24, один вопрос на тикет.
+
+| # | тикет | блокируется |
+|---|---|---|
+| 01 | [ядро: пул, init, контракт критика](critic-consilium/01-core.md) | — |
+| 02 | [носители: канон, зеркало, harnesses, гейт](critic-consilium/02-carriers.md) | 01 |
+| 03 | [живая проба и фиксация](critic-consilium/03-live-probe.md) | 01, 02 |
+
