@@ -236,11 +236,10 @@ def test_a_mutated_carrier_is_named_by_the_probe(
     assert any(needle in error for error in errors), errors
 
 
-# standards-autoship 05 («Готово» 9, decision 15): the committed registry
-# carries the panel routes and the validation pool; independence by default
-# is a registry norm. The standard pool's independent source is the spec's
-# decision 15, not the config itself. Pack roles are dynamic (installed-pack
-# manifests) and are not listed in this repo's registry.
+# standards-autoship 05 («Готово» 9): the committed registry carries the panel
+# routes and the validation pool. The standard pool's independent source is
+# the spec's decision 15, not the config itself. Pack roles are dynamic
+# (installed-pack manifests) and are not listed in this repo's registry.
 CONFIG = ".agents/config.toml"
 STANDARD_POOL = (
     ("deepseek-account/deepseek-flash", "max"),
@@ -290,8 +289,6 @@ def _config_errors(root: Path) -> list[str]:
             if sorted(entries) != sorted(STANDARD_POOL):
                 errors.append(f"config: the validation pool {entries} "
                               "is not the standard flash pool")
-    if "Independence by default" not in text:
-        errors.append("config: the independence-by-default norm is not named")
     return errors
 
 
@@ -308,16 +305,16 @@ def _config_tree(tmp_path: Path, config_text: str) -> Path:
 
 def test_committed_registry_carries_roles_and_the_pool() -> None:
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: реестр
-    .agents/config.toml несёт маршруты панели и пул валидации; независимость
-    по умолчанию — норма реестра; пул — стандартный flash решения 15."""
+    .agents/config.toml несёт маршруты панели и пул валидации; пул —
+    стандартный flash решения 15."""
     assert _config_errors(REPO) == []
 
 
 def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the registry-config contract rejects a lost pool section, a drifted pool
-    route, a lost pool level, a duplicate pool entry, a lost core role
-    section and a lost independence norm."""
+    route, a lost pool level, a duplicate pool entry and a lost core role
+    section."""
     config = (REPO / CONFIG).read_text("utf-8")
     assert _config_errors(REPO) == []
 
@@ -339,8 +336,6 @@ def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
         ("lost-core-section",
          config.replace("[agents.curator]", "[agents.kurator]", 1),
          "the curator role has no model route section"),
-        ("lost-norm", config.replace("Independence by default", "Independence", 1),
-         "independence-by-default norm"),
     )
     for name, mutated, needle in probes:
         assert mutated != config, f"the probe {name} must change the config"

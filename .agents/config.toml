@@ -1,29 +1,7 @@
 # OntoShip role registry.
-# One [agents.<name>] section per role; `model` is required.
-# Routes are the standard layout of operator decisions 2026-11-16,
-# 2026-11-22 and 2026-11-23 (critic moved to the `qwen4-max` release, the
-# curator dropped to `low`; supersedes the dsh-adaptation decision 5
-# layout): the four reviewers on
-# `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `max`, the critic
-# on `qwen-token-plan-max/qwen4-max` with `xhigh`, the curator on
-# `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` with `low`.
-# `init` delivers the same layout to a fresh project when every route and
-# level is live. DSH is the only rail: the ZCode branch and its generator
-# left the project (operator decision, continue.md).
-# Independence by default (standards-autoship decision 15): reviewers run
-# on a model different from the session model; the panel fallback chain is
-# another available non-session model, then the session model marked in the
-# report with a stop. The norm lives in the registry; the ship skill and
-# its review-panel reference carry the procedure.
-# The critic role is projection validation since standards-autoship
-# decision 16 (the bundle name is kept): validation slices pick their
-# routes from the [validation] pool below, not from the role route; the
-# role section stays in the core composition. A critic model match with
-# the session model is allowed and marked in the report (recommendation).
-# A level value is a bare token: letters, digits, '.', '_', '-'.
-# `level` is the role's reasoning_effort, passed straight to `subagent`;
-# with the key absent the model default applies and the report marks it, while
-# `init` in a fresh project writes the maximum available level.
+# One [agents.<name>] section per role; `model` is required, `level` is the
+# role's reasoning effort passed straight to `subagent`. With the key absent
+# the model default applies.
 
 [agents.reviewer-spec]
 model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
@@ -49,10 +27,8 @@ level = "xhigh"
 model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
 level = "low"
 
-# Validation pool (standards-autoship decisions 15, 16): projection
-# validation picks a model per slice from this flash pool; the main session
-# records the reason in the report. `init` writes the same pool to a fresh
-# project when every route and level is live.
+# Projection-validation pool: the critic picks a route per slice from it and
+# records the reason in the report.
 [validation]
 pool = [
   { model = "deepseek-account/deepseek-flash", level = "max" },

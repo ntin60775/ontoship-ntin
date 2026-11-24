@@ -10,8 +10,8 @@ with the core and the core executes the gate configs.
 ``docs/reference/harnesses.md`` must describe how each harness organizes
 the review panel: the zcode way named retired (the rail left the project),
 the working DSH way (``subagent`` with ``provider``, ``model`` and
-``reasoning_effort``, a live ``list_subagent_models``, the non-session
-fallback chain) and Qoder named a gap inside its own subsection of the
+``reasoning_effort``, a live ``list_subagent_models``, an unavailable route
+stopping the pass) and Qoder named a gap inside its own subsection of the
 review section, never implemented silently. The reference is linked from
 the folder index. The ``reviewer-tests`` checklist additionally carries the
 two evidence items: every acceptance criterion must show what and where to
@@ -79,15 +79,23 @@ PACK_RULES = (
 )
 RETIRED_PACK_RULE = "только промпты и чек-листы"
 # standards-autoship 05 («Готово» 3, 9; решения 8, 15): the KB panel carrier
-# names the core+pack assembly, the independence norm and the standards
-# priority of the reviewer-code input; the harness DSH way carries the
-# non-session fallback chain.
+# names the core+pack assembly, the route stop and the standards priority of
+# the reviewer-code input.
+ROUTE_STOP = "недоступная пара — остановка прохода и вопрос оператору"
 PANEL_ASSEMBLY = (
     "панель собирается из ролей ядра и ролей паков",
-    "независимость по умолчанию",
+    ROUTE_STOP,
     "канон > стандарты проекта > пак команды > пак стека > базовый документ",
 )
-DSH_FALLBACK_CHAIN = "фолбэк на другую доступную не-сессионную модель"
+# The model-distinctness rule is retired: a role route may match the session
+# model. Any return of the old wording reddens.
+RETIRED_MODEL_RULE = (
+    "независимость по умолчанию",
+    "отличной от сессионной",
+    "модель сессии",
+    "модели сессии",
+    "не-сессионную модель",
+)
 # The ZCode purge (operator decision): the review section keeps a zcode
 # subsection, and it is named retired — with no surviving procedure tokens
 # (generator, workflow transport, host tool, session-model marker).
@@ -274,6 +282,9 @@ def _reference_errors(text: str) -> list[str]:
     for phrase in PANEL_ASSEMBLY:
         if phrase not in lowered:
             errors.append(f"panel assembly {phrase!r} is missing")
+    for phrase in RETIRED_MODEL_RULE:
+        if phrase in lowered:
+            errors.append(f"retired model rule {phrase!r} is back")
     errors.extend(_reviewer_tests_evidence_errors(text))
     return errors
 
@@ -306,8 +317,8 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
         for phrase in ("пробел", "вне плана"):
             if phrase in dsh_block:
                 errors.append(f"dsh review way is still named {phrase!r}")
-        if DSH_FALLBACK_CHAIN not in dsh_block:
-            errors.append("dsh review way lost the non-session fallback chain")
+        if ROUTE_STOP not in dsh_block:
+            errors.append("dsh review way lost the route-stop rule")
     qoder_gap = any("qoder" in heading and "пробел" in block
                     for heading, block in blocks.items())
     if not qoder_gap:
@@ -316,8 +327,6 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
         errors.append("the unconditional generator line is back")
     if GENERATOR_DSH_RULE not in whole:
         errors.append("the DSH generator rule is missing")
-    if "фолбэк" not in whole:
-        errors.append("the role-model fallback (decision 14) is not mentioned")
 
     if "review-roles.md" not in index:
         errors.append("docs/reference/README.md does not link review-roles.md")
@@ -389,19 +398,19 @@ def test_reference_carries_the_pack_rules():
     assert RETIRED_PACK_RULE not in lowered
 
 
-def test_reference_names_the_core_pack_assembly_and_independence():
+def test_reference_names_the_core_pack_assembly_and_route_stop():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 3, 9: KB-носитель
-    панели называет сборку из ролей ядра и ролей паков, независимость по
-    умолчанию и приоритет источников стандартов reviewer-code; DSH-способ
-    матрицы несёт цепочку не-сессионных фолбэков."""
+    панели называет сборку из ролей ядра и ролей паков, остановку на
+    недоступной паре и приоритет источников стандартов reviewer-code;
+    DSH-способ матрицы несёт ту же остановку."""
     text = REFERENCE.read_text("utf-8")
     lowered = _normalized_lower(text)
     for phrase in PANEL_ASSEMBLY:
         assert phrase in lowered, f"the panel carrier lost {phrase!r}"
     harnesses = HARNESSES.read_text("utf-8")
-    assert DSH_FALLBACK_CHAIN in _normalized_lower(harnesses)
+    assert ROUTE_STOP in _normalized_lower(harnesses)
 
-    # can-fail: each assembly clause and the fallback chain reddens on loss.
+    # can-fail: each assembly clause and the route stop reddens on loss.
     # The priority phrase lives in two places (the panel preamble and the
     # reviewer-code scope): every occurrence must go for the probe.
     for phrase in PANEL_ASSEMBLY:
@@ -410,10 +419,12 @@ def test_reference_names_the_core_pack_assembly_and_independence():
         assert mutated != text, f"the mutation must change the text: {phrase!r}"
         assert any("panel assembly" in error
                    for error in _reference_errors(mutated)), phrase
-    no_chain = harnesses.replace(DSH_FALLBACK_CHAIN, "фолбэк на модель сессии", 1)
-    assert no_chain != harnesses
-    assert any("non-session fallback chain" in error
-               for error in _harness_errors(no_chain, INDEX.read_text("utf-8")))
+    no_stop = re.sub(re.escape(ROUTE_STOP),
+                     "недоступная пара — выбор другой модели", harnesses,
+                     count=1, flags=re.IGNORECASE)
+    assert no_stop != harnesses
+    assert any("route-stop rule" in error
+               for error in _harness_errors(no_stop, INDEX.read_text("utf-8")))
 
 
 def test_reviewer_tests_checks_artifact_expectation_and_discrepancies():

@@ -21,14 +21,13 @@ spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3: ч
       трёхпереходный список entry-and-continuity вытеснен, якорь чек-листа
       перетыкнут сюда
 spec: docs/plans/review-config.md#готово — реестр ролей .agents/config.toml,
-      названный пробел без источника моделей, совпадение модели критика —
-      рекомендация в отчёте
+      названный пробел без источника моделей
 spec: docs/plans/dsh-adaptation.md#готово — стандартная раскладка шести ролей,
       запись без ask при живых маршрутах (ZCode-ветка выведена решением
       оператора; хроника — continue.md)
 spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): init
-      пишет стандартную раскладку с пулом flash, независимость по умолчанию —
-      норма реестра, секция пула в существующем конфиге — названный пропуск
+      пишет стандартную раскладку с пулом flash, секция пула в существующем
+      конфиге — названный пропуск
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
       блок init несёт команды ядра, словарь ведения (цепочка, орк-промт)
       снят и под запретом; скелет continue.md несёт чек-лист текущего
@@ -82,8 +81,6 @@ BOOTSTRAP_NEEDLES = (
     OWNERSHIP_COUNT,
     ".agents/config.toml",
     "назови пробел и остановись",
-    "Модель сессии",
-    "рекомендуется отличной от модели сессии",
     "назови его в отчёте",
     "пропуск",
     "не дописывай",
@@ -104,6 +101,16 @@ HARNESS_NEEDLES = (
     "на чужом харнессе он не работает",
 )
 
+# The model-distinctness rule is retired: a role route may match the session
+# model. Any return of the old wording reddens.
+RETIRED_MODEL_RULE = (
+    "независимость по умолчанию",
+    "отличной от сессионной",
+    "модель сессии",
+    "модели сессии",
+    "powered by",
+)
+
 # The bootstrap section carries the standard layout (operator decision
 # 2026-11-16, critic model replaced by operator decision 2026-11-22,
 # curator level dropped to `low` by operator decision 2026-11-23;
@@ -120,16 +127,15 @@ LAYOUT_NEEDLES = (
     "запиши её без ask",
     "назови отклонение от стандарта",
     "спроси оператора",
-    "runtime-контекст",
     "`<provider>/<model>`",
     "штатный дефолт модели",
 )
 
-# standards-autoship 05 («Готово» 9, decision 15): the registry carries the
-# validation pool beside the role routes; init writes the standard flash pool
-# with the layout, checks it against the live catalog by the same rule, and
-# names the independence norm. The pool section is part of the registry: an
-# existing config without it is a named gap, not a silent append.
+# standards-autoship 05 («Готово» 9): the registry carries the validation
+# pool beside the role routes; init writes the standard flash pool with the
+# layout and checks it against the live catalog by the same rule. The pool
+# section is part of the registry: an existing config without it is a named
+# gap, not a silent append.
 POOL_NEEDLES = (
     "**Пул валидации.**",
     "`[validation]`",
@@ -137,8 +143,6 @@ POOL_NEEDLES = (
     "с уровнем `max`",
     "Сверь маршруты и уровни пула с живым каталогом",
     "пиши без ask",
-    "Независимость по умолчанию — норма реестра",
-    "ревьюеры идут на модели, отличной от сессионной",
     "Секция пула валидации `[validation]`",
 )
 
@@ -495,6 +499,10 @@ def _contract_errors(text: str) -> list[str]:
         for needle in POOL_NEEDLES:
             if needle not in flat_layout:
                 errors.append(f"pool: missing {needle!r}")
+
+    for phrase in RETIRED_MODEL_RULE:
+        if phrase in re.sub(r"\s+", " ", text.lower()):
+            errors.append(f"retired model rule {phrase!r} is back")
 
     for term in FORBIDDEN:
         if _mentions(text, term):
@@ -917,8 +925,8 @@ def test_standard_layout_contract_can_fail():
 def test_bootstrap_writes_the_validation_pool():
     """spec: docs/plans/standards-autoship.md#готово — «Готово» 9: init пишет
     стандартную раскладку с пулом flash; маршруты и уровни пула сверяются с
-    живым каталогом по тому же правилу, независимость по умолчанию — норма
-    реестра; секция пула в существующем конфиге — названный пропуск."""
+    живым каталогом по тому же правилу; секция пула в существующем конфиге —
+    названный пропуск."""
     text = SKILL.read_text("utf-8")
     layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
     assert layout, "the bootstrap section is missing"
@@ -931,8 +939,8 @@ def test_bootstrap_writes_the_validation_pool():
 def test_pool_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the pool contract rejects a lost pool marker, a drifted pool route, a
-    lost pool level, a lost live-catalog check, a lost independence norm,
-    a lost session-model difference and a lost existing-config pool gap."""
+    lost pool level, a lost live-catalog check and a lost existing-config
+    pool gap."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -944,12 +952,6 @@ def test_pool_contract_can_fail():
         ("Сверь маршруты и уровни пула с живым каталогом",
          "Сверь маршруты пула с конфигом",
          "Сверь маршруты и уровни пула с живым каталогом"),
-        ("Независимость по умолчанию — норма реестра",
-         "Независимость — по выбору оператора",
-         "Независимость по умолчанию — норма реестра"),
-        ("ревьюеры идут на модели, отличной от сессионной",
-         "ревьюеры идут на любой модели",
-         "ревьюеры идут на модели, отличной от сессионной"),
         ("Секция пула валидации `[validation]`", "Секция пула",
          "Секция пула валидации `[validation]`"),
     ):
@@ -1007,15 +1009,19 @@ def test_bootstrap_names_core_roles_and_their_routes():
     assert ".agents/config.toml" in text
 
 
-def test_critic_model_difference_is_a_recommendation():
-    """spec: docs/plans/review-config.md#готово — для critic отличие модели от
-    сессионной — рекомендация; совпадение допустимо и называется в отчёте
-    (поправка 2026-11-09)."""
+def test_model_distinctness_is_not_required():
+    """spec: docs/plans/review-config.md#готово — модель роли назначает
+    реестр; обязательного отличия от сессионной нет, старое требование
+    не возвращается."""
     text = SKILL.read_text("utf-8")
-    flat = re.sub(r"\s+", " ", text)
-    assert "рекомендуется отличной от модели сессии" in flat
-    assert "назови его в отчёте" in flat
-    assert "отказом оно не является" in flat
+    flat = re.sub(r"\s+", " ", text.lower())
+    assert _contract_errors(text) == []
+    for phrase in RETIRED_MODEL_RULE:
+        assert phrase not in flat, f"retired model rule {phrase!r} is back"
+
+    planted = text + "\nМодель роли `critic` рекомендуется отличной от модели сессии.\n"
+    assert any("retired model rule" in error
+               for error in _contract_errors(planted))
 
 
 def test_existing_config_is_untouched_and_a_new_role_is_a_named_gap():
@@ -1120,8 +1126,8 @@ def test_role_count_contract_can_fail():
     assert any("counted role snapshot" in error
                for error in _contract_errors(counted_list))
 
-    counted_review = text.replace("Ревью-роли могут делить",
-                                  "Четыре ревью-роли могут делить", 1)
+    counted_review = text.replace("Роли ядра поставляются одной раскладкой",
+                                  "Четыре роли ядра поставляются одной раскладкой", 1)
     assert counted_review != text
     assert any("counted role snapshot" in error
                for error in _contract_errors(counted_review))

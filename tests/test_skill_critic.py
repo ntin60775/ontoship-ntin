@@ -29,9 +29,9 @@ spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (ти
 spec: docs/plans/standards-autoship.md#решения план-гейта — решения 15–17:
       пул flash и выбор модели под срез, один скилл и один гейт, порядок
       «проекции до нарезки»
-spec: docs/plans/standards-autoship.md#ограничения — проекции не запускаются
-      на модели сессии молча: фолбэк называется в отчёте, провал и на
-      фолбэке — остановка и вопрос оператору
+spec: docs/plans/standards-autoship.md#ограничения — пул недоступен целиком:
+      остановка и вопрос оператору, «валидацию провёл исполнитель» не
+      законный исход
 spec: docs/plans/canon-section-in-bundles.md#готово — шапка критика
       ссылается на методную секцию бандла, не на путь канона
 invariant: docs/plans/harness-agnostic.md#готово — skill texts name no harness root
@@ -106,16 +106,9 @@ POOL_PHRASES = (
     "`list_subagent_models`",
     "реестр без секции пула — назови пропуск и остановись",
 )
-SESSION_MODEL_PHRASES = (
-    "runtime-контекста",
-    "`powered by <model>`",
-    "спроси оператора",
-    "подтверди модель",
-    "нет ни строки, ни подтверждения — остановка и названный пробел",
-)
-FALLBACK_PHRASES = (
-    "молчаливый запуск на модели сессии не делается",
-    "провал и на фолбэке — остановка и вопрос оператору",
+ROUTE_STOP_PHRASES = (
+    "маршрут пула недоступен — бери другой маршрут пула",
+    "пул недоступен целиком — остановка и вопрос оператору",
     "«валидацию провёл исполнитель» законным исходом не является",
 )
 
@@ -151,6 +144,9 @@ RETIRED_PHRASES = (
     "находки оператору до первого ship",
     "модель роли `critic` назначает",
     "рекомендация, не запрет",
+    "модель сессии",
+    "модели сессии",
+    "powered by",
 )
 
 
@@ -240,8 +236,7 @@ def _contract_errors(text: str) -> list[str]:
     scoped = (
         (SEED_HEADING, SEED_PHRASES, "seed"),
         (RUN_HEADING, POOL_PHRASES, "pool"),
-        (RUN_HEADING, SESSION_MODEL_PHRASES, "session-model"),
-        (RUN_HEADING, FALLBACK_PHRASES, "fallback"),
+        (RUN_HEADING, ROUTE_STOP_PHRASES, "route-stop"),
         (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
         (REPORT_HEADING, REPORT_PHRASES, "report"),
     )
@@ -342,26 +337,15 @@ def test_flash_pool_and_per_slice_model_choice():
         assert phrase in section, f"the pool contract lost {phrase!r}"
 
 
-def test_session_model_comes_from_the_runtime_context():
-    """spec: docs/plans/standards-autoship.md#готово — «Готово» 5: сверка с
-    живым каталогом; модель сессии — из runtime-контекста, при
-    неоднозначности подтверждение оператора, без источника — остановка."""
+def test_unavailable_pool_route_stops_the_run():
+    """spec: docs/plans/standards-autoship.md#ограничения — маршрут пула
+    недоступен — другой маршрут пула с причиной; пул недоступен целиком —
+    остановка и вопрос оператору, самопроверка исполнителем не засчитывается."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = _normalized_lower(_section(body, RUN_HEADING))
     assert section, "section «Исполнение срезов» is missing"
-    for phrase in SESSION_MODEL_PHRASES:
-        assert phrase in section, f"the session-model contract lost {phrase!r}"
-
-
-def test_fallback_is_named_and_failure_stops_the_run():
-    """spec: docs/plans/standards-autoship.md#ограничения — проекции не
-    запускаются на модели сессии молча: фолбэк называется в отчёте, провал
-    и на фолбэке — остановка и вопрос оператору."""
-    body = _parse(SKILL.read_text("utf-8"))[1]
-    section = _normalized_lower(_section(body, RUN_HEADING))
-    assert section, "section «Исполнение срезов» is missing"
-    for phrase in FALLBACK_PHRASES:
-        assert phrase in section, f"the fallback contract lost {phrase!r}"
+    for phrase in ROUTE_STOP_PHRASES:
+        assert phrase in section, f"the route-stop contract lost {phrase!r}"
 
 
 def test_triage_confirms_or_rejects_with_a_reason():
@@ -463,8 +447,7 @@ SCOPED_PROBE_CASES = tuple(
     for heading, phrases, label in (
         (SEED_HEADING, SEED_PHRASES, "seed"),
         (RUN_HEADING, POOL_PHRASES, "pool"),
-        (RUN_HEADING, SESSION_MODEL_PHRASES, "session-model"),
-        (RUN_HEADING, FALLBACK_PHRASES, "fallback"),
+        (RUN_HEADING, ROUTE_STOP_PHRASES, "route-stop"),
         (TRIAGE_HEADING, TRIAGE_PHRASES, "triage"),
         (REPORT_HEADING, REPORT_PHRASES, "report"),
     )
@@ -478,8 +461,8 @@ SCOPED_PROBE_CASES = tuple(
 def test_every_scoped_phrase_has_a_failing_probe(label: str, heading: str,
                                                  phrase: str) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    removing any scoped phrase (seed, pool, session model, fallback, triage,
-    report) reddens its section check, not only the global body check
+    removing any scoped phrase (seed, pool, route stop, triage, report)
+    reddens its section check, not only the global body check
     (зацепка P3-1 ревью-панели тикета 04)."""
     text = SKILL.read_text("utf-8")
     mutated = _drop_phrase(text, phrase)

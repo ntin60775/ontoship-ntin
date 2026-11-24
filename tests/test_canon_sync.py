@@ -6,7 +6,7 @@ Named carrier sets share the anchor mechanics:
   KB page (docs/reference/testing.md) and the bundle carrier
   (skills/testing/references/quality-rule.md);
 - ``panel-rules`` — the panel rules (a base-set role without a config section
-  is not launched, the fallback for an unavailable model): the ship skill and
+  is not launched, an unavailable route stops the pass): the ship skill and
   its bundle carrier (skills/ship/references/review-panel.md);
 - ``panel-run`` — the launch ways of the panel: the KB page
   (docs/reference/harnesses.md) and the bundle carrier;
@@ -93,15 +93,13 @@ PANEL_CARRIERS = (
     REPO / "skills/ship/SKILL.md",
     REPO / "skills/ship/references/review-panel.md",
 )
-# standards-autoship 05 (decision 15): the fallback chain replaces the
-# direct session-model fallback — another available non-session model first,
-# then the session model marked and stopped. The anchors moved with the
-# rule in every carrier of the set.
+# The panel carries a single route rule: the role runs on the route from the
+# registry; an unavailable route stops the pass instead of a model fallback.
 PANEL_ANCHORS = (
     "без секции в конфиге не запускается",
     "молчаливая подмена не делается",
-    "фолбэк на другую доступную не-сессионную модель",
-    "фолбэк на модель сессии с пометкой и остановкой",
+    "недоступная пара — остановка прохода и вопрос оператору",
+    "одна повторная проба, затем остановка прохода",
     "«ревью провёл исполнитель» законным исходом не является",
 )
 
@@ -110,7 +108,7 @@ PANEL_RUN_CARRIERS = (
     REPO / "skills/ship/references/review-panel.md",
 )
 PANEL_RUN_ANCHORS = (
-    "фолбэк на другую доступную не-сессионную модель",
+    "недоступная пара — остановка прохода и вопрос оператору",
     "«ревью провёл исполнитель» законным исходом не является",
     "одна повторная проба, затем остановка прохода",
 )
@@ -649,21 +647,20 @@ def test_parity_mutations_can_fail(tmp_path: Path) -> None:
     assert missing == [ship.as_posix()], missing
 
     # The bundle carrier reworded without the ship skill (panel-rules pair):
-    # the фолбэк anchor arrives wrapped, the flat comparator still holds it
-    # until the exact wrapped fragment is reworded.
+    # the route-stop anchor arrives wrapped, the flat comparator still holds
+    # it until the exact wrapped fragment is reworded.
     ship = seed("ship2.md",
-                "Недоступная модель роли — фолбэк на модель\nсессии "
-                "с пометкой в отчёте, провал — стоп.")
+                "Недоступная пара — остановка\nпрохода и вопрос оператору.")
     panel = seed("panel2.md",
-                 "Фолбэк недоступной модели роли — модель\nсессии с пометкой "
-                 "в отчёте; провал — стоп прохода.")
+                 "Недоступная пара — остановка\nпрохода и вопрос оператору; "
+                 "одна повторная проба, затем остановка.")
     mutated_text = panel.read_text("utf-8").replace(
-        "модель\nсессии с пометкой в отчёте",
-        "модель\nпрогона с пометкой в отчёте")
+        "остановка\nпрохода и вопрос оператору",
+        "остановка\nпрогона и вопрос оператору")
     assert mutated_text != panel.read_text("utf-8"), \
         "the mutation must remove the anchor"
     panel.write_text(mutated_text, "utf-8")
-    missing = _missing_carriers("модель сессии с пометкой в отчёте",
+    missing = _missing_carriers("остановка прохода и вопрос оператору",
                                 (ship, panel))
     assert missing == [panel.as_posix()], missing
 

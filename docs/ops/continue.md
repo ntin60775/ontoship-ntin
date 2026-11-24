@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-23
+updated: 2026-11-24
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -15,6 +15,11 @@ links:
 источник истины — этот runbook и тикеты, а не снимок.
 
 ## Где мы
+
+**Решение оператора 2026-11-24:** обязательное отличие модели ревьюеров,
+критика и валидации от сессионной снято; маршрут роли берётся из реестра,
+недоступная пара останавливает проход вопросом оператору. Хардкод
+маршрутов и хроника убраны из комментариев `.agents/config.toml`.
 
 **Ишью [#4](https://github.com/ntin60775/ontoship-ntin/issues/4) закрыт
 2026-11-22 (вне тикетного потока, решение оператора).** Copy-канал пака
