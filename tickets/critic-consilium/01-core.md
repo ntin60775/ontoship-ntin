@@ -1,5 +1,7 @@
 # Тикет 01 — Ядро консилиума: пул, init, контракт критика
 
+**Сделан, влит, принят автоприёмкой 2026-11-24.**
+
 Блокируется: —
 Блокирует: 02, 03
 
@@ -67,3 +69,22 @@ tests/test_skill_critic.py tests/test_bundle_references.py` зелёный;
   в отчёт живой пробы тикета 03.
 - Поведенческие ветки кворума и стопа в этом тикете не проверяются:
   контрактные тесты и названный пробел пробы.
+
+## Факты приёмки (2026-11-24)
+
+- **Merge:** ff в main `60d5ff2` (срез `6baa41c` + правки панели
+  `60d5ff2`), worktree снесён.
+- **Панель:** 4 роли; штатный маршрут
+  `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` заблокирован
+  провайдером (`PI_AI_ERROR: Output data may contain inappropriate
+  content`); решением оператора панель этого прохода шла на
+  `deepseek-account/deepseek-flash`/`max`, реестр не менялся.
+  Вердикты: spec FINDINGS (P2×2, P3×2), tests FINDINGS (P2×3, P3×2),
+  code FINDINGS (P2×1, P3×6), kb ACCEPT. P1 нет; P2 закрыты правками.
+- **Проверки:** `pytest tests/ -q` — **831 passed**; `gitmark.py lint
+  --strict` — чисто; красная проба на базе `fca5642` — **82 failed**,
+  падения по существу; маркер `Независимый взгляд на спеку` сохранён,
+  мутация краснит.
+- **Доказательства:** [01-evidence](01-evidence/) — `red-base.log`,
+  `green-head.log`, `panel-report.md`.
+- **Синхронизация:** коммиты ушли в `origin/main` после приёмки.
