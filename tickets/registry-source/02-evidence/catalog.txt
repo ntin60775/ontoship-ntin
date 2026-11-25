@@ -1,0 +1,34 @@
+# Живость пула валидации и маршрута председателя: сверка с живым каталогом
+# host-инструментом `list_subagent_models`, 2026-11-25, DSH.
+# Сверка — не панельный прогон: порядок «панельный прогон на flash-1017 после
+# review-output» из Рамок спеки на неё не распространяется (тикет 02).
+
+$ list_subagent_models(provider="qwen-token-plan-deepseek", model="deepseek-v4.1-flash-1017")
+qwen-token-plan-deepseek/deepseek-v4.1-flash-1017 — DeepSeek V4.1 Flash 1017
+Reasoning efforts:
+low — Low
+high (default) — High
+max — Max
+
+$ list_subagent_models(provider="qwen-token-plan", model="qwen3.8-flash")
+qwen-token-plan/qwen3.8-flash — Qwen3.8 Flash
+Reasoning efforts:
+medium — Medium
+xhigh (default) — Xhigh
+
+$ list_subagent_models(provider="qwen-token-plan-glm", model="glm-5.3")
+qwen-token-plan-glm/glm-5.3 — GLM-5.3
+Reasoning efforts:
+high (default) — High
+max — Max
+
+$ list_subagent_models(provider="qwen-token-plan-max", model="qwen4-max")
+qwen-token-plan-max/qwen4-max — Qwen4 Max
+Reasoning efforts:
+medium (default) — Medium
+xhigh — Xhigh
+
+Итог: все три пары пула и маршрут председателя живы; уровни из конфига
+(qwen-token-plan-deepseek/deepseek-v4.1-flash-1017/max,
+qwen-token-plan/qwen3.8-flash/xhigh, qwen-token-plan-glm/glm-5.3/max;
+председатель qwen-token-plan-max/qwen4-max/xhigh) входят в списки моделей.

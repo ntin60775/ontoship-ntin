@@ -1,0 +1,14 @@
+$ git diff bee9493..HEAD -- .agents/config.toml
+diff --git a/.agents/config.toml b/.agents/config.toml
+index 41cbc92..650aa0c 100644
+--- a/.agents/config.toml
++++ b/.agents/config.toml
+@@ -31,7 +31,7 @@ level = "low"
+ # consilium member and records the reason in the gate report.
+ [validation]
+ pool = [
+-  { model = "deepseek-account/deepseek-flash", level = "max" },
++  { model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017", level = "max" },
+   { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
+   { model = "qwen-token-plan-glm/glm-5.3", level = "max" },
+ ]

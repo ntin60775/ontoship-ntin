@@ -1,0 +1,5 @@
+$ git diff bee9493..HEAD --name-only -- tests/
+exit=0 (пусто выше: ни одного файла тестов в диффе)
+
+$ git diff bee9493..HEAD --stat -- tests/
+exit=0 (пусто: тестовые файлы не правились)

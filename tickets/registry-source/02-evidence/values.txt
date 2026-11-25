@@ -1,0 +1,8 @@
+$ python3 tickets/registry-source/02-evidence/values.py
+pool entries: [('qwen-token-plan-deepseek/deepseek-v4.1-flash-1017', 'max'), ('qwen-token-plan/qwen3.8-flash', 'xhigh'), ('qwen-token-plan-glm/glm-5.3', 'max')]
+model parts: ['deepseek-v4.1-flash-1017', 'qwen3.8-flash', 'glm-5.3']
+distinct model parts: True
+pool size: 3
+agent sections: ['reviewer-spec', 'reviewer-tests', 'reviewer-code', 'reviewer-kb', 'critic', 'curator']
+critic: {'model': 'qwen-token-plan-max/qwen4-max', 'level': 'xhigh'}
+exit=0
