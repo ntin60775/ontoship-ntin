@@ -5,23 +5,25 @@ P3-находки ревью-панелей и проходов; автопри�
 
 ## Открытые
 
-- **`docs/plans/README.md` говорит «нарезка впереди»** (панель 01,
-  `reviewer-kb`): обе записи открытых юнитов (`review-output`,
-  `registry-source`) устарели — нарезка выполнена 2026-11-25, тикеты
-  приняты. Дефект pre-existing и вне диффа тикета 01. Кандидат: правка
-  индекса при следующем касании README или тикетом 02. Место:
-  `docs/plans/README.md`, записи юнитов.
-- **Термин «flash» в пуле валидации** (панель 01, `reviewer-spec`): пул
-  после тикета 02 — три различных модели, `glm-5.3` не flash. В абзаце
-  init исправлено; `skills/critic/SKILL.md` («Пул валидации — flash») и
-  соответствующие `POOL_PHRASES` в `tests/test_skill_critic.py` вне рамок
-  тикета 01. Кандидат: снять термин из текста критика и его контракта.
-  Место: `skills/critic/SKILL.md`, `tests/test_skill_critic.py`.
-- **Значения пула в решениях план-гейта** (панель 01, `reviewer-spec`):
-  `docs/plans/registry-source.md` решения 2 несут пары, тогда как ревизия
-  объявляет config единственным носителем значений. «Готово» исправлено;
-  решение 2 — запись решения оператора. Кандидат: пометка «история» в
-  таблице решений. Место: `docs/plans/registry-source.md`, решение 2.
-- **`updated` в frontmatter `docs/plans/README.md`** (панель 01,
-  `reviewer-kb`): запись индекса датирована 2026-11-25, а `updated:
-  2026-11-24`. Pre-existing, вне диффа. Место: `docs/plans/README.md`.
+- **Термин «flash» в живых нормах пула** (панель 01, `reviewer-spec`;
+  расширено панелью 02, `reviewer-kb`): пул — три различных модели,
+  `glm-5.3` не flash. Термин живёт в каноне
+  (`docs/decisions/ontoship-core.md`), зеркале
+  (`skills/ship/references/method-phases.md`), справочнике
+  (`docs/reference/harnesses.md`), описании и теле скилла `critic` и
+  его контракте `tests/test_skill_critic.py`; якорь `METHOD_ANCHORS` в
+  `tests/test_canon_sync.py` держит фразу дословно. Канон правится
+  решением оператора; правка всех носителей — одним изменением. В
+  абзаце init термин снят. Место: перечисленные носители.
+
+## Закрытые
+
+- **`docs/plans/README.md` говорил «нарезка впереди» и `updated:
+  2026-11-24`** (панель 01, `reviewer-kb`; панель 02, `reviewer-kb`):
+  закрыто закрытием юнита — обе открытые записи (`registry-source`,
+  `review-output`) назвали состояние, `updated` — 2026-11-25. Носитель:
+  `docs/plans/README.md`.
+- **Значения пула в решении 2 спеки** (панель 01, `reviewer-spec`;
+  панель 02, `reviewer-code`): `docs/plans/registry-source.md` решение 2
+  переписано без литералов, «значения — проектное, носитель config»;
+  «Готово» исправлено раньше. Носитель: `docs/plans/registry-source.md`.

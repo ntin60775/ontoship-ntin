@@ -701,4 +701,9 @@ b12e4d0, ишью #4 (дефект продюсера из репетиции or
 | 01 | [тесты-потребители и init: структура пула](registry-source/01-consumers.md) | — |
 | 02 | [значения пула и живость каталога](registry-source/02-config-values.md) | 01 |
 
-Исполнение — `/ship`, один тикет за запуск.
+Юнит закрыт 2026-11-25: тикеты 01–02 исполнены `/ship` и приняты
+автоприёмкой (01 — `bee9493`, 02 — `5fb8c07`), набор 846 passed, lint
+чист; evidence — [01-evidence](registry-source/01-evidence/) и
+[02-evidence](registry-source/02-evidence/), открытые зацепки —
+[leads.md](registry-source/leads.md). Панели 4 ролей: 01 — P1/P2
+закрыты в проходе, 02 — P2 закрыты, P3 — триаж.

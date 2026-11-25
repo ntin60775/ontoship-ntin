@@ -3,7 +3,7 @@ node_type: index
 title: Планы
 service: _platform
 status: active
-updated: 2026-11-24
+updated: 2026-11-25
 links:
   part_of: [../README.md]
   relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, critic-consilium.md, review-slices.md, review-output.md, registry-source.md, ../decisions/ontoship-core.md, ../ops/continue.md]
@@ -180,13 +180,13 @@ links:
   без эха; причина фильтра — эхо/объём вывода, не вход (спайк);
   доказательство — тесты и проба полной панели на упавшем Qwen-маршруте
   (утверждена на план-гейте 2026-11-25; гейт проекций пройден, нарезка
-  впереди).
+  выполнена, тикеты 01–02 приняты; исполнение впереди).
 
 - [registry-source.md](registry-source.md) — config единственный источник
   значений маршрутов: тесты читают конфиг и структурный инвариант спеки
   (3 различных модели), init — структура и выбор; смена проект-маршрута
-  в одном файле (утверждена на план-гейте 2026-11-25; гейт проекций
-  пройден, нарезка впереди).
+  в одном файле (утверждена на план-гейте 2026-11-25; юнит закрыт
+  2026-11-25: тикеты 01–02 приняты автоприёмкой).
 
 Будущий юнит `chain-viz-panel` отменён решением оператора 2026-11-16
 вместе с прототипами доски; визуализация цепочки — статические
