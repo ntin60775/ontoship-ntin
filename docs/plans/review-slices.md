@@ -2,7 +2,7 @@
 node_type: plan
 title: review-slices — срезы ревью-панели вместо полного диффа в каждой роли
 service: _platform
-status: active
+status: deprecated
 updated: 2026-11-25
 tags: [plan, review, panel, slices, ship, qwen]
 links:
