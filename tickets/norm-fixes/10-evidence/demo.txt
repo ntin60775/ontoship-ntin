@@ -1,0 +1,5 @@
+warning: legacy .dsh/skills/kb-search is a real copy; it shadows the universal install — the next install removes it (archived)
+check: 11 skill(s) drifted
+removed legacy copy .dsh/skills/kb-search (archived: /tmp/nf10-demo-home/.dsh/state/ontoship/legacy-archive/p-1795608787/kb-search)
+check: ok
+знание форка

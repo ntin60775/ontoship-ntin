@@ -2,8 +2,9 @@
 
 The installer is the only thing that puts the core into a project's universal skill
 root, so these checks pin its observable effects: the `.agents/skills` layout, idempotence,
-drift and legacy reporting, removal of legacy symlinks pointing into the producer,
-and the refusal to touch anything else outside its destination.
+drift and legacy reporting, clearing of legacy entries (symlinks removed, real
+copies archived and removed), and the refusal to touch anything else outside
+its destination.
 
 spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents/skills;
       link/copy; idempotent; --check names each missing or drifted skill
@@ -24,7 +25,7 @@ spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, т
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, триаж G10/S3:
       chain выведен из ядра (SKILLS без chain, skills/chain снят); --check
       находит выведенный бандл по образцу legacy_warnings и не удаляет его
-invariant: docs/plans/harness-agnostic.md#готово — install writes <project>/.agents/skills and removes legacy symlinks pointing into the producer (ревизия 2026-11-25); real directories are never touched; --check is read-only and deletes nothing
+invariant: docs/plans/harness-agnostic.md#готово — install writes <project>/.agents/skills and clears legacy entries (ревизия 2026-11-25: symlinks removed, real copies archived and removed); symlinked roots pointing elsewhere are never followed; --check is read-only and deletes nothing
 """
 from __future__ import annotations
 
@@ -520,10 +521,14 @@ def test_check_warns_about_legacy_entries_without_deleting_them(project: Path) -
     assert tree(project) == before, "--check must not touch a legacy entry"
 
 
-def test_install_removes_legacy_symlinks_to_the_producer(project: Path) -> None:
+def test_install_removes_legacy_symlinks_to_the_producer(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """invariant: docs/plans/harness-agnostic.md#готово (ревизия 2026-11-25) —
-    install removes legacy symlinks pointing into the producer; real directories,
-    foreign targets and the producer itself are never touched."""
+    install removes legacy symlinks pointing into the producer; real directories
+    not named after bundles, foreign targets and the producer itself are never
+    touched."""
+    monkeypatch.setenv("HOME", str(tmp_path))
     producer_before = {k: v for k, v in tree(REPO / "skills").items()
                        if "__pycache__" not in k}
     # Whole-root legacy symlink (criterion 1, form 1).
@@ -536,8 +541,8 @@ def test_install_removes_legacy_symlinks_to_the_producer(project: Path) -> None:
     qoder = project / ".qoder" / "skills"
     qoder.mkdir(parents=True)
     os.symlink(REPO / "skills" / "init", qoder / "init")
-    # A real directory whose name collides with a shipped bundle survives.
-    real = qoder / "ship"
+    # A real directory NOT named after a shipped bundle survives.
+    real = qoder / "local-knowledge"
     real.mkdir()
     (real / "note.md").write_text("локальное знание\n", encoding="utf-8")
     # Negative boundaries: only symlinks into THIS repository are removed.
@@ -596,6 +601,149 @@ def test_pack_install_does_not_touch_legacy_roots(project: Path) -> None:
     assert result.returncode == 0, output(result)
     assert tree(project / ".dsh") == before
     assert (dsh / "kb-search").is_symlink()
+
+
+def test_install_archives_and_removes_real_legacy_copies(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """spec: docs/plans/harness-agnostic.md#готово — приписка ревизии legacy
+    2026-11-25 (второе решение оператора): реальные legacy-копии бандлов
+    сносятся install-режимами с архивом; знание форка переживает снос."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    legacy = project / ".dsh" / "skills" / "kb-search"
+    legacy.mkdir(parents=True)
+    (legacy / "local-knowledge.md").write_text("локальное знание форка\n", encoding="utf-8")
+
+    result = run(project)
+    assert result.returncode == 0, output(result)
+    assert "removed legacy copy .dsh/skills/kb-search (archived:" in output(result)
+    assert not legacy.exists()
+    archived = list((tmp_path / ".dsh" / "state" / "ontoship" / "legacy-archive")
+                    .glob("*/.dsh/kb-search/local-knowledge.md"))
+    assert len(archived) == 1
+    assert archived[0].read_text(encoding="utf-8") == "локальное знание форка\n"
+
+    project2 = tmp_path / "project2"
+    legacy2 = project2 / ".dsh" / "skills" / "kb-search"
+    legacy2.mkdir(parents=True)
+    (legacy2 / "k.md").write_text("y\n", encoding="utf-8")
+    result2 = run(project2, "--copy")
+    assert result2.returncode == 0, output(result2)
+    assert "removed legacy copy .dsh/skills/kb-search (archived:" in output(result2)
+    assert not legacy2.exists()
+    archived2 = list((tmp_path / ".dsh" / "state" / "ontoship" / "legacy-archive")
+                     .glob("*/.dsh/kb-search/k.md"))
+    assert len(archived2) == 1
+    assert archived2[0].read_text(encoding="utf-8") == "y\n"
+
+
+def test_install_archive_keeps_same_named_copies_from_different_roots(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """target: ревью nf10 (reviewer-spec/code, P1) — архив сливал одноимённые
+    бандлы из разных legacy-корней, знание форка терялось молча; фикс несёт
+    корень в пути архива."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    dsh = project / ".dsh" / "skills" / "kb-search"
+    dsh.mkdir(parents=True)
+    (dsh / "fork.md").write_text("dsh-fork\n", encoding="utf-8")
+    qoder = project / ".qoder" / "skills" / "kb-search"
+    qoder.mkdir(parents=True)
+    (qoder / "fork.md").write_text("qoder-fork\n", encoding="utf-8")
+
+    result = run(project)
+    assert result.returncode == 0, output(result)
+    assert not dsh.exists() and not qoder.exists()
+    root = tmp_path / ".dsh" / "state" / "ontoship" / "legacy-archive"
+    archived = list(root.glob("*/.dsh/kb-search/fork.md"))
+    archived += list(root.glob("*/.qoder/kb-search/fork.md"))
+    assert len(archived) == 2
+    contents = sorted(p.read_text(encoding="utf-8") for p in archived)
+    assert contents == ["dsh-fork\n", "qoder-fork\n"]
+
+
+def test_install_refuses_when_archive_cannot_be_written(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """spec: docs/plans/harness-agnostic.md#готово — приписка ревизии legacy-2:
+    отказ архивации — именованный отказ, каталог не тронут."""
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".dsh").mkdir()
+    (home / ".dsh" / "state").write_text("not a directory\n", encoding="utf-8")
+    monkeypatch.setenv("HOME", str(home))
+    legacy = project / ".dsh" / "skills" / "kb-search"
+    legacy.mkdir(parents=True)
+    (legacy / "f.md").write_text("знание\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project)
+    assert result.returncode != 0
+    assert "legacy archive" in output(result)
+    assert tree(project) == before
+    assert (legacy / "f.md").read_text(encoding="utf-8") == "знание\n"
+
+
+def test_install_names_missing_home(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """target: ревью nf10 (reviewer-code/tests, P3) — голый bash-выход
+    «HOME: unbound variable» вместо именованного отказа; фикс называет отказ."""
+    monkeypatch.delenv("HOME", raising=False)
+    legacy = project / ".dsh" / "skills" / "kb-search"
+    legacy.mkdir(parents=True)
+    (legacy / "f.md").write_text("x\n", encoding="utf-8")
+
+    result = run(project)
+    assert result.returncode != 0
+    assert "install: HOME is not set" in output(result)
+    assert legacy.exists()
+
+
+def test_check_names_real_legacy_copies_without_touching_them(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """spec: docs/plans/harness-agnostic.md#готово — приписка ревизии legacy
+    2026-11-25: --check называет реальную legacy-копию, read-only."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    install = run(project)
+    assert install.returncode == 0, output(install)
+    legacy = project / ".dsh" / "skills" / "kb-search"
+    legacy.mkdir(parents=True)
+    (legacy / "f.md").write_text("x\n", encoding="utf-8")
+    zcode = project / ".zcode" / "skills" / "init"
+    zcode.mkdir(parents=True)
+    (zcode / "g.md").write_text("z\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project, "--check")
+    assert result.returncode == 0, output(result)
+    text = output(result)
+    assert "legacy .dsh/skills/kb-search is a real copy" in text
+    assert "legacy .zcode/skills/init is a real copy" in text
+    assert "the next install removes it (archived)" in text
+    assert tree(project) == before
+    assert not (tmp_path / ".dsh" / "state" / "ontoship" / "legacy-archive").exists()
+
+
+def test_dry_run_plans_real_legacy_copy_removal_without_writing(
+    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """invariant: docs/plans/install-dry-run.md#готово — dry-run не пишет;
+    план сноса реальной legacy-копии печатается без записи."""
+    monkeypatch.setenv("HOME", str(tmp_path))
+    legacy = project / ".dsh" / "skills" / "kb-search"
+    legacy.mkdir(parents=True)
+    (legacy / "f.md").write_text("x\n", encoding="utf-8")
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 0, output(result)
+    text = output(result)
+    assert "would remove legacy copy .dsh/skills/kb-search (archive:" in text
+    assert "legacy-archive" in text
+    assert tree(project) == before
+    assert not (tmp_path / ".dsh" / "state" / "ontoship" / "legacy-archive").exists()
 
 
 def test_dry_run_plans_legacy_removal_without_writing(project: Path) -> None:

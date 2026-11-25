@@ -1,0 +1,27 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'removed legacy copy .dsh/skills/kb-search (archived:' in 'linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/k...d deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n'
+     +  where 'linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/k...d deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n' = output(CompletedProcess(args=['/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/scrip... /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n', stderr=''))
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:619: AssertionError: assert 'removed legacy copy .dsh/skills/kb-search (archived:' in 'linked kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/k...d deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n'
+E   AssertionError: assert (not True)
+     +  where True = exists()
+     +    where exists = PosixPath('/tmp/pytest-of-prog7/pytest-175/test_install_archive_keeps_sam0/project/.dsh/skills/kb-search').exists
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:656: AssertionError: assert (not True)
+E   AssertionError: assert 0 != 0
+     +  where 0 = CompletedProcess(args=['/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/scrip... /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n', stderr='').returncode
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:681: AssertionError: assert 0 != 0
+E   AssertionError: assert 0 != 0
+     +  where 0 = CompletedProcess(args=['/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/scrip... /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n', stderr='').returncode
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:698: AssertionError: assert 0 != 0
+E   AssertionError: assert 'legacy .dsh/skills/kb-search is a real copy' in 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\nok deliver (link)\ncheck: ok\n'
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:722: AssertionError: assert 'legacy .dsh/skills/kb-search is a real copy' in 'ok kb-search (link)\nok kb-curate (link)\nok init (link)\nok grilling (link)\nok to-tickets (link)\nok ship (link)\nok testing (link)\nok critic (link)\nok onto-doc (link)\nok pack (link)\nok deliver (link)\ncheck: ok\n'
+E   AssertionError: assert 'would remove legacy copy .dsh/skills/kb-search (archive:' in 'would create /tmp/pytest-of-prog7/pytest-175/test_dry_run_plans_real_legacy0/project/.agents/skills\nwould link kb-se...k deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n'
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/tests/test_install.py:743: AssertionError: assert 'would remove legacy copy .dsh/skills/kb-search (archive:' in 'would create /tmp/pytest-of-prog7/pytest-175/test_dry_run_plans_real_legacy0/project/.agents/skills\nwould link kb-se...k deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf10-legacy-real-dirs/skills/deliver\n'
+=========================== short test summary info ============================
+FAILED tests/test_install.py::test_install_archives_and_removes_real_legacy_copies
+FAILED tests/test_install.py::test_install_archive_keeps_same_named_copies_from_different_roots
+FAILED tests/test_install.py::test_install_refuses_when_archive_cannot_be_written
+FAILED tests/test_install.py::test_install_names_missing_home - AssertionErro...
+FAILED tests/test_install.py::test_check_names_real_legacy_copies_without_touching_them
+FAILED tests/test_install.py::test_dry_run_plans_real_legacy_copy_removal_without_writing
+6 failed, 38 deselected in 0.16s
