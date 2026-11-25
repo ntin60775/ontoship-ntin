@@ -6,7 +6,7 @@ status: active
 updated: 2026-11-24
 links:
   part_of: [../README.md]
-  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, critic-consilium.md, review-slices.md, review-output.md, ../decisions/ontoship-core.md, ../ops/continue.md]
+  relates_to: [core-kb.md, harness-agnostic.md, workflow-skills.md, install-dry-run.md, review-config.md, evidence-verification.md, ship-isolation.md, onto-doc.md, understanding-check.md, review-loose-ends.md, role-registry.md, entry-and-continuity.md, bundle-references.md, canon-section-in-bundles.md, plan-gate-ask.md, to-tickets-agent.md, dsh-adaptation.md, kb-scope.md, standards-autoship.md, core-team-boundaries.md, deliver.md, critic-consilium.md, review-slices.md, review-output.md, registry-source.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
 
 # Планы
@@ -181,6 +181,11 @@ links:
   доказательство — тесты и проба полной панели на упавшем Qwen-маршруте
   (утверждена на план-гейте 2026-11-25; гейт проекций пройден, нарезка
   впереди).
+
+- [registry-source.md](registry-source.md) — config единственный источник
+  маршрутов: тесты читают конфиг и инвариант спеки (3 различных модели
+  пула), не хардкодят значения; стандарт пула flash-1017; смена маршрута
+  в одном месте (draft, план-гейт впереди).
 
 Будущий юнит `chain-viz-panel` отменён решением оператора 2026-11-16
 вместе с прототипами доски; визуализация цепочки — статические
