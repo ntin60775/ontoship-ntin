@@ -47,7 +47,7 @@ DSH_FLOW_NEEDLES = (
     "spawn, не `subagent_fork`",
     "list_subagent_models",
     "три члена",
-    "различных flash-маршрутах",
+    "различных маршрутах",
     "председатель",
 )
 # core-team-boundaries 01 («Готово» 1, триаж G3/G17; panel P2): the former
@@ -245,8 +245,8 @@ def test_kb_flow_checks_can_fail():
     assert any("[validation]" in error for error in _flow_errors(no_pool))
 
     double_pool = harnesses.replace(
-        "flash-маршрутах пула `[validation]` реестра",
-        "flash-маршрутах пула `[validation]` и `[validation]` реестра", 1)
+        "маршрутах пула `[validation]` реестра",
+        "маршрутах пула `[validation]` и `[validation]` реестра", 1)
     assert double_pool != harnesses
     assert any("2 times, want once" in error
                for error in _flow_errors(double_pool))

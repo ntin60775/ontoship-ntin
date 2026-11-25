@@ -54,9 +54,9 @@ MEMBER_PHRASES = (
     "что править",
 )
 POOL_PHRASES = (
-    "Пул валидации — flash",
+    "Пул валидации — три различных маршрута",
     "секция `[validation]`",
-    "Стандартная раскладка — три различных flash-маршрута",
+    "Стандартная раскладка — три различных модели по model-части",
     "конкретные маршруты в скилле не хардкодятся",
     "`list_subagent_models`",
     "слот члена выпадает",
@@ -322,7 +322,7 @@ def test_members_are_isolated_and_write_raw_reports():
 
 def test_pool_routes_are_distinct_and_dead_routes_do_not_substitute():
     """spec: docs/plans/critic-consilium.md#готово — пункт 2, решения 2,
-    6, 9: три различных flash-маршрута, мёртвый слот выпадает."""
+    6, 9: три различных маршрута, мёртвый слот выпадает."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     section = _normalized_lower(_section(body, "пул и маршруты"))
     assert section, "section «Пул и маршруты» is missing"
