@@ -22,8 +22,11 @@ from pathlib import Path
 
 import pytest
 
+import test_role_registry  # reuse: the config pool reader, not duplicated
+
 REPO = Path(__file__).resolve().parent.parent
 SKILL = REPO / "skills" / "critic" / "SKILL.md"
+CONFIG = REPO / ".agents" / "config.toml"
 NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 DESCRIPTION_MAX = 500
 
@@ -155,11 +158,28 @@ RETIRED_PHRASES = (
     "powered by",
 )
 
-POOL_MODELS = (
-    "deepseek-account/deepseek-flash",
-    "qwen-token-plan/qwen3.8-flash",
-    "qwen-token-plan-glm/glm-5.3",
-)
+
+def _pool_models() -> tuple[str, ...]:
+    """The pool routes: the config is the single source of values."""
+    return tuple(test_role_registry._pool_models(CONFIG.read_text("utf-8")))
+
+
+def _pool_errors(models: tuple[str, ...]) -> list[str]:
+    """The pool invariant: three distinct models by model part (spec)."""
+    if not models:
+        return ["pool: no routes"]
+    errors = []
+    if len(models) != 3:
+        errors.append(f"pool: {len(models)} routes, want three")
+    parts = [model.split("/", 1)[-1] for model in models]
+    if len(parts) != len(set(parts)):
+        errors.append("pool: the same model twice")
+    return errors
+
+
+def _hardcoded_pool_errors(text: str, models: tuple[str, ...]) -> list[str]:
+    """Pool routes a skill must not carry: the config owns the values."""
+    return [f"the skill hardcodes {route!r}" for route in models if route in text]
 
 
 def _parse(text: str) -> tuple[dict[str, str], str]:
@@ -361,11 +381,26 @@ def test_manual_probe_is_an_exception_not_a_gate():
 
 
 def test_skill_hardcodes_no_pool_route():
-    """spec: docs/plans/critic-consilium.md#ограничения — маршруты членов
-    берутся из [validation], в скилле не хардкодятся."""
+    """spec: docs/plans/registry-source.md#готово — маршруты членов берутся
+    из [validation], в скилле не хардкодятся; всаженный маршрут из конфига
+    краснит проверку."""
     text = SKILL.read_text("utf-8")
-    for route in POOL_MODELS:
-        assert route not in text, f"the skill hardcodes {route!r}"
+    models = _pool_models()
+    assert _hardcoded_pool_errors(text, models) == []
+    planted = text + f"\nМаршрут члена: `{models[0]}`.\n"
+    assert _hardcoded_pool_errors(planted, models)
+
+
+def test_pool_routes_come_from_config_and_are_distinct():
+    """spec: docs/plans/registry-source.md#готово — значения пула читаются
+    из конфига, инвариант — три различных модели по model-части; пустой пул
+    и дубль красные, одна модель на двух провайдерах не различна."""
+    models = _pool_models()
+    _provider, _separator, model_part = models[0].partition("/")
+    assert _pool_errors(models) == []
+    assert _pool_errors(())
+    assert _pool_errors((models[0], models[0], models[1]))
+    assert _pool_errors((models[0], f"other-provider/{model_part}", models[2]))
 
 
 def test_retired_slice_and_plan_critic_wording_is_banned():

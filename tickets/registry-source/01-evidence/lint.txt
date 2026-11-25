@@ -1,0 +1,9 @@
+$ python3 skills/kb-search/gitmark.py index
+✓ index: 64 файлов · 518 чанков · 190 ссылок · trigram=on → .gitmark/index.db
+exit=0
+
+$ python3 skills/kb-search/gitmark.py lint --strict
+
+scope: 235 файлов исключено по 1 префиксам
+[32m✓ чисто[0m  (64 файлов · —)
+exit=0

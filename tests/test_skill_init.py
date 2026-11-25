@@ -26,7 +26,7 @@ spec: docs/plans/dsh-adaptation.md#готово — стандартная ра�
       запись без ask при живых маршрутах (ZCode-ветка выведена решением
       оператора; хроника — continue.md)
 spec: docs/plans/standards-autoship.md#готово — «Готово» 9 (тикет 05): init
-      пишет стандартную раскладку с пулом flash, секция пула в существующем
+      пишет стандартную раскладку с пулом валидации, секция пула в существующем
       конфиге — названный пропуск
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, решение 3:
       блок init несёт команды ядра, словарь ведения (цепочка, орк-промт)
@@ -131,24 +131,23 @@ LAYOUT_NEEDLES = (
     "штатный дефолт модели",
 )
 
-# critic-consilium («Готово» 3): the registry carries a validation pool of
-# three distinct flash models; init writes the same pool and names the member
-# route rule. The pool section is part of the registry: an existing config
-# without it is a named gap, not a silent append.
+# registry-source («Готово»): the pool is a structural invariant — three
+# distinct models by model part — and its pairs are project values chosen on
+# the bootstrap from the live catalog after the operator's answer. Init writes
+# no pool route; an existing config without the section is a named gap, not a
+# silent append.
 POOL_NEEDLES = (
     "**Пул валидации.**",
     "`[validation]`",
-    "`deepseek-account/deepseek-flash` с уровнем `max`",
-    "`qwen-token-plan/qwen3.8-flash` с уровнем `xhigh`",
-    "`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
-    "Сверь маршруты и уровни пула с живым каталогом",
-    "пиши без ask",
+    "три различных модели по model-части",
+    "варианты — из живого `list_subagent_models`",
+    "запись — после ответа оператора",
+    "делегированный прогон — названный стоп",
     "Пул — источник маршрутов членов консилиума",
-    "маршруты различны по модели",
     "Секция пула валидации `[validation]`",
 )
 RETIRED_POOL_PHRASES = ("модель под срез", "причина по срезу",
-                        "срезов валидации")
+                        "срезов валидации", "пиши без ask")
 
 FORBIDDEN = ("registry", "provenance", "reel", "acceptance chord", "inventory",
              "serve", ".dsh", ".qoder", "commands.md",
@@ -930,9 +929,9 @@ def test_standard_layout_contract_can_fail():
 
 
 def test_bootstrap_writes_the_validation_pool():
-    """spec: docs/plans/critic-consilium.md#готово — пункт 3: init пишет
-    пул из трёх различных flash-моделей, называет маршруты членов и не
-    говорит «модель под срез»."""
+    """spec: docs/plans/registry-source.md#готово — init несёт структуру
+    пула (три различных модели по model-части), ask из живого каталога и
+    запись после ответа; пар пула в скилле нет."""
     text = SKILL.read_text("utf-8")
     layout = _branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
     assert layout, "the bootstrap section is missing"
@@ -944,32 +943,35 @@ def test_bootstrap_writes_the_validation_pool():
 
 def test_pool_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the pool contract rejects a lost pool marker, a drifted pool route, a
-    lost pool level, a lost live-catalog check, a lost member-route rule and
+    the pool contract rejects a lost pool marker, a lost structural clause, a
+    lost live-catalog ask, a lost record-after-answer rule, a returned
+    without-ask rule, a lost delegated-run stop, a lost member-route rule and
     a returned slice wording."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
     for old, new, needle in (
         ("**Пул валидации.**", "Пул:", "**Пул валидации.**"),
-        ("`deepseek-account/deepseek-flash`", "`deepseek-account/deepseek-max`",
-         "`deepseek-account/deepseek-flash` с уровнем `max`"),
-        ("`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
-         "`qwen-token-plan-glm/glm-5.3` с уровнем `high`",
-         "`qwen-token-plan-glm/glm-5.3` с уровнем `max`"),
-        ("маршруты различны по модели", "маршруты выбираются под срез",
-         "маршруты различны по модели"),
-        ("Сверь маршруты и уровни пула с живым каталогом",
-         "Сверь маршруты пула с конфигом",
-         "Сверь маршруты и уровни пула с живым каталогом"),
-        ("Секция пула валидации `[validation]`", "Секция пула",
-         "Секция пула валидации `[validation]`"),
+        ("три различных модели по model-части", "три маршрута пула",
+         "три различных модели по model-части"),
+        ("варианты — из живого `list_subagent_models`", "варианты — из конфига",
+         "варианты — из живого `list_subagent_models`"),
+        ("запись — после ответа оператора", "запись без ask",
+         "запись — после ответа оператора"),
+        ("запись — после ответа оператора",
+         "запись — после ответа оператора, пиши без ask",
+         "pool: retired phrase 'пиши без ask' is back"),
+        ("делегированный прогон — названный стоп",
+         "делегированный прогон — обычный",
+         "делегированный прогон — названный стоп"),
         ("Пул — источник маршрутов членов консилиума",
          "Модель под срез. Пул — источник маршрутов членов консилиума",
          "pool: retired phrase 'модель под срез' is back"),
         ("причина выбора — в отчёте гейта",
          "причина по срезу — в отчёте гейта",
          "pool: retired phrase 'причина по срезу' is back"),
+        ("Секция пула валидации `[validation]`", "Секция пула",
+         "Секция пула валидации `[validation]`"),
     ):
         # Whitespace-flexible replace: the clause may wrap at 80 columns,
         # the line structure of the rest of the skill stays intact.

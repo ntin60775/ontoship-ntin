@@ -1,0 +1,33 @@
+# setup: git show 6a75096:tests/test_role_registry.py > /tmp/base_trr.py
+# run:   python3 tickets/registry-source/01-evidence/probes.py
+== green probe: first pool model part -> '<provider>/model-probe' ==
+slice _config_errors: [] (green)
+base  _config_errors: ["config: the validation pool [('deepseek-account/model-probe', 'max'), ('qwen-token-plan/qwen3.8-flash', 'xhigh'), ('qwen-token-plan-glm/glm-5.3', 'max')] is not the standard flash pool"]
+
+== config-built mutation probes (full checker output) ==
+no-pool-section: ['config: the validation pool section [validation] is missing']
+lost-level: ["config: a pool entry without model/level: {'model': 'deepseek-account/deepseek-flash', 'level': ''}"]
+duplicate-entry: ['config: the validation pool carries 4 entries, want 3', 'config: the validation pool carries a duplicate entry', 'config: the validation pool carries the same model twice']
+short-pool: ['config: the validation pool carries 2 entries, want 3']
+same-model-twice: ['config: the validation pool carries a duplicate entry', 'config: the validation pool carries the same model twice']
+same-model-cross-provider: ['config: the validation pool carries the same model twice']
+lost-core-section: ['config: the curator role has no model route section']
+
+== init parity: every structural clause is load-bearing ==
+clean: [] (green)
+mutation 'три различных модели по model-части': ["init pool: missing 'три различных модели по model-части'"]
+mutation 'варианты — из живого `list_subagent_mode': ["init pool: missing 'варианты — из живого `list_subagent_models`'"]
+mutation 'запись — после ответа оператора': ["init pool: missing 'запись — после ответа оператора'"]
+
+== test_skill_critic: pool invariant and no-hardcode ==
+config pool: ('deepseek-account/deepseek-flash', 'qwen-token-plan/qwen3.8-flash', 'qwen-token-plan-glm/glm-5.3')
+distinct: [] (green)
+empty pool: ['pool: no routes']
+duplicate route: ['pool: the same model twice']
+same model, other provider: ['pool: the same model twice']
+skill hardcodes no route: [] (green)
+planted route: ["the skill hardcodes 'deepseek-account/deepseek-flash'"]
+
+== robustness: a section appended after the pool does not disturb a probe ==
+short-pool on the appended config: ['config: the validation pool carries 2 entries, want 3']
+exit=0

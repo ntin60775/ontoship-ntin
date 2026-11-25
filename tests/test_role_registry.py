@@ -6,6 +6,10 @@ check line, the reference base-set sections) must stay in two-way parity with
 it. Parsing is text-based, like the installer array SKILLS; the check-list
 parser is reused from tests/test_skill_init.py, not duplicated.
 
+spec: docs/plans/registry-source.md#готово — the config is the single source
+of the route values; these tests read it and guard the spec's structural
+invariant, so a structurally valid route change stays green.
+
 Every check takes a root parameter (the _parity_errors pattern of
 tests/test_install.py): probes mutate copies in a temporary tree, the working
 tree is never modified.
@@ -236,72 +240,87 @@ def test_a_mutated_carrier_is_named_by_the_probe(
     assert any(needle in error for error in errors), errors
 
 
-# critic-consilium («Готово» 2): the committed registry carries the panel
-# routes and a validation pool of three distinct models. The standard pool's
-# independent source is the spec, not the config itself. Pack roles are
-# dynamic (installed-pack manifests) and are not listed in this repo's
-# registry.
+# critic-consilium («Готово» 2), registry-source («Готово»): the committed
+# registry carries the panel roles and a validation pool whose VALUES live in
+# the config only. The spec's structural invariant is the independent source
+# of the expectation: three pool entries, three distinct models by model part,
+# a non-empty level per pool entry; a role level may be absent (the model
+# default applies). Pack roles are dynamic (installed-pack manifests) and are
+# not listed in this repo's registry.
 CONFIG = ".agents/config.toml"
 INIT = "skills/init/SKILL.md"
-CHAIR_ROUTE = ("qwen-token-plan-max/qwen4-max", "xhigh")
-STANDARD_POOL = (
-    ("deepseek-account/deepseek-flash", "max"),
-    ("qwen-token-plan/qwen3.8-flash", "xhigh"),
-    ("qwen-token-plan-glm/glm-5.3", "max"),
+POOL_SIZE = 3
+POOL_HEADER = "[validation]"
+POOL_ENTRY = re.compile(r'^\s*\{\s*model\s*=\s*"')
+
+# The init bootstrap produces the invariant for a new project, never its
+# values: the project routes are chosen on the bootstrap from the live catalog.
+INIT_POOL_NEEDLES = (
+    "три различных модели по model-части",
+    "варианты — из живого `list_subagent_models`",
+    "запись — после ответа оператора",
 )
 
 
-def _config_errors(root: Path) -> list[str]:
-    """Every violated registry-config rule; empty means the registry is sound."""
+def _route_string(value: object) -> bool:
+    """A route is a non-empty `provider/model` pair."""
+    if not isinstance(value, str):
+        return False
+    provider, separator, model = value.partition("/")
+    return bool(separator and provider and model)
+
+
+def _config_data(root: Path) -> tuple[dict | None, list[str]]:
+    """The parsed config and its parse errors; None means unreadable."""
     import tomllib
 
     path = root / CONFIG
     if not path.is_file():
-        return [f"config: {CONFIG} is missing"]
-    text = path.read_text("utf-8")
+        return None, [f"config: {CONFIG} is missing"]
     try:
-        data = tomllib.loads(text)
+        return tomllib.loads(path.read_text("utf-8")), []
     except tomllib.TOMLDecodeError as exc:
-        return [f"config: {CONFIG} is not TOML ({exc})"]
-    errors: list[str] = []
-    core = _parsed_tuple((root / REGISTRY).read_text("utf-8"), "CORE_ROLES") or []
+        return None, [f"config: {CONFIG} is not TOML ({exc})"]
+
+
+def _config_errors(root: Path) -> list[str]:
+    """Every violated registry-config rule; empty means the registry is sound."""
+    data, errors = _config_data(root)
+    if data is None:
+        return errors
+    core = _parsed_tuple((root / REGISTRY).read_text("utf-8"), "CORE_ROLES")
+    if core is None:
+        return errors + ["config: the registry carries no CORE_ROLES tuple"]
     agents = data.get("agents", {})
     if not isinstance(agents, dict):
         return ["config: the agents table is missing"]
     for role in core:
         section = agents.get(role)
-        if not isinstance(section, dict) or not isinstance(section.get("model"), str) \
-                or "/" not in section.get("model", ""):
+        if not isinstance(section, dict) or not _route_string(section.get("model")):
             errors.append(f"config: the {role} role has no model route section")
-    critic = agents.get("critic")
-    if not isinstance(critic, dict) or \
-            (critic.get("model"), critic.get("level")) != CHAIR_ROUTE:
-        errors.append(f"config: the critic chairman route is not "
-                      f"{CHAIR_ROUTE[0]}/{CHAIR_ROUTE[1]}")
     validation = data.get("validation")
-    if not isinstance(validation, dict) or "pool" not in validation:
-        errors.append("config: the validation pool section [validation] is missing")
-    else:
-        pool = validation["pool"]
-        if not isinstance(pool, list):
-            errors.append("config: the validation pool is not a list")
-        else:
-            entries = []
-            for item in pool:
-                if not isinstance(item, dict) or not item.get("model") \
-                        or not item.get("level"):
-                    errors.append(f"config: a pool entry without model/level: {item!r}")
-                    continue
-                entries.append((item["model"], item["level"]))
-            if len(entries) != len(set(entries)):
-                errors.append("config: the validation pool carries a duplicate entry")
-            models = [model for model, _level in entries]
-            if len(models) != len(set(models)):
-                errors.append("config: the validation pool carries the same "
-                              "model twice")
-            if sorted(entries) != sorted(STANDARD_POOL):
-                errors.append(f"config: the validation pool {entries} "
-                              "is not the standard flash pool")
+    if not isinstance(validation, dict):
+        return errors + ["config: the validation pool section [validation] is missing"]
+    pool = validation.get("pool")
+    if pool is None:
+        return errors + ["config: the [validation] section carries no pool list"]
+    if not isinstance(pool, list):
+        return errors + ["config: the validation pool is not a list"]
+    entries = []
+    for item in pool:
+        if not isinstance(item, dict) or not _route_string(item.get("model")) \
+                or not isinstance(item.get("level"), str) or not item["level"]:
+            errors.append(f"config: a pool entry without model/level: {item!r}")
+            continue
+        entries.append((item["model"], item["level"]))
+    if len(pool) != POOL_SIZE:
+        errors.append(f"config: the validation pool carries {len(pool)} entries, "
+                      f"want {POOL_SIZE}")
+    if len(entries) != len(set(entries)):
+        errors.append("config: the validation pool carries a duplicate entry")
+    models = [model.split("/", 1)[1] for model, _level in entries]
+    if len(models) != len(set(models)):
+        errors.append("config: the validation pool carries the same model twice")
     return errors
 
 
@@ -316,84 +335,192 @@ def _config_tree(tmp_path: Path, config_text: str) -> Path:
     return root
 
 
+def _split_pool(text: str) -> tuple[str, str, str]:
+    """(before the pool array, the array, after it): mutations stay inside the
+    array whatever order the config's sections take."""
+    head, separator, tail = text.partition(f"\n{POOL_HEADER}\n")
+    assert separator, "the config has no [validation] section to mutate"
+    start = tail.find("pool = [")
+    assert start >= 0, "the [validation] section carries no pool array"
+    end = tail.find("\n]", start)
+    assert end >= 0, "the pool array has no closing bracket line"
+    end += len("\n]")
+    return f"{head}\n{POOL_HEADER}\n" + tail[:start], tail[start:end], tail[end:]
+
+
+def _pool_lines(text: str) -> list[str]:
+    """The pool-array lines, in config order."""
+    return _split_pool(text)[1].splitlines(keepends=True)
+
+
+def _pool_entry_indexes(lines: list[str]) -> list[int]:
+    """The indexes of the pool entries; an unexpected layout fails loudly."""
+    indexes = [i for i, line in enumerate(lines) if POOL_ENTRY.match(line)]
+    assert len(indexes) == POOL_SIZE, (
+        f"the pool array carries {len(indexes)} entry lines, want {POOL_SIZE}: "
+        "update the mutation helpers")
+    return indexes
+
+
+def _pool_models(text: str) -> list[str]:
+    """The pool routes, in config order, read from the config text."""
+    import tomllib
+
+    return [entry["model"] for entry in tomllib.loads(text)["validation"]["pool"]]
+
+
+def _duplicate_first_pool_entry(text: str) -> str:
+    lines = _pool_lines(text)
+    index = _pool_entry_indexes(lines)[0]
+    lines.insert(index + 1, lines[index])
+    prefix, _block, suffix = _split_pool(text)
+    return prefix + "".join(lines) + suffix
+
+
+def _drop_last_pool_entry(text: str) -> str:
+    lines = _pool_lines(text)
+    del lines[_pool_entry_indexes(lines)[-1]]
+    prefix, _block, suffix = _split_pool(text)
+    return prefix + "".join(lines) + suffix
+
+
+def _blank_first_pool_level(text: str) -> str:
+    lines = _pool_lines(text)
+    index = _pool_entry_indexes(lines)[0]
+    lines[index] = re.sub(r'level = "[^"]*"', 'level = ""', lines[index], count=1)
+    assert 'level = ""' in lines[index], "the first pool entry carries no level"
+    prefix, _block, suffix = _split_pool(text)
+    return prefix + "".join(lines) + suffix
+
+
+def _replace_in_pool(text: str, old: str, new: str) -> str:
+    prefix, block, suffix = _split_pool(text)
+    assert old in block, f"{old!r} is not a pool value"
+    return prefix + block.replace(old, new, 1) + suffix
+
+
+def _route_providers(text: str) -> list[str]:
+    """Every provider the config names, roles and pool."""
+    import tomllib
+
+    data = tomllib.loads(text)
+    routes = [section["model"] for section in data["agents"].values()
+              if isinstance(section, dict) and isinstance(section.get("model"), str)]
+    return [route.split("/", 1)[0] for route in routes + _pool_models(text)]
+
+
+def _cross_provider_same_model(text: str) -> str:
+    """The last pool entry gets the first entry's model part on another
+    provider: one model on two providers is not distinct (spec)."""
+    models = _pool_models(text)
+    provider, _separator, model_part = models[0].partition("/")
+    other = next((candidate for candidate in _route_providers(text)
+                  if candidate != provider), "")
+    assert other, "the config names a single provider; the probe needs two"
+    return _replace_in_pool(text, models[-1], f"{other}/{model_part}")
+
+
+def _structurally_valid_route_change(text: str) -> str:
+    """The first pool route gets a new model part: distinctness is intact."""
+    model = _pool_models(text)[0]
+    provider = model.split("/", 1)[0]
+    return _replace_in_pool(text, model, f"{provider}/model-probe")
+
+
+def _replace_flexible(text: str, old: str, new: str) -> str:
+    """A whitespace-flexible replacement: the skill prose wraps at 80 columns."""
+    pattern = re.escape(old).replace("\\ ", r"\s+")
+    return re.sub(pattern, new, text, count=1)
+
+
 def _init_pool_errors(text: str) -> list[str]:
-    """The init standard layout names every pool pair and the chair row."""
-    errors: list[str] = []
-    for model, level in STANDARD_POOL:
-        phrase = f"`{model}` с уровнем `{level}`"
-        if phrase not in text:
-            errors.append(f"init pool: missing {phrase!r}")
-    chair = f"| `critic` | `{CHAIR_ROUTE[0]}` | `{CHAIR_ROUTE[1]}` |"
-    if chair not in text:
-        errors.append(f"init pool: missing chairman row {chair!r}")
-    return errors
+    """The init bootstrap names the pool invariant — three distinct models by
+    model part, the ask from the live catalog, the record after the answer —
+    not project routes."""
+    layout = test_skill_init._branch(text, "## 5. Бутстрап ролей", "## 6. Проверь")
+    if not layout:
+        return ["init pool: the bootstrap section is missing"]
+    flat = re.sub(r"\s+", " ", layout)
+    return [f"init pool: missing {needle!r}"
+            for needle in INIT_POOL_NEEDLES if needle not in flat]
 
 
-def test_init_pool_matches_the_registry() -> None:
-    """spec: docs/plans/critic-consilium.md#готово — пункт 2: паритет
-    config ↔ init, три модели и маршрут председателя."""
+def test_init_pool_carries_the_invariant() -> None:
+    """spec: docs/plans/registry-source.md#готово — паритет config ↔ init по
+    инварианту: три различных модели по model-части, ask из живого каталога,
+    запись после ответа; пар пула init не несёт."""
+    assert set(INIT_POOL_NEEDLES) <= set(test_skill_init.POOL_NEEDLES)
     assert _init_pool_errors((REPO / INIT).read_text("utf-8")) == []
 
 
 def test_init_pool_parity_can_fail() -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    a drifted init pool route or chair row reddens the parity."""
+    потеря любой части структуры пула в init краснит паритет."""
     text = (REPO / INIT).read_text("utf-8")
     assert _init_pool_errors(text) == []
     for old, new in (
-        ("`qwen-token-plan-glm/glm-5.3` с уровнем `max`",
-         "`qwen-token-plan-glm/glm-5.3` с уровнем `high`"),
-        ("| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
-         "| `critic` | `qwen-token-plan-glm/glm-5.3` | `max` |"),
+        ("три различных модели по model-части", "три маршрута пула"),
+        ("варианты — из живого `list_subagent_models`", "варианты — из конфига"),
+        ("запись — после ответа оператора", "запись без ask"),
     ):
-        mutated = text.replace(old, new, 1)
+        mutated = _replace_flexible(text, old, new)
         assert mutated != text, old
-        assert _init_pool_errors(mutated), old
+        assert f"init pool: missing {old!r}" in _init_pool_errors(mutated), old
 
 
 def test_committed_registry_carries_roles_and_the_pool() -> None:
-    """spec: docs/plans/critic-consilium.md#готово — пункт 2: реестр
-    .agents/config.toml несёт пул из трёх различных flash-моделей."""
+    """spec: docs/plans/registry-source.md#готово — реестр
+    .agents/config.toml несёт секции ролей ядра и пул из трёх различных
+    моделей по model-части."""
     assert _config_errors(REPO) == []
+
+
+def _without_pool_section(text: str) -> str:
+    head, separator, _tail = text.partition(f"\n{POOL_HEADER}\n")
+    assert separator, "the config has no [validation] section to remove"
+    return head
 
 
 def test_registry_config_contract_can_fail(tmp_path: Path) -> None:
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
-    the registry-config contract rejects a lost pool section, a drifted pool
-    route, a lost pool level, a duplicate entry, the same model twice and a
-    lost core role section."""
+    the registry-config contract rejects a lost pool section, a lost level,
+    a duplicate entry, a short pool, the same model twice (one model on two
+    providers included) and a lost core role section; every mutation is built
+    from the config itself."""
     config = (REPO / CONFIG).read_text("utf-8")
     assert _config_errors(REPO) == []
-
+    core = _parsed_tuple((REPO / REGISTRY).read_text("utf-8"), "CORE_ROLES") or []
+    models = _pool_models(config)
+    role = core[-1]
     probes = (
-        ("no-pool-section", config.split("\n[validation]\n")[0],
+        ("no-pool-section", _without_pool_section(config),
          "[validation] is missing"),
-        ("drifted-route",
-         config.replace("deepseek-account/deepseek-flash",
-                        "deepseek-account/deepseek-max", 1),
-         "is not the standard flash pool"),
-        ("lost-level", config.replace('level = "max" }', 'level = "" }', 1),
+        ("lost-level", _blank_first_pool_level(config),
          "without model/level"),
-        ("duplicate-entry",
-         config.replace(
-             '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },',
-             '{ model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },\n'
-             '  { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },', 1),
+        ("duplicate-entry", _duplicate_first_pool_entry(config),
          "duplicate entry"),
-        ("chair-route",
-         config.replace('model = "qwen-token-plan-max/qwen4-max"',
-                        'model = "qwen-token-plan-glm/glm-5.3"', 1),
-         "chairman route"),
-        ("same-model-twice",
-         config.replace(
-             '{ model = "qwen-token-plan-glm/glm-5.3", level = "max" },',
-             '{ model = "deepseek-account/deepseek-flash", level = "max" },', 1),
+        ("short-pool", _drop_last_pool_entry(config), "want 3"),
+        ("same-model-twice", _replace_in_pool(config, models[-1], models[0]),
+         "same model twice"),
+        ("same-model-cross-provider", _cross_provider_same_model(config),
          "same model twice"),
         ("lost-core-section",
-         config.replace("[agents.curator]", "[agents.kurator]", 1),
-         "the curator role has no model route section"),
+         config.replace(f"[agents.{role}]", f"[agents.{role}-lost]", 1),
+         f"the {role} role has no model route section"),
     )
     for name, mutated, needle in probes:
         assert mutated != config, f"the probe {name} must change the config"
         errors = _config_errors(_config_tree(tmp_path / name, mutated))
         assert any(needle in error for error in errors), (name, errors)
+
+
+def test_a_structurally_valid_route_change_is_green(tmp_path: Path) -> None:
+    """spec: docs/plans/registry-source.md#готово — смена model-части
+    (провайдер тот же) не краснит инвариант: значения живут в конфиге, тест
+    сторожит структуру. На базовом коммите тот же сдвиг был красным — тест
+    пинил точный стандарт пула."""
+    assert _config_errors(REPO) == []
+    config = (REPO / CONFIG).read_text("utf-8")
+    mutated = _structurally_valid_route_change(config)
+    assert mutated != config
+    assert _config_errors(_config_tree(tmp_path, mutated)) == []
