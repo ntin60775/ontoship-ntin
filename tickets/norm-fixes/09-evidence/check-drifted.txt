@@ -1,0 +1,12 @@
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+drift: ship: directory differs from the source
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+ok deliver (copy)
+check: 1 skill(s) drifted

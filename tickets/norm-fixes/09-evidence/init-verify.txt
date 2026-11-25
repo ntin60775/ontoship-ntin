@@ -1,0 +1,8 @@
+markers BEGIN: 1
+markers END: 1
+gitignore lines: 4
+config sections: 7
+?? .agents/
+?? .gitignore
+?? AGENTS.md
+?? docs/

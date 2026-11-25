@@ -1,0 +1,2 @@
+install: copy differs: /tmp/probe-gaps-2026-11-25/drift-test/.agents/skills/ship (remove it to reinstall)
+installer exit on drifted copy: 1

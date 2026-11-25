@@ -1,0 +1,13 @@
+warning: legacy .dsh/skills -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/skills; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — remove it manually
+ok kb-search (copy)
+ok kb-curate (copy)
+ok init (copy)
+ok grilling (copy)
+ok to-tickets (copy)
+ok ship (copy)
+ok testing (copy)
+ok critic (copy)
+ok onto-doc (copy)
+ok pack (copy)
+ok deliver (copy)
+check: ok

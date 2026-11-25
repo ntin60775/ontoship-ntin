@@ -1,0 +1,11 @@
+unchanged kb-search
+unchanged kb-curate
+unchanged init
+unchanged grilling
+unchanged to-tickets
+copied ship -> /tmp/probe-gaps-2026-11-25/project/.agents/skills/ship
+unchanged testing
+unchanged critic
+unchanged onto-doc
+unchanged pack
+unchanged deliver
