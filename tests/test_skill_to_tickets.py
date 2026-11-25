@@ -91,6 +91,10 @@ SELF_CHECK_PHRASES = (
     "демо-путь",
     "падают на базовом коммите",
 )
+SLICING_DECISION_PHRASES = (
+    "не спрашивай оператора, резать ли план",
+    "это твоя оценка",
+)
 GATE_CONTRADICTIONS = (
     "запись гейта не проверяется",
     "тихий пропуск допустим",
@@ -262,6 +266,9 @@ def _contract_errors(text: str) -> list[str]:
         for phrase in SELF_CHECK_PHRASES:
             if phrase not in sequence:
                 errors.append(f"body: section 'Порядок' must carry {phrase!r}")
+        for phrase in SLICING_DECISION_PHRASES:
+            if phrase not in sequence:
+                errors.append(f"body: section 'Порядок' must carry {phrase!r}")
         gate_at = sequence.find("запись гейта проекций")
         offer_at = sequence.find("предложи срезы")
         if gate_at >= 0 and offer_at >= 0 and gate_at > offer_at:
@@ -368,6 +375,9 @@ def test_slicing_handoff_follows_the_canon():
     lowered = re.sub(r"\s+", " ", body.lower())
     assert "решение о нарезке принимаешь ты" in lowered
     assert "нарезка — решение оператора" not in lowered
+    for phrase in SLICING_DECISION_PHRASES:
+        assert phrase in lowered, \
+            f"the slicing-decision phrase {phrase!r} is missing"
     assert "один вопрос на тикет" in lowered
     assert "выдержка в два-три предложения, не отчёт" in lowered
     assert "принять как предложено" in lowered
@@ -597,6 +607,19 @@ def test_every_gate_and_self_check_phrase_has_a_failing_probe(phrase: str) -> No
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     removing any gate or self-check phrase, however short, reddens the
     «Порядок» contract (зацепка P3-2 ревью-панели тикета 04)."""
+    text = SKILL.read_text("utf-8")
+    mutated = _drop_phrase(text, phrase)
+    assert mutated != text, f"the mutation must remove {phrase!r}"
+    errors = _contract_errors(mutated)
+    assert any(f"must carry {phrase!r}" in error for error in errors), errors
+
+
+@pytest.mark.parametrize("phrase", SLICING_DECISION_PHRASES)
+def test_every_slicing_decision_phrase_has_a_failing_probe(phrase: str) -> None:
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества —
+    removing the prohibition on the meta-question «резать ли план» reddens
+    the «Порядок» contract (усиление по анализу отклонения review-output,
+    tickets/review-output/00-process-note.md)."""
     text = SKILL.read_text("utf-8")
     mutated = _drop_phrase(text, phrase)
     assert mutated != text, f"the mutation must remove {phrase!r}"
