@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-24
+updated: 2026-11-25
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -15,6 +15,17 @@ links:
 источник истины — этот runbook и тикеты, а не снимок.
 
 ## Где мы
+
+**Решение оператора 2026-11-25:** team-контур и всё связанное с ним
+отложено бессрочно и висящей работой не считается: team-profiles 07/08,
+релиз team v0.3.0 и remote, KB-бутстрап team, порт тестов chain, доставка
+method-contract.json потребителям, полная живая проба потока с цепочкой
+и stop-probe (sa «Готово» 12), team-часть закрывающего набора
+(sa «Готово» 14), write/lifecycle A, параллельные ветки цепочки. Ранее
+отложенные остаются отложенными: 1С-контур, протокол отклонений,
+SessionStart-хук, автономный флаг grilling, Qoder. Висящая работа —
+только ядро: текущие юниты, реестр первичных требований с якорями
+(будущий юнит), пробелы deliver/реестра/pack.
 
 **Решение оператора 2026-11-24:** обязательное отличие модели ревьюеров,
 критика и валидации от сессионной снято; маршрут роли берётся из реестра,
