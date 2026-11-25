@@ -5,9 +5,10 @@
 
 ## Демо-путь
 
-`git diff .agents/config.toml` — одна строка пула; `pytest tests/ -q`
-зелёный; вывод живого каталога по четырём парам — в evidence. Показываю:
-diff, вывод pytest, сохранённый вывод `list_subagent_models`.
+`git diff <базовый коммит>..HEAD -- .agents/config.toml` — одна строка
+пула; `pytest tests/ -q` зелёный; вывод живого каталога по четырём парам —
+в evidence. Показываю: diff, вывод pytest, сохранённый вывод
+`list_subagent_models`.
 
 ## Что делает
 
@@ -19,12 +20,15 @@ diff, вывод pytest, сохранённый вывод `list_subagent_models
 - Живость: `list_subagent_models` по трём парам пула и маршруту
   председателя `[agents.critic]`; вывод — `02-evidence/catalog.txt`,
   дата — там же.
+- Сверка каталога — не панельный прогон: порядок «панельный прогон на
+  flash-1017 после review-output» из Рамок спеки на неё не
+  распространяется.
 
 ## Критерии приёмки
 
 - diff конфига — только секция `[validation]` и только первая пара.
-  Артефакт: `git diff .agents/config.toml`. Ожидание: одна строка пула;
-  роли и `[agents.critic]` не тронуты.
+  Артефакт: `git diff <базовый коммит>..HEAD -- .agents/config.toml`.
+  Ожидание: одна строка пула; роли и `[agents.critic]` не тронуты.
 - Пул — flash-1017/max, qwen3.8-flash/xhigh, glm-5.3/max. Артефакт:
   файл конфига. Ожидание: три записи, model-части различны.
 - Смена значения не краснит набор (single-source). Артефакт: вывод
