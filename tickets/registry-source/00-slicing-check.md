@@ -10,7 +10,7 @@
 | 1. config значения пула | 02 | .agents/config.toml |
 | 2. test_role_registry читает конфиг + инвариант | 01 | test_role_registry.py |
 | 3. test_skill_critic POOL_MODELS из конфига | 01 | test_skill_critic.py |
-| 4. init структура + выбор, test_skill_init | 01 | skills/init/SKILL.md, test_skill_init.py |
+| 4. init: структура пула + ask на бутстрапе, test_skill_init | 01 | skills/init/SKILL.md, test_skill_init.py |
 | 5. приписка critic-consilium | 01 | critic-consilium.md |
 | 6. живость каталога | 02 | отчёт исполнения, list_subagent_models |
 | 7. single-source proof | 01+02 | мутационные пробы, зелёный pytest после смены |
@@ -36,4 +36,9 @@
 
 ## Расхождение
 
-Нет. Нарезка готова к ship (исполнение — `/ship`, один тикет за запуск).
+Расхождений нарезки нет. Уточнение 2026-11-25 (решение оператора при
+проверке критериев): литералы из init и тестов уходят только в пуле,
+раскладка шести ролей остаётся шаблоном; пары пула на бутстрапе — ask
+оператора из живого каталога, запись после ответа. Спека ревизована
+(«Ревизия 2026-11-25»), тикеты читаются с ней. Нарезка готова к ship
+(исполнение — `/ship`, один тикет за запуск).

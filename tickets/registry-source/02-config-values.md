@@ -1,38 +1,45 @@
-# Тикет 02 — значения конфига flash-1017 и живость каталога
+# Тикет 02 — значения пула и живость каталога
 
 Юнит: registry-source. Спека: [docs/plans/registry-source.md](../../docs/plans/registry-source.md).
 Блокеры: тикет 01 (тесты-потребители готовы).
 
 ## Демо-путь
 
-Конфиг `[validation]` изменён на flash-1017/max + qwen3.8-flash/xhigh +
-glm-5.3/max; `pytest tests/ -q` остаётся зелёным (инвариант цел) — это
-доказательство single-source; вывод живого каталога в отчёте. Показываю:
-diff конфига, зелёный pytest, вывод `list_subagent_models`.
+`git diff .agents/config.toml` — одна строка пула; `pytest tests/ -q`
+зелёный; вывод живого каталога по четырём парам — в evidence. Показываю:
+diff, вывод pytest, сохранённый вывод `list_subagent_models`.
 
 ## Что делает
 
-- `.agents/config.toml` `[validation]`: пул
-  `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`,
-  `qwen-token-plan/qwen3.8-flash`/`xhigh`,
-  `qwen-token-plan-glm/glm-5.3`/`max`.
-- Вывод живого `list_subagent_models` по парам пула и председателя,
-  дата — в отчёт исполнения (носитель живости; CI-пробел pytest
-  оффлайн назван в спеке).
+- `.agents/config.toml` `[validation]`: первая пара
+  `deepseek-account/deepseek-flash`/`max` → 
+  `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max`; две другие
+  пары (`qwen-token-plan/qwen3.8-flash`/`xhigh`,
+  `qwen-token-plan-glm/glm-5.3`/`max`) не меняются.
+- Живость: `list_subagent_models` по трём парам пула и маршруту
+  председателя `[agents.critic]`; вывод — `02-evidence/catalog.txt`,
+  дата — там же.
 
 ## Критерии приёмки
 
-- Конфиг несёт новые значения пула. Артефакт: `.agents/config.toml`.
-  Ожидание: три пары flash-1017/max, qwen3.8-flash/xhigh, glm-5.3/max.
-- Смена конфига не краснит тесты (single-source). Артефакт: вывод
-  `pytest tests/ -q`. Ожидание: зелёный после смены значений
-  (инвариант 3 различных цел).
-- Живость пар пула и председателя подтверждена. Артефакт: вывод
-  `list_subagent_models` в отчёте исполнения, дата. Ожидание: все
-  пары живы, уровни допустимы.
+- diff конфига — только секция `[validation]` и только первая пара.
+  Артефакт: `git diff .agents/config.toml`. Ожидание: одна строка пула;
+  роли и `[agents.critic]` не тронуты.
+- Пул — flash-1017/max, qwen3.8-flash/xhigh, glm-5.3/max. Артефакт:
+  файл конфига. Ожидание: три записи, model-части различны.
+- Смена значения не краснит набор (single-source). Артефакт: вывод
+  `pytest tests/ -q`. Ожидание: 0 failed без правки тестов в этом
+  тикете.
+- Живость подтверждена для трёх пар пула и председателя. Артефакт:
+  `tickets/registry-source/02-evidence/catalog.txt` (вывод
+  `list_subagent_models`, дата). Ожидание: каждая пара с уровнем из
+  конфига присутствует в каталоге, уровень — в списке модели.
+- Мёртвая пара или уровень вне каталога — стоп с названной причиной и
+  вариантами оператору, без тихой замены. Артефакт: ask или отчёт.
+  Ожидание: конфиг не несёт неживой пары.
 - `gitmark.py lint --strict` чист. Артефакт: вывод lint.
 
 ## Рёбра
 
-Блокер: тикет 01. Замыкает юнит; после приёмки — самопроверка нарезки
-и закрытие юнита.
+Блокер: тикет 01. После приёмки — запись состояния в continue.md и
+закрытие юнита.
