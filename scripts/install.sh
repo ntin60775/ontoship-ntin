@@ -192,16 +192,25 @@ describe_entry() {
 # them read-only (legacy_warnings); install modes remove the symlinks themselves
 # (legacy_cleanup). Real directories are never touched by either.
 legacy_warnings() {
-  local root base name path
+  local root base name path tail
   for root in "${LEGACY_ROOTS[@]}"; do
     base=$project/$root/skills
+    # Mirror legacy_cleanup's reach: install never follows a symlinked root
+    # or a symlinked base pointing elsewhere, so the warning must not promise
+    # removal there.
+    if [[ -L $project/$root ]] ||
+       { [[ -L $base ]] && ! is_link_to "$base" "$REPO/skills"; }; then
+      tail='install does not follow symlinked roots; remove it manually'
+    else
+      tail='the next install removes it'
+    fi
     if is_link_to "$base" "$REPO/skills"; then
       if [[ $root == .dsh ]]; then
-        printf 'warning: legacy .dsh/skills -> %s; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — the next install removes it\n' \
-          "$(readlink -- "$base")" >&2
+        printf 'warning: legacy .dsh/skills -> %s; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — %s\n' \
+          "$(readlink -- "$base")" "$tail" >&2
       else
-        printf 'warning: legacy %s/skills -> %s — the next install removes it\n' \
-          "$root" "$(readlink -- "$base")" >&2
+        printf 'warning: legacy %s/skills -> %s — %s\n' \
+          "$root" "$(readlink -- "$base")" "$tail" >&2
       fi
     fi
     [[ -d $base ]] || continue
@@ -209,11 +218,11 @@ legacy_warnings() {
       path=$base/$name
       is_link_to "$path" "$REPO/skills/$name" || continue
       if [[ $root == .dsh ]]; then
-        printf 'warning: legacy .dsh/skills/%s points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — the next install removes it\n' \
-          "$name" >&2
+        printf 'warning: legacy .dsh/skills/%s points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — %s\n' \
+          "$name" "$tail" >&2
       else
-        printf 'warning: legacy %s/skills/%s points into this repository — the next install removes it\n' \
-          "$root" "$name" >&2
+        printf 'warning: legacy %s/skills/%s points into this repository — %s\n' \
+          "$root" "$name" "$tail" >&2
       fi
     done
   done

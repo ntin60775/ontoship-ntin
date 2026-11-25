@@ -641,6 +641,11 @@ def test_install_never_follows_legacy_symlinks_outside_the_project(
     assert result2.returncode == 0, output(result2)
     assert (external / "skills" / "kb-search").is_symlink(), \
         "install followed a legacy root symlink outside the project"
+    check = run(project, "--check")
+    text = output(check)
+    assert "remove it manually" in text, \
+        "check must not promise removal where install does not follow symlinks"
+    assert "the next install removes it" not in text
 
 
 def test_chain_is_retired_from_the_core() -> None:

@@ -1,0 +1,19 @@
+d /tmp/nf08-trees/p/.dsh
+d /tmp/nf08-trees/p/.dsh/skills
+l /tmp/nf08-trees/p/.dsh/skills/kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search
+would remove legacy .dsh/skills/kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search
+would create /tmp/nf08-trees/p/.agents/skills
+would link kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search
+would link kb-curate -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-curate
+would link init -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/init
+would link grilling -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/grilling
+would link to-tickets -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/to-tickets
+would link ship -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/ship
+would link testing -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/testing
+would link critic -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/critic
+would link onto-doc -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/onto-doc
+would link pack -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/pack
+would link deliver -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/deliver
+d /tmp/nf08-trees/p/.dsh
+d /tmp/nf08-trees/p/.dsh/skills
+l /tmp/nf08-trees/p/.dsh/skills/kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search

@@ -1,0 +1,19 @@
+d /tmp/nf08-trees/p/.dsh
+d /tmp/nf08-trees/p/.dsh/skills
+l /tmp/nf08-trees/p/.dsh/skills/kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search
+warning: legacy .dsh/skills/kb-search points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — the next install removes it
+drift: kb-search: missing
+drift: kb-curate: missing
+drift: init: missing
+drift: grilling: missing
+drift: to-tickets: missing
+drift: ship: missing
+drift: testing: missing
+drift: critic: missing
+drift: onto-doc: missing
+drift: pack: missing
+drift: deliver: missing
+check: 11 skill(s) drifted
+d /tmp/nf08-trees/p/.dsh
+d /tmp/nf08-trees/p/.dsh/skills
+l /tmp/nf08-trees/p/.dsh/skills/kb-search -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills/kb-search
