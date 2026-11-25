@@ -3,7 +3,7 @@ node_type: reference
 title: Совместимость харнессов — project-local скиллы и AGENTS.md
 service: _platform
 status: active
-updated: 2026-11-24
+updated: 2026-11-25
 tags: [harness, skills, review, agents-md, zcode, dsh, qoder, chain, projections, packs, boundaries]
 links:
   part_of: [README.md]
@@ -204,9 +204,11 @@ flash-маршрутах пула `[validation]` реестра `.agents/config.
   не хардкодит расположение проекта.
 - Старые записи `.dsh/skills` и `.qoder/skills`, ручные записи
   `.zcode/skills`, ведущие в этот репозиторий, и прежние раскладки
-  `.zcode/skills` — legacy чужих проектов.
-  `scripts/install.sh --check` предупреждает о legacy и никогда их не
-  удаляет; удаление — решение оператора.
+  `.zcode/skills` — legacy чужих проектов. install-режимы установщика
+  сами сносят legacy-симлинки, указывающие в этот репозиторий (ревизия
+  2026-11-25 решением оператора); реальные каталоги не трогаются.
+  `scripts/install.sh --check` read-only: предупреждает о legacy-симлинках
+  и ничего не удаляет.
 - Строки `.gitignore` — `.gitmark/`, `*-map.html`, `.scratch/`, навыковый
   корень `.agents/skills/` и корень паков `.agents/packs/` — пишет скилл
   `init`: установка и производные локальны и не коммитятся.

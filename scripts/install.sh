@@ -8,21 +8,24 @@
 # skill root shared by zcode, DSH and Qoder. The default install links the skill
 # bundles to this repository; --copy makes a detached copy; --check verifies either
 # form, names every missing or drifted skill and validates installed standards
-# packs. --dry-run prints the planned links or copies and runs the same preflight
-# checks without writing. --pack <source> installs a standards pack into
+# packs. Install modes remove legacy harness-root symlinks pointing into this
+# repository (they shadow the universal install); real directories are never
+# touched. --dry-run prints the planned links or copies and runs the same
+# preflight checks without writing. --pack <source> installs a standards pack into
 # <project>/.agents/packs/<name> after the pack contract validator passes; the
-# pack name comes from the manifest. Legacy harness roots
-# (.dsh, .zcode, .qoder) and retired bundles (chain) are reported as warnings
-# and never written or deleted. The install is idempotent and writes only under
-# <project>/.agents (skills and packs). It links the skills; it does not run the
-# init skill.
+# pack name comes from the manifest. Legacy harness-root symlinks
+# (.dsh, .zcode, .qoder) pointing into this repository are removed by install
+# modes; real directories and retired bundles (chain) are reported as warnings
+# and never touched. The install is idempotent; it writes under
+# <project>/.agents (skills and packs) and removes only those legacy symlinks.
+# It links the skills; it does not run the init skill.
 
 set -euo pipefail
 
 readonly SKILLS=(kb-search kb-curate init grilling to-tickets ship testing critic onto-doc pack deliver)
 readonly LEGACY_ROOTS=(.dsh .zcode .qoder)
-# Bundles the core no longer ships. An old install may still carry one; like
-# legacy roots, a retired entry is reported by --check and never touched.
+# Bundles the core no longer ships. An old install may still carry one;
+# a retired entry is reported by --check and never touched.
 readonly RETIRED_SKILLS=(chain)
 # A copy is content, not this machine's bytecode and not VCS internals:
 # neither is compared, nor does either stay in a fresh copy (issue #4).
@@ -42,20 +45,23 @@ shared by zcode, DSH and Qoder.
   (default)  symlink the skill bundles to this repository:
              kb-search, kb-curate, init, grilling, to-tickets, ship, testing,
              critic, onto-doc, pack, deliver
-  --dry-run  print the planned links (or copies with --copy) and run the same
-             preflight checks without writing; cannot be combined with --check
+  --dry-run  print the planned links (or copies with --copy), the planned legacy
+             removals, and run the same preflight checks without writing;
+             cannot be combined with --check
   --copy     copy the skill directories instead (detached install)
-  --check    verify the install and validate installed packs; warn about legacy
-             .dsh/.zcode/.qoder entries and retired bundles (chain); exit 1 and
-             name each missing or drifted skill and each invalid pack
+  --check    verify the install and validate installed packs; read-only: warn about
+             legacy .dsh/.zcode/.qoder symlinks into this repository and retired
+             bundles (chain); exit 1 and name each missing or drifted skill and
+             each invalid pack
   --pack <source>
              install a standards pack into <project>/.agents/packs/<name>; the
              source must pass the pack contract validator, the name comes from
              the manifest; link/copy follows the mode; cannot be combined with
              --check
 
-Idempotent; writes only under <project>/.agents (skills and packs); never runs
-the init skill.
+Idempotent; writes under <project>/.agents (skills and packs) and removes legacy
+symlinks pointing into this repository from .dsh/.zcode/.qoder; real directories
+are never touched; never runs the init skill.
 EOF
 }
 
@@ -181,19 +187,20 @@ describe_entry() {
   fi
 }
 
-# Legacy harness roots that still point into this repository are reported, never
-# touched. DSH ranks .dsh/skills (100) above .agents/skills (200), so a stale entry
-# shadows the universal install; the fix is the operator's, not the installer's.
+# Legacy harness roots that still point into this repository shadow the universal
+# install: DSH ranks .dsh/skills (100) above .agents/skills (200). --check reports
+# them read-only (legacy_warnings); install modes remove the symlinks themselves
+# (legacy_cleanup). Real directories are never touched by either.
 legacy_warnings() {
   local root base name path
   for root in "${LEGACY_ROOTS[@]}"; do
     base=$project/$root/skills
     if is_link_to "$base" "$REPO/skills"; then
       if [[ $root == .dsh ]]; then
-        printf 'warning: legacy .dsh/skills -> %s; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — remove it manually\n' \
+        printf 'warning: legacy .dsh/skills -> %s; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — the next install removes it\n' \
           "$(readlink -- "$base")" >&2
       else
-        printf 'warning: legacy %s/skills -> %s — remove it manually\n' \
+        printf 'warning: legacy %s/skills -> %s — the next install removes it\n' \
           "$root" "$(readlink -- "$base")" >&2
       fi
     fi
@@ -202,11 +209,44 @@ legacy_warnings() {
       path=$base/$name
       is_link_to "$path" "$REPO/skills/$name" || continue
       if [[ $root == .dsh ]]; then
-        printf 'warning: legacy .dsh/skills/%s points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — remove it manually\n' \
+        printf 'warning: legacy .dsh/skills/%s points into this repository; DSH ranks .dsh/skills (100) above .agents/skills (200), so the old entry shadows the universal install — the next install removes it\n' \
           "$name" >&2
       else
-        printf 'warning: legacy %s/skills/%s points into this repository — remove it manually\n' \
+        printf 'warning: legacy %s/skills/%s points into this repository — the next install removes it\n' \
           "$root" "$name" >&2
+      fi
+    done
+  done
+}
+
+# Install modes remove legacy symlinks that point into this repository: a
+# symlink carries no local content, so removal is safe and reversible. Real
+# directories are never touched. --dry-run prints the plan without writing.
+legacy_cleanup() {
+  local root base name path target
+  for root in "${LEGACY_ROOTS[@]}"; do
+    # A symlinked root or base lives outside the project: never follow it.
+    [[ ! -L $project/$root ]] || continue
+    base=$project/$root/skills
+    if is_link_to "$base" "$REPO/skills"; then
+      target=$(readlink -- "$base")
+      if ((dry_run)); then
+        printf 'would remove legacy %s/skills -> %s\n' "$root" "$target"
+      else
+        rm -f -- "$base"
+        printf 'removed legacy %s/skills -> %s\n' "$root" "$target"
+      fi
+    fi
+    [[ -d $base && ! -L $base ]] || continue
+    for name in "${SKILLS[@]}"; do
+      path=$base/$name
+      is_link_to "$path" "$REPO/skills/$name" || continue
+      target=$(readlink -- "$path")
+      if ((dry_run)); then
+        printf 'would remove legacy %s/skills/%s -> %s\n' "$root" "$name" "$target"
+      else
+        rm -f -- "$path"
+        printf 'removed legacy %s/skills/%s -> %s\n' "$root" "$name" "$target"
       fi
     done
   done
@@ -476,6 +516,7 @@ case $mode in
       fi
     else
       preflight_install
+      legacy_cleanup
       if ((dry_run)); then
         if [[ $mode == copy ]]; then
           plan_copies

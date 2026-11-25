@@ -2,8 +2,8 @@
 
 The installer is the only thing that puts the core into a project's universal skill
 root, so these checks pin its observable effects: the `.agents/skills` layout, idempotence,
-drift and legacy reporting, and the refusal to write or destroy anything outside its
-destination.
+drift and legacy reporting, removal of legacy symlinks pointing into the producer,
+and the refusal to touch anything else outside its destination.
 
 spec: docs/plans/workflow-skills.md#готово — skills in <project>/.agents/skills;
       link/copy; idempotent; --check names each missing or drifted skill
@@ -24,7 +24,7 @@ spec: docs/plans/core-team-boundaries.md#готово — «Готово» 1, т
 spec: docs/plans/core-team-boundaries.md#готово — «Готово» 3, триаж G10/S3:
       chain выведен из ядра (SKILLS без chain, skills/chain снят); --check
       находит выведенный бандл по образцу legacy_warnings и не удаляет его
-invariant: docs/plans/harness-agnostic.md#готово — writes only <project>/.agents/skills; --check is read-only and deletes nothing
+invariant: docs/plans/harness-agnostic.md#готово — install writes <project>/.agents/skills and removes legacy symlinks pointing into the producer (ревизия 2026-11-25); real directories are never touched; --check is read-only and deletes nothing
 """
 from __future__ import annotations
 
@@ -520,21 +520,127 @@ def test_check_warns_about_legacy_entries_without_deleting_them(project: Path) -
     assert tree(project) == before, "--check must not touch a legacy entry"
 
 
-def test_install_does_not_touch_a_legacy_entry(project: Path) -> None:
-    """invariant: docs/plans/harness-agnostic.md#готово — the installer writes only .agents/skills and deletes no legacy link."""
-    dsh = project / ".dsh" / "skills"
-    dsh.mkdir(parents=True)
-    legacy = dsh / "kb-search"
-    os.symlink(REPO / "skills" / "kb-search", legacy)
-    before = tree(project)
+def test_install_removes_legacy_symlinks_to_the_producer(project: Path) -> None:
+    """invariant: docs/plans/harness-agnostic.md#готово (ревизия 2026-11-25) —
+    install removes legacy symlinks pointing into the producer; real directories,
+    foreign targets and the producer itself are never touched."""
+    producer_before = {k: v for k, v in tree(REPO / "skills").items()
+                       if "__pycache__" not in k}
+    # Whole-root legacy symlink (criterion 1, form 1).
+    (project / ".dsh").mkdir()
+    os.symlink(REPO / "skills", project / ".dsh" / "skills")
+    # Per-bundle legacy symlinks in real directories (form 2).
+    zcode = project / ".zcode" / "skills"
+    zcode.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", zcode / "kb-search")
+    qoder = project / ".qoder" / "skills"
+    qoder.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "init", qoder / "init")
+    # A real directory whose name collides with a shipped bundle survives.
+    real = qoder / "ship"
+    real.mkdir()
+    (real / "note.md").write_text("локальное знание\n", encoding="utf-8")
+    # Negative boundaries: only symlinks into THIS repository are removed.
+    foreign = project / "foreign-target"
+    foreign.mkdir()
+    os.symlink(foreign, qoder / "kb-curate")
+    os.symlink(REPO / "skills" / "kb-search", qoder / "testing")
+    os.symlink(REPO, qoder / "onto-doc")
 
     result = run(project)
     assert result.returncode == 0, output(result)
     assert_links(project)
-    after = tree(project)
-    for path, state in before.items():
-        assert after[path] == state, f"install touched legacy {path}"
-    assert legacy.is_symlink() and legacy.resolve() == (REPO / "skills" / "kb-search").resolve()
+    text = output(result)
+    assert "removed legacy .dsh/skills ->" in text
+    assert "removed legacy .zcode/skills/kb-search" in text
+    assert "removed legacy .qoder/skills/init" in text
+    assert not (project / ".dsh" / "skills").exists()
+    assert not (zcode / "kb-search").exists()
+    assert not (qoder / "init").exists()
+    assert (real / "note.md").read_text(encoding="utf-8") == "локальное знание\n"
+    assert (qoder / "kb-curate").is_symlink(), "a foreign-target symlink must survive"
+    assert (qoder / "testing").is_symlink(), "a name-target mismatch must survive"
+    assert (qoder / "onto-doc").is_symlink(), "a producer-root target must survive"
+    assert {k: v for k, v in tree(REPO / "skills").items()
+            if "__pycache__" not in k} == producer_before
+
+
+def test_copy_install_removes_legacy_symlinks(project: Path) -> None:
+    """spec: docs/plans/harness-agnostic.md#готово — приписка ревизии legacy
+    2026-11-25: install-режимы (link/copy) сносят legacy-симлинки на продюсера."""
+    dsh = project / ".dsh" / "skills"
+    dsh.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", dsh / "kb-search")
+    (project / ".zcode").mkdir()
+    os.symlink(REPO / "skills", project / ".zcode" / "skills")
+
+    result = run(project, "--copy")
+    assert result.returncode == 0, output(result)
+    text = output(result)
+    assert "removed legacy .dsh/skills/kb-search" in text
+    assert "removed legacy .zcode/skills ->" in text
+    assert not (dsh / "kb-search").exists()
+    assert not (project / ".zcode" / "skills").exists()
+    assert (project / ".agents" / "skills" / "kb-search" / "SKILL.md").exists()
+
+
+def test_pack_install_does_not_touch_legacy_roots(project: Path) -> None:
+    """invariant: docs/plans/harness-agnostic.md#готово — приписка ревизии legacy
+    2026-11-25: --pack-установка legacy-корни не трогает."""
+    dsh = project / ".dsh" / "skills"
+    dsh.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", dsh / "kb-search")
+    before = tree(project / ".dsh")
+
+    result = run(project, "--pack", str(REPO / "skills" / "pack" / "reference-pack"))
+    assert result.returncode == 0, output(result)
+    assert tree(project / ".dsh") == before
+    assert (dsh / "kb-search").is_symlink()
+
+
+def test_dry_run_plans_legacy_removal_without_writing(project: Path) -> None:
+    """invariant: docs/plans/install-dry-run.md#готово — dry-run не пишет;
+    план сноса legacy-симлинков печатается без записи."""
+    dsh = project / ".dsh" / "skills"
+    dsh.mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", dsh / "kb-search")
+    before = tree(project)
+
+    result = run(project, "--dry-run")
+    assert result.returncode == 0, output(result)
+    assert "would remove legacy .dsh/skills/kb-search" in output(result)
+    assert tree(project) == before
+    assert (dsh / "kb-search").is_symlink()
+
+
+def test_install_never_follows_legacy_symlinks_outside_the_project(
+    project: Path, tmp_path: Path
+) -> None:
+    """target: ревью nf08 (reviewer-code, P2) — install сносил записи во внешнем
+    каталоге, достижимом через legacy-симлинк; фикс пропускает симлинк-корни и
+    симлинк-base, не следуя по ним."""
+    foreign = tmp_path / "foreign"
+    foreign.mkdir()
+    os.symlink(REPO / "skills" / "kb-search", foreign / "kb-search")
+    dsh = project / ".dsh"
+    dsh.mkdir()
+    os.symlink(foreign, dsh / "skills")
+
+    external = tmp_path / "external"
+    (external / "skills").mkdir(parents=True)
+    os.symlink(REPO / "skills" / "kb-search", external / "skills" / "kb-search")
+    project2 = tmp_path / "project2"
+    project2.mkdir()
+    os.symlink(external, project2 / ".dsh")
+
+    result = run(project)
+    assert result.returncode == 0, output(result)
+    assert (foreign / "kb-search").is_symlink(), \
+        "install followed a legacy base symlink outside the project"
+    result2 = run(project2)
+    assert result2.returncode == 0, output(result2)
+    assert (external / "skills" / "kb-search").is_symlink(), \
+        "install followed a legacy root symlink outside the project"
 
 
 def test_chain_is_retired_from_the_core() -> None:

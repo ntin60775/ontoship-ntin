@@ -1,0 +1,4 @@
+removed legacy .dsh/skills -> /home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/skills
+copied kb-search -> /tmp/nf08-demo/.agents/skills/kb-search
+copied kb-curate -> /tmp/nf08-demo/.agents/skills/kb-curate
+check: ok

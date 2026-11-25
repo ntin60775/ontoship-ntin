@@ -3,7 +3,7 @@ node_type: plan
 title: harness-agnostic — один project-local корень установки
 service: _platform
 status: active
-updated: 2026-11-02
+updated: 2026-11-25
 links:
   relates_to: [core-kb.md, ../decisions/ontoship-core.md, ../ops/continue.md]
 ---
@@ -92,6 +92,18 @@ links:
 подстановкой, а не дословный текст. `.zcode/skills` в раскладке плагина —
 канал, а не legacy-запись. Установщик по-прежнему не пишет ни в `.dsh`,
 ни в `.zcode`, ни в `.qoder`.
+
+Приписка ревизии legacy (2026-11-25, прямое решение оператора — проба
+пробелов, нога legacy; тикет
+[08](../../tickets/norm-fixes/08-installer-legacy-cleanup.md)).
+Пункты 1–2 читаются так: установщик не создаёт файлов в `.dsh`, `.zcode`,
+`.qoder`; install-режимы (link/copy) сами сносят legacy-симлинки,
+указывающие в `skills/` этого репозитория (legacy-корень целиком или
+отдельные бандлы), и печатают факт `removed legacy`. Симлинк не несёт
+локального контента — снос безопасен и обратим. Реальные каталоги
+установщик не трогает никогда; `--check` остаётся read-only и
+предупреждает о legacy-симлинках. Выведенные бандлы — прежний режим:
+назвать, не удалять. `--pack`-установка legacy-корни не трогает.
 
 ## Рамки
 

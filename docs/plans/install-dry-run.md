@@ -3,7 +3,7 @@ node_type: plan
 title: install --dry-run — план установки без записи
 service: _platform
 status: active
-updated: 2026-10-23
+updated: 2026-11-25
 tags: [dogfood, install, dry-run]
 links:
   part_of: [README.md]
@@ -68,6 +68,15 @@ links:
    unchanged`, а разошедшаяся копия даёт `copy differs`, код 1 и отсутствие записи.
 4. Справка `usage()` и шапка скрипта называют режим; `tests/test_install.py` держит
    пункты 1–3 spec-тестами, и каждый падает на базовом коммите.
+5. `--dry-run` печатает `would remove legacy ...` для legacy-симлинков на
+   продюсера и не трогает диск (ревизия 2026-11-25).
+
+Приписка ревизии legacy (2026-11-25, решение оператора — установщик сам
+сносит legacy-симлинки на продюсера; тикет
+[norm-fixes/08](../../tickets/norm-fixes/08-installer-legacy-cleanup.md)).
+Решение 5 читается так: install-режимы печатают `removed legacy`,
+dry-run зеркалит `would remove legacy`; `--check` по-прежнему предупреждает
+и не пишет.
 
 ## Рамки
 

@@ -1,0 +1,10 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+E   AssertionError: install followed a legacy base symlink outside the project
+    assert False
+     +  where False = is_symlink()
+     +    where is_symlink = (PosixPath('/tmp/pytest-of-prog7/pytest-147/test_install_never_follows_leg0/foreign') / 'kb-search').is_symlink
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/nf08-legacy-cleanup/tests/test_install.py:605: AssertionError: install followed a legacy base symlink outside the project
+=========================== short test summary info ============================
+FAILED tests/test_install.py::test_install_never_follows_legacy_symlinks_outside_the_project
+1 failed in 0.12s
