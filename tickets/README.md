@@ -663,6 +663,7 @@ b12e4d0, ишью #4 (дефект продюсера из репетиции or
 | 08 | [установщик сам сносит legacy-симлинки](norm-fixes/08-installer-legacy-cleanup.md) | `legacy_cleanup` install-режимов, ревизия инварианта harness-agnostic и нормы deliver, target-тест внешней границы |
 | 09 | [проба пробелов ядра](norm-fixes/09-probe-gaps-2026-11-25.md) | 7 ног пробы, скан парка (0 .git, 0 legacy), закрытие пробелов фактом и решением |
 | 10 | [установщик сносит реальные legacy-каталоги](norm-fixes/10-legacy-real-dirs.md) | архив → снос реальных копий, детекция в --check, target-тест коллизии архива |
+| 11 | [followups самоуничтожаются](norm-fixes/11-followup-selfdestruct.md) | правило 3 consumer-registry, чистка журнала продюсера: 62 удалены, 4 открытых |
 
 Набор 815 passed, lint чисто; коммиты — в хронике continue.md.
 
