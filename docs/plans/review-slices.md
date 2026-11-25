@@ -12,6 +12,9 @@ links:
 
 # review-slices — срезы ревью-панели вместо полного диффа в каждой роли
 
+> Superseded: [review-output.md](review-output.md) — гипотеза объёма
+> входа опровергнута спайком 2026-11-25; причина — эхо/объём вывода.
+
 Спека юнита. Повод — инцидент 2026-11-24: четыре ревьюера на
 `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`/`max` упали с
 `PI_AI_ERROR: Output data may contain inappropriate content` на трёх
