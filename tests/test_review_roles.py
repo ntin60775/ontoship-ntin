@@ -98,8 +98,10 @@ PANEL_OUTPUT_ANCHORS = (
     "без дословного эха",
     "зацепка ≤10 слов",
     "пустая область",
-    # the finding line shape: priority, place, dash, lead.
+    # the finding line shape and the output template: priority, place, dash,
+    # lead, verdict line.
     "одна строка: `p2 <файл:строка> — зацепка",
+    "<принять | принять с находками | вернуть>",
 )
 PANEL_OUTPUT_CARRIERS = (
     REFERENCE,
