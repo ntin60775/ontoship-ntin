@@ -113,17 +113,18 @@ RETIRED_MODEL_RULE = (
 
 # The bootstrap section carries the standard layout (operator decision
 # 2026-11-16, critic model replaced by operator decision 2026-11-22,
-# curator level dropped to `low` by operator decision 2026-11-23;
+# reviewers moved to qwen4-max/medium and curator to qwen3.8-flash/medium
+# by operator decision 2026-11-26;
 # supersedes dsh-adaptation decision 5): six routes and levels
 # shipped one table, written without an ask when every route is live,
 # deviation named in the report.
 LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
-    "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`",
     "`qwen-token-plan-max/qwen4-max`",
+    "`qwen-token-plan/qwen3.8-flash`",
     "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |",
     "| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
-    "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `low` |",
+    "| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |",
     "запиши её без ask",
     "назови отклонение от стандарта",
     "спроси оператора",
@@ -905,13 +906,13 @@ def test_standard_layout_contract_can_fail():
     assert any("| `critic` |" in error
                for error in _contract_errors(drifted_level))
 
-    drifted_curator_level = text.replace(
+    drifted_curator = text.replace(
+        "| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |",
         "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `low` |",
-        "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `high` |",
         1)
-    assert drifted_curator_level != text
+    assert drifted_curator != text
     assert any("| `curator` |" in error
-               for error in _contract_errors(drifted_curator_level))
+               for error in _contract_errors(drifted_curator))
 
     no_askless = text.replace("запиши её без ask",
                               "спроси модель каждой роли", 1)

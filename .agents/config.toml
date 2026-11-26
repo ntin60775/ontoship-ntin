@@ -24,8 +24,8 @@ model = "qwen-token-plan-max/qwen4-max"
 level = "xhigh"
 
 [agents.curator]
-model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
-level = "low"
+model = "qwen-token-plan/qwen3.8-flash"
+level = "medium"
 
 # Projection-validation pool: the critic assigns one distinct route per
 # consilium member and records the reason in the gate report.
