@@ -91,3 +91,39 @@
 ## Рёбра
 
 Блокирует тикет 02 (проба идёт на реализованном контракте).
+
+## Исполнение (2026-11-26)
+
+Срез: `482be7c` (контракт в носителях) + `cb1663e` (правки ревью-панели),
+база `7e80cd9`. Доказательства — [01-evidence/](01-evidence/README.md),
+разбор панели — [panel-report.md](01-evidence/panel-report.md).
+
+| критерий приёмки | артефакт | факт |
+|---|---|---|
+| иглы вывода в `SKILL.md`, секционно | `test_panel_output_contract_is_sectional`, `test_panel_role_input_output_and_independence` | зелёные; перенос иглы из панели в тело краснит |
+| общий контракт в интро, «целиком» в ролях | `test_panel_output_contract_lives_in_the_preamble_of_both_carriers` | зелёный, обе пары носителей |
+| `PANEL_INTRO_ANCHORS` + пять якорей, паритет | `test_anchor_in_every_carrier[panel-intro:*]` | зелёные |
+| `FORBIDDEN_PHRASES`: старая меню-фраза | `test_panel_check_can_fail`, мутация возврата | красный на возврат фразы |
+| норма ёмкости, `PANEL_RUN_ANCHORS`/`DSH_PANEL_PHRASES` | `test_panel_capacity_refusal_waits_for_a_slot` | зелёный; удаление иглы красит |
+| чистка фолбэка: приписка и живой текст | `test_fallback_cleanup_is_recorded_and_live_plans_are_clean`, `test_live_panel_carriers_carry_no_fallback` | зелёные; фолбэк-фраза в живом тексте краснит |
+| инвариант «вердикт» | `test_verdict_is_the_role_output` | зелёный на базе, мутация красит |
+| полный набор | [pytest-green.txt](01-evidence/pytest-green.txt) | 860 passed |
+| `lint --strict` | [lint.txt](01-evidence/lint.txt) | ✓ чисто |
+
+Краснота на базе: [pytest-red-on-base.txt](01-evidence/pytest-red-on-base.txt)
+— 31 failed, 138 passed. Мутационная проба возврата старой нормы —
+[mutation-probe.txt](01-evidence/mutation-probe.txt), 11 failed; файл
+восстановлен. Prod: copy-установка 11 бандлов и `--check` — ok, живой
+чекаут — ok ([prod-check.txt](01-evidence/prod-check.txt)).
+
+Панель: четыре роли на маршруте из `.agents/config.toml`, все завершились
+без `PI_AI_ERROR`; 29 сырых находок → 19 групп (0 P1 / 7 P2 / 12 P3), все
+P1/P2 и девять P3 закрыты в проходе, одна P3 снята, одна отложена на
+закрытие юнита (тикет 02). Вердикты: spec и tests — «вернуть», code и kb
+— «принять с находками»; после правок контур зелёный.
+
+Расхождения ожидание/факт в проходе: не было.
+
+Точки остановки «Ограничений» спеки: недоступных пар нет, ёмкость не
+отказывала, фолбэк не потребовался — остановок не сработало.
+Синхронизация: `origin` есть, `main` запушен (`7e80cd9..cb1663e`).
