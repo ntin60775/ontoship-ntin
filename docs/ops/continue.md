@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-25
+updated: 2026-11-26
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -150,6 +150,16 @@ reviewer-spec и reviewer-code, reviewer-tests завершён сухо (8 на
 `tickets/review-output/00-probe-report.md`. Следующий шаг — решение
 оператора: расследование триггера или пересмотр контракта; тикет 01
 остаётся принятым и влитым.
+
+**Юнит `review-output` закрыт 2026-11-26.** Ревизия спеки решением
+оператора: маршрут ролей — `qwen4-max`/`medium`, контрольный ребёнок
+verbose-эхо снят (фильтр flash-1017 недетерминирован), метрика сухости
+уточнена — цитата есть ≥5 слов прозы входа, путь и номера — место.
+Run-3 (`4f807da` — план до спавна): 3/3 активных ролей завершены без
+`PI_AI_ERROR`, вывод сухой (2/3/4 находки, 22/31/37 слов, цитат 0,
+зацепки ≤10 слов), reviewer-kb — названный пропуск. Тикет 02 принят
+автоприёмкой; 860 passed, lint чисто, main запушен. Открытых зацепок
+нет; отчёт — `tickets/review-output/00-probe-report.md`.
 
 **Решение оператора 2026-11-26: следующий юнит — расследование
 `PI_AI_ERROR`.** Вход — проба 02 (`tickets/review-output/00-probe-report.md`)
