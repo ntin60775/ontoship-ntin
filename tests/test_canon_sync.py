@@ -113,6 +113,10 @@ PANEL_RUN_ANCHORS = (
     "недоступная пара — остановка прохода и вопрос оператору",
     "«ревью провёл исполнитель» законным исходом не является",
     "одна повторная проба, затем остановка прохода",
+    # review-output 01: a capacity refusal of the host pool waits for a slot;
+    # the limit is read from the live profile, it is not a role failure.
+    "`ACTIVATION_LIMIT_REACHED` — ожидание слота, не отказ роли",
+    "лимит из живого профиля",
 )
 
 PANEL_INTRO_CARRIERS = (
@@ -124,6 +128,14 @@ PANEL_INTRO_ANCHORS = (
     "Шкала приоритетов находок",
     "приоритет, место и зацепка",
     "P3 — не долг, а триаж",
+    # review-output 01: the output contract of the panel — a holistic scope per
+    # role and dry structured findings without echoing the input; an empty
+    # scope is a named skip, the role does not start.
+    "область роли целиком",
+    "сухие структурированные находки",
+    "без дословного эха",
+    "зацепка ≤10 слов",
+    "пустая область",
 )
 
 ONTODOC_CARRIERS = (

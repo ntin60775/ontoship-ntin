@@ -130,13 +130,25 @@ FORBIDDEN_PHRASES = (
     "оркестратор передаёт тикет",
     "оркестратор ведёт тикеты",
     "скилл вызывает модель",
+    # review-output 01: the old artifact menu is replaced by the holistic
+    # scope of the role; its return reddens.
+    "что читать (дифф, тикет, спека, тесты, доки)",
 )
 PANEL_PHRASES = (
     "ревью-панель",
     "параллельно в одном прогоне",
     "один отчёт",
     "дедуплицируй",
-    "область и чек-лист",
+    # review-output 01: the role's input is its whole scope, the output is dry
+    # structured findings without echoing the input; an empty scope is a named
+    # skip and the role does not start.
+    "область роли целиком",
+    "сухие структурированные находки",
+    "без дословного эха",
+    "зацепка ≤10 слов",
+    "развёрнутого prose",
+    "пустая область",
+    "роль не стартует",
     "вердикт",
     "приоритет",
     "зацепк",
@@ -155,6 +167,15 @@ PANEL_PHRASES = (
     "проект переопределяет его документом `docs/reference/review-panel.md`",
     "написал свой, бери его",
     "бери её оттуда",
+    # review-output 01: a capacity refusal of the host pool waits for a slot —
+    # not a role failure; the limit is read from the live profile.
+    "`activation_limit_reached` — ожидание слота, не отказ роли",
+    "лимит из живого профиля",
+    # review-output 01: the aggregate is dry and the verdict stays the role's
+    # own output; auto-acceptance decides by P1/P2.
+    "вердикт — выход самой роли",
+    "в агрегат вердикт не входит",
+    "автоприёмка решает по p1/p2",
 )
 # standards-autoship 05: the panel assembles from core and pack roles
 # («Готово» 3); a role without a config section is a named gap for both.
@@ -256,6 +277,12 @@ DSH_PANEL_PHRASES = DSH_COMMON_PHRASES + (
     "дедуплицируется",
     "недоступная пара — остановка прохода и вопрос оператору",
     "одна повторная проба, затем остановка прохода",
+    # review-output 01: the DSH block names the capacity refusal that waits
+    # for a slot; the holistic input and dry output are named by the harnesses
+    # DSH row (tests/test_review_roles.py).
+    "`ACTIVATION_LIMIT_REACHED`",
+    "ожидание слота",
+    "лимит из живого профиля",
 )
 DSH_PANEL_HEADING = "### dsh — рабочий способ"
 
@@ -866,17 +893,85 @@ def test_panel_runs_roles_from_config_in_one_pass():
 
 
 def test_panel_role_input_output_and_independence():
-    """spec: docs/plans/review-config.md#готово — вход роли: область и
-    чек-лист; выход: вердикт и находки с приоритетами и зацепками;
-    независимость — артефакты, не ход исполнения."""
+    """spec: docs/plans/review-output.md#готово — вход роли: область роли
+    целиком по контракту; выход: вердикт и сухие структурированные находки
+    с приоритетом, местом и зацепкой ≤10 слов, без дословного эха входа и
+    развёрнутого prose; пустая область — названный пропуск, роль не
+    стартует; независимость — артефакты, не ход исполнения."""
     body = _parse(SKILL.read_text("utf-8"))[1]
     lowered = _normalized_lower(body)
-    assert "область и чек-лист" in lowered
-    assert "вердикт" in lowered
-    assert "приоритет" in lowered
-    assert "зацепк" in lowered
-    assert "артефакты" in lowered
-    assert "не ход исполнения" in lowered
+    for phrase in ("область роли целиком", "сухие структурированные находки",
+                   "без дословного эха", "зацепка ≤10 слов",
+                   "развёрнутого prose", "пустая область", "роль не стартует"):
+        assert phrase in lowered, f"the panel I/O contract lost {phrase!r}"
+    for phrase in ("вердикт", "приоритет", "зацепк", "артефакты",
+                   "не ход исполнения"):
+        assert phrase in lowered, f"the panel I/O contract lost {phrase!r}"
+    # can-fail: dropping the dry-output clause reddens.
+    dropped = lowered.replace("без дословного эха", "с эхом", 1)
+    assert dropped != lowered
+    assert "без дословного эха" not in dropped
+
+
+def test_panel_output_contract_can_fail():
+    """invariant: docs/decisions/ontoship-core.md#одно правило качества — the
+    output contract rejects a lost holistic scope, a lost dry-findings rule,
+    a lost echo ban, a lost lead cap and a lost empty-scope skip; the old
+    artifact menu is forbidden in the body."""
+    text = SKILL.read_text("utf-8")
+    assert _contract_errors(text) == []
+
+    flat = re.sub(r"\s+", " ", _parse(text)[1])
+    for phrase in ("область роли целиком", "сухие структурированные находки",
+                   "без дословного эха", "зацепка ≤10 слов",
+                   "пустая область", "роль не стартует"):
+        needle = phrase if phrase in flat else phrase[0].upper() + phrase[1:]
+        mutated = _body_mutated(text, needle, "иное правило")
+        assert any(phrase.lower() in error or "missing required phrase" in error
+                   for error in _contract_errors(mutated)), \
+            (phrase, _contract_errors(mutated))
+
+    menu_back = text + "\nВход роли — что читать (дифф, тикет, спека, тесты, доки).\n"
+    assert any("что читать" in error for error in _contract_errors(menu_back))
+
+
+def test_panel_capacity_refusal_waits_for_a_slot():
+    """spec: docs/plans/review-output.md#ограничения — отказ хоста по ёмкости
+    пула (`ACTIVATION_LIMIT_REACHED`) — не отказ роли: ждать слота, повтор
+    не засчитывать; лимит из живого профиля. Путь профиля в скилле не
+    называется (гард harness-agnostic)."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    lowered = _normalized_lower(body)
+    assert "`activation_limit_reached` — ожидание слота, не отказ роли" in lowered
+    assert "лимит из живого профиля" in lowered
+    assert ".dsh" not in lowered
+
+    dropped = lowered.replace("ожидание слота, не отказ роли", "отказ роли", 1)
+    assert dropped != lowered
+    assert "ожидание слота, не отказ роли" not in dropped
+
+
+def test_panel_aggregate_is_dry_and_verdict_stays_with_role():
+    """spec: docs/plans/review-output.md#решения гейта проекций — 6: агрегат
+    сухой (находки и дедуп), вердикт — выход самой роли и в агрегат не
+    входит; автоприёмка решает по P1/P2.
+    spec: docs/plans/review-output.md#готово — шаг панели: вердикт —
+    выход самой роли, контракт не меняется."""
+    body = _parse(SKILL.read_text("utf-8"))[1]
+    panel = _section(_normalized_lower(body), "ревью-панель")
+    start = panel.find("**один отчёт")
+    assert start != -1, "missing the aggregate block «Один отчёт»"
+    end = panel.find("**провал роли", start + 1)
+    report = panel[start:end if end != -1 else None]
+    for phrase in ("сухой", "дедуплицируй", "вердикт — выход самой роли",
+                   "в агрегат вердикт не входит", "автоприёмка решает по p1/p2"):
+        assert phrase in report, f"the aggregate contract lost {phrase!r}"
+
+    # can-fail: pulling the verdict back into the aggregate reddens.
+    pulled = report.replace("в агрегат вердикт не входит",
+                            "вердикт входит в агрегат", 1)
+    assert pulled != report
+    assert "в агрегат вердикт не входит" not in pulled
 
 
 def test_panel_checks_routes_and_levels_before_launch():

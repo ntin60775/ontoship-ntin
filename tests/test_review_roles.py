@@ -87,6 +87,41 @@ PANEL_ASSEMBLY = (
     ROUTE_STOP,
     "канон > стандарты проекта > пак команды > пак стека > базовый документ",
 )
+# review-output 01 («Готово» 1): the role's input is its whole scope, its
+# output is dry structured findings without echoing the input; an empty scope
+# is a named skip and the role does not start. The same five anchors live in
+# the panel preamble of both carriers; the four role sections carry the scope
+# anchor only.
+PANEL_OUTPUT_ANCHORS = (
+    "область роли целиком",
+    "сухие структурированные находки",
+    "без дословного эха",
+    "зацепка ≤10 слов",
+    "пустая область",
+)
+PANEL_OUTPUT_CARRIERS = (
+    REFERENCE,
+    REPO / "skills" / "ship" / "references" / "review-panel.md",
+)
+# review-output 01: the dated fallback decisions are read with the addendum
+# «снято решением 2026-11-25»; the live text of both plans carries the route
+# stop, and no fallback wording survives there or in the live carriers.
+ROUTE_STOP_NORM = "подмены маршрута нет, стоп и вопрос оператору"
+FALLBACK_PHRASES = (
+    "заменяется моделью сессии",
+    "идёт на модели сессии",
+    "на фолбэке",
+    "фолбэк называется в отчёте",
+)
+PLAN_CARRIERS = (
+    REPO / "docs" / "plans" / "review-config.md",
+    REPO / "docs" / "plans" / "standards-autoship.md",
+)
+LIVE_PANEL_CARRIERS = (
+    REPO / "skills" / "ship" / "SKILL.md",
+    REPO / "skills" / "ship" / "references" / "review-panel.md",
+    HARNESSES,
+)
 # The model-distinctness rule is retired: a role route may match the session
 # model. Any return of the old wording reddens.
 RETIRED_MODEL_RULE = (
@@ -169,6 +204,20 @@ def _h3_sections(text: str) -> dict[str, str]:
     if current is not None:
         sections[current] = "\n".join(chunks)
     return sections
+
+
+def _h2_section(text: str, heading: str) -> str:
+    """Body of one ``## heading`` section, up to the next ``## ``."""
+    match = re.search(rf"(?ms)^## {re.escape(heading)}\n(.*?)(?=^## |\Z)", text)
+    return match.group(1) if match else ""
+
+
+def _panel_intro(text: str) -> str:
+    """Panel preamble of a carrier: everything before the first ``## `` plus
+    the body of ``## Панель`` when the carrier has that section."""
+    first = re.search(r"(?m)^## ", text)
+    head = text[: first.start()] if first else text
+    return _normalized_lower(head + "\n" + _h2_section(text, "Панель"))
 
 
 def _review_section(harnesses: str) -> list[str] | None:
@@ -269,6 +318,9 @@ def _reference_errors(text: str) -> list[str]:
             errors.append(f"role {role!r}: checklist has {items} items, need 3+")
         if "область" not in lowered:
             errors.append(f"role {role!r}: scope (область) is not named")
+        elif "область роли целиком" not in lowered:
+            errors.append(f"role {role!r}: the scope is not the whole role "
+                          "area (область роли целиком)")
 
     lowered = _normalized_lower(text)
     for phrase in INDEPENDENCE_PHRASES:
@@ -282,6 +334,9 @@ def _reference_errors(text: str) -> list[str]:
     for phrase in PANEL_ASSEMBLY:
         if phrase not in lowered:
             errors.append(f"panel assembly {phrase!r} is missing")
+    for phrase in PANEL_OUTPUT_ANCHORS:
+        if phrase not in lowered:
+            errors.append(f"panel output contract {phrase!r} is missing")
     for phrase in RETIRED_MODEL_RULE:
         if phrase in lowered:
             errors.append(f"retired model rule {phrase!r} is back")
@@ -319,6 +374,18 @@ def _harness_errors(harnesses: str, index: str) -> list[str]:
                 errors.append(f"dsh review way is still named {phrase!r}")
         if ROUTE_STOP not in dsh_block:
             errors.append("dsh review way lost the route-stop rule")
+        # review-output 01: the DSH row names the holistic scope and the dry
+        # output without echo and points at the panel contract instead of
+        # duplicating it; the capacity refusal waits for a slot.
+        for phrase in PANEL_OUTPUT_ANCHORS[:3]:
+            if phrase not in dsh_block:
+                errors.append(f"dsh review way lost {phrase!r}")
+        if "references/review-panel.md" not in dsh_block:
+            errors.append("dsh review way does not point at the panel contract")
+        for phrase in ("`activation_limit_reached`", "ожидание слота",
+                       "лимит из живого профиля"):
+            if phrase not in dsh_block:
+                errors.append(f"dsh review way lost {phrase!r}")
     qoder_gap = any("qoder" in heading and "пробел" in block
                     for heading, block in blocks.items())
     if not qoder_gap:
@@ -340,6 +407,36 @@ def _carrier_errors(text: str) -> list[str]:
               for phrase in RETIRED_DSH_PHRASES if phrase in lowered]
     if "qoder" not in lowered:
         errors.append("the Qoder gap is not named")
+    return errors
+
+
+def _plan_live_errors(text: str, name: str) -> list[str]:
+    """Violated fallback-cleanup contract of one plan spec; empty is sound.
+
+    The live sections (Цель, Готово, Ограничения) carry the route-stop norm
+    and no fallback wording; the dated decisions 4, 14 and 15 stay untouched
+    and are read with the addendum «снято решением 2026-11-25», which sits in
+    the appendix area after the decisions table and before «Готово».
+    """
+    live = "\n".join(_h2_section(text, heading)
+                     for heading in ("Цель", "Готово", "Ограничения"))
+    lowered = _normalized_lower(live)
+    errors: list[str] = []
+    if ROUTE_STOP_NORM not in lowered:
+        errors.append(f"{name}: the live text lost the route stop")
+    for phrase in FALLBACK_PHRASES:
+        if phrase in lowered:
+            errors.append(f"{name}: the live text carries {phrase!r}")
+    marker = "снято решением 2026-11-25"
+    lowered_text = text.lower()
+    if marker not in lowered_text:
+        errors.append(f"{name}: the fallback addendum is missing")
+    else:
+        table = lowered_text.find("## решения план-гейта")
+        ready = lowered_text.find("## готово")
+        at = lowered_text.find(marker)
+        if not table < at < ready:
+            errors.append(f"{name}: the addendum left the appendix area")
     return errors
 
 
@@ -378,12 +475,92 @@ def test_reference_layer_carries_no_role_count():
 
 
 def test_reference_states_input_output_and_independence():
-    """spec: docs/plans/review-config.md#готово — вход: область и чек-лист;
-    выход: вердикт и находки с приоритетами и зацепками; независимость —
-    артефакты, не ход исполнения."""
+    """spec: docs/plans/review-output.md#готово — вход: область роли целиком;
+    выход: сухие структурированные находки; независимость — артефакты, не
+    ход исполнения."""
     lowered = _normalized_lower(REFERENCE.read_text("utf-8"))
-    for phrase in ("область", "чек-лист", *INDEPENDENCE_PHRASES):
+    for phrase in ("область роли целиком", "чек-лист", *INDEPENDENCE_PHRASES):
         assert phrase in lowered, f"{phrase!r} is missing"
+
+
+def test_panel_output_contract_lives_in_the_preamble_of_both_carriers():
+    """spec: docs/plans/review-output.md#готово — общий контракт вывода (все
+    пять игл) — в интро обоих носителей панели; старые строки «Область»
+    четырёх ролей переведены на «область роли целиком»."""
+    for carrier in PANEL_OUTPUT_CARRIERS:
+        text = carrier.read_text("utf-8")
+        intro = _panel_intro(text)
+        for anchor in PANEL_OUTPUT_ANCHORS:
+            assert anchor in intro, \
+                f"{carrier.name}: the panel preamble lost {anchor!r}"
+        sections = _h3_sections(text)
+        for role in ROLES:
+            heading = next(h for h in sections if role in h.lower())
+            role_body = _normalized_lower(sections[heading])
+            assert "область роли целиком" in role_body, \
+                f"{carrier.name}: role {role} keeps a menu scope"
+
+    # can-fail: a lost preamble clause and a role that keeps the old menu
+    # scope both redden; the other carrier stays sound.
+    text = REFERENCE.read_text("utf-8")
+    for anchor in PANEL_OUTPUT_ANCHORS:
+        pattern = re.escape(anchor).replace(r"\ ", r"\s+")
+        mutated = re.sub(pattern, "иное правило", text, count=1,
+                         flags=re.IGNORECASE)
+        assert mutated != text, anchor
+        assert anchor not in _panel_intro(mutated), anchor
+    sections = _h3_sections(text)
+    kb_heading = next(h for h in sections if "reviewer-kb" in h.lower())
+    menu = text.replace("область роли целиком — изменённые документы KB",
+                        "изменённые документы KB", 1)
+    assert menu != text
+    assert "область роли целиком" not in _normalized_lower(
+        _h3_sections(menu)[kb_heading])
+    assert _reference_errors(menu) != []
+    assert _reference_errors(text) == []
+
+
+def test_fallback_cleanup_is_recorded_and_live_plans_are_clean():
+    """spec: docs/plans/review-output.md#готово — чистка фолбэка: датированные
+    решения 4, 14 и 15 не переписываются, после таблицы решений — приписка
+    «снято решением 2026-11-25»; живой текст обоих планов несёт норму
+    «подмены маршрута нет, стоп и вопрос оператору» и не несёт фолбэк-фраз."""
+    for path in PLAN_CARRIERS:
+        assert _plan_live_errors(path.read_text("utf-8"), path.name) == []
+
+    # can-fail: a planted fallback phrase, a lost addendum and an addendum
+    # that left the appendix area all redden.
+    path = PLAN_CARRIERS[0]
+    text = path.read_text("utf-8")
+    planted = text.replace(
+        "## Готово\n",
+        "## Готово\n\nНедоступная модель заменяется моделью сессии.\n", 1)
+    assert planted != text
+    assert any("carries" in error
+               for error in _plan_live_errors(planted, path.name))
+
+    marker = "Снято решением 2026-11-25"
+    no_addendum = text.replace(marker, "Разбор снят", 1)
+    assert no_addendum != text
+    assert any("addendum is missing" in error
+               for error in _plan_live_errors(no_addendum, path.name))
+
+    # Moving the addendum before the decisions table reddens.
+    body_without = text.replace(marker, "", 1)
+    moved = body_without.replace("## Решения план-гейта",
+                                 f"{marker}\n\n## Решения план-гейта", 1)
+    assert moved != body_without
+    assert any("appendix area" in error
+               for error in _plan_live_errors(moved, path.name))
+
+
+def test_live_panel_carriers_carry_no_fallback():
+    """spec: docs/plans/review-output.md#готово — живые носители (ship,
+    review-panel, harnesses) фолбэк-фраз не несут; сторож зелёный на базе."""
+    for path in LIVE_PANEL_CARRIERS:
+        lowered = _normalized_lower(path.read_text("utf-8"))
+        for phrase in FALLBACK_PHRASES:
+            assert phrase not in lowered, f"{path.name}: {phrase!r} is back"
 
 
 def test_reference_carries_the_pack_rules():
