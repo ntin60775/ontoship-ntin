@@ -4,20 +4,20 @@
 # the model default applies.
 
 [agents.reviewer-spec]
-model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
-level = "max"
+model = "qwen-token-plan-max/qwen4-max"
+level = "medium"
 
 [agents.reviewer-tests]
-model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
-level = "max"
+model = "qwen-token-plan-max/qwen4-max"
+level = "medium"
 
 [agents.reviewer-code]
-model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
-level = "max"
+model = "qwen-token-plan-max/qwen4-max"
+level = "medium"
 
 [agents.reviewer-kb]
-model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
-level = "max"
+model = "qwen-token-plan-max/qwen4-max"
+level = "medium"
 
 [agents.critic]
 model = "qwen-token-plan-max/qwen4-max"

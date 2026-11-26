@@ -121,7 +121,7 @@ LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
     "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`",
     "`qwen-token-plan-max/qwen4-max`",
-    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |",
+    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |",
     "| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
     "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `low` |",
     "запиши её без ask",
@@ -889,10 +889,13 @@ def test_standard_layout_contract_can_fail():
     assert any("**Стандартная раскладка.**" in error
                for error in _contract_errors(no_table))
 
-    drifted = text.replace("`qwen-token-plan-max/qwen4-max`",
-                           "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`", 1)
+    drifted = text.replace(
+        "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
+        "`qwen-token-plan-max/qwen4-max` | `medium` |",
+        "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
+        "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |", 1)
     assert drifted != text
-    assert any("`qwen-token-plan-max/qwen4-max`" in error
+    assert any("| `reviewer-spec`" in error
                for error in _contract_errors(drifted))
 
     drifted_level = text.replace(

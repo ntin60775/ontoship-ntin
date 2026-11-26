@@ -233,7 +233,7 @@ updated: <дата>
 
    | роль | `model` | `level` |
    |---|---|---|
-   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |
+   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |
    | `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
    | `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `low` |
 
