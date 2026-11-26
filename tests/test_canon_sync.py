@@ -136,6 +136,9 @@ PANEL_INTRO_ANCHORS = (
     "без дословного эха",
     "зацепка ≤10 слов",
     "пустая область",
+    # review-output 2026-11-26: the finding line shape is explicit — the run-3
+    # probe showed a place and a lead without the dash separator.
+    "одна строка: `p2 <файл:строка> — зацепка",
 )
 
 ONTODOC_CARRIERS = (

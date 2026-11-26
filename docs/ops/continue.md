@@ -161,6 +161,13 @@ Run-3 (`4f807da` — план до спавна): 3/3 активных роле�
 автоприёмкой; 860 passed, lint чисто, main запушен. Открытых зацепок
 нет; отчёт — `tickets/review-output/00-probe-report.md`.
 
+**Формат находки закреплён 2026-11-26 (по пробелу run-3).** Строка
+находки — `P2 <файл:строка> — зацепка ≤10 слов`, разделитель обязателен.
+Носители: `review-panel.md`, `review-roles.md`, `ship/SKILL.md`,
+якоря `PANEL_INTRO_ANCHORS` (`test_canon_sync.py`),
+`PANEL_OUTPUT_PHRASES` (`test_skill_ship.py`), `PANEL_OUTPUT_ANCHORS`
+(`test_review_roles.py`) и мутации; 861 passed.
+
 **Решение оператора 2026-11-26: следующий юнит — расследование
 `PI_AI_ERROR`.** Вход — проба 02 (`tickets/review-output/00-probe-report.md`)
 и факт «падения до появления вывода»; вопросы юнита: триггер (reasoning,

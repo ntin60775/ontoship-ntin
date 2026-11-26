@@ -170,6 +170,7 @@ PANEL_OUTPUT_PHRASES = (
     "без дословного эха",
     "цитата входа — дословная подстрока",
     "без развёрнутых абзацев",
+    "одна строка: `p2 <файл:строка> — зацепка",
     "пустая область",
     "роль не стартует",
     # a capacity refusal of the host pool waits for a slot — not a role
@@ -927,7 +928,7 @@ def test_panel_output_contract_is_sectional():
 
     # can-fail by section: the phrase leaves the panel section and appears
     # at the end of the body — a whole-body needle would stay green.
-    moved = _body_mutated(text, "зацепка ≤10 слов", "иное правило")
+    moved = _body_mutated(text, "зацепка ≤10 слов", "иное правило", count=-1)
     moved += " Зацепка ≤10 слов."
     assert "зацепка ≤10 слов" in _normalized_lower(moved)
     assert "зацепка ≤10 слов" not in _section(

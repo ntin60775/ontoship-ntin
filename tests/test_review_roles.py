@@ -98,6 +98,8 @@ PANEL_OUTPUT_ANCHORS = (
     "без дословного эха",
     "зацепка ≤10 слов",
     "пустая область",
+    # the finding line shape: priority, place, dash, lead.
+    "одна строка: `p2 <файл:строка> — зацепка",
 )
 PANEL_OUTPUT_CARRIERS = (
     REFERENCE,
@@ -515,7 +517,7 @@ def test_panel_output_contract_lives_in_the_preamble_of_both_carriers():
     text = REFERENCE.read_text("utf-8")
     for anchor in PANEL_OUTPUT_ANCHORS:
         pattern = re.escape(anchor).replace(r"\ ", r"\s+")
-        mutated = re.sub(pattern, "иное правило", text, count=1,
+        mutated = re.sub(pattern, "иное правило", text, count=0,
                          flags=re.IGNORECASE)
         assert mutated != text, anchor
         assert anchor not in _panel_intro(mutated), anchor
