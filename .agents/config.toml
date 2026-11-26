@@ -5,19 +5,19 @@
 
 [agents.reviewer-spec]
 model = "qwen-token-plan-max/qwen4-max"
-level = "xhigh"
+level = "medium"
 
 [agents.reviewer-tests]
 model = "qwen-token-plan-max/qwen4-max"
-level = "xhigh"
+level = "medium"
 
 [agents.reviewer-code]
 model = "qwen-token-plan-max/qwen4-max"
-level = "xhigh"
+level = "medium"
 
 [agents.reviewer-kb]
 model = "qwen-token-plan-max/qwen4-max"
-level = "xhigh"
+level = "medium"
 
 [agents.critic]
 model = "qwen-token-plan-max/qwen4-max"

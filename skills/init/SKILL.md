@@ -233,7 +233,7 @@ updated: <дата>
 
    | роль | `model` | `level` |
    |---|---|---|
-   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
+   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |
    | `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
    | `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |
 

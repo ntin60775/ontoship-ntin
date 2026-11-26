@@ -113,8 +113,8 @@ RETIRED_MODEL_RULE = (
 
 # The bootstrap section carries the standard layout (operator decision
 # 2026-11-16, critic model replaced by operator decision 2026-11-22,
-# reviewers moved to qwen4-max (level xhigh — the catalog offers medium and
-# xhigh) and curator to qwen3.8-flash/medium by operator decision 2026-11-26;
+# reviewers moved to qwen4-max/medium and curator to qwen3.8-flash/medium
+# by operator decision 2026-11-26;
 # supersedes dsh-adaptation decision 5): six routes and levels
 # shipped one table, written without an ask when every route is live,
 # deviation named in the report.
@@ -122,7 +122,7 @@ LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
     "`qwen-token-plan-max/qwen4-max`",
     "`qwen-token-plan/qwen3.8-flash`",
-    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
+    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |",
     "| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
     "| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |",
     "запиши её без ask",
@@ -892,7 +892,7 @@ def test_standard_layout_contract_can_fail():
 
     drifted = text.replace(
         "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
-        "`qwen-token-plan-max/qwen4-max` | `xhigh` |",
+        "`qwen-token-plan-max/qwen4-max` | `medium` |",
         "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
         "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |", 1)
     assert drifted != text

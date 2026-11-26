@@ -218,6 +218,23 @@ init, якоря и мутация `tests/test_skill_init.py`, эта запис
 качества — при следующем пересмотре раскладки `medium` выглядит
 предпочтительнее; решение за оператором.
 
+**Матрица ролей 2026-11-26 (решение оператора): `qwen4-max`/`medium`.**
+Запись про `xhigh` выше отменена: по парето-выбору (качество 4/4 на
+код-ревью, ~19 с ответа, ~1,1 тыс. выходных токенов; `xhigh` втрое
+медленнее и вчетверо дороже без прироста, `deepseek`/`max` — больше
+находок, но 3–4× токенов, решено не брать).
+
+| роль | модель | уровень |
+|---|---|---|
+| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |
+| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
+| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |
+
+Маршрут `flash-1017` снят из-за недетерминированного `PI_AI_ERROR`.
+Носители: `.agents/config.toml`, таблица стандартной раскладки
+`skills/init/SKILL.md`, якоря и мутация `tests/test_skill_init.py`,
+эта запись.
+
 **Быстрая правка 2026-11-25 (вне юнита, решение оператора):** усиление
 по анализу отклонения
 ([00-process-note.md](../../tickets/review-output/00-process-note.md)) —
