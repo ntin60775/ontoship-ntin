@@ -103,6 +103,13 @@ PANEL_OUTPUT_CARRIERS = (
     REFERENCE,
     REPO / "skills" / "ship" / "references" / "review-panel.md",
 )
+# The harness row promises the dry metrics in the panel contract, so the
+# contract states them: an echoed quote is a verbatim input substring of five
+# words or more, the output length is counted in words.
+PANEL_METRIC_ANCHORS = (
+    "цитата входа — дословная подстрока входа ≥5 слов",
+    "длина вывода считается в словах",
+)
 # review-output 01: the dated fallback decisions are read with the addendum
 # «снято решением 2026-11-25»; the live text of both plans carries the route
 # stop, and no fallback wording survives there or in the live carriers.
@@ -431,6 +438,8 @@ def _plan_live_errors(text: str, name: str) -> list[str]:
     lowered_text = text.lower()
     if marker not in lowered_text:
         errors.append(f"{name}: the fallback addendum is missing")
+    elif "## решения план-гейта" not in lowered_text:
+        errors.append(f"{name}: the decisions-table heading is missing")
     else:
         table = lowered_text.find("## решения план-гейта")
         ready = lowered_text.find("## готово")
@@ -490,7 +499,8 @@ def test_panel_output_contract_lives_in_the_preamble_of_both_carriers():
     for carrier in PANEL_OUTPUT_CARRIERS:
         text = carrier.read_text("utf-8")
         intro = _panel_intro(text)
-        for anchor in PANEL_OUTPUT_ANCHORS:
+        assert intro, f"{carrier.name}: the panel preamble is not found"
+        for anchor in (*PANEL_OUTPUT_ANCHORS, *PANEL_METRIC_ANCHORS):
             assert anchor in intro, \
                 f"{carrier.name}: the panel preamble lost {anchor!r}"
         sections = _h3_sections(text)

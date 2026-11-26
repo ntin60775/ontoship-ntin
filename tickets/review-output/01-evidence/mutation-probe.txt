@@ -1,0 +1,75 @@
+# Мутационная проба: игла «зацепка ≤10 слов» удалена из skills/ship/SKILL.md
+# Команда: python3 -m pytest tests/test_skill_ship.py -q
+# Ожидание: контракт панели краснеет (секционная игла пропала).
+
+mutation: зацепка ≤10 слов -> зацепка без капа
+F..................FFFFF.FF.....F.F...F                                  [100%]
+=================================== FAILURES ===================================
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:475: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:687: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:791: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:817: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:848: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:872: assert ["panel: the ...ка ≤10 слов'"] == []
+E   AssertionError: the panel section lost 'зацепка ≤10 слов'
+    assert 'зацепка ≤10 слов' in '## ревью-панель шаг «один прогон ревью» идёт панелью специалистов — роли запускаются параллельно в одном прогоне. пан... повторная проба, затем остановка прохода и вопрос оператору: «ревью провёл исполнитель» законным исходом не является.'
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:915: AssertionError: the panel section lost 'зацепка ≤10 слов'
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:926: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:1046: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:1120: assert ["panel: the ...ка ≤10 слов'"] == []
+E   assert ["panel: the ...ка ≤10 слов'"] == []
+      
+      Left contains one more item: "panel: the panel section lost 'зацепка ≤10 слов'"
+      Use -v to get more diff
+/home/prog7/home/dev/contrib/forks/ontoship-ntin/.agents/worktrees/review-output-01/tests/test_skill_ship.py:1282: assert ["panel: the ...ка ≤10 слов'"] == []
+=========================== short test summary info ============================
+FAILED tests/test_skill_ship.py::test_skill_is_a_discoverable_directory_bundle
+FAILED tests/test_skill_ship.py::test_contract_check_can_fail - assert ["pane...
+FAILED tests/test_skill_ship.py::test_gate_step_contract_can_fail - assert ["...
+FAILED tests/test_skill_ship.py::test_auto_acceptance_contract_can_fail - ass...
+FAILED tests/test_skill_ship.py::test_route_stop_contract_can_fail - assert [...
+FAILED tests/test_skill_ship.py::test_projection_gate_contract_can_fail - ass...
+FAILED tests/test_skill_ship.py::test_panel_role_input_output_and_independence
+FAILED tests/test_skill_ship.py::test_panel_output_contract_is_sectional - as...
+FAILED tests/test_skill_ship.py::test_panel_check_can_fail - assert ["panel: ...
+FAILED tests/test_skill_ship.py::test_reference_guard_can_fail - assert ["pan...
+FAILED tests/test_skill_ship.py::test_dsh_ship_contract_can_fail - assert ["p...
+11 failed, 28 passed in 0.09s
+
+# SKILL.md восстановлен из копии.

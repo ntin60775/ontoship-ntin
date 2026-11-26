@@ -19,7 +19,7 @@ links:
 - [harnesses.md](harnesses.md) — канонический корень `.agents/skills`
   (единственный канал — установщик; ZCode-рельсы сняты) для zcode,
   DSH и Qoder: матрица, ранги, `AGENTS.md`, доказательства из исходников;
-  панель, онто-док, цепочка и проекции на DSH, Qoder — пробел.
+  панель, онто-док, цепочка и проекции — на DSH; Qoder — пробел.
 - [dsh-session-probe.md](dsh-session-probe.md) — ведение сессий DSH через
   API без GUI: изолированный хост (копия DSH_HOME), авторизация
   launch-токен/cookie, unary-методы, ответ на ask (legacy — WS-мост

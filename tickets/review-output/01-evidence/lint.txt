@@ -1,3 +1,6 @@
+# KB lint
+# Команда: python3 skills/kb-search/gitmark.py lint --strict
+
 
 scope: 235 файлов исключено по 1 префиксам
 [32m✓ чисто[0m  (64 файлов · —)
