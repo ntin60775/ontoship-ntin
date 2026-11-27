@@ -475,6 +475,103 @@ def test_committed_registry_carries_roles_and_the_pool() -> None:
     assert _config_errors(REPO) == []
 
 
+# init ships the standard layout for new projects; that table is the delivery
+# matrix and must equal the project's own registry (operator rule 2026-11-27):
+# the table row and the [agents.<role>] section move in one commit, a
+# divergence is red — the shipped matrix is never "a project value".
+LAYOUT_ROW = re.compile(
+    r"^\|\s*(?P<roles>`[^`]+`(?:\s*,\s*`[^`]+`)*)\s*\|\s*`(?P<model>[^`]+)`"
+    r"\s*\|\s*`(?P<level>[^`]+)`\s*\|$"
+)
+LAYOUT_MATRIX_NEEDLES = (
+    "обязана совпадать с реестром ролей проекта",
+    "меняешь таблицу тем же коммитом",
+)
+
+
+def _init_layout_routes(root: Path) -> dict[str, tuple[str, str]]:
+    """role -> (model, level) shipped by init's standard-layout table."""
+    routes: dict[str, tuple[str, str]] = {}
+    for line in (root / INIT).read_text("utf-8").splitlines():
+        row = LAYOUT_ROW.match(line.strip())
+        if row is None:
+            continue
+        for role in re.findall(r"`([^`]+)`", row.group("roles")):
+            routes[role] = (row.group("model"), row.group("level"))
+    return routes
+
+
+def _layout_parity_errors(root: Path) -> list[str]:
+    """Delivery matrix versus the project registry; empty means equal."""
+    data, errors = _config_data(root)
+    if data is None:
+        return errors
+    routes = _init_layout_routes(root)
+    text = (root / INIT).read_text("utf-8")
+    artifacts = [f"matrix: init carries no {needle!r}"
+                 for needle in LAYOUT_MATRIX_NEEDLES if needle not in text]
+    core = _parsed_tuple((root / REGISTRY).read_text("utf-8"), "CORE_ROLES") or []
+    agents = data.get("agents")
+    if not isinstance(agents, dict):
+        return errors + ["matrix: the registry has no agents table"]
+    for role in core:
+        shipped = routes.get(role)
+        section = agents.get(role)
+        if shipped is None:
+            artifacts.append(f"matrix: init ships no route for the {role} role")
+            continue
+        if not isinstance(section, dict):
+            artifacts.append(f"matrix: the registry has no {role} section")
+            continue
+        actual = (section.get("model"), section.get("level"))
+        if shipped != actual:
+            artifacts.append(
+                f"matrix: the {role} role ships {shipped[0]}/{shipped[1]}, "
+                f"the registry has {actual[0]}/{actual[1]}"
+            )
+    return errors + artifacts
+
+
+def test_init_layout_equals_the_project_registry() -> None:
+    """invariant: docs/reference/review-roles.md#матрица-поставки — таблица
+    init и `.agents/config.toml` (model+level каждой роли ядра) совпадают."""
+    assert _layout_parity_errors(REPO) == []
+
+
+def test_layout_parity_can_fail(tmp_path: Path) -> None:
+    """invariant: docs/reference/review-roles.md#матрица-поставки — паритет
+    краснит в обе стороны: правка таблицы и правка реестра ловятся."""
+    def tree() -> Path:
+        for rel in (CONFIG, INIT, REGISTRY):
+            target = tmp_path / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((REPO / rel).read_bytes())
+        return tmp_path
+
+    root = tree()
+    assert _layout_parity_errors(root) == []
+
+    table = (root / INIT).read_text("utf-8")
+    mutated_table = table.replace(
+        "| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
+        "| `critic` | `qwen-token-plan-max/qwen4-max` | `medium` |", 1)
+    assert mutated_table != table
+    (root / INIT).write_text(mutated_table, "utf-8")
+    assert "matrix: the critic role ships qwen-token-plan-max/qwen4-max/medium" \
+        in " ".join(_layout_parity_errors(root))
+
+    (root / INIT).write_text(table, "utf-8")
+    assert _layout_parity_errors(root) == []
+    config = (root / CONFIG).read_text("utf-8")
+    mutated_config = config.replace(
+        '[agents.curator]\nmodel = "qwen-token-plan/qwen3.8-flash"\nlevel = "medium"',
+        '[agents.curator]\nmodel = "qwen-token-plan/qwen3.8-flash"\nlevel = "high"', 1)
+    assert mutated_config != config
+    (root / CONFIG).write_text(mutated_config, "utf-8")
+    assert "matrix: the curator role ships qwen-token-plan/qwen3.8-flash/medium" \
+        in " ".join(_layout_parity_errors(root))
+
+
 def _without_pool_section(text: str) -> str:
     head, separator, _tail = text.partition(f"\n{POOL_HEADER}\n")
     assert separator, "the config has no [validation] section to remove"
