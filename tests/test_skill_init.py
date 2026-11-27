@@ -133,19 +133,18 @@ LAYOUT_NEEDLES = (
 )
 
 # registry-source («Готово»): the pool is a structural invariant — three
-# distinct models by model part — and its pairs are project values chosen on
-# the bootstrap from the live catalog after the operator's answer. Init writes
-# no pool route; an existing config without the section is a named gap, not a
-# silent append.
+# distinct models by model part — and its pairs are part of the delivery
+# matrix (operator rule 2026-11-27): the canon carries them, the bootstrap only
+# verifies they are live and asks when a route is dead. The consumer's registry
+# is reconciled with the same matrix by the init bundle's sync_config.py.
 POOL_NEEDLES = (
     "**Пул валидации.**",
     "`[validation]`",
     "три различных модели по model-части",
-    "варианты — из живого `list_subagent_models`",
-    "запись — после ответа оператора",
-    "делегированный прогон — названный стоп",
+    "`POOL_ROUTES`",
+    "с живым `list_subagent_models`",
+    "ask оператора",
     "Пул — источник маршрутов членов консилиума",
-    "Секция пула валидации `[validation]`",
 )
 RETIRED_POOL_PHRASES = ("модель под срез", "причина по срезу",
                         "срезов валидации", "пиши без ask")
@@ -948,9 +947,8 @@ def test_bootstrap_writes_the_validation_pool():
 def test_pool_contract_can_fail():
     """invariant: docs/decisions/ontoship-core.md#одно правило качества —
     the pool contract rejects a lost pool marker, a lost structural clause, a
-    lost live-catalog ask, a lost record-after-answer rule, a returned
-    without-ask rule, a lost delegated-run stop, a lost member-route rule and
-    a returned slice wording."""
+    lost matrix carrier, a lost live-catalog check, a lost operator ask and a
+    returned slice wording."""
     text = SKILL.read_text("utf-8")
     assert _contract_errors(text) == []
 
@@ -958,29 +956,26 @@ def test_pool_contract_can_fail():
         ("**Пул валидации.**", "Пул:", "**Пул валидации.**"),
         ("три различных модели по model-части", "три маршрута пула",
          "три различных модели по model-части"),
-        ("варианты — из живого `list_subagent_models`", "варианты — из конфига",
-         "варианты — из живого `list_subagent_models`"),
-        ("запись — после ответа оператора", "запись без ask",
-         "запись — после ответа оператора"),
-        ("запись — после ответа оператора",
-         "запись — после ответа оператора, пиши без ask",
+        ("с живым `list_subagent_models`", "из конфига",
+         "с живым `list_subagent_models`"),
+        ("`POOL_ROUTES`", "POOL", "`POOL_ROUTES`"),  # all occurrences: table + step
+        ("ask оператора", "молча", "ask оператора"),
+        ("ask оператора",
+         "ask оператора, пиши без ask",
          "pool: retired phrase 'пиши без ask' is back"),
-        ("делегированный прогон — названный стоп",
-         "делегированный прогон — обычный",
-         "делегированный прогон — названный стоп"),
         ("Пул — источник маршрутов членов консилиума",
          "Модель под срез. Пул — источник маршрутов членов консилиума",
          "pool: retired phrase 'модель под срез' is back"),
         ("причина выбора — в отчёте гейта",
          "причина по срезу — в отчёте гейта",
          "pool: retired phrase 'причина по срезу' is back"),
-        ("Секция пула валидации `[validation]`", "Секция пула",
-         "Секция пула валидации `[validation]`"),
     ):
         # Whitespace-flexible replace: the clause may wrap at 80 columns,
         # the line structure of the rest of the skill stays intact.
         pattern = re.escape(old).replace("\\ ", r"\s+")
-        mutated = re.sub(pattern, new, text, count=1)
+        # The matrix carrier is named twice (the reconcile step and the pool
+        # clause): the probe drops both so the pool check must redden.
+        mutated = re.sub(pattern, new, text, count=0 if old == "`POOL_ROUTES`" else 1)
         assert mutated != text, f"the mutation must change the text: {old!r}"
         assert any(needle in error for error in _contract_errors(mutated)), \
             (old, _contract_errors(mutated))
@@ -1169,14 +1164,13 @@ def test_role_count_contract_can_fail():
     dropped = text.replace("`reviewer-spec`, `reviewer-tests`, `reviewer-code`,",
                            "`reviewer-spec`, `reviewer-tests`,", 1)
     assert dropped != text
-    assert any("misses the reviewer-code role" in error
-               for error in _contract_errors(dropped))
+    assert any("reviewer-code" in error for error in _contract_errors(dropped))
 
     # Panel probes (dwfrun-71b03204): a duplicate entry, a non-role token,
     # the instrumental case, the next ordinal question, a rephrased anchor
     # and the numeral hidden inside a word.
-    duplicated = text.replace("`reviewer-kb`, `critic`, `curator`",
-                              "`reviewer-kb`, `critic`, `curator`, `reviewer-kb`", 1)
+    duplicated = re.sub(r"`reviewer-kb`,\s*`critic`,\s*`curator`",
+                        "`reviewer-kb`, `critic`, `curator`, `reviewer-kb`", text, count=1)
     assert duplicated != text
     assert any("not a permutation" in error
                for error in _contract_errors(duplicated))
@@ -1261,15 +1255,17 @@ def test_bootstrap_discovers_and_registers_packs():
     assert "Для паков назови итог" in text
 
 
-def test_missing_registry_section_stops_the_bootstrap():
-    """spec: docs/plans/standards-autoship.md#готово — реестр без секции
-    роли или пула останавливает шаг до ответа оператора; в делегированном
-    прогоне ask поднимает оркестратор; формулировка «предложи добавить»
-    не возвращается (пробел жил в отчёте и не доходил до решения)."""
+def test_missing_registry_section_is_reconciled_not_stopped():
+    """spec: docs/reference/review-roles.md#матрица-поставки — отсутствующие
+    секции ролей ядра и пул приводит sync_config.py (поставка = матрица), это
+    не остановка и не «предложи добавить»; остановка остаётся для роли пака
+    без значения: её модель — знание проекта, а не матрица."""
     text = SKILL.read_text("utf-8")
     assert "предложи добавить" not in text
-    assert text.count("останови шаг") >= 3
-    assert "ask поднимает оркестратор" in text
+    flat = re.sub(r"\s+", " ", text)
+    assert "sync_config.py" in flat
+    assert "Роль пака без секции — останови шаг" in flat
+    assert text.count("останови шаг") >= 1
 
 
 def test_pack_discovery_contract_can_fail():
