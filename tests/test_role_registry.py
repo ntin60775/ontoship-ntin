@@ -592,11 +592,11 @@ def test_layout_parity_can_fail(tmp_path: Path) -> None:
     assert _layout_parity_errors(root) == []
     config = (root / CONFIG).read_text("utf-8")
     mutated_config = config.replace(
-        '[agents.curator]\nmodel = "qwen-token-plan/qwen3.8-flash"\nlevel = "medium"',
-        '[agents.curator]\nmodel = "qwen-token-plan/qwen3.8-flash"\nlevel = "high"', 1)
+        '[agents.curator]\nmodel = "deepseek-account/deepseek-flash"\nlevel = "low"',
+        '[agents.curator]\nmodel = "deepseek-account/deepseek-flash"\nlevel = "high"', 1)
     assert mutated_config != config
     (root / CONFIG).write_text(mutated_config, "utf-8")
-    assert "the curator role ships qwen-token-plan/qwen3.8-flash/medium" \
+    assert "the curator role ships deepseek-account/deepseek-flash/low" \
         in " ".join(_layout_parity_errors(root))
 
 

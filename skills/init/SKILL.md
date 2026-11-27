@@ -232,11 +232,14 @@ updated: <дата>
 
    | роль | `model` | `level` |
    |---|---|---|
-   | `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |
+   | `reviewer-spec` | `qwen-token-plan-max/qwen4-max` | `medium` |
+   | `reviewer-tests` | `qwen-token-plan-glm/glm-5.3` | `high` |
+   | `reviewer-code` | `deepseek-account/deepseek-flash` | `max` |
+   | `reviewer-kb` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
    | `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
-   | `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |
+   | `curator` | `deepseek-account/deepseek-flash` | `low` |
 
-   Сверь её с живым каталогом: все шесть маршрутов и их уровни доступны —
+   Сверь её с живым каталогом: маршрут и уровень каждой роли доступны —
    запиши её без ask. Хоть один маршрут или уровень недоступен — спроси
    оператора: в вариантах только активные пары, ближайшая к стандарту
    первой; назови отклонение от стандарта в отчёте.

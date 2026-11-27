@@ -113,18 +113,22 @@ RETIRED_MODEL_RULE = (
 
 # The bootstrap section carries the standard layout (operator decision
 # 2026-11-16, critic model replaced by operator decision 2026-11-22,
-# reviewers moved to qwen4-max/medium and curator to qwen3.8-flash/medium
-# by operator decision 2026-11-26;
+# reviewers spread across four providers by operator decision 2026-11-27;
 # supersedes dsh-adaptation decision 5): six routes and levels
 # shipped one table, written without an ask when every route is live,
 # deviation named in the report.
 LAYOUT_NEEDLES = (
     "**Стандартная раскладка.**",
     "`qwen-token-plan-max/qwen4-max`",
+    "`qwen-token-plan-glm/glm-5.3`",
+    "`deepseek-account/deepseek-flash`",
     "`qwen-token-plan/qwen3.8-flash`",
-    "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | `qwen-token-plan-max/qwen4-max` | `medium` |",
+    "| `reviewer-spec` | `qwen-token-plan-max/qwen4-max` | `medium` |",
+    "| `reviewer-tests` | `qwen-token-plan-glm/glm-5.3` | `high` |",
+    "| `reviewer-code` | `deepseek-account/deepseek-flash` | `max` |",
+    "| `reviewer-kb` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |",
     "| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |",
-    "| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |",
+    "| `curator` | `deepseek-account/deepseek-flash` | `low` |",
     "запиши её без ask",
     "назови отклонение от стандарта",
     "спроси оператора",
@@ -890,12 +894,10 @@ def test_standard_layout_contract_can_fail():
                for error in _contract_errors(no_table))
 
     drifted = text.replace(
-        "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
-        "`qwen-token-plan-max/qwen4-max` | `medium` |",
-        "| `reviewer-spec`, `reviewer-tests`, `reviewer-code`, `reviewer-kb` | "
-        "`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `max` |", 1)
+        "| `reviewer-code` | `deepseek-account/deepseek-flash` | `max` |",
+        "| `reviewer-code` | `deepseek-account/deepseek-flash` | `high` |", 1)
     assert drifted != text
-    assert any("| `reviewer-spec`" in error
+    assert any("| `reviewer-code`" in error
                for error in _contract_errors(drifted))
 
     drifted_level = text.replace(
@@ -906,8 +908,8 @@ def test_standard_layout_contract_can_fail():
                for error in _contract_errors(drifted_level))
 
     drifted_curator = text.replace(
-        "| `curator` | `qwen-token-plan/qwen3.8-flash` | `medium` |",
-        "| `curator` | `qwen-token-plan-deepseek/deepseek-v4.1-flash-1017` | `low` |",
+        "| `curator` | `deepseek-account/deepseek-flash` | `low` |",
+        "| `curator` | `deepseek-account/deepseek-flash` | `max` |",
         1)
     assert drifted_curator != text
     assert any("| `curator` |" in error
@@ -1161,10 +1163,10 @@ def test_role_count_contract_can_fail():
     assert any("phantom extra-role role" in error
                for error in _contract_errors(phantom))
 
-    dropped = text.replace("`reviewer-spec`, `reviewer-tests`, `reviewer-code`,",
-                           "`reviewer-spec`, `reviewer-tests`,", 1)
+    dropped = text.replace("`reviewer-code`, `reviewer-kb`, `critic`, `curator`",
+                           "`reviewer-code`, `critic`, `curator`", 1)
     assert dropped != text
-    assert any("reviewer-code" in error for error in _contract_errors(dropped))
+    assert any("reviewer-kb" in error for error in _contract_errors(dropped))
 
     # Panel probes (dwfrun-71b03204): a duplicate entry, a non-role token,
     # the instrumental case, the next ordinal question, a rephrased anchor

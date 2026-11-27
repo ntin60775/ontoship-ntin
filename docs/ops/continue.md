@@ -3,7 +3,7 @@ node_type: runbook
 title: Продолжение разработки из этого репозитория
 service: _platform
 status: active
-updated: 2026-11-26
+updated: 2026-11-27
 tags: [runbook, start, handoff, core-kb, harness, workflow, review-config]
 links:
   relates_to: [../README.md, ../decisions/ontoship-core.md, ../plans/core-kb.md, ../plans/harness-agnostic.md, ../plans/workflow-skills.md, ../plans/install-dry-run.md, ../plans/entry-and-continuity.md, ../plans/bundle-references.md, ../plans/dsh-adaptation.md, ../reference/harnesses.md, ../../tickets/README.md]
@@ -259,6 +259,28 @@ flash-1017 вслед за ревью-ролями, прямой дипсик п
 быстрее всех и с полным покрытием находок. Остальные пары и правило
 трёх различных моделей не тронуты. Носители: `.agents/config.toml`,
 `skills/init/roles.py` (`POOL_ROUTES`), эта запись.
+
+**Решение оператора 2026-11-27 (раскладка ролей): ревьюеры разведены по
+четырём провайдерам, куратор — на прямой DeepSeek.** Отменяет запись
+2026-11-26 о `qwen4-max`/`medium` для всех четырёх ревьюеров: панель на
+одной модели даёт одну и ту же ошибку в четырёх отчётах. Замер `high`
+против `max` на `deepseek` (код-ревью, n=2): сеяные дефекты 7/8 против
+8/8 при +30% выходных токенов — recall-first слот `reviewer-code` берёт
+`max`, остальные роли на дипсике — `low`. `glm-5.3` — `high`: на нём же
+замерен. `qwen3.8-flash` на `kb` — механика графа, дешёвый слот.
+
+| роль | модель | уровень |
+|---|---|---|
+| `reviewer-spec` | `qwen-token-plan-max/qwen4-max` | `medium` |
+| `reviewer-tests` | `qwen-token-plan-glm/glm-5.3` | `high` |
+| `reviewer-code` | `deepseek-account/deepseek-flash` | `max` |
+| `reviewer-kb` | `qwen-token-plan/qwen3.8-flash` | `xhigh` |
+| `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
+| `curator` | `deepseek-account/deepseek-flash` | `low` |
+
+Носители: `.agents/config.toml`, `skills/init/roles.py` (`ROLE_ROUTES`),
+таблица стандартной раскладки `skills/init/SKILL.md`, якоря и мутации
+`tests/test_skill_init.py` и `tests/test_role_registry.py`, эта запись.
 
 **Быстрая правка 2026-11-25 (вне юнита, решение оператора):** усиление
 по анализу отклонения

@@ -21,11 +21,11 @@ PANEL_ROLES = ("reviewer-spec", "reviewer-tests", "reviewer-code", "reviewer-kb"
 # POOL_ROUTES. Rows are (role, route, level); routes are `<provider>/<model>`.
 ROLE_ROUTES = (
     ("reviewer-spec", "qwen-token-plan-max/qwen4-max", "medium"),
-    ("reviewer-tests", "qwen-token-plan-max/qwen4-max", "medium"),
-    ("reviewer-code", "qwen-token-plan-max/qwen4-max", "medium"),
-    ("reviewer-kb", "qwen-token-plan-max/qwen4-max", "medium"),
+    ("reviewer-tests", "qwen-token-plan-glm/glm-5.3", "high"),
+    ("reviewer-code", "deepseek-account/deepseek-flash", "max"),
+    ("reviewer-kb", "qwen-token-plan/qwen3.8-flash", "xhigh"),
     ("critic", "qwen-token-plan-max/qwen4-max", "xhigh"),
-    ("curator", "qwen-token-plan/qwen3.8-flash", "medium"),
+    ("curator", "deepseek-account/deepseek-flash", "low"),
 )
 
 # The validation pool is part of the matrix: three distinct models by the
