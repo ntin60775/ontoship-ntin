@@ -663,6 +663,18 @@ def test_sync_reconciles_a_consumer_registry(tmp_path: Path) -> None:
     assert (again, changes_again) == (reconciled, [])
 
 
+def test_sync_bootstraps_an_empty_registry_cleanly(tmp_path: Path) -> None:
+    """rule: docs/reference/review-roles.md#матрица-поставки — приведение
+    пустого реестра даёт файл без ведущей пустой строки и без хвостов."""
+    sync = _load_sync(REPO)
+    for seed in ("", "\n", "  \n"):
+        text, changes = sync.reconcile(seed)
+        assert text.startswith("[agents.reviewer-spec]\n"), repr(seed)
+        assert text.endswith("]\n")
+        assert changes
+        assert sync.reconcile(text)[1] == []
+
+
 def test_sync_check_reports_drift(tmp_path: Path) -> None:
     """invariant: docs/reference/review-roles.md#матрица-поставки — --check
     красный на разошедшемся реестре и зелёный после приведения."""
