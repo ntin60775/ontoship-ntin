@@ -115,9 +115,10 @@ def _registry_internal_errors(root: Path) -> tuple[list[str] | None, list[str] |
             errors.append(f"registry: roles.py carries executable logic "
                           f"({token.strip()})")
     assigned = re.findall(r"^([A-Za-z_]+) =", code, re.MULTILINE)
-    if sorted(assigned) != ["CORE_ROLES", "PANEL_ROLES"]:
+    wanted = ["CORE_ROLES", "PANEL_ROLES", "POOL_ROUTES", "ROLE_ROUTES"]
+    if sorted(assigned) != wanted:
         errors.append(f"registry: roles.py assigns {assigned or 'nothing'} "
-                      "instead of the two tuples")
+                      "instead of the role tuples and the delivery matrix")
     core = _parsed_tuple(source, "CORE_ROLES")
     panel = _parsed_tuple(source, "PANEL_ROLES")
     if core is None:
@@ -205,7 +206,8 @@ def _carriers(tmp_path: Path, **overrides: str) -> Path:
 
 def test_registry_carries_data_with_the_two_tuples() -> None:
     """spec: docs/plans/role-registry.md#готово-1 — the registry holds the
-    two tuples and nothing executable: only data and the origin comment."""
+    role tuples and the delivery matrix and nothing executable: only data and
+    the origin comment."""
     core, panel, errors = _registry_internal_errors(REPO)
     assert errors == []
     assert core and panel
@@ -253,12 +255,12 @@ POOL_SIZE = 3
 POOL_HEADER = "[validation]"
 POOL_ENTRY = re.compile(r'^\s*\{\s*model\s*=\s*"')
 
-# The init bootstrap produces the invariant for a new project, never its
-# values: the project routes are chosen on the bootstrap from the live catalog.
+# The pool is part of the delivery matrix: the canon carries its routes, the
+# bootstrap only checks they are live; drift is reconciled by sync_config.py.
 INIT_POOL_NEEDLES = (
     "три различных модели по model-части",
-    "варианты — из живого `list_subagent_models`",
-    "запись — после ответа оператора",
+    "`POOL_ROUTES`",
+    "с живым `list_subagent_models`",
 )
 
 
@@ -460,8 +462,7 @@ def test_init_pool_parity_can_fail() -> None:
     assert _init_pool_errors(text) == []
     for old, new in (
         ("три различных модели по model-части", "три маршрута пула"),
-        ("варианты — из живого `list_subagent_models`", "варианты — из конфига"),
-        ("запись — после ответа оператора", "запись без ask"),
+        ("с живым `list_subagent_models`", "из конфига"),
     ):
         mutated = _replace_flexible(text, old, new)
         assert mutated != text, old
@@ -501,34 +502,62 @@ def _init_layout_routes(root: Path) -> dict[str, tuple[str, str]]:
     return routes
 
 
+def _matrix_data(root: Path) -> dict[str, object]:
+    """Module-level literals of the init bundle data (`roles.py`)."""
+    import ast
+
+    values: dict[str, object] = {}
+    tree = ast.parse((root / REGISTRY).read_text("utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 \
+                and isinstance(node.targets[0], ast.Name):
+            try:
+                values[node.targets[0].id] = ast.literal_eval(node.value)
+            except ValueError:
+                continue
+    return values
+
+
 def _layout_parity_errors(root: Path) -> list[str]:
-    """Delivery matrix versus the project registry; empty means equal."""
+    """Delivery matrix (init table, roles.py, project registry); empty means equal."""
     data, errors = _config_data(root)
     if data is None:
         return errors
-    routes = _init_layout_routes(root)
+    matrix = _matrix_data(root)
+    role_routes = {(role, model, level) for role, model, level in matrix.get("ROLE_ROUTES", ())}
+    pool_routes = {(model, level) for model, level in matrix.get("POOL_ROUTES", ())}
+    table = _init_layout_routes(root)
     text = (root / INIT).read_text("utf-8")
     artifacts = [f"matrix: init carries no {needle!r}"
                  for needle in LAYOUT_MATRIX_NEEDLES if needle not in text]
-    core = _parsed_tuple((root / REGISTRY).read_text("utf-8"), "CORE_ROLES") or []
     agents = data.get("agents")
     if not isinstance(agents, dict):
         return errors + ["matrix: the registry has no agents table"]
-    for role in core:
-        shipped = routes.get(role)
+    for role, model, level in sorted(role_routes):
+        if table.get(role) != (model, level):
+            artifacts.append(
+                f"matrix: the init table ships {role} as {table.get(role)}, "
+                f"roles.py has {(model, level)}")
         section = agents.get(role)
-        if shipped is None:
-            artifacts.append(f"matrix: init ships no route for the {role} role")
-            continue
         if not isinstance(section, dict):
             artifacts.append(f"matrix: the registry has no {role} section")
             continue
         actual = (section.get("model"), section.get("level"))
-        if shipped != actual:
+        if actual != (model, level):
             artifacts.append(
-                f"matrix: the {role} role ships {shipped[0]}/{shipped[1]}, "
-                f"the registry has {actual[0]}/{actual[1]}"
-            )
+                f"matrix: the {role} role ships {model}/{level}, "
+                f"the registry has {actual[0]}/{actual[1]}")
+    if not role_routes:
+        artifacts.append("matrix: roles.py carries no ROLE_ROUTES")
+    validation = data.get("validation")
+    pool = validation.get("pool") if isinstance(validation, dict) else None
+    actual_pool = {(item.get("model"), item.get("level")) for item in pool or []}
+    if actual_pool != pool_routes:
+        artifacts.append(
+            f"matrix: the validation pool ships {sorted(pool_routes)}, "
+            f"the registry has {sorted(actual_pool)}")
+    if not pool_routes:
+        artifacts.append("matrix: roles.py carries no POOL_ROUTES")
     return errors + artifacts
 
 
@@ -557,8 +586,7 @@ def test_layout_parity_can_fail(tmp_path: Path) -> None:
         "| `critic` | `qwen-token-plan-max/qwen4-max` | `medium` |", 1)
     assert mutated_table != table
     (root / INIT).write_text(mutated_table, "utf-8")
-    assert "matrix: the critic role ships qwen-token-plan-max/qwen4-max/medium" \
-        in " ".join(_layout_parity_errors(root))
+    assert "the init table ships critic as" in " ".join(_layout_parity_errors(root))
 
     (root / INIT).write_text(table, "utf-8")
     assert _layout_parity_errors(root) == []
@@ -568,8 +596,83 @@ def test_layout_parity_can_fail(tmp_path: Path) -> None:
         '[agents.curator]\nmodel = "qwen-token-plan/qwen3.8-flash"\nlevel = "high"', 1)
     assert mutated_config != config
     (root / CONFIG).write_text(mutated_config, "utf-8")
-    assert "matrix: the curator role ships qwen-token-plan/qwen3.8-flash/medium" \
+    assert "the curator role ships qwen-token-plan/qwen3.8-flash/medium" \
         in " ".join(_layout_parity_errors(root))
+
+
+SYNC = "skills/init/sync_config.py"
+
+CONSUMER_OLD = """# consumer registry: old mechanics
+[agents.reviewer-spec]
+model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017"
+level = "max"
+
+[agents.critic]
+model = "qwen-token-plan-max/qwen4-max-preview"
+level = "xhigh"
+
+[agents.reviewer-1c-code]
+model = "qwen-token-plan-max/qwen4-max"
+level = "high"
+
+[validation]
+pool = [
+  { model = "deepseek-account/deepseek-flash", level = "max" },
+]
+"""
+
+
+def _load_sync(root: Path):
+    """The init bundle reconciler, imported from its file."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("init_sync_config", root / SYNC)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _config_routes(root: Path, text: str) -> tuple[dict[str, tuple[str, str]], set]:
+    """Walk data of a config text: core routes and the pool set."""
+    import tomllib
+
+    data = tomllib.loads(text)
+    agents = data.get("agents", {})
+    routes = {role: (section.get("model"), section.get("level"))
+              for role, section in agents.items()}
+    pool = {(entry["model"], entry["level"]) for entry in data["validation"]["pool"]}
+    return routes, pool
+
+
+def test_sync_reconciles_a_consumer_registry(tmp_path: Path) -> None:
+    """rule: docs/reference/review-roles.md#матрица-поставки — поставка
+    приводит механики реестра потребителя к матрице; знания проекта вне
+    матрицы остаются байт-в-байт."""
+    sync = _load_sync(REPO)
+    matrix = _matrix_data(REPO)
+    reconciled, changes = sync.reconcile(CONSUMER_OLD)
+    assert changes
+    routes, pool = _config_routes(tmp_path, reconciled)
+    for role, model, level in matrix["ROLE_ROUTES"]:
+        assert routes[role] == (model, level), role
+    assert pool == set(matrix["POOL_ROUTES"])
+    assert routes["reviewer-1c-code"] == ("qwen-token-plan-max/qwen4-max", "high")
+    assert "# consumer registry: old mechanics" in reconciled
+    assert reconciled.count("[agents.") == 7
+    again, changes_again = sync.reconcile(reconciled)
+    assert (again, changes_again) == (reconciled, [])
+
+
+def test_sync_check_reports_drift(tmp_path: Path) -> None:
+    """invariant: docs/reference/review-roles.md#матрица-поставки — --check
+    красный на разошедшемся реестре и зелёный после приведения."""
+    sync = _load_sync(REPO)
+    path = tmp_path / "config.toml"
+    path.write_text(CONSUMER_OLD, "utf-8")
+    assert sync.main(["sync_config.py", "--check", str(path)]) == 1
+    assert sync.main(["sync_config.py", str(path)]) == 0
+    assert sync.main(["sync_config.py", "--check", str(path)]) == 0
+    assert "reviewer-1c-code" in path.read_text("utf-8")
 
 
 def _without_pool_section(text: str) -> str:
