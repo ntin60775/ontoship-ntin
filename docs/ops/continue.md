@@ -278,9 +278,13 @@ flash-1017 вслед за ревью-ролями, прямой дипсик п
 | `critic` | `qwen-token-plan-max/qwen4-max` | `xhigh` |
 | `curator` | `deepseek-account/deepseek-flash` | `low` |
 
-Носители: `.agents/config.toml`, `skills/init/roles.py` (`ROLE_ROUTES`),
-таблица стандартной раскладки `skills/init/SKILL.md`, якоря и мутации
-`tests/test_skill_init.py` и `tests/test_role_registry.py`, эта запись.
+Пул выровнен по новым ролям: `deepseek`/`max`, `qwen3.8-flash`/`xhigh`,
+`glm-5.3`/`high`; три различные модели сохранены.
+
+Носители: `.agents/config.toml`, `skills/init/roles.py` (`ROLE_ROUTES`,
+`POOL_ROUTES`), таблица стандартной раскладки `skills/init/SKILL.md`,
+якоря и мутации `tests/test_skill_init.py` и `tests/test_role_registry.py`,
+эта запись.
 
 **Быстрая правка 2026-11-25 (вне юнита, решение оператора):** усиление
 по анализу отклонения

@@ -33,5 +33,5 @@ ROLE_ROUTES = (
 POOL_ROUTES = (
     ("deepseek-account/deepseek-flash", "max"),
     ("qwen-token-plan/qwen3.8-flash", "xhigh"),
-    ("qwen-token-plan-glm/glm-5.3", "max"),
+    ("qwen-token-plan-glm/glm-5.3", "high"),
 )

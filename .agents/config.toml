@@ -33,5 +33,5 @@ level = "low"
 pool = [
   { model = "deepseek-account/deepseek-flash", level = "max" },
   { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
-  { model = "qwen-token-plan-glm/glm-5.3", level = "max" },
+  { model = "qwen-token-plan-glm/glm-5.3", level = "high" },
 ]
