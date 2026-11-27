@@ -687,6 +687,20 @@ def test_sync_check_reports_drift(tmp_path: Path) -> None:
     assert "reviewer-1c-code" in path.read_text("utf-8")
 
 
+def test_sync_refuses_a_registry_that_does_not_parse(tmp_path: Path) -> None:
+    """rule: docs/reference/review-roles.md#матрица-поставки — «already
+    matches» не выдаётся файлу, который не парсится: legacy
+    `[[validation.pool]]` дублирует ключ `pool`."""
+    sync = _load_sync(REPO)
+    broken = ('[validation]\npool = []\n\n'
+              '[[validation.pool]]\nmodel = "deepseek-account/deepseek-flash"\nlevel = "max"\n')
+    path = tmp_path / "config.toml"
+    path.write_text(broken, "utf-8")
+    assert sync.main(["sync_config.py", "--check", str(path)]) == 1
+    assert sync.main(["sync_config.py", str(path)]) == 1
+    assert path.read_text("utf-8") == broken
+
+
 def _without_pool_section(text: str) -> str:
     head, separator, _tail = text.partition(f"\n{POOL_HEADER}\n")
     assert separator, "the config has no [validation] section to remove"
