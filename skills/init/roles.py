@@ -31,7 +31,7 @@ ROLE_ROUTES = (
 # The validation pool is part of the matrix: three distinct models by the
 # model part, rows are (route, level).
 POOL_ROUTES = (
-    ("qwen-token-plan-deepseek/deepseek-v4.1-flash-1017", "max"),
+    ("deepseek-account/deepseek-flash", "max"),
     ("qwen-token-plan/qwen3.8-flash", "xhigh"),
     ("qwen-token-plan-glm/glm-5.3", "max"),
 )

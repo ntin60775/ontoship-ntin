@@ -31,7 +31,7 @@ level = "medium"
 # consilium member and records the reason in the gate report.
 [validation]
 pool = [
-  { model = "qwen-token-plan-deepseek/deepseek-v4.1-flash-1017", level = "max" },
+  { model = "deepseek-account/deepseek-flash", level = "max" },
   { model = "qwen-token-plan/qwen3.8-flash", level = "xhigh" },
   { model = "qwen-token-plan-glm/glm-5.3", level = "max" },
 ]

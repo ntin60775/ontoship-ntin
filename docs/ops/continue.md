@@ -252,6 +252,14 @@ init, якоря и мутация `tests/test_skill_init.py`, эта запис
 `skills/init/SKILL.md`, якоря и мутация `tests/test_skill_init.py`,
 эта запись.
 
+**Решение оператора 2026-11-27: первая пара пула валидации — прямой
+DeepSeek `deepseek-account/deepseek-flash` с `max`.** Заменён прокси
+`qwen-token-plan-deepseek/deepseek-v4.1-flash-1017`: уход с маршрута
+flash-1017 вслед за ревью-ролями, прямой дипсик по замеру 2026-11-26
+быстрее всех и с полным покрытием находок. Остальные пары и правило
+трёх различных моделей не тронуты. Носители: `.agents/config.toml`,
+`skills/init/roles.py` (`POOL_ROUTES`), эта запись.
+
 **Быстрая правка 2026-11-25 (вне юнита, решение оператора):** усиление
 по анализу отклонения
 ([00-process-note.md](../../tickets/review-output/00-process-note.md)) —
