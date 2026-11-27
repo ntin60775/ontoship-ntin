@@ -13,12 +13,13 @@ Usage:
     python3 sync_config.py --check <config.toml>  # exit 1 on drift, no write
 
 Exit codes: 0 — reconciled or already equal; 1 — drift under --check,
-unreadable input or broken section; 2 — usage error.
+invalid TOML, unreadable input or broken section; 2 — usage error.
 """
 
 from __future__ import annotations
 
 import sys
+import tomllib
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -135,6 +136,11 @@ def main(argv: list[str]) -> int:
         original = path.read_text("utf-8")
     except OSError as exc:
         print(f"sync_config: cannot read {path}: {exc}", file=sys.stderr)
+        return 1
+    try:
+        tomllib.loads(original)
+    except tomllib.TOMLDecodeError as exc:
+        print(f"sync_config: broken registry {path}: {exc}", file=sys.stderr)
         return 1
     try:
         reconciled, changes = reconcile(original)
